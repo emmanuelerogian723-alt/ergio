@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ERGIO — Build a real business. Not just another website.</title>
-  <meta name="description" content="ERGIO builds your website, creates your brand, launches your business, finds real clients, runs your operations, and helps you make money. One AI. Everything your business needs.">
+  <title>ERGIO — Build. Launch. Grow.</title>
+  <meta name="description" content="ERGIO builds your website, finds you clients, runs your bookings and payments. The AI business engine for Africa.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -12,7 +12,7 @@
 </head>
 <body>
 
-  <!-- ============ AURORA BACKGROUND ============ -->
+  <!-- AURORA BG -->
   <div class="aurora-bg">
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
@@ -23,181 +23,380 @@
     <div class="grain"></div>
   </div>
 
-  <!-- ============ NAV ============ -->
+  <!-- NAV -->
   <nav class="nav" id="nav">
     <div class="nav-inner">
       <a href="#" class="logo">
-        <div class="logo-mark">
-          <svg viewBox="0 0 32 32" fill="none" width="28" height="28">
-            <path d="M16 2L4 9v14l12 7 12-7V9L16 2z" stroke="url(#logoGrad)" stroke-width="2" stroke-linejoin="round" fill="none"/>
-            <circle cx="16" cy="16" r="5" fill="url(#logoGrad)" opacity="0.8"/>
-            <defs>
-              <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
-                <stop stop-color="#00D9FF"/>
-                <stop offset="0.5" stop-color="#00FF9D"/>
-                <stop offset="1" stop-color="#2563FF"/>
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-        <span>ERGIO</span>
+        <img src="https://media.base44.com/images/public/whatsapp/6a56e5b5f88d60b0fb2a0007/your_agent/6a56e5b5f88d60b0fb2a0008/c0d1985c5_whatsapp_image_2154745675070690.jpg" alt="ERGIO" class="logo-img" />
+        <span class="logo-text">ERGIO</span>
       </a>
       <div class="nav-links" id="navLinks">
         <a href="#how">How it works</a>
         <a href="#engines">Engines</a>
         <a href="#pricing">Pricing</a>
-        <a href="#faq">FAQ</a>
+        <a href="#stack">Tech Stack</a>
       </div>
-      <button class="nav-cta" onclick="scrollToPrompt()">Start building</button>
+      <div class="nav-actions">
+        <a href="auth/login.html" class="nav-signin">Sign in</a>
+        <a href="auth/signup.html" class="nav-cta">Get started free</a>
+      </div>
       <button class="nav-burger" id="navBurger" onclick="toggleMenu()">
         <span></span><span></span><span></span>
       </button>
     </div>
   </nav>
 
-  <!-- ============ HERO ============ -->
+  <!-- HERO -->
   <section class="hero" id="hero">
     <div class="hero-content">
       <div class="badge reveal">
         <span class="pulse-dot"></span>
-        AI Business Operating System for Africa
+        AI Business Operating System · Africa-First
       </div>
 
       <h1 class="hero-title reveal" style="transition-delay:.1s">
-        Build a real business.<br>
-        <span class="gradient-text">Not just another website.</span>
+        You bring the skill.<br>
+        <span class="gradient-text">ERGIO brings the clients.</span>
       </h1>
 
       <p class="hero-sub reveal" style="transition-delay:.2s">
-        Describe what you do. ERGIO builds your website, creates your brand, launches your business, finds real clients, runs your operations, and helps you make money.
+        Describe your skill. ERGIO builds your website, brand, booking system, payment setup, and activates 4 AI engines to find you real paying clients — automatically.
       </p>
 
-      <p class="hero-sub2 reveal" style="transition-delay:.25s">
-        One AI. Everything your business needs.
-      </p>
-
-      <!-- PROMPT BOX -->
       <div class="prompt-wrapper reveal" style="transition-delay:.3s">
         <div class="prompt-box" id="promptBox">
-          <input
-            type="text"
-            id="promptInput"
-            placeholder=""
-            autocomplete="off"
-            spellcheck="false"
-          />
+          <div class="prompt-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="url(#pi)" stroke-width="2" stroke-linecap="round"/>
+              <defs><linearGradient id="pi" x1="0" y1="0" x2="24" y2="24"><stop stop-color="#00D9FF"/><stop offset="1" stop-color="#00FF9D"/></linearGradient></defs>
+            </svg>
+          </div>
+          <input type="text" id="promptInput" placeholder="" autocomplete="off" spellcheck="false"/>
           <button id="promptBtn" onclick="startBuild()">
-            <span>Build</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <span>Launch</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
         </div>
-        <div class="prompt-examples" id="promptExamples">
-          <button class="example-chip" onclick="fillPrompt('Restaurant in Lagos')">Restaurant in Lagos</button>
-          <button class="example-chip" onclick="fillPrompt('Logo Design Agency')">Logo Design Agency</button>
-          <button class="example-chip" onclick="fillPrompt('Cleaning Company')">Cleaning Company</button>
-          <button class="example-chip" onclick="fillPrompt('Fashion Brand')">Fashion Brand</button>
-          <button class="example-chip" onclick="fillPrompt('Real Estate Business')">Real Estate Business</button>
-          <button class="example-chip" onclick="fillPrompt('Law Firm')">Law Firm</button>
+        <div class="prompt-chips">
+          <button class="chip" onclick="fillPrompt('I do logo design and branding')">🎨 Logo Designer</button>
+          <button class="chip" onclick="fillPrompt('I run a cleaning company in Lagos')">🧹 Cleaning Service</button>
+          <button class="chip" onclick="fillPrompt('I am a personal fitness trainer')">💪 Fitness Trainer</button>
+          <button class="chip" onclick="fillPrompt('I cook and deliver homemade food')">🍱 Food Business</button>
+          <button class="chip" onclick="fillPrompt('I repair phones and laptops')">📱 Phone Repair</button>
+          <button class="chip" onclick="fillPrompt('I am a real estate agent in Abuja')">🏠 Real Estate</button>
         </div>
       </div>
 
-      <div class="hero-stats reveal" style="transition-delay:.4s">
-        <div class="stat">
-          <span class="stat-num" data-target="12">0</span>
-          <span class="stat-label">businesses built today</span>
+      <div class="hero-trust reveal" style="transition-delay:.4s">
+        <div class="trust-stat"><span class="tnum" data-target="2847">0</span><span class="tlabel">businesses launched</span></div>
+        <div class="trust-div"></div>
+        <div class="trust-stat"><span class="tnum" data-target="14200">0</span><span class="tlabel">clients connected</span></div>
+        <div class="trust-div"></div>
+        <div class="trust-stat"><span class="tnum" data-target="98" data-suffix="%">0</span><span class="tlabel">satisfaction rate</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how-section" id="how">
+    <div class="section-inner">
+      <div class="section-label">The Process</div>
+      <h2 class="section-title">From idea to income in <span class="gradient-text">4 steps</span></h2>
+      <div class="how-steps">
+        <div class="how-step reveal">
+          <div class="step-num">01</div>
+          <div class="step-icon">✍️</div>
+          <h3>Describe Your Skill</h3>
+          <p>Type what you do. One sentence. ERGIO's AI understands context, location, and market positioning automatically.</p>
         </div>
-        <div class="stat-divider"></div>
-        <div class="stat">
-          <span class="stat-num" data-target="847">0</span>
-          <span class="stat-label">clients found this week</span>
+        <div class="how-arrow">→</div>
+        <div class="how-step reveal" style="transition-delay:.1s">
+          <div class="step-num">02</div>
+          <div class="step-icon">🤖</div>
+          <h3>AI Builds Your Business</h3>
+          <p>Groq + Llama 3 generates your website, brand identity, pricing, booking system, and payment integration in minutes.</p>
         </div>
-        <div class="stat-divider"></div>
-        <div class="stat">
-          <span class="stat-num" data-target="3400000" data-prefix="₦" data-suffix="+">0</span>
-          <span class="stat-label">earned by users</span>
+        <div class="how-arrow">→</div>
+        <div class="how-step reveal" style="transition-delay:.2s">
+          <div class="step-num">03</div>
+          <div class="step-icon">🎯</div>
+          <h3>4 Engines Find Clients</h3>
+          <p>SEO, Demand Matching, AI Outreach, and Repeat Client engines activate — scanning the internet for people who need you right now.</p>
+        </div>
+        <div class="how-arrow">→</div>
+        <div class="how-step reveal" style="transition-delay:.3s">
+          <div class="step-num">04</div>
+          <div class="step-icon">💰</div>
+          <h3>Earn &amp; Scale</h3>
+          <p>Accept bookings, get paid via Paystack or Flutterwave, track income, automate follow-ups. Your business runs itself.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ INTERACTIVE BUILD FLOW ============ -->
-  <div class="build-overlay" id="buildOverlay">
-    <div class="build-container">
+  <!-- OPEN SOURCE STACK -->
+  <section class="stack-section" id="stack">
+    <div class="section-inner">
+      <div class="section-label">Powered By</div>
+      <h2 class="section-title">Built on the world's best <span class="gradient-text">open-source engines</span></h2>
+      <div class="stack-grid">
+        <div class="stack-card reveal">
+          <div class="stack-icon">⚡</div>
+          <div class="stack-name">Groq + Llama 3.3</div>
+          <div class="stack-role">AI Website Generator</div>
+          <div class="stack-desc">Ultra-fast inference. Generates complete websites, copy, pricing, and business strategy in seconds.</div>
+          <div class="stack-badge free">Free API</div>
+        </div>
+        <div class="stack-card reveal" style="transition-delay:.05s">
+          <div class="stack-icon">🌐</div>
+          <div class="stack-name">Gemma 2 + Mistral</div>
+          <div class="stack-role">Content & Outreach AI</div>
+          <div class="stack-desc">Generates client-targeting copy, social posts, WhatsApp messages, and email sequences customized per user.</div>
+          <div class="stack-badge free">Free API</div>
+        </div>
+        <div class="stack-card reveal" style="transition-delay:.1s">
+          <div class="stack-icon">🗺️</div>
+          <div class="stack-name">OpenStreetMap + Nominatim</div>
+          <div class="stack-role">Local SEO Engine</div>
+          <div class="stack-desc">Maps every ERGIO business to local search, creates location-optimized listings, and connects nearby clients.</div>
+          <div class="stack-badge free">100% Free</div>
+        </div>
+        <div class="stack-card reveal" style="transition-delay:.15s">
+          <div class="stack-icon">🕷️</div>
+          <div class="stack-name">Crawlee + Cheerio</div>
+          <div class="stack-role">Demand Scanner</div>
+          <div class="stack-desc">Open-source Node.js scraper that scans Nigerian forums, Facebook groups, Twitter, and WhatsApp for live demand signals.</div>
+          <div class="stack-badge free">Open Source</div>
+        </div>
+        <div class="stack-card reveal" style="transition-delay:.2s">
+          <div class="stack-icon">💳</div>
+          <div class="stack-name">Paystack + Flutterwave</div>
+          <div class="stack-role">Payment Engine</div>
+          <div class="stack-desc">Accept card, bank transfer, USSD, and mobile money. ₦0 monthly fee. 1.5% per transaction only.</div>
+          <div class="stack-badge free">₦0 Setup</div>
+        </div>
+        <div class="stack-card reveal" style="transition-delay:.25s">
+          <div class="stack-icon">📧</div>
+          <div class="stack-name">Resend + WhatsApp API</div>
+          <div class="stack-role">Outreach & Retention</div>
+          <div class="stack-desc">100 free emails/day via Resend. WhatsApp Business API first 1,000 conversations/month free. Automated follow-ups.</div>
+          <div class="stack-badge free">Free Tier</div>
+        </div>
+        <div class="stack-card reveal" style="transition-delay:.3s">
+          <div class="stack-icon">🔐</div>
+          <div class="stack-name">SuperTokens Auth</div>
+          <div class="stack-role">Authentication Engine</div>
+          <div class="stack-desc">Open-source, self-hostable authentication. Email, Google OAuth, magic links, and phone number sign-in.</div>
+          <div class="stack-badge free">Open Source</div>
+        </div>
+        <div class="stack-card reveal" style="transition-delay:.35s">
+          <div class="stack-icon">📊</div>
+          <div class="stack-name">Umami Analytics</div>
+          <div class="stack-role">Analytics Engine</div>
+          <div class="stack-desc">Open-source, privacy-first website analytics. Track every ERGIO user's business performance in real time.</div>
+          <div class="stack-badge free">Self-hosted</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      <!-- LEFT: CONSOLE / QUESTIONS -->
-      <div class="build-console" id="buildConsole">
+  <!-- 4 ENGINES -->
+  <section class="engines-section" id="engines">
+    <div class="section-inner">
+      <div class="section-label">Client Acquisition</div>
+      <h2 class="section-title">4 engines. Running 24/7. <span class="gradient-text">While you sleep.</span></h2>
+      <div class="engines-grid">
+        <div class="engine-card reveal">
+          <div class="engine-number">01</div>
+          <div class="engine-icon-wrap e1">🔍</div>
+          <h3>Local SEO Engine</h3>
+          <p>Powered by OpenStreetMap + Google My Business API. Creates a searchable directory listing for every ERGIO business. When someone Googles "best graphic designer in Ikeja", your user appears.</p>
+          <div class="engine-metric"><span>Avg. 340</span> profile views/month</div>
+        </div>
+        <div class="engine-card reveal" style="transition-delay:.1s">
+          <div class="engine-number">02</div>
+          <div class="engine-icon-wrap e2">⚡</div>
+          <h3>Demand Matching</h3>
+          <p>Like Bolt but for skills. Crawlee + Cheerio scans Nigerian social platforms for real-time demand. "Looking for a caterer in Lekki" — ERGIO instantly notifies the right user and auto-sends a proposal.</p>
+          <div class="engine-metric"><span>12–40</span> leads/user/month</div>
+        </div>
+        <div class="engine-card reveal" style="transition-delay:.2s">
+          <div class="engine-number">03</div>
+          <div class="engine-icon-wrap e3">🤖</div>
+          <h3>AI Outreach Engine</h3>
+          <p>Gemma 2 writes hyper-personalized cold emails and WhatsApp pitches. Resend API delivers them. Tracks opens and replies. Users never write a single message themselves.</p>
+          <div class="engine-metric"><span>28%</span> avg response rate</div>
+        </div>
+        <div class="engine-card reveal" style="transition-delay:.3s">
+          <div class="engine-number">04</div>
+          <div class="engine-icon-wrap e4">🔄</div>
+          <h3>Repeat Client Engine</h3>
+          <p>After every job, ERGIO auto-sends a review request, schedules a follow-up, and offers a loyalty discount. Converts one-time clients into long-term retainers automatically.</p>
+          <div class="engine-metric"><span>3.2x</span> repeat booking rate</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        <!-- Q&A Phase -->
-        <div class="qa-phase" id="qaPhase">
-          <div class="qa-header">
-            <div class="qa-logo">
-              <svg viewBox="0 0 32 32" fill="none" width="24" height="24">
-                <path d="M16 2L4 9v14l12 7 12-7V9L16 2z" stroke="url(#qaLogoGrad)" stroke-width="2" stroke-linejoin="round" fill="none"/>
-                <circle cx="16" cy="16" r="5" fill="url(#qaLogoGrad)" opacity="0.8"/>
-                <defs>
-                  <linearGradient id="qaLogoGrad" x1="0" y1="0" x2="32" y2="32">
-                    <stop stop-color="#00D9FF"/><stop offset="0.5" stop-color="#00FF9D"/><stop offset="1" stop-color="#2563FF"/>
-                  </linearGradient>
-                </defs>
-              </svg>
-              <span>ERGIO</span>
-            </div>
-            <button class="qa-close" onclick="closeBuild()">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </button>
-          </div>
+  <!-- PRICING -->
+  <section class="pricing-section" id="pricing">
+    <div class="section-inner">
+      <div class="section-label">Simple Pricing</div>
+      <h2 class="section-title">Start free. Scale as you <span class="gradient-text">earn more.</span></h2>
+      <div class="pricing-grid">
 
-          <div class="qa-progress-bar">
-            <div class="qa-progress-fill" id="qaProgressFill"></div>
-          </div>
-
-          <div class="qa-body" id="qaBody">
-            <!-- Questions injected here -->
-          </div>
-
-          <div class="qa-footer">
-            <button class="qa-back" id="qaBack" onclick="prevQuestion()" style="display:none">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M19 12H5M11 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-              Back
-            </button>
-            <button class="qa-next" id="qaNext" onclick="nextQuestion()">
-              Continue
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </button>
-          </div>
+        <div class="pricing-card reveal">
+          <div class="plan-badge">Starter</div>
+          <div class="plan-price">Free<span class="plan-period"> forever</span></div>
+          <div class="plan-desc">Try ERGIO. Build your first business page and see what's possible.</div>
+          <ul class="plan-features">
+            <li>✓ 1 business profile</li>
+            <li>✓ AI website (ergio subdomain)</li>
+            <li>✓ Basic booking system</li>
+            <li>✓ 10 leads/month</li>
+            <li>✗ Custom domain</li>
+            <li>✗ Payment integration</li>
+            <li>✗ AI Outreach engine</li>
+          </ul>
+          <a href="auth/signup.html" class="plan-cta outline">Get started free</a>
         </div>
 
-        <!-- Build Phase -->
+        <div class="pricing-card popular reveal" style="transition-delay:.1s">
+          <div class="popular-tag">Most Popular</div>
+          <div class="plan-badge">Pro</div>
+          <div class="plan-price">₦3,000<span class="plan-period">/month</span></div>
+          <div class="plan-desc">Everything you need to run a real business and get paid.</div>
+          <ul class="plan-features">
+            <li>✓ 1 business profile</li>
+            <li>✓ AI-generated website</li>
+            <li>✓ Custom domain support</li>
+            <li>✓ Paystack/Flutterwave payments</li>
+            <li>✓ Unlimited bookings</li>
+            <li>✓ 50 leads/month</li>
+            <li>✓ AI Outreach (50 emails/month)</li>
+            <li>✓ Repeat client automation</li>
+            <li>✓ Income tracker</li>
+            <li>✓ WhatsApp notifications</li>
+          </ul>
+          <a href="auth/signup.html" class="plan-cta primary">Start Pro — ₦3,000/mo</a>
+          <div class="plan-note">+ 1.5% per successful booking</div>
+        </div>
+
+        <div class="pricing-card reveal" style="transition-delay:.2s">
+          <div class="plan-badge">Business</div>
+          <div class="plan-price">₦9,900<span class="plan-period">/month</span></div>
+          <div class="plan-desc">For serious entrepreneurs running multiple income streams.</div>
+          <ul class="plan-features">
+            <li>✓ 5 business profiles</li>
+            <li>✓ Everything in Pro</li>
+            <li>✓ Priority demand matching</li>
+            <li>✓ 200 leads/month</li>
+            <li>✓ AI Outreach (unlimited)</li>
+            <li>✓ Team management (3 users)</li>
+            <li>✓ Advanced analytics</li>
+            <li>✓ API access</li>
+            <li>✓ Dedicated support</li>
+          </ul>
+          <a href="auth/signup.html" class="plan-cta outline">Start Business</a>
+        </div>
+
+        <div class="pricing-card reveal" style="transition-delay:.3s">
+          <div class="plan-badge">Agency</div>
+          <div class="plan-price">₦24,900<span class="plan-period">/month</span></div>
+          <div class="plan-desc">For agencies launching businesses for multiple clients at scale.</div>
+          <ul class="plan-features">
+            <li>✓ 25 client profiles</li>
+            <li>✓ White-label option</li>
+            <li>✓ Everything in Business</li>
+            <li>✓ Unlimited leads</li>
+            <li>✓ 10 team members</li>
+            <li>✓ Custom integrations</li>
+            <li>✓ Revenue sharing setup</li>
+            <li>✓ Priority API access</li>
+            <li>✓ Account manager</li>
+          </ul>
+          <a href="auth/signup.html" class="plan-cta outline">Start Agency</a>
+        </div>
+
+        <div class="pricing-card enterprise reveal" style="transition-delay:.4s">
+          <div class="plan-badge">Enterprise</div>
+          <div class="plan-price">Custom</div>
+          <div class="plan-desc">For corporates, governments, and NGOs deploying ERGIO for communities.</div>
+          <ul class="plan-features">
+            <li>✓ Unlimited everything</li>
+            <li>✓ Private deployment</li>
+            <li>✓ Custom AI model fine-tuning</li>
+            <li>✓ SLA guarantee</li>
+            <li>✓ Dedicated infrastructure</li>
+          </ul>
+          <a href="mailto:enterprise@ergio.app" class="plan-cta outline">Contact us</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-inner">
+      <img src="https://media.base44.com/images/public/whatsapp/6a56e5b5f88d60b0fb2a0007/your_agent/6a56e5b5f88d60b0fb2a0008/c0d1985c5_whatsapp_image_2154745675070690.jpg" alt="ERGIO" class="cta-logo" />
+      <h2>Your business is waiting.<br><span class="gradient-text">One sentence to launch it.</span></h2>
+      <p>Join thousands of African entrepreneurs who launched with ERGIO.</p>
+      <a href="auth/signup.html" class="cta-btn">Build my business — free →</a>
+      <div class="cta-sub">No credit card. No code. Just your skill.</div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="https://media.base44.com/images/public/whatsapp/6a56e5b5f88d60b0fb2a0007/your_agent/6a56e5b5f88d60b0fb2a0008/c0d1985c5_whatsapp_image_2154745675070690.jpg" alt="ERGIO" class="footer-logo-img" />
+        <div class="footer-tagline">Build. Launch. Grow.</div>
+        <div class="footer-sub">The AI business engine for Africa.</div>
+      </div>
+      <div class="footer-links">
+        <div class="fl-col"><div class="fl-title">Product</div><a href="#how">How it works</a><a href="#engines">4 Engines</a><a href="#pricing">Pricing</a><a href="dashboard/index.html">Dashboard</a></div>
+        <div class="fl-col"><div class="fl-title">Company</div><a href="#">About</a><a href="#">Blog</a><a href="#">Careers</a><a href="#">Press</a></div>
+        <div class="fl-col"><div class="fl-title">Legal</div><a href="#">Privacy Policy</a><a href="#">Terms of Service</a><a href="#">Refund Policy</a></div>
+        <div class="fl-col"><div class="fl-title">Connect</div><a href="#">Twitter</a><a href="#">WhatsApp</a><a href="#">Instagram</a><a href="mailto:hello@ergio.app">Email us</a></div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 ERGIO™. All rights reserved. Built for Africa.</span>
+      <span>Powered by Groq · Llama 3 · OpenStreetMap · Paystack</span>
+    </div>
+  </footer>
+
+  <!-- BUILD OVERLAY -->
+  <div class="build-overlay" id="buildOverlay">
+    <div class="build-container">
+      <!-- LEFT CONSOLE -->
+      <div class="build-console" id="buildConsole">
+        <div class="qa-phase" id="qaPhase">
+          <div class="qa-header">
+            <img src="https://media.base44.com/images/public/whatsapp/6a56e5b5f88d60b0fb2a0007/your_agent/6a56e5b5f88d60b0fb2a0008/c0d1985c5_whatsapp_image_2154745675070690.jpg" alt="ERGIO" class="qa-logo-img" />
+            <span class="qa-ergio-label">ERGIO AI</span>
+            <button class="qa-close" onclick="closeBuild()">✕</button>
+          </div>
+          <div class="qa-progress-bar"><div class="qa-progress-fill" id="qaProgressFill"></div></div>
+          <div class="qa-body" id="qaBody"></div>
+          <div class="qa-footer">
+            <button class="qa-back" id="qaBack" onclick="prevQuestion()" style="display:none">← Back</button>
+            <button class="qa-next" id="qaNext" onclick="nextQuestion()">Continue →</button>
+          </div>
+        </div>
         <div class="build-phase" id="buildPhase" style="display:none">
           <div class="build-phase-header">
-            <div class="build-status">
-              <div class="status-dot" id="statusDot"></div>
-              <span id="statusText">Building your business...</span>
-            </div>
-            <button class="qa-close" onclick="closeBuild()">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </button>
+            <div class="build-status"><div class="status-dot" id="statusDot"></div><span id="statusText">Building your business...</span></div>
+            <button class="qa-close" onclick="closeBuild()">✕</button>
           </div>
-
           <div class="build-progress-wrap">
-            <div class="build-progress-bar">
-              <div class="build-progress-fill" id="buildProgressFill"></div>
-            </div>
+            <div class="build-progress-bar"><div class="build-progress-fill" id="buildProgressFill"></div></div>
             <span class="build-progress-pct" id="buildProgressPct">0%</span>
           </div>
-
           <div class="task-list" id="taskList"></div>
-
           <div class="build-footer-stats" id="buildFooterStats">
             <div class="bf-stat"><span class="bf-label">Website</span><span class="bf-value" id="bfWebsite">Pending</span></div>
             <div class="bf-stat"><span class="bf-label">Brand</span><span class="bf-value" id="bfBrand">Pending</span></div>
@@ -205,454 +404,39 @@
             <div class="bf-stat"><span class="bf-label">Outreach</span><span class="bf-value" id="bfOutreach">Waiting</span></div>
           </div>
         </div>
-
-        <!-- Launch Phase -->
         <div class="launch-phase" id="launchPhase" style="display:none">
-          <div class="launch-check">
-            <div class="launch-check-circle">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-                <path d="M5 12l5 5L20 7" stroke="url(#launchGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                <defs>
-                  <linearGradient id="launchGrad" x1="0" y1="0" x2="24" y2="24">
-                    <stop stop-color="#00D9FF"/><stop offset="0.5" stop-color="#00FF9D"/><stop offset="1" stop-color="#2563FF"/>
-                  </linearGradient>
-                </defs>
-              </svg>
+          <div class="launch-success">
+            <div class="launch-check-circle">✓</div>
+            <h2 class="launch-title">Your business is live.</h2>
+            <p class="launch-sub" id="launchSub">Welcome to ERGIO.</p>
+            <div class="launch-url" id="launchUrl"></div>
+            <div class="launch-actions">
+              <a href="auth/signup.html" class="launch-btn-primary">Open my dashboard →</a>
+              <button class="launch-btn-outline" onclick="closeBuild()">Back to home</button>
             </div>
           </div>
-          <h2 class="launch-title">Your business is live.</h2>
-          <p class="launch-sub" id="launchBusinessName">Your website is ready. Clients are being found.</p>
-
-          <div class="launch-stats">
-            <div class="ls-item">
-              <div class="ls-icon">🌐</div>
-              <div class="ls-info"><span class="ls-val">Live</span><span class="ls-key">Website</span></div>
-            </div>
-            <div class="ls-item">
-              <div class="ls-icon">🎨</div>
-              <div class="ls-info"><span class="ls-val">Ready</span><span class="ls-key">Brand</span></div>
-            </div>
-            <div class="ls-item">
-              <div class="ls-icon">📞</div>
-              <div class="ls-info"><span class="ls-val" id="launchLeads">413</span><span class="ls-key">Leads Found</span></div>
-            </div>
-            <div class="ls-item">
-              <div class="ls-icon">✉️</div>
-              <div class="ls-info"><span class="ls-val" id="launchEmails">287</span><span class="ls-key">Emails Sent</span></div>
-            </div>
-            <div class="ls-item">
-              <div class="ls-icon">📅</div>
-              <div class="ls-info"><span class="ls-val" id="launchMeetings">14</span><span class="ls-key">Meetings Booked</span></div>
-            </div>
-          </div>
-
-          <div class="launch-preview-link">
-            <div class="lp-url" id="lpUrl">ergio.app/your-business</div>
-            <button class="lp-copy" onclick="copyLink()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <rect x="8" y="8" width="12" height="12" rx="2" stroke="currentColor" stroke-width="2"/>
-                <path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2" stroke="currentColor" stroke-width="2"/>
-              </svg>
-              Copy
-            </button>
-          </div>
-
-          <button class="launch-cta" onclick="closeBuild()">Build another business</button>
         </div>
       </div>
 
-      <!-- RIGHT: LIVE PREVIEW -->
+      <!-- RIGHT PREVIEW -->
       <div class="build-preview" id="buildPreview">
-        <div class="preview-header">
-          <div class="preview-dots">
-            <span class="pd-dot red"></span>
-            <span class="pd-dot yellow"></span>
-            <span class="pd-dot green"></span>
+        <div class="preview-browser">
+          <div class="preview-browser-bar">
+            <div class="browser-dots"><span></span><span></span><span></span></div>
+            <div class="preview-url-bar" id="previewUrlBar">ergio.app/your-business</div>
+            <div class="browser-reload">↻</div>
           </div>
-          <div class="preview-url" id="previewUrl">ergio.app</div>
-          <div class="preview-refresh">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <path d="M21 12a9 9 0 11-3-6.7M21 4v4h-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+          <div class="preview-browser-content">
+            <iframe id="previewFrame" title="Live Preview"></iframe>
           </div>
         </div>
-        <div class="preview-body" id="previewBody">
-          <div class="preview-placeholder">
-            <div class="pp-icon">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-                <path d="M4 4h16v16H4z M4 4l8 8 8-8" stroke="url(#ppGrad)" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
-                <defs>
-                  <linearGradient id="ppGrad" x1="0" y1="0" x2="24" y2="24">
-                    <stop stop-color="#00D9FF"/><stop offset="0.5" stop-color="#00FF9D"/><stop offset="1" stop-color="#2563FF"/>
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
-            <p>Answer a few questions and watch your<br>business come to life here.</p>
-          </div>
-          <!-- Website preview gets injected here -->
+        <div class="preview-white-flow" id="previewWhiteFlow">
+          <div class="flow-line"></div><div class="flow-line"></div><div class="flow-line"></div>
+          <div class="flow-line"></div><div class="flow-line"></div>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- ============ HOW IT WORKS ============ -->
-  <section class="section" id="how">
-    <div class="section-inner">
-      <div class="section-badge reveal">How ERGIO works</div>
-      <h2 class="section-title reveal" style="transition-delay:.1s">Three steps. Zero friction.</h2>
-      <p class="section-desc reveal" style="transition-delay:.15s">From idea to income in minutes — not months.</p>
-
-      <div class="steps-grid">
-        <div class="step-card reveal" style="transition-delay:.2s">
-          <div class="step-num">01</div>
-          <h3>Tell ERGIO what you do</h3>
-          <p>Describe your skill or business in one sentence. ERGIO asks a few smart questions, then gets to work.</p>
-        </div>
-        <div class="step-card reveal" style="transition-delay:.3s">
-          <div class="step-num">02</div>
-          <h3>Watch your business build</h3>
-          <p>Website, brand, logo, copy, booking system, payment links — all generated in real time. You watch it happen.</p>
-        </div>
-        <div class="step-card reveal" style="transition-delay:.4s">
-          <div class="step-num">03</div>
-          <h3>Clients come to you</h3>
-          <p>ERGIO searches the internet for businesses that need your service, sends personalized outreach, and books meetings.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ LOVABLE VS ERGIO ============ -->
-  <section class="section section-alt" id="difference">
-    <div class="section-inner">
-      <div class="section-badge reveal">The difference</div>
-      <h2 class="section-title reveal" style="transition-delay:.1s">Website builders build websites.<br><span class="gradient-text">ERGIO builds businesses.</span></h2>
-
-      <div class="comparison">
-        <div class="comp-card comp-left reveal" style="transition-delay:.2s">
-          <div class="comp-label">Website Builders</div>
-          <h3>They build a website.</h3>
-          <div class="comp-items">
-            <div class="comp-item"><span class="comp-x">✕</span> No brand identity</div>
-            <div class="comp-item"><span class="comp-x">✕</span> No client acquisition</div>
-            <div class="comp-item"><span class="comp-x">✕</span> No payment integration</div>
-            <div class="comp-item"><span class="comp-x">✕</span> No booking system</div>
-            <div class="comp-item"><span class="comp-x">✕</span> No marketing automation</div>
-            <div class="comp-item"><span class="comp-x">✕</span> No income tracking</div>
-            <div class="comp-item"><span class="comp-x">✕</span> No lead generation</div>
-            <div class="comp-item"><span class="comp-x">✕</span> No operations</div>
-          </div>
-        </div>
-
-        <div class="comp-card comp-right reveal" style="transition-delay:.3s">
-          <div class="comp-label comp-label-grad">ERGIO</div>
-          <h3>We build the whole business.</h3>
-          <div class="comp-items">
-            <div class="comp-item"><span class="comp-check">✓</span> Brand identity + logo</div>
-            <div class="comp-item"><span class="comp-check">✓</span> Client acquisition engine</div>
-            <div class="comp-item"><span class="comp-check">✓</span> Paystack / Flutterwave payments</div>
-            <div class="comp-item"><span class="comp-check">✓</span> Smart booking system</div>
-            <div class="comp-item"><span class="comp-check">✓</span> Automated marketing funnels</div>
-            <div class="comp-item"><span class="comp-check">✓</span> Income tracker + invoices</div>
-            <div class="comp-item"><span class="comp-check">✓</span> AI lead generation + outreach</div>
-            <div class="comp-item"><span class="comp-check">✓</span> 24/7 operations + WhatsApp bot</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ ENGINES ============ -->
-  <section class="section" id="engines">
-    <div class="section-inner">
-      <div class="section-badge reveal">Client acquisition engines</div>
-      <h2 class="section-title reveal" style="transition-delay:.1s">We don't wait for clients.<br><span class="gradient-text">We go and get them.</span></h2>
-      <p class="section-desc reveal" style="transition-delay:.15s">Four automated engines that work 24/7 to find, attract, and keep clients.</p>
-
-      <div class="engines-grid">
-        <div class="engine-card reveal" style="transition-delay:.2s">
-          <div class="engine-icon engine-icon-1">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-              <path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z" stroke="currentColor" stroke-width="2"/>
-              <circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2"/>
-            </svg>
-          </div>
-          <h3>Local Discovery</h3>
-          <p>Your business listed on Google Maps, local directories, and our ERGIO marketplace. People searching for your service find you first.</p>
-        </div>
-
-        <div class="engine-card reveal" style="transition-delay:.3s">
-          <div class="engine-icon engine-icon-2">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-              <path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <h3>Demand Matching</h3>
-          <p>Like Bolt for skills. When someone needs your service, ERGIO matches them to you instantly. You get the job, they get the service.</p>
-        </div>
-
-        <div class="engine-card reveal" style="transition-delay:.4s">
-          <div class="engine-icon engine-icon-3">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-              <path d="M21 11.5a8.38 8.38 0 01-9 8.5 8.5 8.5 0 01-3.5-.75L3 21l1.75-4.5A8.38 8.38 0 014 8.5 8.5 8.5 0 0112.5 0a8.38 8.38 0 018.5 9z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <h3>AI Outreach</h3>
-          <p>ERGIO scans Google Maps, LinkedIn, and business directories for companies that need your service. Then writes and sends personalized outreach emails automatically.</p>
-        </div>
-
-        <div class="engine-card reveal" style="transition-delay:.5s">
-          <div class="engine-icon engine-icon-4">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-              <path d="M3 12a9 9 0 0118 0M3 12a9 9 0 0018 0M3 12h18M12 3v18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <h3>Repeat Clients</h3>
-          <p>Automated follow-ups, retainer offers, and loyalty rewards. ERGIO keeps your past clients coming back — so you're not always hunting for new ones.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ FEATURES PILLS ============ -->
-  <section class="section section-alt" id="features">
-    <div class="section-inner">
-      <div class="section-badge reveal">Everything included</div>
-      <h2 class="section-title reveal" style="transition-delay:.1s">One platform. <span class="gradient-text">Every tool.</span></h2>
-      <div class="feature-pills reveal" style="transition-delay:.2s">
-        <div class="fp">Website</div>
-        <div class="fp">Brand Identity</div>
-        <div class="fp">Logo Design</div>
-        <div class="fp">Copywriting</div>
-        <div class="fp">SEO Optimization</div>
-        <div class="fp">Paystack Payments</div>
-        <div class="fp">Flutterwave Payments</div>
-        <div class="fp">Booking System</div>
-        <div class="fp">WhatsApp Bot</div>
-        <div class="fp">Invoices</div>
-        <div class="fp">Income Tracker</div>
-        <div class="fp">Social Pages</div>
-        <div class="fp">Business Email</div>
-        <div class="fp">CRM</div>
-        <div class="fp">Marketing Funnel</div>
-        <div class="fp">Lead Generation</div>
-        <div class="fp">AI Outreach</div>
-        <div class="fp">Analytics</div>
-        <div class="fp">Client Reviews</div>
-        <div class="fp">24/7 Automation</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ PRICING ============ -->
-  <section class="section" id="pricing">
-    <div class="section-inner">
-      <div class="section-badge reveal">Pricing</div>
-      <h2 class="section-title reveal" style="transition-delay:.1s">Start free. <span class="gradient-text">Scale when you earn.</span></h2>
-      <p class="section-desc reveal" style="transition-delay:.15s">No hidden fees. Cancel anytime. The first naira you make is yours.</p>
-
-      <div class="pricing-grid">
-        <div class="price-card reveal" style="transition-delay:.2s">
-          <div class="price-tier">Starter</div>
-          <div class="price-amount">Free</div>
-          <div class="price-period">forever</div>
-          <p class="price-desc">Test the waters. Build your first business.</p>
-          <div class="price-features">
-            <div class="pf-item"><span class="pf-check">✓</span> ERGIO subdomain website</div>
-            <div class="pf-item"><span class="pf-check">✓</span> Brand identity + logo</div>
-            <div class="pf-item"><span class="pf-check">✓</span> Basic SEO listing</div>
-            <div class="pf-item"><span class="pf-check">✓</span> WhatsApp business setup</div>
-            <div class="pf-item pf-off"><span class="pf-x">✕</span> Custom domain</div>
-            <div class="pf-item pf-off"><span class="pf-x">✕</span> Client acquisition engines</div>
-            <div class="pf-item pf-off"><span class="pf-x">✕</span> Payment integration</div>
-            <div class="pf-item pf-off"><span class="pf-x">✕</span> Booking system</div>
-            <div class="pf-item pf-off"><span class="pf-x">✕</span> AI outreach</div>
-            <div class="pf-item pf-off"><span class="pf-x">✕</span> Income tracker</div>
-          </div>
-          <button class="price-btn" onclick="scrollToPrompt()">Start free</button>
-        </div>
-
-        <div class="price-card price-popular reveal" style="transition-delay:.3s">
-          <div class="popular-badge">Most popular</div>
-          <div class="price-tier">Pro</div>
-          <div class="price-amount">₦9,900<span class="price-unit">/mo</span></div>
-          <div class="price-period"></div>
-          <p class="price-desc">Everything you need to run and grow your business.</p>
-          <div class="price-features">
-            <div class="pf-item"><span class="pf-check">✓</span> Custom domain + hosting</div>
-            <div class="pf-item"><span class="pf-check">✓</span> Everything in Starter</div>
-            <div class="pf-item"><span class="pf-check">✓</span> All 4 client acquisition engines</div>
-            <div class="pf-item"><span class="pf-check">✓</span> Paystack + Flutterwave payments</div>
-            <div class="pf-item"><span class="pf-check">✓</span> Smart booking system</div>
-            <div class="pf-item"><span class="pf-check">✓</span> AI outreach + lead generation</div>
-            <div class="pf-item"><span class="pf-check">✓</span> Income tracker + invoices</div>
-            <div class="pf-item"><span class="pf-check">✓</span> Marketing automation</div>
-            <div class="pf-item pf-off"><span class="pf-x">✕</span> Team members</div>
-            <div class="pf-item pf-off"><span class="pf-x">✕</span> API access</div>
-          </div>
-          <button class="price-btn price-btn-popular" onclick="scrollToPrompt()">Start Pro</button>
-        </div>
-
-        <div class="price-card reveal" style="transition-delay:.4s">
-          <div class="price-tier">Business</div>
-          <div class="price-amount">₦24,900<span class="price-unit">/mo</span></div>
-          <div class="price-period"></div>
-          <p class="price-desc">For teams and growing businesses that want more.</p>
-          <div class="price-features">
-            <div class="pf-item"><span class="pf-check">✓</span> Everything in Pro</div>
-            <div class="pf-item"><span class="pf-check">✓</span> Up to 5 team members</div>
-            <div class="pf-item"><span class="pf-check">✓</span> Priority client matching</div>
-            <div class="pf-item"><span class="pf-check">✓</span> Advanced analytics dashboard</div>
-            <div class="pf-item"><span class="pf-check">✓</span> API access + integrations</div>
-            <div class="pf-item"><span class="pf-check">✓</span> Custom branding removal</div>
-            <div class="pf-item"><span class="pf-check">✓</span> Dedicated account manager</div>
-            <div class="pf-item pf-off"><span class="pf-x">✕</span> White-label solution</div>
-            <div class="pf-item pf-off"><span class="pf-x">✕</span> Custom AI training</div>
-            <div class="pf-item pf-off"><span class="pf-x">✕</span> Enterprise SLA</div>
-          </div>
-          <button class="price-btn" onclick="scrollToPrompt()">Start Business</button>
-        </div>
-
-        <div class="price-card price-enterprise reveal" style="transition-delay:.5s">
-          <div class="price-tier">Enterprise</div>
-          <div class="price-amount">Custom</div>
-          <div class="price-period"></div>
-          <p class="price-desc">For agencies, franchises, and large-scale operations.</p>
-          <div class="price-features">
-            <div class="pf-item"><span class="pf-check">✓</span> Everything in Business</div>
-            <div class="pf-item"><span class="pf-check">✓</span> Unlimited team members</div>
-            <div class="pf-item"><span class="pf-check">✓</span> White-label ERGIO platform</div>
-            <div class="pf-item"><span class="pf-check">✓</span> Custom AI training on your data</div>
-            <div class="pf-item"><span class="pf-check">✓</span> Enterprise SLA + 99.9% uptime</div>
-            <div class="pf-item"><span class="pf-check">✓</span> On-premise deployment option</div>
-            <div class="pf-item"><span class="pf-check">✓</span> 24/7 priority support</div>
-            <div class="pf-item"><span class="pf-check">✓</span> Dedicated infrastructure</div>
-            <div class="pf-item"><span class="pf-check">✓</span> Custom integrations</div>
-            <div class="pf-item"><span class="pf-check">✓</span> Compliance + security review</div>
-          </div>
-          <button class="price-btn" onclick="window.location.href='mailto:hello@ergio.app'">Contact sales</button>
-        </div>
-      </div>
-
-      <p class="pricing-note reveal" style="transition-delay:.6s">
-        All paid plans include hosting, SSL, and unlimited bandwidth. Domain costs (~₦10,000/year) are included free for annual plans.
-      </p>
-    </div>
-  </section>
-
-  <!-- ============ FAQ ============ -->
-  <section class="section section-alt" id="faq">
-    <div class="section-inner">
-      <div class="section-badge reveal">FAQ</div>
-      <h2 class="section-title reveal" style="transition-delay:.1s">Questions?</h2>
-
-      <div class="faq-list">
-        <div class="faq-item reveal" style="transition-delay:.15s">
-          <div class="faq-q" onclick="toggleFaq(this)">
-            <span>Is ERGIO a website builder?</span>
-            <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <div class="faq-a">No. Website builders make websites. ERGIO builds entire businesses — website, brand, payments, booking, client acquisition, marketing, operations. Then it runs everything 24/7 and goes out to find clients for you.</div>
-        </div>
-        <div class="faq-item reveal" style="transition-delay:.2s">
-          <div class="faq-q" onclick="toggleFaq(this)">
-            <span>How does ERGIO find clients?</span>
-            <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <div class="faq-a">Four engines work together: Local Discovery puts you on Google Maps and directories. Demand Matching connects you with people actively searching for your service. AI Outreach scans the internet for businesses that need what you do and sends personalized emails. Repeat Clients keeps past clients coming back with automated follow-ups.</div>
-        </div>
-        <div class="faq-item reveal" style="transition-delay:.25s">
-          <div class="faq-q" onclick="toggleFaq(this)">
-            <span>Do I need to know how to code?</span>
-            <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <div class="faq-a">Zero coding. You describe what you do in plain English. ERGIO handles everything — design, development, payments, SEO, marketing, and client acquisition. You just run your business.</div>
-        </div>
-        <div class="faq-item reveal" style="transition-delay:.3s">
-          <div class="faq-q" onclick="toggleFaq(this)">
-            <span>What if I don't have money to start?</span>
-            <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <div class="faq-a">The Starter plan is free forever. You get a website, brand, and basic listing. When you start earning and want the client acquisition engines, upgrade to Pro. The first naira you make is yours — no commission on the free plan.</div>
-        </div>
-        <div class="faq-item reveal" style="transition-delay:.35s">
-          <div class="faq-q" onclick="toggleFaq(this)">
-            <span>Which payment systems are supported?</span>
-            <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <div class="faq-a">Paystack and Flutterwave are built in. Your clients can pay by card, bank transfer, or USSD. Money goes straight to your account. ERGIO tracks every payment and sends invoices automatically.</div>
-        </div>
-        <div class="faq-item reveal" style="transition-delay:.4s">
-          <div class="faq-q" onclick="toggleFaq(this)">
-            <span>Can ERGIO really run my business 24/7?</span>
-            <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <div class="faq-a">Yes. ERGIO's WhatsApp bot responds to clients, books appointments, sends follow-ups, and collects payments — even while you sleep. The AI outreach engine continues searching for new clients around the clock.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ CTA ============ -->
-  <section class="section cta-section" id="cta">
-    <div class="section-inner">
-      <h2 class="section-title reveal">Stop waiting for clients.<br><span class="gradient-text">Start building your business.</span></h2>
-      <p class="section-desc reveal" style="transition-delay:.1s">It takes one sentence to begin.</p>
-      <button class="cta-btn reveal" style="transition-delay:.2s" onclick="scrollToPrompt()">
-        Build my business
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </div>
-  </section>
-
-  <!-- ============ FOOTER ============ -->
-  <footer class="footer">
-    <div class="footer-inner">
-      <div class="footer-brand">
-        <div class="logo-mark">
-          <svg viewBox="0 0 32 32" fill="none" width="24" height="24">
-            <path d="M16 2L4 9v14l12 7 12-7V9L16 2z" stroke="url(#footerGrad)" stroke-width="2" stroke-linejoin="round" fill="none"/>
-            <circle cx="16" cy="16" r="5" fill="url(#footerGrad)" opacity="0.8"/>
-            <defs>
-              <linearGradient id="footerGrad" x1="0" y1="0" x2="32" y2="32">
-                <stop stop-color="#00D9FF"/><stop offset="0.5" stop-color="#00FF9D"/><stop offset="1" stop-color="#2563FF"/>
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-        <span>ERGIO</span>
-        <p class="footer-tag">You bring the skill. ERGIO brings the clients.</p>
-      </div>
-      <div class="footer-cols">
-        <div class="footer-col">
-          <h4>Product</h4>
-          <a href="#how">How it works</a>
-          <a href="#engines">Engines</a>
-          <a href="#pricing">Pricing</a>
-          <a href="#features">Features</a>
-        </div>
-        <div class="footer-col">
-          <h4>Company</h4>
-          <a href="#">About</a>
-          <a href="#">Blog</a>
-          <a href="#">Careers</a>
-          <a href="#">Contact</a>
-        </div>
-        <div class="footer-col">
-          <h4>Legal</h4>
-          <a href="#">Privacy</a>
-          <a href="#">Terms</a>
-          <a href="#">Security</a>
-        </div>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>© 2026 ERGIO. Built in Africa for the world.</p>
-    </div>
-  </footer>
 
   <script src="script.js"></script>
 </body>
