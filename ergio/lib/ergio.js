@@ -1,19 +1,15 @@
 // ========================================
 // ERGIO — Shared Libraries
+// Uses OpenRouter for AI, Supabase for DB, Paystack for payments
 // ========================================
 
 // ============ SUPABASE CLIENT ============
 import { createClient } from '@supabase/supabase-js';
 
 export function getSupabase(req) {
-  const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
+  const url = process.env.SUPABASE_URL || 'https://owcxfzlanlrulflsyvlr.supabase.co';
+  const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93Y3hmemxhbmxydWxmbHN5dmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxNzI5NDIsImV4cCI6MjA5OTc0ODk0Mn0.k6IISu8k8QoU1CGLF0U3319qqDvEIwYY8PPXXvwfbAw';
 
-  if (!url || !key) {
-    throw new Error('Missing Supabase credentials');
-  }
-
-  // Use service role for server-side operations (bypasses RLS)
   const supabase = createClient(url, key, {
     auth: { persistSession: false }
   });
@@ -34,46 +30,42 @@ export async function getUser(req) {
   return user;
 }
 
-// ============ GROQ AI CLIENT ============
-const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+// ============ AI CLIENT (OpenRouter) ============
+const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 export async function callGroq(messages, options = {}) {
-  const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) throw new Error('Missing GROQ_API_KEY');
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) throw new Error('Missing OPENROUTER_API_KEY');
 
-  const model = options.model || 'llama-3.3-70b-versatile';
+  const model = options.model || 'meta-llama/llama-3.3-70b-instruct';
   const temperature = options.temperature ?? 0.7;
   const maxTokens = options.maxTokens || 4096;
-  const stream = options.stream || false;
 
   const body = {
     model,
     messages,
     temperature,
     max_tokens: maxTokens,
-    stream
   };
 
   if (options.response_format) {
     body.response_format = options.response_format;
   }
 
-  const response = await fetch(GROQ_URL, {
+  const response = await fetch(OPENROUTER_URL, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'HTTP-Referer': 'https://ergio.vercel.app',
+      'X-Title': 'ERGIO'
     },
     body: JSON.stringify(body)
   });
 
   if (!response.ok) {
     const err = await response.text();
-    throw new Error(`Groq API error: ${response.status} ${err}`);
-  }
-
-  if (stream) {
-    return response.body; // Return the ReadableStream for SSE
+    throw new Error(`AI API error: ${response.status} ${err.substring(0, 200)}`);
   }
 
   const data = await response.json();
@@ -82,18 +74,13 @@ export async function callGroq(messages, options = {}) {
 
 // Fast model for simple tasks
 export async function callGroqFast(messages, options = {}) {
-  return callGroq(messages, { ...options, model: 'llama-3.1-8b-instant' });
+  return callGroq(messages, { ...options, model: 'meta-llama/llama-3.1-8b-instruct' });
 }
 
 // ============ SEARXNG SEARCH ENGINE ============
-// Free, open-source meta search engine. Queries 70+ search engines.
-// No API key needed. Uses public instances with fallback.
-
 const SEARXNG_INSTANCES = [
   'https://search.sapti.me',
   'https://searx.be',
-  'https://searx.tiekoetter.com',
-  'https://search.ononoki.org',
   'https://searxng.site',
   'https://search.mpty.live',
   'https://searx.work',
@@ -107,7 +94,6 @@ export async function searxngSearch(query, options = {}) {
   const language = options.language || 'en';
   const resultsCount = options.count || 20;
 
-  // Try multiple instances for reliability
   for (let i = 0; i < SEARXNG_INSTANCES.length; i++) {
     const instance = SEARXNG_INSTANCES[(currentInstance + i) % SEARXNG_INSTANCES.length];
 
@@ -143,49 +129,14 @@ export async function searxngSearch(query, options = {}) {
       }));
 
     } catch (err) {
-      continue; // Try next instance
+      continue;
     }
   }
 
-  // Fallback: Google scrape via HTML
-  return googleFallback(query, resultsCount);
+  return [];
 }
 
-// Fallback: direct Google HTML scraping
-async function googleFallback(query, count) {
-  try {
-    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}&num=${count}`;
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
-      }
-    });
-    const html = await response.text();
-
-    // Parse results using regex (lightweight, no cheerio needed for this)
-    const results = [];
-    const linkRegex = /<a href="\/url\?q=([^"&]+)&[^"]*"[^>]*>([^<]+)<\/a>/g;
-    let match;
-    while ((match = linkRegex.exec(html)) !== null && results.length < count) {
-      results.push({
-        title: match[2].replace(/<[^>]+>/g, '').trim(),
-        url: decodeURIComponent(match[1]),
-        content: '',
-        engine: 'google-fallback',
-        score: results.length,
-        publishedDate: null,
-        category: 'general'
-      });
-    }
-    return results;
-  } catch (err) {
-    return [];
-  }
-}
-
-// ============ WEB SCRAPER (Cheerio-based) ============
-import * as cheerio from 'cheerio';
-
+// ============ WEB SCRAPER ============
 export async function scrapePage(url, options = {}) {
   const timeout = options.timeout || 8000;
 
@@ -207,16 +158,19 @@ export async function scrapePage(url, options = {}) {
     if (!response.ok) return null;
 
     const html = await response.text();
-    const $ = cheerio.load(html);
 
-    // Extract useful data
-    const title = $('title').text().trim() || '';
-    const metaDesc = $('meta[name="description"]').attr('content') || '';
-    const h1 = $('h1').first().text().trim() || '';
-
-    // Extract all text content (clean)
-    $('script, style, nav, footer, header, aside, noscript').remove();
-    const bodyText = $('body').text().replace(/\s+/g, ' ').trim().substring(0, 5000);
+    // Lightweight parsing without cheerio (avoid dependency issues)
+    const title = html.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1]?.trim() || '';
+    const metaDesc = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']*)["']/i)?.[1] || '';
+    
+    // Clean text
+    const bodyText = html
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .substring(0, 5000);
 
     // Extract emails
     const emailRegex = /[\w.+-]+@[\w-]+\.[\w.-]+/g;
@@ -224,34 +178,17 @@ export async function scrapePage(url, options = {}) {
       !e.endsWith('.png') && !e.endsWith('.jpg') && !e.endsWith('.css')
     );
 
-    // Extract phone numbers (Nigerian + international)
+    // Extract phone numbers
     const phoneRegex = /(\+?234[\s-]?\d{3}[\s-]?\d{3,4}|\+?\d{3}[\s-]?\d{3}[\s-]?\d{4}|0\d{3}[\s-]?\d{3}[\s-]?\d{4})/g;
     const phones = [...new Set(bodyText.match(phoneRegex) || [])];
-
-    // Extract social links
-    const socials = {};
-    $('a[href*="twitter.com"], a[href*="x.com"]').each((_, el) => {
-      socials.twitter = $(el).attr('href');
-    });
-    $('a[href*="instagram.com"]').each((_, el) => {
-      socials.instagram = $(el).attr('href');
-    });
-    $('a[href*="facebook.com"]').each((_, el) => {
-      socials.facebook = $(el).attr('href');
-    });
-    $('a[href*="wa.me"], a[href*="whatsapp.com"]').each((_, el) => {
-      socials.whatsapp = $(el).attr('href');
-    });
 
     return {
       url,
       title,
       metaDescription: metaDesc,
-      h1,
       content: bodyText,
       emails,
       phones,
-      socials,
       scrapedAt: new Date().toISOString()
     };
   } catch (err) {
@@ -286,7 +223,7 @@ export function generateSlug(text) {
     .substring(0, 50);
 }
 
-// ============ LOGO GENERATION (Pollinations - Free, no key) ============
+// ============ LOGO GENERATION (Pollinations - Free) ============
 export function generateLogoUrl(prompt, style = 'modern') {
   const enhanced = `professional ${style} logo for ${prompt}, minimalist, clean, vector style, centered, white background`;
   return `https://image.pollinations.ai/prompt/${encodeURIComponent(enhanced)}?width=512&height=512&nologo=true&seed=${Date.now()}`;
@@ -304,7 +241,7 @@ export async function paystackInit(amount, email, reference, metadata = {}, call
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      amount: Math.round(amount * 100), // Paystack uses kobo
+      amount: Math.round(amount * 100),
       email,
       reference,
       callback_url: callbackUrl,
@@ -328,12 +265,27 @@ export async function paystackVerify(reference) {
 
   const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
     headers: {
-      'Authorization': `Bearer ${secretKey}`
+      'Authorization': `Bearer ${secretKey}`,
     }
   });
 
   const data = await response.json();
-  if (!data.status) throw new Error(data.message || 'Paystack verification failed');
+  return data;
+}
 
-  return data.data;
+// ============ DELAY HELPER ============
+export function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// ============ POLLINATIONS TEXT API (Free, no key) ============
+export async function pollText(prompt) {
+  try {
+    const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}?model=openai`;
+    const resp = await fetch(url, { signal: AbortSignal.timeout(12000) });
+    if (resp.ok) return await resp.text();
+    return '';
+  } catch (e) {
+    return '';
+  }
 }
