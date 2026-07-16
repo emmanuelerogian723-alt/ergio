@@ -321,7 +321,7 @@ async function startRealGeneration() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt: buildAnswers.prompt, answers: buildAnswers }),
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.timeout(60000),
     });
 
     if (!response.ok) throw new Error('API not ready');
@@ -643,6 +643,22 @@ function showLaunchScreen(business) {
     launchBusinessName.style.display = 'block';
   }
 
+  // Save generated website to localStorage so dashboard can show it
+  try {
+    localStorage.setItem('ergio_generated_website', generatedHtml || '');
+    localStorage.setItem('ergio_generated_business', JSON.stringify({
+      name: business.name || 'Your Business',
+      tagline: business.tagline || '',
+      slug: business.slug || 'your-business',
+      type: business.type || 'standard',
+      city: business.city || '',
+      colors: business.brandColors || {},
+      services: business.services || [],
+      description: business.description || ''
+    }));
+    localStorage.setItem('ergio_build_complete', 'true');
+  } catch(e) { console.log('Could not save to localStorage', e); }
+
   showChatRefinement();
 }
 
@@ -699,7 +715,7 @@ async function refineWebsite(message) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message, currentHtml: generatedHtml, businessContext: generatedBusiness }),
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.timeout(60000),
     });
     if (!response.ok) throw new Error('Refine API not ready');
     // ... handle SSE if available
