@@ -267,22 +267,23 @@ function generateWebsiteHTML(plan, brand, content, colors, logoUrl) {
   <meta property="og:image" content="${logoUrl}">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
-    :root{--primary:${colors.primary || '#00D9FF'};--secondary:${colors.secondary || '#09090B'};--accent:${colors.accent || '#00FF9D'};--bg:${colors.bg || '#09090B'}}
+    :root{--primary:${colors.primary || '#00D9FF'};--secondary:${colors.secondary || '#09090B'};--accent:${colors.accent || '#00FF9D'};--bg:#0A0A0F}
     body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:#F8FAFC;line-height:1.6;overflow-x:hidden}
-    .nav{display:flex;justify-content:space-between;align-items:center;padding:1.5rem 5%;position:sticky;top:0;background:rgba(9,9,11,0.8);backdrop-filter:blur(20px);z-index:100}
+    .nav{display:flex;justify-content:space-between;align-items:center;padding:1.5rem 5%;position:sticky;top:0;background:rgba(10,10,15,0.85);backdrop-filter:blur(20px);z-index:100}
     .nav-logo{display:flex;align-items:center;gap:.6rem;font-weight:800;font-size:1.3rem;color:#fff;text-decoration:none}
     .nav-logo img{width:36px;height:36px;border-radius:8px}
     .nav-links a{color:#94A3B8;text-decoration:none;margin-left:2rem;font-size:.95rem;transition:color .3s}
     .nav-links a:hover{color:var(--primary)}
     .nav-cta{background:var(--primary);color:#09090B;padding:.6rem 1.5rem;border-radius:100px;font-weight:700;text-decoration:none;font-size:.9rem;border:none;cursor:pointer}
     .hero{text-align:center;padding:6rem 5% 4rem;max-width:900px;margin:0 auto}
-    .hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:800;margin-bottom:1rem;line-height:1.1}
+    .hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:800;margin-bottom:1rem;line-height:1.1;color:#FFFFFF}
     .hero h1 span{color:var(--primary)}
     .hero p{font-size:1.2rem;color:#94A3B8;max-width:600px;margin:0 auto 2rem}
     .hero-cta{display:inline-flex;gap:1rem;flex-wrap:wrap;justify-content:center}
     .btn-primary{background:var(--primary);color:#09090B;padding:1rem 2rem;border-radius:100px;font-weight:700;text-decoration:none;border:none;cursor:pointer;font-size:1rem;transition:transform .2s}
     .btn-primary:hover{transform:scale(1.05)}
-    .btn-outline{background:transparent;color:#fff;padding:1rem 2rem;border-radius:100px;border:1px solid rgba(255,255,255,0.2);text-decoration:none;font-weight:600;font-size:1rem}
+    .btn-outline{background:rgba(255,255,255,0.08);color:#fff;padding:1rem 2rem;border-radius:100px;border:1px solid rgba(255,255,255,0.2);text-decoration:none;font-weight:600;font-size:1rem;transition:all .3s}
+    .btn-outline:hover{background:rgba(255,255,255,0.15)}
     section{padding:4rem 5%;max-width:1200px;margin:0 auto}
     .section-title{font-size:2rem;font-weight:800;margin-bottom:.5rem;text-align:center}
     .section-sub{color:#94A3B8;text-align:center;margin-bottom:3rem}
