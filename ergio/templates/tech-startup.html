@@ -1,6 +1,263 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NaijaTech — Build Faster</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Inter,-apple-system,sans-serif;background:#0A0F1A;color:#fff;overflow-x:hidden}.nav{display:flex;justify-content:space-between;align-items:center;padding:1.5rem 5%;position:sticky;top:0;background:rgba(10,15,26,.9);backdrop-filter:blur(20px);z-index:100}.logo{font-weight:800;font-size:1.4rem;background:linear-gradient(135deg,#00D9FF,#3B82F6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.nav a{color:#94A3B8;text-decoration:none;margin-left:1.5rem;font-size:.9rem}.btn{background:linear-gradient(135deg,#00D9FF,#3B82F6);color:#0A0F1A;padding:.7rem 1.5rem;border-radius:100px;font-weight:700;text-decoration:none;font-size:.85rem;border:none;cursor:pointer}.hero{text-align:center;padding:5rem 5%;background:radial-gradient(ellipse at top,rgba(0,217,255,.15),transparent 70%)}.hero h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:1rem;line-height:1.1}.hero h1 span{background:linear-gradient(135deg,#00D9FF,#3B82F6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.hero p{font-size:1.2rem;color:#94A3B8;max-width:500px;margin:0 auto 2rem}.pricing{padding:3rem 5%;max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem}.plan{background:rgba(255,255,255,.04);border:1px solid rgba(0,217,255,.2);border-radius:16px;padding:2rem;text-align:center}.plan.featured{border-color:#00D9FF;transform:scale(1.05)}.plan h3{font-size:1.2rem;margin-bottom:.5rem}.plan .price{font-size:2.5rem;font-weight:800;margin:1rem 0}.plan ul{list-style:none;text-align:left;margin:1.5rem 0}.plan li{padding:.3rem 0;color:#94A3B8}.features{padding:3rem 5%;max-width:1000px;margin:0 auto;text-align:center}.features h2{font-size:2rem;margin-bottom:2rem}.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem}.feat h3{font-size:1.1rem;margin-bottom:.5rem;color:#00D9FF}.feat p{color:#94A3B8;font-size:.9rem}.footer{text-align:center;padding:2rem;color:#64748B;font-size:.85rem;border-top:1px solid rgba(255,255,255,.08)}</style></head>
-<body><nav class="nav"><div class="logo">NaijaTech</div><div><a href="#features">Features</a><a href="#pricing">Pricing</a><a href="#start" class="btn">Get Started</a></div></nav>
-<div class="hero"><h1>Build <span>Faster</span>.<br>Ship <span>Smarter</span>.</h1><p>The all-in-one platform for African developers. APIs, hosting, and payments — in one place.</p><a href="#start" class="btn">Start Free →</a></div>
-<div class="features" id="features"><h2>Everything You Need</h2><div class="features-grid"><div class="feat"><h3>⚡ Fast APIs</h3><p>Deploy in seconds with our serverless API infrastructure.</p></div><div class="feat"><h3>🔒 Secure</h3><p>Bank-grade encryption and compliance built in.</p></div><div class="feat"><h3>💰 Paystack</h3><p>Native payment integration for Nigerian businesses.</p></div><div class="feat"><h3>📊 Analytics</h3><p>Real-time insights into your app performance.</p></div></div></div>
-<div class="pricing" id="pricing"><div class="plan"><h3>Starter</h3><div class="price">Free</div><ul><li>✓ 1,000 API calls/mo</li><li>✓ Community support</li><li>✓ Basic analytics</li></ul><a href="#" class="btn">Start Free</a></div><div class="plan featured"><h3>Pro</h3><div class="price">₦5,000</div><ul><li>✓ 100K API calls/mo</li><li>✓ Priority support</li><li>✓ Advanced analytics</li><li>✓ Custom domains</li></ul><a href="#" class="btn">Get Pro</a></div><div class="plan"><h3>Enterprise</h3><div class="price">₦50,000</h3><ul><li>✓ Unlimited calls</li><li>✓ Dedicated support</li><li>✓ SLA guarantee</li></ul><a href="#" class="btn">Contact Us</a></div></div>
-<div class="footer">© 2026 NaijaTech · Built with Ergio AI · Lagos, Nigeria</div></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexus Labs — Building Africa's Digital Future</title>
+  <meta name="description" content="Nexus Labs is a premium tech startup & software studio in Lagos, Nigeria. Book your appointment today.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Nexus Labs">
+  <meta property="og:description" content="Building Africa's Digital Future">
+  <meta property="og:image" content="https://pixabay.com/get/g755767af1461ea4beb79e1c75129a72d4a66e7cee7e1550113bfbea9ceba635b9dd1e7950d4bfbfe5c7c49dc0daaa7ff74f9034982c51f7276de37f451407ff4_1280.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--primary:#00D9FF;--accent:#00FF9D;--bg:#060611;--text:#F8FAFC;--muted:#94A3B8}
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+    .reveal{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+    .reveal.active{opacity:1;transform:translateY(0)}
+    .stagger>*{opacity:0;transform:translateY(30px);transition:all .6s cubic-bezier(.16,1,.3,1)}
+    .stagger.active>*:nth-child(1){opacity:1;transform:none;transition-delay:.1s}
+    .stagger.active>*:nth-child(2){opacity:1;transform:none;transition-delay:.2s}
+    .stagger.active>*:nth-child(3){opacity:1;transform:none;transition-delay:.3s}
+    .stagger.active>*:nth-child(4){opacity:1;transform:none;transition-delay:.4s}
+    .stagger.active>*:nth-child(5){opacity:1;transform:none;transition-delay:.5s}
+    .stagger.active>*:nth-child(6){opacity:1;transform:none;transition-delay:.6s}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+    @keyframes gradient-shift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    @keyframes glow{0%,100%{box-shadow:0 0 30px rgba(0,217,255,.2)}50%{box-shadow:0 0 60px rgba(0,217,255,.5)}}
+    .nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 5%;position:sticky;top:0;background:rgba(10,10,15,.8);backdrop-filter:blur(20px);z-index:100;border-bottom:1px solid rgba(255,255,255,.06)}
+    .nav-logo{display:flex;align-items:center;gap:.6rem;font-weight:800;font-size:1.2rem;color:#fff;text-decoration:none;font-family:'Space Grotesk',sans-serif}
+    .nav-links a{color:var(--muted);text-decoration:none;margin-left:2rem;font-size:.92rem;transition:color .3s}
+    .nav-links a:hover{color:var(--primary)}
+    .nav-cta{background:var(--primary);color:#09090B;padding:.6rem 1.5rem;border-radius:100px;font-weight:700;text-decoration:none;font-size:.9rem;transition:all .3s}
+    .nav-cta:hover{transform:scale(1.05);box-shadow:0 0 25px rgba(0,217,255,.4)}
+    .hero{position:relative;min-height:90vh;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden}
+    .hero-bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0}
+    .hero-bg img{width:100%;height:100%;object-fit:cover;animation:float 8s ease-in-out infinite}
+    .hero-bg::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,rgba(10,10,15,.4) 0%,rgba(10,10,15,.85) 100%)}
+    .hero-content{position:relative;z-index:2;max-width:900px;padding:0 5%}
+    .hero h1{font-size:clamp(2.2rem,6vw,4.5rem);font-weight:900;line-height:1.05;letter-spacing:-.02em;margin-bottom:1.2rem}
+    .hero h1 span{background:linear-gradient(135deg,var(--primary),var(--accent));background-size:200% 200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradient-shift 4s ease infinite}
+    .hero p{font-size:1.25rem;color:#CBD5E1;max-width:600px;margin:0 auto 2.5rem}
+    .btn-primary{background:var(--primary);color:#09090B;padding:1rem 2.5rem;border-radius:100px;font-weight:700;text-decoration:none;font-size:1.05rem;transition:all .3s;display:inline-block}
+    .btn-primary:hover{transform:translateY(-3px);box-shadow:0 10px 40px rgba(0,217,255,.4)}
+    .btn-outline{background:rgba(255,255,255,.08);color:#fff;padding:1rem 2.5rem;border-radius:100px;border:1px solid rgba(255,255,255,.2);text-decoration:none;font-weight:600;font-size:1.05rem;backdrop-filter:blur(10px);display:inline-block;margin-left:1rem}
+    section{padding:5rem 5%;max-width:1200px;margin:0 auto}
+    .section-title{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-.02em;margin-bottom:.5rem}
+    .section-title span{background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .section-sub{color:var(--muted);text-align:center;margin-bottom:3.5rem;font-size:1.1rem}
+    .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
+    .about-text p{color:#CBD5E1;margin-bottom:1rem;font-size:1.05rem}
+    .about-img-wrap{border-radius:24px;overflow:hidden;aspect-ratio:4/3;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+    .about-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .8s}
+    .about-img-wrap:hover img{transform:scale(1.08)}
+    .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem}
+    .service-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:2.5rem;transition:all .5s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden}
+    .service-card:hover{border-color:var(--primary);transform:translateY(-8px);box-shadow:0 20px 50px rgba(0,217,255,.15)}
+    .service-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,var(--primary),var(--accent));transform:scaleX(0);transform-origin:left;transition:transform .5s}
+    .service-card:hover::before{transform:scaleX(1)}
+    .service-img{width:100%;height:180px;object-fit:cover;border-radius:12px;margin-bottom:1.5rem;transition:transform .5s}
+    .service-card:hover .service-img{transform:scale(1.05)}
+    .service-card h3{font-size:1.4rem;margin-bottom:.5rem;font-weight:700}
+    .service-card p{color:var(--muted);margin-bottom:1.5rem}
+    .service-price{font-size:1.8rem;font-weight:900;color:var(--accent)}
+    .gallery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+    .gallery-item{border-radius:16px;overflow:hidden;aspect-ratio:1;position:relative;cursor:pointer}
+    .gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.16,1,.3,1)}
+    .gallery-item:hover img{transform:scale(1.15)}
+    .why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem}
+    .why-item{text-align:center;padding:2rem;border-radius:20px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);transition:all .4s}
+    .why-item:hover{border-color:var(--primary);transform:translateY(-4px)}
+    .why-item .icon{font-size:2.5rem;margin-bottom:1rem;animation:float 4s ease-in-out infinite}
+    .why-item h4{margin-bottom:.5rem;font-weight:700;font-size:1.1rem}
+    .why-item p{color:var(--muted);font-size:.95rem}
+    .testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem}
+    .testimonial{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:2.5rem;position:relative}
+    .testimonial::before{content:'"';position:absolute;top:-10px;left:20px;font-size:5rem;color:var(--primary);opacity:.2;font-family:Georgia,serif}
+    .testimonial .stars{color:#FBBF24;margin-bottom:1rem}
+    .testimonial p{color:#CBD5E1;font-style:italic;margin-bottom:1.5rem}
+    .testimonial .author{font-weight:700}
+    .testimonial .location{color:var(--muted);font-size:.9rem}
+    .faq-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:1.8rem;margin-bottom:1rem;cursor:pointer;transition:all .3s}
+    .faq-item:hover{border-color:rgba(255,255,255,.15)}
+    .faq-item h4{color:var(--primary);margin-bottom:.5rem;font-size:1.15rem}
+    .faq-item p{color:var(--muted);max-height:0;overflow:hidden;transition:max-height .4s}
+    .faq-item.open p{max-height:200px}
+    .contact{background:linear-gradient(135deg,rgba(0,217,255,.08),rgba(0,255,157,.04));border-radius:28px;padding:4rem;text-align:center;margin:2rem 5%;border:1px solid rgba(255,255,255,.08)}
+    .contact-info{display:flex;justify-content:center;gap:2.5rem;flex-wrap:wrap;margin-top:2rem}
+    .contact-item{display:flex;align-items:center;gap:.6rem;color:var(--text);text-decoration:none;font-size:1rem;transition:color .3s}
+    .contact-item:hover{color:var(--primary)}
+    .contact-icon{width:44px;height:44px;border-radius:12px;background:rgba(0,217,255,.1);display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+    .footer{text-align:center;padding:3rem 5%;color:#64748B;border-top:1px solid rgba(255,255,255,.06)}
+    .footer a{color:var(--primary);text-decoration:none;font-weight:600}
+    .footer-brand{display:inline-flex;align-items:center;gap:.4rem;margin-bottom:.5rem;font-weight:700;color:#94A3B8}
+    .cookie-banner{position:fixed;bottom:0;left:0;right:0;background:rgba(6,6,8,.95);backdrop-filter:blur(20px);padding:1rem 5%;display:flex;justify-content:space-between;align-items:center;z-index:1000;border-top:1px solid rgba(255,255,255,.1);transform:translateY(100%);transition:transform .4s}
+    .cookie-banner.show{transform:translateY(0)}
+    .cookie-banner p{font-size:.9rem;color:#94A3B8}
+    .cookie-banner a{color:var(--primary);text-decoration:none}
+    .cookie-btn{background:var(--primary);color:#09090B;border:none;padding:.6rem 1.5rem;border-radius:100px;font-weight:700;cursor:pointer;font-size:.9rem}
+    @media(max-width:768px){.about-grid{grid-template-columns:1fr}.nav-links{display:none}.hero{min-height:70vh}section{padding:3rem 5%}.btn-outline{margin-left:0;margin-top:1rem}}
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="#" class="nav-logo">⚡ <span>Nexus Labs</span></a>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#testimonials">Reviews</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="#contact" class="nav-cta">Book Now</a>
+  </nav>
+  <div class="hero">
+    <div class="hero-bg"><img src="https://pixabay.com/get/g755767af1461ea4beb79e1c75129a72d4a66e7cee7e1550113bfbea9ceba635b9dd1e7950d4bfbfe5c7c49dc0daaa7ff74f9034982c51f7276de37f451407ff4_1280.jpg" alt="Nexus Labs" loading="eager"></div>
+    <div class="hero-content">
+      <h1 class="reveal active">Experience <span>Building Africa's Digital Future</span></h1>
+      <p class="reveal active">Premium tech startup & software studio in Lagos, Nigeria. Where excellence meets every detail.</p>
+      <div class="reveal active">
+        <a href="#contact" class="btn-primary">Book Now</a>
+        <a href="#services" class="btn-outline">View Services</a>
+      </div>
+    </div>
+  </div>
+  <section id="about">
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <h2 class="section-title" style="text-align:left">About <span>Us</span></h2>
+        <p>Nexus Labs was born from a simple belief — that every person in Lagos deserves world-class tech startup & software studio without compromise.</p>
+        <p>Our team combines years of expertise with a deep understanding of what our community needs. We're not just a business — we're your trusted partner.</p>
+      </div>
+      <div class="about-img-wrap reveal">
+        <img src="https://pixabay.com/get/g64790d42cea722dd9cae4c5afaf4e5105024e71e122b39461128c4c92104bee8ff5fb84b2dd8cac12e245831d797332132a313dea9c22013a9f906faa09f2d88_1280.jpg" alt="Nexus Labs" loading="lazy">
+      </div>
+    </div>
+  </section>
+  <section id="services">
+    <h2 class="section-title reveal">Our <span>Services</span></h2>
+    <p class="section-sub reveal">Professional services tailored to your needs</p>
+    <div class="services-grid stagger">
+      <div class="service-card">
+        <img src="https://pixabay.com/get/g634027c4f8aab3822f91de9cef0d153189c48e5dafbf8c6c08da06f4968cdacee398c4d3630fa0ba5479ab2e887497aa9aa2736e0b7a2bce18085958175b51e4_1280.jpg" alt="Web Development" class="service-img" loading="lazy">
+        <h3>Web Development</h3>
+        <p>Custom websites and web applications</p>
+        <div class="service-price">₦150,000</div>
+      </div>
+      <div class="service-card">
+        <img src="https://pixabay.com/get/g8b88045b17a7a26b87415bd7a6075226a5b13da335643c990ba4dacd74c79c6a2744eed1d89bc3e9e96d147ec712aeaf3579656265a7cfeaa8528d6f4b2cb748_1280.jpg" alt="Mobile Apps" class="service-img" loading="lazy">
+        <h3>Mobile Apps</h3>
+        <p>iOS and Android app development</p>
+        <div class="service-price">₦300,000</div>
+      </div>
+      <div class="service-card">
+        <img src="https://pixabay.com/get/g6e9105f5a4bf250cfc536bffbf78b1ec5edeb0570a878f0d1792af4bde75f0f4ebeb4cec403755b560bbd4fe947ec33d5360908384862797abe61fd7c7ab7d84_1280.jpg" alt="AI Integration" class="service-img" loading="lazy">
+        <h3>AI Integration</h3>
+        <p>Add AI capabilities to your product</p>
+        <div class="service-price">₦200,000</div>
+      </div>
+      <div class="service-card">
+        <img src="https://pixabay.com/get/g5c127c377244631b848e84462b7b8e8471405c4b6b85fd07bc60b86e1b0097c7b970951cec46e87a56e63cf1f0dbe9b0b0b471a159e7ab4c3e2a15b0db69634d_1280.jpg" alt="Cloud Infrastructure" class="service-img" loading="lazy">
+        <h3>Cloud Infrastructure</h3>
+        <p>Scalable cloud setup and DevOps</p>
+        <div class="service-price">₦100,000</div>
+      </div>
+      <div class="service-card">
+        <img src="https://pixabay.com/get/g634027c4f8aab3822f91de9cef0d153189c48e5dafbf8c6c08da06f4968cdacee398c4d3630fa0ba5479ab2e887497aa9aa2736e0b7a2bce18085958175b51e4_1280.jpg" alt="Tech Consulting" class="service-img" loading="lazy">
+        <h3>Tech Consulting</h3>
+        <p>Strategic technology advisory</p>
+        <div class="service-price">₦50,000</div>
+      </div>
+    </div>
+  </section>
+  <section id="gallery">
+    <h2 class="section-title reveal">Our <span>Gallery</span></h2>
+    <p class="section-sub reveal">A glimpse of what we do</p>
+    <div class="gallery-grid stagger">
+      <div class="gallery-item"><img src="https://pixabay.com/get/g634027c4f8aab3822f91de9cef0d153189c48e5dafbf8c6c08da06f4968cdacee398c4d3630fa0ba5479ab2e887497aa9aa2736e0b7a2bce18085958175b51e4_1280.jpg" alt="Gallery" loading="lazy"></div>
+      <div class="gallery-item"><img src="https://pixabay.com/get/g8b88045b17a7a26b87415bd7a6075226a5b13da335643c990ba4dacd74c79c6a2744eed1d89bc3e9e96d147ec712aeaf3579656265a7cfeaa8528d6f4b2cb748_1280.jpg" alt="Gallery" loading="lazy"></div>
+      <div class="gallery-item"><img src="https://pixabay.com/get/g6e9105f5a4bf250cfc536bffbf78b1ec5edeb0570a878f0d1792af4bde75f0f4ebeb4cec403755b560bbd4fe947ec33d5360908384862797abe61fd7c7ab7d84_1280.jpg" alt="Gallery" loading="lazy"></div>
+      <div class="gallery-item"><img src="https://pixabay.com/get/g5c127c377244631b848e84462b7b8e8471405c4b6b85fd07bc60b86e1b0097c7b970951cec46e87a56e63cf1f0dbe9b0b0b471a159e7ab4c3e2a15b0db69634d_1280.jpg" alt="Gallery" loading="lazy"></div>
+      
+    </div>
+  </section>
+  <section id="why">
+    <h2 class="section-title reveal">Why <span>Choose Us</span></h2>
+    <p class="section-sub reveal">What sets us apart</p>
+    <div class="why-grid stagger">
+      <div class="why-item"><div class="icon">⚡</div><h4>Fast Service</h4><p>Quick turnaround without quality compromise</p></div>
+      <div class="why-item"><div class="icon">✨</div><h4>Premium Quality</h4><p>Only the best materials and techniques</p></div>
+      <div class="why-item"><div class="icon">🎯</div><h4>Expert Team</h4><p>Trained professionals with years of experience</p></div>
+      <div class="why-item"><div class="icon">💎</div><h4>Affordable</h4><p>World-class service at local prices</p></div>
+      
+    </div>
+  </section>
+  <section id="testimonials">
+    <h2 class="section-title reveal">Client <span>Reviews</span></h2>
+    <p class="section-sub reveal">Real reviews from happy customers</p>
+    <div class="testimonials stagger">
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p>"Nexus built our fintech app in 6 weeks. Professional team, incredible results."</p>
+        <div class="author">Sarah Okonkwo</div>
+        <div class="location">Yaba, Lagos</div>
+      </div>
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p>"Their AI integration saved us 40% in operational costs. Game changer."</p>
+        <div class="author">Michael Eze</div>
+        <div class="location">Ikeja, Lagos</div>
+      </div>
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p>"Best dev team I've worked with in Nigeria. They actually understand startups."</p>
+        <div class="author">Lisa Ibrahim</div>
+        <div class="location">Lekki, Lagos</div>
+      </div>
+    </div>
+  </section>
+  <section id="faq">
+    <h2 class="section-title reveal">Frequently Asked <span>Questions</span></h2>
+    <p class="section-sub reveal">Everything you need to know</p>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><h4>Do you work with startups?</h4><p>Absolutely. We specialize in MVP development and startup tech stacks.</p></div>
+      <div class="faq-item" onclick="this.classList.toggle('open')"><h4>What's your typical timeline?</h4><p>MVP in 4-8 weeks, full products in 3-6 months depending on scope.</p></div>
+      <div class="faq-item" onclick="this.classList.toggle('open')"><h4>Do you offer maintenance?</h4><p>Yes, we offer ongoing maintenance and support packages.</p></div>
+      
+  </section>
+  <section id="contact" class="contact reveal">
+    <h2 style="font-size:2.2rem;font-weight:800">Get In Touch</h2>
+    <p style="color:var(--muted);margin-bottom:2.5rem;font-size:1.1rem">Ready to work with us? Book your appointment today.</p>
+    <a href="#" class="btn-primary" onclick="alert('Booking powered by ERGIO');return false;">Book Appointment</a>
+    <div class="contact-info">
+      <a href="tel:+234 807 555 0200" class="contact-item"><span class="contact-icon">📞</span>+234 807 555 0200</a>
+      <a href="mailto:hello@nexuslabs.ng" class="contact-item"><span class="contact-icon">✉️</span>hello@nexuslabs.ng</a>
+      <a href="https://wa.me/2348075550200" class="contact-item"><span class="contact-icon">💬</span>WhatsApp</a>
+    </div>
+  </section>
+  <div class="footer">
+    <div class="footer-brand">⚡ <span>Nexus Labs</span></div>
+    <p>© 2026 Nexus Labs. All rights reserved.</p>
+    <p style="margin-top:.5rem">Powered by <a href="https://ergio.vercel.app" target="_blank">ERGIO</a> — AI Business Operating System for Africa</p>
+  </div>
+  <div class="cookie-banner" id="cookieBanner">
+    <p>We use cookies to improve your experience. By using our site, you agree to our <a href="#">Privacy Policy</a>.</p>
+    <button class="cookie-btn" onclick="document.getElementById('cookieBanner').classList.remove('show');localStorage.setItem('cookies-accepted','true')">Accept</button>
+  </div>
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal, .stagger').forEach(el => observer.observe(el));
+    if (!localStorage.getItem('cookies-accepted')) {
+      setTimeout(() => document.getElementById('cookieBanner').classList.add('show'), 2000);
+    }
+    const heroBg = document.querySelector('.hero-bg img');
+    window.addEventListener('scroll', () => {
+      if (heroBg) heroBg.style.transform = 'translateY(' + window.pageYOffset * 0.3 + 'px)';
+    });
+  </script>
+</body>
+</html>
