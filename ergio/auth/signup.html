@@ -431,6 +431,16 @@
         });
 
         if (error) throw error;
+          
+          // Auto-confirm email — no need for email verification
+          try {
+            const API_BASE = window.location.origin;
+            await fetch(`${API_BASE}/api/auth-confirm`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, userId: data.user?.id })
+            });
+          } catch (e) { console.log('Auto-confirm attempt failed:', e); }
 
         // Show success with build animation
         showStep(999);
