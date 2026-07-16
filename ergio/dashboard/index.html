@@ -7,6 +7,8 @@
 <meta name="robots" content="noindex">
 <link rel="icon" href="../assets/ergio-logo.jpg">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="../config.js"></script>
 <style>
 :root{--bg:#0a0a0a;--bg2:#111;--card:#161616;--border:#222;--cyan:#00D9FF;--green:#10F981;--amber:#FFB020;--red:#FF6B6B;--muted:#888;--text:#fff}
@@ -334,49 +336,53 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
     let currentBusinessId = null;
     let userBusiness = null;
 
+    // ── Init Supabase (database only) ──
     function initSupabase() {
       const cfg = window.ERGIO_CONFIG;
-      if (!cfg || cfg.supabaseUrl.includes('YOUR_')) return false;
+      if (!cfg || !cfg.supabaseUrl || cfg.supabaseUrl.includes('YOUR_')) return false;
       supabase = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
       return true;
     }
 
+    // ── Init Firebase Auth ──
+    function initFirebase() {
+      const fb = window.ERGIO_CONFIG?.firebase;
+      if (!fb || !fb.apiKey || fb.apiKey.includes('PLACEHOLDER')) return null;
+      try {
+        if (!firebase.apps.length) firebase.initializeApp(fb);
+        return firebase.auth();
+      } catch(e) { console.warn('Firebase init error:', e); return null; }
+    }
+
+    // ── Check Auth via Firebase ──
     async function checkAuth() {
-      if (!initSupabase()) {
+      initSupabase();
+      const fbAuth = initFirebase();
+
+      if (!fbAuth) {
+        // Firebase not configured — show login prompt
         document.getElementById('loginPrompt').style.display = 'block';
         document.getElementById('dashboardContent').style.display = 'none';
         document.getElementById('loadingState').style.display = 'none';
         return;
       }
 
-      // Wait a moment for any OAuth hash to be processed
-      if (window.location.hash && window.location.hash.includes('access_token')) {
-        await new Promise(r => setTimeout(r, 1000));
-      }
-
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        // Check if just logged in
-        const justLoggedIn = localStorage.getItem('ergio_just_logged_in');
-        if (justLoggedIn) {
-          localStorage.removeItem('ergio_just_logged_in');
-          await new Promise(r => setTimeout(r, 1500));
-          const { data: { session: retry } } = await supabase.auth.getSession();
-          if (retry) {
-            currentUser = retry.user;
-            initDashboard();
-            return;
-          }
+      // Listen for Firebase auth state
+      fbAuth.onAuthStateChanged(async user => {
+        if (!user) {
+          document.getElementById('loginPrompt').style.display = 'block';
+          document.getElementById('dashboardContent').style.display = 'none';
+          document.getElementById('loadingState').style.display = 'none';
+        } else {
+          currentUser = {
+            id: user.uid,
+            email: user.email,
+            user_metadata: { full_name: user.displayName || user.email },
+            firebase: user
+          };
+          initDashboard();
         }
-        document.getElementById('loginPrompt').style.display = 'block';
-        document.getElementById('dashboardContent').style.display = 'none';
-        document.getElementById('loadingState').style.display = 'none';
-        return;
-      }
-
-      currentUser = session.user;
-      initDashboard();
+      });
     }
 
     function initDashboard() {
@@ -580,8 +586,13 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
       }
     }
 
-    function logout() {
-      if (supabase) supabase.auth.signOut();
+    function async function logout() {
+      try {
+        const fb = window.ERGIO_CONFIG?.firebase;
+        if (fb && fb.apiKey && !fb.apiKey.includes('PLACEHOLDER')) {
+          await firebase.auth().signOut();
+        }
+      } catch(e) { console.warn('Logout error:', e); }
       localStorage.removeItem('ergio_generated_website');
       localStorage.removeItem('ergio_generated_business');
       localStorage.removeItem('ergio_just_logged_in');
