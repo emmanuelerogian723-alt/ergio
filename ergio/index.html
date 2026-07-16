@@ -367,59 +367,77 @@
       <span>© 2025 ERGIO™. All rights reserved. Built for Africa.</span>
       <span>Powered by Groq · Llama 3 · OpenStreetMap · Paystack</span>
     </div>
-  </footer>
 
   <!-- BUILD OVERLAY -->
   <div class="build-overlay" id="buildOverlay">
     <div class="build-container">
+
       <!-- LEFT CONSOLE -->
       <div class="build-console" id="buildConsole">
-        <div class="qa-phase" id="qaPhase">
+
+        <!-- Q&A PHASE -->
+        <div class="qa-phase" id="qaPanel" style="display:flex">
           <div class="qa-header">
             <img src="https://media.base44.com/images/public/whatsapp/6a56e5b5f88d60b0fb2a0007/your_agent/6a56e5b5f88d60b0fb2a0008/c0d1985c5_whatsapp_image_2154745675070690.jpg" alt="ERGIO" class="qa-logo-img" />
             <span class="qa-ergio-label">ERGIO AI</span>
-            <button class="qa-close" onclick="closeBuild()">✕</button>
+            <button class="qa-close" id="buildClose">✕</button>
           </div>
           <div class="qa-progress-bar"><div class="qa-progress-fill" id="qaProgressFill"></div></div>
-          <div class="qa-body" id="qaBody"></div>
+          <div class="qa-body" id="qaContent"></div>
           <div class="qa-footer">
-            <button class="qa-back" id="qaBack" onclick="prevQuestion()" style="display:none">← Back</button>
-            <button class="qa-next" id="qaNext" onclick="nextQuestion()">Continue →</button>
+            <button class="qa-back" id="qaBack" style="display:none">← Back</button>
+            <button class="qa-next" id="qaNext" disabled>Continue →</button>
           </div>
         </div>
-        <div class="build-phase" id="buildPhase" style="display:none">
+
+        <!-- BUILD PHASE -->
+        <div class="build-phase" id="buildPanel" style="display:none">
           <div class="build-phase-header">
             <div class="build-status"><div class="status-dot" id="statusDot"></div><span id="statusText">Building your business...</span></div>
-            <button class="qa-close" onclick="closeBuild()">✕</button>
+            <button class="qa-close" id="buildClose2">✕</button>
           </div>
           <div class="build-progress-wrap">
-            <div class="build-progress-bar"><div class="build-progress-fill" id="buildProgressFill"></div></div>
-            <span class="build-progress-pct" id="buildProgressPct">0%</span>
+            <div class="build-progress-bar"><div class="build-progress-fill" id="progressBar"></div></div>
+            <span class="build-progress-pct" id="progressText">0/7</span>
           </div>
-          <div class="task-list" id="taskList"></div>
-          <div class="build-footer-stats" id="buildFooterStats">
-            <div class="bf-stat"><span class="bf-label">Website</span><span class="bf-value" id="bfWebsite">Pending</span></div>
-            <div class="bf-stat"><span class="bf-label">Brand</span><span class="bf-value" id="bfBrand">Pending</span></div>
-            <div class="bf-stat"><span class="bf-label">Leads</span><span class="bf-value" id="bfLeads">0</span></div>
-            <div class="bf-stat"><span class="bf-label">Outreach</span><span class="bf-value" id="bfOutreach">Waiting</span></div>
+          <div class="task-list" id="buildLog"></div>
+          <div class="build-footer-stats">
+            <div class="bf-stat"><span class="bf-label">Tasks</span><span class="bf-value" id="statTasks">0</span></div>
+            <div class="bf-stat"><span class="bf-label">Time</span><span class="bf-value" id="statTime">0s</span></div>
+            <div class="bf-stat"><span class="bf-label">Status</span><span class="bf-value" style="color:#00FF9D">Building...</span></div>
           </div>
         </div>
-        <div class="launch-phase" id="launchPhase" style="display:none">
+
+        <!-- LAUNCH PHASE -->
+        <div class="launch-phase" id="launchPanel" style="display:none">
           <div class="launch-success">
             <div class="launch-check-circle">✓</div>
             <h2 class="launch-title">Your business is live.</h2>
             <p class="launch-sub" id="launchSub">Welcome to ERGIO.</p>
-            <div class="launch-url" id="launchUrl"></div>
+            <div class="launch-url" id="launchUrl">ergio.app/your-business</div>
             <div class="launch-actions">
               <a href="auth/signup.html" class="launch-btn-primary">Open my dashboard →</a>
-              <button class="launch-btn-outline" onclick="closeBuild()">Back to home</button>
+              <button class="launch-btn-outline" id="buildClose3">Back to home</button>
+            </div>
+          </div>
+
+          <!-- CHAT REFINEMENT (Lovable Chat Mode) -->
+          <div class="chat-refine-box" id="chatBox" style="display:none">
+            <div class="chat-refine-header">
+              <span class="chat-refine-title">💬 Refine your website</span>
+              <span class="chat-refine-hint">Ask ERGIO to change anything</span>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input-wrap">
+              <input type="text" id="chatInput" placeholder='Try: "make the colors blue" or "add a pricing section"' autocomplete="off"/>
+              <button id="chatSend">↑</button>
             </div>
           </div>
         </div>
       </div>
 
       <!-- RIGHT PREVIEW -->
-      <div class="build-preview" id="buildPreview">
+      <div class="build-preview" id="previewPane">
         <div class="preview-browser">
           <div class="preview-browser-bar">
             <div class="browser-dots"><span></span><span></span><span></span></div>
@@ -430,7 +448,7 @@
             <iframe id="previewFrame" title="Live Preview"></iframe>
           </div>
         </div>
-        <div class="preview-white-flow" id="previewWhiteFlow">
+        <div class="preview-white-flow">
           <div class="flow-line"></div><div class="flow-line"></div><div class="flow-line"></div>
           <div class="flow-line"></div><div class="flow-line"></div>
         </div>
