@@ -118,11 +118,15 @@ export async function searxngSearch(query, options = {}) {
     } catch (err) { continue; }
   }
 
-  // Fallback 1: DuckDuckGo HTML (very reliable)
+  // Fallback 1: DuckDuckGo HTML
   const ddgResults = await duckDuckGoSearch(query, resultsCount);
   if (ddgResults.length > 0) return ddgResults;
 
-  // Fallback 2: Google scraping
+  // Fallback 2: Bing HTML search (very reliable on serverless)
+  const bingResults = await bingSearch(query, resultsCount);
+  if (bingResults.length > 0) return bingResults;
+
+  // Fallback 3: Google scraping
   return googleFallback(query, resultsCount);
 }
 
@@ -175,6 +179,57 @@ async function duckDuckGoSearch(query, count) {
 
     return results;
   } catch (err) { console.error('DDG error:', err.message); return []; }
+}
+
+
+// Bing HTML search (reliable on serverless, rarely blocked)
+async function bingSearch(query, count) {
+  try {
+    const url = `https://www.bing.com/search?q=${encodeURIComponent(query)}&count=${count}`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml',
+        'Accept-Language': 'en-US,en;q=0.9'
+      }
+    });
+    clearTimeout(timeout);
+    if (!response.ok) { console.error('Bing not ok:', response.status); return []; }
+
+    const html = await response.text();
+    const $ = cheerio.load(html);
+    const results = [];
+
+    // Bing organic results
+    $('li.b_algo').each((i, el) => {
+      if (results.length >= count) return;
+      const linkEl = $(el).find('h2 a').first();
+      const href = linkEl.attr('href') || '';
+      const title = linkEl.text().trim();
+      const snippet = $(el).find('.b_caption p, .b_lineclamp2').first().text().trim();
+
+      if (title && href && href.startsWith('http')) {
+        results.push({ title, url: href, content: snippet, engine: 'bing', score: results.length });
+      }
+    });
+
+    // Alternative Bing result format
+    if (results.length === 0) {
+      $('.b_algo h2 a, .b_title a').each((i, el) => {
+        if (results.length >= count) return;
+        const href = $(el).attr('href') || '';
+        const title = $(el).text().trim();
+        if (title && href && href.startsWith('http')) {
+          results.push({ title, url: href, content: '', engine: 'bing', score: results.length });
+        }
+      });
+    }
+
+    return results;
+  } catch (err) { console.error('Bing error:', err.message); return []; }
 }
 
 async function googleFallback(query, count) {
