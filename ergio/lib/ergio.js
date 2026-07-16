@@ -35,20 +35,41 @@ export async function callGroq(messages, options = {}) {
 
   const model = options.model || 'llama-3.3-70b-versatile';
   const temperature = options.temperature ?? 0.7;
-  const maxTokens = options.maxTokens || 4096;
+  const maxTokens = options.maxTokens || 8000;
   const stream = options.stream || false;
 
-  const body = { model, messages, temperature, max_tokens: maxTokens, stream };
-  if (options.response_format) body.response_format = options.response_format;
+  const body = { messages, temperature, max_tokens: maxTokens, stream };
 
+
+  // Provider chain: Groq (Llama 3.3 70B) → Groq (Gemma 2 9B) → OpenRouter (Llama 3.3 70B)
   const providers = [];
-  if (groqKey) providers.push({ url: GROQ_URL, key: groqKey, model });
+  
+  // 1. Groq with Llama 3.3 70B (primary — best quality)
+  if (groqKey) {
+    providers.push({ 
+      url: GROQ_URL, key: groqKey, model: 'llama-3.3-70b-versatile',
+      label: 'Groq/Llama-3.3-70B'
+    });
+    // 2. Groq with Gemma 2 9B (fast fallback — good for code generation)
+    providers.push({ 
+      url: GROQ_URL, key: groqKey, model: 'gemma2-9b-it',
+      label: 'Groq/Gemma-2-9B'
+    });
+  }
+  
+  // 3. OpenRouter with Llama 3.3 70B (external fallback)
   if (openrouterKey) {
-    const orModel = model.includes('llama-3.3-70b') ? 'meta-llama/llama-3.3-70b-instruct'
-      : model.includes('llama-3.1-8b') ? 'meta-llama/llama-3.1-8b-instruct:free'
-      : model.includes('gemma2') ? 'google/gemma-2-9b-it:free'
-      : 'meta-llama/llama-3.3-70b-instruct';
-    providers.push({ url: OPENROUTER_URL, key: openrouterKey, model: orModel });
+    providers.push({ 
+      url: OPENROUTER_URL, key: openrouterKey, model: 'meta-llama/llama-3.3-70b-instruct',
+      label: 'OpenRouter/Llama-3.3-70B',
+      extraHeaders: { 'HTTP-Referer': 'https://ergio.vercel.app', 'X-Title': 'ERGIO' }
+    });
+    // 4. OpenRouter with Gemma 2 (free fallback)
+    providers.push({ 
+      url: OPENROUTER_URL, key: openrouterKey, model: 'google/gemma-2-9b-it:free',
+      label: 'OpenRouter/Gemma-2-9B',
+      extraHeaders: { 'HTTP-Referer': 'https://ergio.vercel.app', 'X-Title': 'ERGIO' }
+    });
   }
 
   if (providers.length === 0) throw new Error('Missing AI API key. Set GROQ_API_KEY or OPENROUTER_API_KEY.');
@@ -60,15 +81,28 @@ export async function callGroq(messages, options = {}) {
         headers: {
           'Authorization': `Bearer ${provider.key}`,
           'Content-Type': 'application/json',
-          ...(provider.url === OPENROUTER_URL && { 'HTTP-Referer': 'https://ergio.vercel.app', 'X-Title': 'ERGIO' })
+          ...(provider.extraHeaders || {})
         },
-        body: JSON.stringify({ ...body, model: provider.model })
+        body: JSON.stringify({ 
+          ...body, 
+          model: provider.model,
+          ...(options.response_format && !provider.model.includes('gemma') ? 
+            { response_format: options.response_format } : {})
+        })
       });
-      if (!response.ok) { console.error(`AI error (${provider.url}): ${response.status}`); continue; }
+      if (!response.ok) { 
+        console.error(`AI error (${provider.label}): ${response.status}`);
+        continue; 
+      }
       if (stream) return response.body;
       const data = await response.json();
-      return data.choices[0].message.content;
-    } catch (err) { console.error(`AI error: ${err.message}`); continue; }
+      const result = data.choices[0].message.content;
+      console.log(`✅ AI success via ${provider.label} (${result.length} chars)`);
+      return result;
+    } catch (err) { 
+      console.error(`AI error (${provider.label}): ${err.message}`); 
+      continue; 
+    }
   }
 
   throw new Error('All AI providers failed. Set GROQ_API_KEY or OPENROUTER_API_KEY.');

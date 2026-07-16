@@ -96,19 +96,22 @@
         id: 'salon-pro', name: 'GlowUp Salon', type: 'Beauty Studio', category: 'beauty',
         tags: ['Booking', 'Gallery', 'Paystack'], badge: 'hot',
         preview: 'A modern salon website with booking system, service gallery, and online payments',
-        html: '<div style="background:linear-gradient(135deg,#FF6B9D,#C44569);height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:2rem;font-weight:800">GlowUp Salon</div>'
+        templateUrl: 'templates/salon-pro.html',
+        html: null  // Will be fetched on render
       },
       {
-        id: 'restaurant-3d', name: 'Le Petit Chef 3D', type: 'Restaurant', category: '3d',
-        tags: ['3D Menu', 'Reservations', 'Animations'], badge: '3d',
-        preview: '3D rotating menu cards, animated food gallery, table reservations',
-        html: '<div style="background:linear-gradient(135deg,#2C3E50,#3498DB);height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:2rem;font-weight:800">Le Petit Chef</div>'
+        id: 'restaurant-3d', name: 'Le Petit Chef', type: 'Restaurant', category: '3d',
+        tags: ['3D Menu', 'Reservations', 'Fine Dining'], badge: '3d',
+        preview: 'Fine French dining with Nigerian twist. Menu, reservations, and table booking.',
+        templateUrl: 'templates/restaurant-3d.html',
+        html: null
       },
       {
         id: 'tech-startup', name: 'NaijaTech', type: 'Tech Startup', category: 'tech',
-        tags: ['SaaS', 'Pricing', 'API Docs'], badge: 'new',
-        preview: 'Modern tech startup landing page with pricing tiers and API documentation',
-        html: '<div style="background:linear-gradient(135deg,#0F172A,#1E40AF);height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:2rem;font-weight:800">NaijaTech</div>'
+        tags: ['SaaS', 'Pricing', 'API'], badge: 'new',
+        preview: 'Modern tech startup landing page with pricing tiers, features, and API docs.',
+        templateUrl: 'templates/tech-startup.html',
+        html: null
       },
       {
         id: 'fashion-boutique', name: 'Lagos Couture', type: 'Fashion Store', category: 'fashion',
@@ -149,6 +152,22 @@
     ];
 
     let allTemplates = [...BUILTIN_TEMPLATES];
+
+    // Fetch real template HTML files and inject into iframe previews
+    async function loadTemplatePreviews() {
+      for (const t of allTemplates) {
+        if (t.templateUrl && !t.html) {
+          try {
+            const res = await fetch(t.templateUrl);
+            if (res.ok) {
+              t.html = await res.text();
+              const iframe = document.getElementById('iframe-' + t.id);
+              if (iframe) iframe.srcdoc = t.html;
+            }
+          } catch (e) { console.log('Template fetch failed:', t.id); }
+        }
+      }
+    }
     let currentFilter = 'all';
 
     async function loadUserTemplates() {
@@ -221,6 +240,7 @@
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       event.target.classList.add('active');
       renderTemplates();
+    loadTemplatePreviews();
     }
 
     function useTemplate(id) {
@@ -228,6 +248,17 @@
     }
 
     function previewTemplate(id) {
+      const t = allTemplates.find(x => x.id === id);
+      if (t && t.html) {
+        const w = window.open('', '_blank');
+        w.document.write(t.html);
+        w.document.close();
+        return;
+      }
+      if (t && t.templateUrl) {
+        window.open(t.templateUrl, '_blank');
+        return;
+      }
       const template = allTemplates.find(t => t.id === id);
       if (template && template.html) {
         const w = window.open('', '_blank');
@@ -242,6 +273,7 @@
     (async () => {
       await loadUserTemplates();
       renderTemplates();
+    loadTemplatePreviews();
     })();
   </script>
 

@@ -113,10 +113,13 @@ Return JSON:
     send('status', { task: 'Writing website copy...', step: 3, total: 7 });
 
     // ============ STEP 3: WEBSITE CONTENT ============
-    const contentPrompt = `Write website copy for "${plan.businessName}", a ${plan.type} in ${plan.city}, Nigeria.
+    const contentPrompt = `You are writing premium website copy for "${plan.businessName}", a ${plan.type} in ${plan.city}, Nigeria.
 Services: ${JSON.stringify(plan.services)}
 Brand voice: ${brand.brandVoice || 'professional'}
 Tone: ${plan.tone || 'professional'}
+
+IMPORTANT: Write like Apple and Nike — bold, concise, powerful. No generic phrases like "We are committed to" or "Quality service you can trust."
+Use active voice. Make every sentence punch. Include Nigerian cultural references where natural.
 
 Return JSON with:
 {
