@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pharaoh Kitchen - Premium Catering Services in Port Harcourt, Nigeria</title>
+  <meta name="description" content="Experience the best of Nigerian cuisine with Pharaoh Kitchen, offering corporate, wedding, and private catering services in Port Harcourt. Discover our menus and services today!">
+  <meta name="keywords" content="catering services, Port Harcourt, food delivery, event planning">
+  <meta property="og:title" content="Pharaoh Kitchen">
+  <meta property="og:description" content="Taste the Royalty">
+  <meta property="og:image" content="https://image.pollinations.ai/prompt/professional%20professional%20logo%20for%20A%20stylized%2C%20golden-colored%20ankh%20symbol%20combined%20with%20a%20chef's%20hat%2C%20incorporating%20African%20and%20Egyptian%20elements%20to%20represent%20the%20Pharaoh%20theme%2C%20set%20against%20a%20deep%20blue%20or%20purple%20background%20to%20evoke%20luxury%20and%20professionalism.%2C%20minimalist%2C%20clean%2C%20vector%20style%2C%20centered%2C%20white%20background?width=512&height=512&nologo=true&seed=1784213990456">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--primary:#3498db;--secondary:#f1c40f;--accent:#e74c3c;--bg:#f9f9f9}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:#F8FAFC;line-height:1.6;overflow-x:hidden}
+    .nav{display:flex;justify-content:space-between;align-items:center;padding:1.5rem 5%;position:sticky;top:0;background:rgba(9,9,11,0.8);backdrop-filter:blur(20px);z-index:100}
+    .nav-logo{display:flex;align-items:center;gap:.6rem;font-weight:800;font-size:1.3rem;color:#fff;text-decoration:none}
+    .nav-logo img{width:36px;height:36px;border-radius:8px}
+    .nav-links a{color:#94A3B8;text-decoration:none;margin-left:2rem;font-size:.95rem;transition:color .3s}
+    .nav-links a:hover{color:var(--primary)}
+    .nav-cta{background:var(--primary);color:#09090B;padding:.6rem 1.5rem;border-radius:100px;font-weight:700;text-decoration:none;font-size:.9rem;border:none;cursor:pointer}
+    .hero{text-align:center;padding:6rem 5% 4rem;max-width:900px;margin:0 auto}
+    .hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:800;margin-bottom:1rem;line-height:1.1}
+    .hero h1 span{color:var(--primary)}
+    .hero p{font-size:1.2rem;color:#94A3B8;max-width:600px;margin:0 auto 2rem}
+    .hero-cta{display:inline-flex;gap:1rem;flex-wrap:wrap;justify-content:center}
+    .btn-primary{background:var(--primary);color:#09090B;padding:1rem 2rem;border-radius:100px;font-weight:700;text-decoration:none;border:none;cursor:pointer;font-size:1rem;transition:transform .2s}
+    .btn-primary:hover{transform:scale(1.05)}
+    .btn-outline{background:transparent;color:#fff;padding:1rem 2rem;border-radius:100px;border:1px solid rgba(255,255,255,0.2);text-decoration:none;font-weight:600;font-size:1rem}
+    section{padding:4rem 5%;max-width:1200px;margin:0 auto}
+    .section-title{font-size:2rem;font-weight:800;margin-bottom:.5rem;text-align:center}
+    .section-sub{color:#94A3B8;text-align:center;margin-bottom:3rem}
+    .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
+    .about-text p{color:#94A3B8;margin-bottom:1rem}
+    .about-img{background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:20px;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center}
+    .about-img img{width:100%;height:100%;object-fit:cover;border-radius:20px}
+    .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+    .service-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:2rem;transition:all .3s}
+    .service-card:hover{border-color:var(--primary);transform:translateY(-4px)}
+    .service-card h3{font-size:1.3rem;margin-bottom:.5rem}
+    .service-card p{color:#94A3B8;margin-bottom:1rem}
+    .service-price{font-size:1.5rem;font-weight:800;color:var(--accent)}
+    .why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem}
+    .why-item{text-align:center;padding:1.5rem}
+    .why-item .icon{font-size:2rem;margin-bottom:.5rem}
+    .why-item h4{margin-bottom:.3rem}
+    .why-item p{color:#94A3B8;font-size:.9rem}
+    .testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem}
+    .testimonial{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:2rem}
+    .testimonial p{color:#CBD5E1;font-style:italic;margin-bottom:1rem}
+    .testimonial .author{font-weight:700}
+    .testimonial .location{color:#94A3B8;font-size:.9rem}
+    .faq-item{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:1.5rem;margin-bottom:1rem}
+    .faq-item h4{margin-bottom:.5rem;color:var(--primary)}
+    .faq-item p{color:#94A3B8}
+    .contact{background:linear-gradient(135deg,rgba(0,217,255,0.1),rgba(0,255,157,0.05));border-radius:24px;padding:3rem;text-align:center;margin:2rem 5%}
+    .contact h2{margin-bottom:1rem}
+    .contact-info{display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;margin-top:2rem}
+    .contact-info a{color:var(--primary);text-decoration:none}
+    .footer{text-align:center;padding:2rem;color:#64748B;font-size:.9rem;border-top:1px solid rgba(255,255,255,0.08)}
+    .footer a{color:var(--primary);text-decoration:none}
+    @media(max-width:768px){.about-grid{grid-template-columns:1fr}.nav-links{display:none}}
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="#" class="nav-logo">
+      <img src="https://image.pollinations.ai/prompt/professional%20professional%20logo%20for%20A%20stylized%2C%20golden-colored%20ankh%20symbol%20combined%20with%20a%20chef's%20hat%2C%20incorporating%20African%20and%20Egyptian%20elements%20to%20represent%20the%20Pharaoh%20theme%2C%20set%20against%20a%20deep%20blue%20or%20purple%20background%20to%20evoke%20luxury%20and%20professionalism.%2C%20minimalist%2C%20clean%2C%20vector%20style%2C%20centered%2C%20white%20background?width=512&height=512&nologo=true&seed=1784213990456" alt="Pharaoh Kitchen">
+      <span>Pharaoh Kitchen</span>
+    </a>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#testimonials">Reviews</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="#contact" class="nav-cta">Book Now</a>
+  </nav>
+
+  <div class="hero">
+    <h1>Elevate Your Palate with Pharaoh Kitchen</h1>
+    <p>Experience the rich flavors of Nigeria, crafted for the discerning few in Port Harcourt</p>
+    <div class="hero-cta">
+      <a href="#contact" class="btn-primary">Discover Our Services</a>
+      <a href="#services" class="btn-outline">View Services</a>
+    </div>
+  </div>
+
+  <section id="about">
+    <div class="about-grid">
+      <div class="about-text">
+        <h2 class="section-title" style="text-align:left">About Us</h2>
+        <p>At Pharaoh Kitchen, we understand that every event, whether corporate, wedding, or private, is an opportunity to create lasting memories. That's why we've tailored our services to meet the unique needs of our clients, providing personalized attention and customized menus that reflect the essence of Nigerian hospitality. Located in the thriving city of Port Harcourt, we invite you to experience the Pharaoh Kitchen difference and indulge in a culinary journey that will leave you and your guests in awe.</p>
+      </div>
+      <div class="about-img">
+        <img src="https://image.pollinations.ai/prompt/professional%20professional%20logo%20for%20A%20stylized%2C%20golden-colored%20ankh%20symbol%20combined%20with%20a%20chef's%20hat%2C%20incorporating%20African%20and%20Egyptian%20elements%20to%20represent%20the%20Pharaoh%20theme%2C%20set%20against%20a%20deep%20blue%20or%20purple%20background%20to%20evoke%20luxury%20and%20professionalism.%2C%20minimalist%2C%20clean%2C%20vector%20style%2C%20centered%2C%20white%20background?width=512&height=512&nologo=true&seed=1784213990456" alt="Pharaoh Kitchen">
+      </div>
+    </div>
+  </section>
+
+  <section id="services">
+    <h2 class="section-title">Our Services</h2>
+    <p class="section-sub">Professional services tailored to your needs</p>
+    <div class="services-grid">
+      
+        <div class="service-card">
+          <h3>Corporate Catering</h3>
+          <p>Customized meals for corporate events</p>
+          <div class="service-price">₦100,000</div>
+        </div>
+      
+        <div class="service-card">
+          <h3>Wedding Catering</h3>
+          <p>Delicious meals for your special day</p>
+          <div class="service-price">₦500,000</div>
+        </div>
+      
+        <div class="service-card">
+          <h3>Party Catering</h3>
+          <p>Tasty food for all your party needs</p>
+          <div class="service-price">₦200,000</div>
+        </div>
+      
+        <div class="service-card">
+          <h3>Private Dining</h3>
+          <p>Intimate dining experiences for special occasions</p>
+          <div class="service-price">₦75,000</div>
+        </div>
+      
+        <div class="service-card">
+          <h3>Food Delivery</h3>
+          <p>Convenient meal delivery to your doorstep</p>
+          <div class="service-price">₦5,000</div>
+        </div>
+      
+    </div>
+  </section>
+
+  
+  <section id="why">
+    <h2 class="section-title">Why Choose Us</h2>
+    <p class="section-sub">What sets us apart</p>
+    <div class="why-grid">
+      
+        <div class="why-item">
+          <div class="icon">⚡</div>
+          <h4>Expertly crafted Nigerian cuisine with international flair</h4>
+        </div>
+      
+        <div class="why-item">
+          <div class="icon">✨</div>
+          <h4>Personalized event planning and customized menus</h4>
+        </div>
+      
+        <div class="why-item">
+          <div class="icon">🎯</div>
+          <h4>Unparalleled service, reflecting the warmth of Nigerian hospitality</h4>
+        </div>
+      
+        <div class="why-item">
+          <div class="icon">🚀</div>
+          <h4>State-of-the-art kitchen facilities, ensuring the highest standards of quality and hygiene</h4>
+        </div>
+      
+    </div>
+  </section>
+
+  
+  <section id="testimonials">
+    <h2 class="section-title">What Our Clients Say</h2>
+    <p class="section-sub">Real reviews from happy customers</p>
+    <div class="testimonials">
+      
+        <div class="testimonial">
+          <p>"Pharaoh Kitchen's catering service at our wedding was nothing short of exceptional. The attention to detail and the flavors were simply incredible!"</p>
+          <div class="author">Nneoma Okoro</div>
+          <div class="location">Port Harcourt</div>
+        </div>
+      
+    </div>
+  </section>
+
+  
+  <section id="faq">
+    <h2 class="section-title">Frequently Asked Questions</h2>
+    <p class="section-sub">Everything you need to know</p>
+    
+      <div class="faq-item">
+        <h4>What areas do you serve?</h4>
+        <p>We serve Port Harcourt and surrounding areas, with the option for nationwide delivery for select services</p>
+      </div>
+    
+      <div class="faq-item">
+        <h4>Can I customize my menu?</h4>
+        <p>Yes, our chefs and event planners work closely with you to create a personalized menu that suits your tastes and preferences</p>
+      </div>
+    
+  </section>
+
+  <section id="contact" class="contact">
+    <h2>Get In Touch</h2>
+    <p>Ready to work with us? Book your appointment today.</p>
+    <div class="contact-info">
+      <div>📞 <a href="tel:0803 123 4567">0803 123 4567</a></div>
+      <div>✉️ <a href="mailto:info@pharaohkitchen.com">info@pharaohkitchen.com</a></div>
+      <div>💬 <a href="https://wa.me/0803 123 4567">WhatsApp</a></div>
+    </div>
+    <br>
+    <a href="#" class="btn-primary" onclick="alert('Booking system powered by ERGIO. Paystack payment ready.');return false;">Book Appointment</a>
+  </section>
+
+  <div class="footer">
+    <p>&copy; 2026 Pharaoh Kitchen. Powered by <a href="https://ergio.app">ERGIO</a></p>
+  </div>
+
+  <script>
+    // ERGIO Analytics Tracking
+    fetch('/api/analytics', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({event_type:'page_view', event_data:{business:'Pharaoh Kitchen'}})
+    }).catch(()=>{});
+  </script>
+</body>
+</html>
