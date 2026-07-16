@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "ergio/api/**/*.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/ergio/api/$1" },
+    { "src": "/auth/(.*)", "dest": "/ergio/auth/$1" },
+    { "src": "/dashboard/(.*)", "dest": "/ergio/dashboard/$1" },
+    { "src": "/ergio/(.*)", "dest": "/ergio/$1" },
+    { "src": "/(.*)", "dest": "/ergio/$1" }
+  ]
+}
