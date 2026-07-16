@@ -45,7 +45,7 @@ export async function callGroq(messages, options = {}) {
   if (groqKey) providers.push({ url: GROQ_URL, key: groqKey, model });
   if (openrouterKey) {
     const orModel = model.includes('llama-3.3-70b') ? 'meta-llama/llama-3.3-70b-instruct'
-      : model.includes('llama-3.1-8b') ? 'meta-llama/llama-3.1-8b-instruct'
+      : model.includes('llama-3.1-8b') ? 'meta-llama/llama-3.1-8b-instruct:free'
       : model.includes('gemma2') ? 'google/gemma-2-9b-it:free'
       : 'meta-llama/llama-3.3-70b-instruct';
     providers.push({ url: OPENROUTER_URL, key: openrouterKey, model: orModel });
@@ -71,13 +71,7 @@ export async function callGroq(messages, options = {}) {
     } catch (err) { console.error(`AI error: ${err.message}`); continue; }
   }
 
-  // Final fallback: Pollinations (free, no key)
-  try {
-    const prompt = messages.map(m => m.content).join('\n');
-    const response = await fetch('https://text.pollinations.ai/' + encodeURIComponent(prompt));
-    if (response.ok) return await response.text();
-  } catch (e) {}
-  throw new Error('All AI providers failed.');
+  throw new Error('All AI providers failed. Set GROQ_API_KEY or OPENROUTER_API_KEY.');
 }
 
 export async function callGroqFast(messages, options = {}) {

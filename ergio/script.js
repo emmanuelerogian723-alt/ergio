@@ -161,10 +161,10 @@ let generatedBusiness = null;
 let generatedHtml = '';
 
 const questions = [
-  { id: 'name', label: 'Business Name', text: 'What do you want to call your business?', hint: 'This will be your brand name. Be creative!', type: 'text', placeholder: 'e.g. SparkleClean Pros' },
-  { id: 'services', label: 'Your Services', text: 'What services do you offer?', hint: 'Select all that apply', type: 'checkbox', options: ['Cleaning', 'Design', 'Consulting', 'Photography', 'Catering', 'Tutoring', 'Styling', 'Repairs', 'Marketing', 'Other'] },
-  { id: 'location', label: 'Your Location', text: 'Where are you based?', hint: 'We use this to find local clients for you', type: 'text', placeholder: 'e.g. Lagos, Nigeria' },
-  { id: 'style', label: 'Brand Style', text: 'What vibe do you want?', hint: 'This shapes your website design', type: 'radio', options: ['Modern & Minimal', 'Bold & Colorful', 'Luxury & Premium', 'Friendly & Casual'] }
+  { id: 'name', label: 'Step 1 of 4', text: 'What will you call this business?', hint: 'Your brand name. Make it memorable — this is how clients will remember you.', type: 'text', placeholder: 'e.g. GlowUp Lagos' },
+  { id: 'services', label: 'Step 2 of 4', text: 'What do you offer?', hint: 'Select everything that applies — ERGIO will build pages for each.', type: 'checkbox', options: ['Cleaning', 'Makeup & Beauty', 'Graphic Design', 'Photography', 'Catering & Food', 'Tutoring', 'Fashion & Styling', 'Phone & Laptop Repair', 'Fitness Training', 'Real Estate', 'Web Development', 'Consulting', 'Event Planning', 'Tailoring', 'Transportation', 'Other'] },
+  { id: 'location', label: 'Step 3 of 4', text: 'Where are you based?', hint: 'ERGIO uses this to find paying clients near you.', type: 'text', placeholder: 'e.g. Lekki, Lagos' },
+  { id: 'style', label: 'Step 4 of 4', text: 'Choose your vibe.', hint: 'This shapes your entire website design — colors, fonts, animations.', type: 'radio', options: ['Modern & Minimal — Apple style', 'Bold & Colorful — Nike energy', 'Luxury & Premium — Rolex feel', 'Friendly & Casual — Local favorite'] }
 ];
 
 let currentQ = 0;
