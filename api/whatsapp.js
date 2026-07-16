@@ -1,1 +1,0 @@
-export { default } from '../ergio/api/whatsapp.js';
