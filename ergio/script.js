@@ -671,3 +671,115 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => window.closeBuild());
   });
 });
+
+// ============ UPLOAD SYSTEM ============
+let uploadedFiles = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+  const uploadArea = document.getElementById('uploadArea');
+  const uploadInput = document.getElementById('uploadInput');
+  const uploadList = document.getElementById('uploadList');
+
+  if (!uploadArea || !uploadInput) return;
+
+  // Click to upload
+  uploadArea.addEventListener('click', () => uploadInput.click());
+
+  // File selected
+  uploadInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+  // Drag and drop
+  uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+  });
+  uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    handleFiles(e.dataTransfer.files);
+  });
+
+  function handleFiles(files) {
+    Array.from(files).forEach(file => {
+      const fileId = Date.now() + Math.random().toString(36).substr(2, 5);
+      const fileObj = { id: fileId, name: file.name, size: file.size, type: file.type, file };
+
+      uploadedFiles.push(fileObj);
+      renderUploadItem(fileObj, 'ready');
+      tryUpload(fileObj);
+    });
+  }
+
+  function renderUploadItem(fileObj, status) {
+    const item = document.createElement('div');
+    item.className = 'upload-item';
+    item.id = `up-${fileObj.id}`;
+    const icon = fileObj.type?.startsWith('image/') ? '🖼️' : fileObj.type?.includes('pdf') ? '📄' : fileObj.type?.includes('sheet') ? '📊' : '📎';
+    const sizeStr = fileObj.size > 1024 * 1024 ? `${(fileObj.size/1024/1024).toFixed(1)}MB` : `${Math.round(fileObj.size/1024)}KB`;
+    item.innerHTML = `<span class="up-icon">${icon}</span><span class="up-name">${fileObj.name}</span><span class="up-size">${sizeStr}</span><span class="up-status">${status}</span><button class="up-remove" onclick="this.parentElement.remove()">✕</button>`;
+    if (uploadList) uploadList.appendChild(item);
+  }
+
+  function updateUploadStatus(fileId, status) {
+    const item = document.getElementById(`up-${fileId}`);
+    if (item) {
+      const statusEl = item.querySelector('.up-status');
+      if (statusEl) statusEl.textContent = status;
+    }
+  }
+
+  async function tryUpload(fileObj) {
+    updateUploadStatus(fileObj.id, 'uploading...');
+
+    const apiBase = (window.ERGIO_CONFIG && window.ERGIO_CONFIG.apiBase) || '';
+    if (!apiBase || apiBase.includes('github.io')) {
+      // GitHub Pages - can't upload to API, store locally
+      updateUploadStatus(fileObj.id, 'local');
+      fileObj.local = true;
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('file', fileObj.file);
+
+      const response = await fetch(`${apiBase}/api/upload?type=asset&name=${encodeURIComponent(fileObj.name.replace(/\.[^.]+$/, ''))}`, {
+        method: 'POST',
+        body: fileObj.file,
+        headers: { 'Content-Type': fileObj.type || 'application/octet-stream' }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        fileObj.url = result.file?.url;
+        updateUploadStatus(fileObj.id, 'uploaded ✓');
+      } else {
+        updateUploadStatus(fileObj.id, 'local');
+      }
+    } catch (err) {
+      updateUploadStatus(fileObj.id, 'local');
+    }
+  }
+
+  // Show upload zone when build starts
+  const observer = new MutationObserver(() => {
+    const buildPanel = document.getElementById('buildPanel');
+    const uploadZone = document.getElementById('uploadZone');
+    if (buildPanel && uploadZone) {
+      uploadZone.style.display = buildPanel.style.display === 'none' ? 'none' : 'block';
+    }
+  });
+  const buildPanel = document.getElementById('buildPanel');
+  if (buildPanel) observer.observe(buildPanel, { attributes: true, attributeFilter: ['style'] });
+});
+
+// Get uploaded files for build context
+window.getUploadedFiles = function() {
+  return uploadedFiles.map(f => ({
+    name: f.name,
+    type: f.type,
+    url: f.url || null,
+    local: f.local || false
+  }));
+};

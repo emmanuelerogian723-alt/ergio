@@ -336,3 +336,37 @@ textarea.qa-input { resize: none; line-height: 1.6; }
   display: flex; align-items: center; justify-content: center; transition: transform .2s;
 }
 .chat-input-wrap button:hover { transform: scale(1.1); }
+
+/* ============ UPLOAD ZONE ============ */
+.upload-zone{margin-top:1rem;padding:0 .5rem}
+.upload-area{
+  border:2px dashed rgba(0,217,255,0.25);
+  border-radius:16px;
+  padding:24px 16px;
+  text-align:center;
+  cursor:pointer;
+  transition:all .25s ease;
+  background:rgba(0,217,255,0.03);
+}
+.upload-area:hover,.upload-area.dragover{
+  border-color:rgba(0,217,255,0.6);
+  background:rgba(0,217,255,0.06);
+  transform:scale(1.01)
+}
+.upload-icon{font-size:2rem;margin-bottom:8px}
+.upload-text{font-size:.95rem;font-weight:600;color:#F8FAFC}
+.upload-hint{font-size:.78rem;color:#64748B;margin-top:4px}
+.upload-list{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.upload-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;
+  font-size:.85rem;
+}
+.upload-item .up-icon{font-size:1.2rem}
+.upload-item .up-name{flex:1;color:#F8FAFC;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.upload-item .up-size{color:#64748B;font-size:.75rem}
+.upload-item .up-remove{cursor:pointer;color:#ef4444;font-size:1rem;background:none;border:none}
+.upload-item .up-status{font-size:.7rem;padding:2px 8px;border-radius:6px;background:rgba(0,255,157,0.15);color:#00FF9D}

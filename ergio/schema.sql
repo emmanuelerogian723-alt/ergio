@@ -345,3 +345,86 @@ CREATE INDEX idx_outreach_business ON public.outreach_campaigns(business_id);
 CREATE INDEX idx_engine_business ON public.engine_status(business_id);
 CREATE INDEX idx_businesses_slug ON public.businesses(slug);
 CREATE INDEX idx_whatsapp_business ON public.whatsapp_conversations(business_id);
+
+-- ========================================
+-- ERGIO v2.2 Additional Tables
+-- ========================================
+
+-- File uploads metadata
+CREATE TABLE IF NOT EXISTS public.file_uploads (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  business_id UUID REFERENCES public.businesses(id) ON DELETE CASCADE,
+  file_name TEXT NOT NULL,
+  file_url TEXT NOT NULL,
+  file_type TEXT DEFAULT 'asset',
+  mime_type TEXT,
+  file_size BIGINT DEFAULT 0,
+  storage_bucket TEXT,
+  created_by UUID REFERENCES auth.users(id),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.file_uploads ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users manage own uploads" ON public.file_uploads FOR ALL USING (auth.uid() = created_by OR business_id IN (SELECT id FROM public.businesses WHERE owner_id = auth.uid()));
+
+-- Invoices
+CREATE TABLE IF NOT EXISTS public.invoices (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  business_id UUID REFERENCES public.businesses(id) ON DELETE CASCADE,
+  invoice_number TEXT UNIQUE NOT NULL,
+  client_name TEXT NOT NULL,
+  client_email TEXT,
+  client_phone TEXT,
+  items JSONB DEFAULT '[]',
+  subtotal DECIMAL(12,2) DEFAULT 0,
+  tax DECIMAL(12,2) DEFAULT 0,
+  total DECIMAL(12,2) DEFAULT 0,
+  status TEXT DEFAULT 'pending',
+  due_date DATE,
+  notes TEXT,
+  created_by UUID REFERENCES auth.users(id),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users manage own invoices" ON public.invoices FOR ALL USING (business_id IN (SELECT id FROM public.businesses WHERE owner_id = auth.uid()));
+
+-- Transactions (income & expenses)
+CREATE TABLE IF NOT EXISTS public.transactions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  business_id UUID REFERENCES public.businesses(id) ON DELETE CASCADE,
+  type TEXT NOT NULL CHECK (type IN ('income', 'expense')),
+  amount DECIMAL(12,2) NOT NULL,
+  category TEXT DEFAULT 'general',
+  description TEXT,
+  date DATE NOT NULL,
+  created_by UUID REFERENCES auth.users(id),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users manage own transactions" ON public.transactions FOR ALL USING (business_id IN (SELECT id FROM public.businesses WHERE owner_id = auth.uid()));
+
+-- Reviews & testimonials
+CREATE TABLE IF NOT EXISTS public.reviews (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  business_id UUID REFERENCES public.businesses(id) ON DELETE CASCADE,
+  client_name TEXT NOT NULL,
+  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  text TEXT NOT NULL,
+  booking_id UUID REFERENCES public.bookings(id),
+  status TEXT DEFAULT 'pending',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anyone can view approved reviews" ON public.reviews FOR SELECT USING (status = 'approved');
+CREATE POLICY "Owners manage reviews" ON public.reviews FOR ALL USING (business_id IN (SELECT id FROM public.businesses WHERE owner_id = auth.uid()));
+
+-- Indexes
+CREATE INDEX IF NOT EXISTS idx_uploads_business ON public.file_uploads(business_id);
+CREATE INDEX IF NOT EXISTS idx_invoices_business ON public.invoices(business_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_business ON public.transactions(business_id);
+CREATE INDEX IF NOT EXISTS idx_reviews_business ON public.reviews(business_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_type ON public.transactions(type);

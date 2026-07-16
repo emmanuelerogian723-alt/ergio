@@ -9,6 +9,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
 
@@ -292,6 +295,16 @@
         </div>
 
         <!-- BUILD PHASE -->
+          <!-- UPLOAD ZONE -->
+          <div class="upload-zone" id="uploadZone" style="display:none">
+            <div class="upload-area" id="uploadArea">
+              <div class="upload-icon">📎</div>
+              <div class="upload-text">Drop files here or tap to upload</div>
+              <div class="upload-hint">Logos, photos, menus, brand assets, PDFs — anything ERGIO can use</div>
+              <input type="file" id="uploadInput" multiple hidden accept="image/*,application/pdf,.doc,.docx,.txt,.csv">
+            </div>
+            <div class="upload-list" id="uploadList"></div>
+          </div>
         <div class="build-phase" id="buildPanel" style="display:none">
           <div class="build-phase-header">
             <div class="build-status"><div class="status-dot" id="statusDot"></div><span id="statusText">Building your business...</span></div>
