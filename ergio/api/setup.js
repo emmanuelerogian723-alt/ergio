@@ -1,4 +1,13 @@
--- ERGIO Schema v2 (clean, no conflicts)
+// ERGIO One-time database setup endpoint
+// Runs the full schema via pg direct connection
+// POST /api/setup?key=ergio_setup_2026 to execute
+
+import pkg from 'pg';
+const { Client } = pkg;
+
+const SETUP_KEY = 'ergio_setup_2026';
+
+const SCHEMA = `
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE IF NOT EXISTS public.profiles (
@@ -105,7 +114,6 @@ CREATE TABLE IF NOT EXISTS public.referrals (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- RLS
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.businesses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.services ENABLE ROW LEVEL SECURITY;
@@ -119,36 +127,61 @@ ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.referrals ENABLE ROW LEVEL SECURITY;
 
--- Policies (DROP IF EXISTS first to prevent conflicts)
-DROP POLICY IF EXISTS "profiles_select" ON public.profiles;
-DROP POLICY IF EXISTS "profiles_insert" ON public.profiles;
-DROP POLICY IF EXISTS "profiles_update" ON public.profiles;
-DROP POLICY IF EXISTS "businesses_select" ON public.businesses;
-DROP POLICY IF EXISTS "businesses_insert" ON public.businesses;
-DROP POLICY IF EXISTS "businesses_update" ON public.businesses;
-DROP POLICY IF EXISTS "businesses_delete" ON public.businesses;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='businesses' AND policyname='businesses_own') THEN
+    CREATE POLICY "businesses_own" ON public.businesses FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='profiles' AND policyname='profiles_own') THEN
+    CREATE POLICY "profiles_own" ON public.profiles FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='bookings' AND policyname='bookings_public_insert') THEN
+    CREATE POLICY "bookings_public_insert" ON public.bookings FOR INSERT WITH CHECK (true);
+  END IF;
+END $$;
+`;
 
-CREATE POLICY "profiles_select" ON public.profiles FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "profiles_insert" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "profiles_update" ON public.profiles FOR UPDATE USING (auth.uid() = user_id);
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Content-Type', 'application/json');
 
-CREATE POLICY "businesses_select" ON public.businesses FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "businesses_insert" ON public.businesses FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "businesses_update" ON public.businesses FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "businesses_delete" ON public.businesses FOR DELETE USING (auth.uid() = user_id);
+  const key = req.query.key || (req.body && req.body.key);
+  if (key !== SETUP_KEY) {
+    return res.status(403).json({ error: 'Invalid setup key' });
+  }
 
--- Service role can do everything (for API)
-CREATE POLICY "service_all_profiles" ON public.profiles FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "service_all_businesses" ON public.businesses FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "service_all_bookings" ON public.bookings FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "service_all_payments" ON public.payments FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "service_all_leads" ON public.leads FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "service_all_clients" ON public.clients FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "service_all_invoices" ON public.invoices FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "service_all_expenses" ON public.expenses FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "service_all_reviews" ON public.reviews FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "service_all_notifications" ON public.notifications FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "service_all_referrals" ON public.referrals FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "service_all_services" ON public.services FOR ALL USING (true) WITH CHECK (true);
+  const dbUrl = process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
+  if (!dbUrl) {
+    // Build connection from Supabase project ref
+    const projectRef = 'owcxfzlanlrulflsyvlr';
+    const dbPassword = process.env.SUPABASE_DB_PASSWORD || process.env.DB_PASSWORD;
+    if (!dbPassword) {
+      return res.status(500).json({ 
+        error: 'No database connection string. Add DATABASE_URL or SUPABASE_DB_PASSWORD env var.',
+        hint: 'Get from Supabase Dashboard > Settings > Database > Connection string'
+      });
+    }
+    var connectionString = `postgresql://postgres.${projectRef}:${dbPassword}@aws-0-eu-west-1.pooler.supabase.com:6543/postgres`;
+  } else {
+    var connectionString = dbUrl;
+  }
 
-SELECT 'ERGIO schema installed successfully' as result;
+  const client = new Client({ connectionString, ssl: { rejectUnauthorized: false } });
+
+  try {
+    await client.connect();
+    await client.query(SCHEMA);
+    const result = await client.query(`
+      SELECT table_name FROM information_schema.tables 
+      WHERE table_schema = 'public' ORDER BY table_name;
+    `);
+    await client.end();
+    return res.status(200).json({ 
+      success: true, 
+      message: 'ERGIO database setup complete!',
+      tables: result.rows.map(r => r.table_name)
+    });
+  } catch (err) {
+    try { await client.end(); } catch(e) {}
+    return res.status(500).json({ error: err.message, stack: err.stack });
+  }
+}

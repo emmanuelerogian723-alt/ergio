@@ -1,8 +1,10 @@
 {
   "functions": {
-    "api/[[...route]].js": { "maxDuration": 60 }
+    "api/[[...route]].js": { "maxDuration": 60 },
+    "api/setup.js": { "maxDuration": 30 }
   },
   "rewrites": [
+    { "source": "/api/setup", "destination": "/api/setup" },
     { "source": "/api/(.*)", "destination": "/api/[[...route]]" }
   ]
 }

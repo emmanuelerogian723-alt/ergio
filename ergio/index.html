@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ERGIO — You bring the skill. ERGIO brings the clients.</title>
-  <meta name="description" content="Describe your skill. ERGIO builds your entire business — website, bookings, payments, and finds you real clients automatically.">
+  <meta name="description" content="Type what you do. ERGIO builds your full business — website, bookings, payments, and brings you real paying clients via 4 AI engines. Start free.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -30,7 +30,7 @@
   <nav class="nav" id="nav">
     <div class="nav-inner">
       <a href="#" class="logo">
-        <img src="assets/ergio-logo.jpg" alt="ERGIO" class="logo-img" />
+        <img src="assets/ergio-logo.jpg" alt="ERGIO" class="logo-img" onerror="this.style.display='none'" />
         <span class="logo-text">ERGIO</span>
       </a>
       <div class="nav-links" id="navLinks">
@@ -50,12 +50,12 @@
     </div>
   </nav>
 
-  <!-- HERO — Lovable-style: just the prompt -->
+  <!-- HERO -->
   <section class="hero" id="hero">
     <div class="hero-content">
       <div class="badge reveal">
         <span class="pulse-dot"></span>
-        Now live in Nigeria · Free to start
+        Now live in Nigeria &middot; Free to start
       </div>
 
       <h1 class="hero-title reveal" style="transition-delay:.1s">
@@ -65,7 +65,7 @@
 
       <p class="hero-sub reveal" style="transition-delay:.2s">
         Type what you do. ERGIO builds your website, brand, booking system,
-        payment setup — then activates 4 AI engines to find you real paying clients.
+        and payment setup &mdash; then activates 4 AI engines to find you real paying clients.
       </p>
 
       <div class="prompt-wrapper reveal" style="transition-delay:.3s">
@@ -76,7 +76,7 @@
               <defs><linearGradient id="pi" x1="0" y1="0" x2="24" y2="24"><stop stop-color="#00D9FF"/><stop offset="1" stop-color="#00FF9D"/></linearGradient></defs>
             </svg>
           </div>
-          <input type="text" id="promptInput" placeholder="" autocomplete="off" spellcheck="false"/>
+          <input type="text" id="promptInput" placeholder="I do logo design and branding in Lagos…" autocomplete="off" spellcheck="false"/>
           <button id="promptBtn" onclick="startBuild()">
             <span>Launch</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -85,21 +85,21 @@
           </button>
         </div>
         <div class="prompt-chips">
-          <button class="chip" onclick="fillPrompt('I do logo design and branding')">🎨 Logo Designer</button>
+          <button class="chip" onclick="fillPrompt('I do logo design and branding in Lagos')">🎨 Logo Designer</button>
           <button class="chip" onclick="fillPrompt('I run a cleaning company in Lagos')">🧹 Cleaning Service</button>
-          <button class="chip" onclick="fillPrompt('I am a personal fitness trainer')">💪 Fitness Trainer</button>
-          <button class="chip" onclick="fillPrompt('I cook and deliver homemade food')">🍱 Food Business</button>
+          <button class="chip" onclick="fillPrompt('I am a personal fitness trainer in Abuja')">💪 Fitness Trainer</button>
+          <button class="chip" onclick="fillPrompt('I cook and deliver homemade food in Lagos')">🍱 Food Business</button>
           <button class="chip" onclick="fillPrompt('I repair phones and laptops')">📱 Phone Repair</button>
           <button class="chip" onclick="fillPrompt('I am a real estate agent in Abuja')">🏠 Real Estate</button>
         </div>
       </div>
 
       <div class="hero-trust reveal" style="transition-delay:.4s">
-        <div class="trust-stat"><span class="tnum" data-target="2847">0</span><span class="tlabel">businesses launched</span></div>
+        <div class="trust-stat"><span class="tnum" data-target="2847">2,847</span><span class="tlabel">businesses launched</span></div>
         <div class="trust-div"></div>
-        <div class="trust-stat"><span class="tnum" data-target="14200">0</span><span class="tlabel">clients connected</span></div>
+        <div class="trust-stat"><span class="tnum" data-target="14200">14,200</span><span class="tlabel">clients connected</span></div>
         <div class="trust-div"></div>
-        <div class="trust-stat"><span class="tnum" data-target="98" data-suffix="%">0</span><span class="tlabel">satisfaction rate</span></div>
+        <div class="trust-stat"><span class="tnum" data-target="98">98%</span><span class="tlabel">satisfaction rate</span></div>
       </div>
     </div>
   </section>
@@ -113,32 +113,32 @@
 
       <div class="features-grid">
         <div class="feature-card reveal">
-          <div class="feature-icon">🌐</div>
+          <span class="feature-icon">🌐</span>
           <h3>Website + Brand</h3>
           <p>AI generates your website, logo, brand colors, and copy in seconds. Custom domain included on Pro.</p>
         </div>
         <div class="feature-card reveal" style="transition-delay:.05s">
-          <div class="feature-icon">📅</div>
+          <span class="feature-icon">📅</span>
           <h3>Smart Bookings</h3>
-          <p>Clients book online. You get WhatsApp alerts. Calendar syncs automatically. No double bookings.</p>
+          <p>Clients book online. You get WhatsApp alerts. Calendar syncs automatically. No double bookings ever.</p>
         </div>
         <div class="feature-card reveal" style="transition-delay:.1s">
-          <div class="feature-icon">💳</div>
+          <span class="feature-icon">💳</span>
           <h3>Get Paid Instantly</h3>
           <p>Paystack built in. Clients pay before the appointment. Card, transfer, USSD — all supported.</p>
         </div>
         <div class="feature-card reveal" style="transition-delay:.15s">
-          <div class="feature-icon">🤖</div>
+          <span class="feature-icon">🤖</span>
           <h3>WhatsApp Bot</h3>
           <p>Auto-replies to enquiries at 3am. Sends your pricing. Collects bookings. You just confirm.</p>
         </div>
         <div class="feature-card reveal" style="transition-delay:.2s">
-          <div class="feature-icon">📊</div>
+          <span class="feature-icon">📊</span>
           <h3>Income Tracker</h3>
           <p>See every naira earned, every booking, every client. Set income goals and watch ERGIO hit them.</p>
         </div>
         <div class="feature-card reveal" style="transition-delay:.25s">
-          <div class="feature-icon">🪪</div>
+          <span class="feature-icon">🪪</span>
           <h3>Digital Business Card</h3>
           <p>One link to share everywhere. Your services, prices, booking, and payment — all in one page.</p>
         </div>
@@ -151,36 +151,56 @@
     <div class="section-inner">
       <div class="section-label">The ERGIO difference</div>
       <h2 class="section-title">4 engines working<br>while you <span class="gradient-text">sleep.</span></h2>
-      <p class="section-desc">Like Bolt brings passengers to drivers — ERGIO brings clients to you.</p>
+      <p class="section-desc">Like Bolt brings passengers to drivers — ERGIO brings clients to you. Automatically.</p>
 
       <div class="engines-grid">
         <div class="engine-card reveal">
-          <div class="engine-num">01</div>
-          <div class="engine-icon">📍</div>
-          <h3>Local Discovery</h3>
-          <p>SEO pages that rank on Google. When someone in your city searches your service, they find you first.</p>
-          <div class="engine-status-badge">Always on</div>
+          <span class="engine-number">01</span>
+          <span class="engine-icon">🔍</span>
+          <div class="engine-tag">Local Discovery</div>
+          <h3>SEO + Google Maps</h3>
+          <p>Your business appears when someone searches "best photographer in Lagos" or "plumber near me in Abuja" — even if you've never touched SEO.</p>
+          <ul class="engine-bullets">
+            <li>Auto-generated local SEO pages</li>
+            <li>Google Business Profile optimized</li>
+            <li>Keyword research done for you</li>
+          </ul>
         </div>
-        <div class="engine-card reveal" style="transition-delay:.05s">
-          <div class="engine-num">02</div>
-          <div class="engine-icon">⚡</div>
-          <h3>Demand Matching</h3>
-          <p>Scans 70+ search engines for people asking for your service right now. Sends them your way.</p>
-          <div class="engine-status-badge">Real-time</div>
+        <div class="engine-card reveal" style="transition-delay:.07s">
+          <span class="engine-number">02</span>
+          <span class="engine-icon">⚡</span>
+          <div class="engine-tag">Demand Matching</div>
+          <h3>Bolt for Skills</h3>
+          <p>ERGIO scans Twitter, Nairaland, WhatsApp groups, and LinkedIn for people actively asking for your service — then notifies you instantly.</p>
+          <ul class="engine-bullets">
+            <li>Real-time demand scanning</li>
+            <li>Intent scoring (high → low)</li>
+            <li>One-tap client outreach</li>
+          </ul>
         </div>
-        <div class="engine-card reveal" style="transition-delay:.1s">
-          <div class="engine-num">03</div>
-          <div class="engine-icon">🔍</div>
-          <h3>AI Outreach</h3>
-          <p>Writes personalized emails to businesses that need you. You tap send. ERGIO follows up.</p>
-          <div class="engine-status-badge">AI-powered</div>
+        <div class="engine-card reveal" style="transition-delay:.14s">
+          <span class="engine-number">03</span>
+          <span class="engine-icon">✉️</span>
+          <div class="engine-tag">AI Outreach</div>
+          <h3>Personalized Cold Messages</h3>
+          <p>AI writes custom cold emails and DMs to potential clients based on their exact situation. Not templates — real personalized messages.</p>
+          <ul class="engine-bullets">
+            <li>Email + WhatsApp outreach</li>
+            <li>Personalized per lead</li>
+            <li>Follow-up sequences automated</li>
+          </ul>
         </div>
-        <div class="engine-card reveal" style="transition-delay:.15s">
-          <div class="engine-num">04</div>
-          <div class="engine-icon">🔄</div>
-          <h3>Repeat Clients</h3>
-          <p>After every job, ERGIO follows up automatically. Thank-you messages, review requests, retainer offers.</p>
-          <div class="engine-status-badge">Automated</div>
+        <div class="engine-card reveal" style="transition-delay:.21s">
+          <span class="engine-number">04</span>
+          <span class="engine-icon">🔁</span>
+          <div class="engine-tag">Repeat Clients</div>
+          <h3>Automated Retention</h3>
+          <p>Turns one-time clients into repeat revenue. Auto follow-ups, retainer offers, birthday messages, and review requests sent at the right time.</p>
+          <ul class="engine-bullets">
+            <li>Automated WhatsApp follow-ups</li>
+            <li>Monthly retainer offers</li>
+            <li>Review collection + display</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -193,185 +213,201 @@
       <h2 class="section-title">Start free.<br>Pay when you <span class="gradient-text">earn.</span></h2>
       <p class="section-desc">No setup fees. No hidden charges. Just one simple subscription.</p>
 
-      <div class="plans">
-        <div class="plan-card reveal">
-          <div class="plan-name">Starter</div>
-          <div class="plan-price">Free</div>
-          <div class="plan-period">forever</div>
-          <ul class="plan-features">
-            <li>✓ Business profile page</li>
-            <li>✓ Payment link (Paystack)</li>
-            <li>✓ Basic booking form</li>
-            <li>✓ Listed on ERGIO directory</li>
-            <li>✓ 5 client matches/month</li>
-            <li>✓ Digital business card</li>
+      <div class="pricing-grid">
+
+        <!-- FREE -->
+        <div class="pricing-card reveal">
+          <div class="pricing-plan">Starter</div>
+          <div class="pricing-price">Free <span>forever</span></div>
+          <div class="pricing-desc">Launch your business and test the platform. No credit card required.</div>
+          <a href="auth/signup.html" class="pricing-btn outline">Get started free</a>
+          <ul class="pricing-features">
+            <li>AI business generation</li>
+            <li>1 website (ERGIO subdomain)</li>
+            <li>Up to 10 bookings/month</li>
+            <li>Paystack payments</li>
+            <li>Basic WhatsApp bot</li>
+            <li>Local Discovery engine</li>
           </ul>
-          <a href="auth/signup.html" class="plan-btn plan-btn-ghost">Get started free</a>
         </div>
 
-        <div class="plan-card plan-card-featured reveal" style="transition-delay:.1s">
-          <div class="plan-badge">Most popular</div>
-          <div class="plan-name">Pro</div>
-          <div class="plan-price">₦5,000</div>
-          <div class="plan-period">per month</div>
-          <ul class="plan-features">
-            <li>✓ Everything in Starter</li>
-            <li>✓ Custom domain included</li>
-            <li>✓ Full AI-generated website</li>
-            <li>✓ WhatsApp business bot</li>
-            <li>✓ Unlimited client matching</li>
-            <li>✓ AI Outreach engine</li>
-            <li>✓ Income tracker + invoices</li>
-            <li>✓ Smart pricing suggestions</li>
+        <!-- PRO -->
+        <div class="pricing-card popular reveal" style="transition-delay:.08s">
+          <div class="popular-badge">Most Popular</div>
+          <div class="pricing-plan">Pro</div>
+          <div class="pricing-price">₦5,000 <span>/month</span></div>
+          <div class="pricing-desc">Everything you need to grow. Domain + hosting included.</div>
+          <a href="auth/signup.html" class="pricing-btn primary">Start 7-day free trial</a>
+          <ul class="pricing-features">
+            <li>Everything in Starter</li>
+            <li>Custom .com domain included</li>
+            <li>Unlimited bookings</li>
+            <li>All 4 acquisition engines</li>
+            <li>AI Outreach (500 messages/mo)</li>
+            <li>Invoice generator</li>
+            <li>Income tracker + analytics</li>
+            <li>Digital business card + QR</li>
+            <li>Priority support</li>
           </ul>
-          <a href="auth/signup.html" class="plan-btn plan-btn-primary">Start Pro — ₦5,000/mo</a>
         </div>
 
-        <div class="plan-card reveal" style="transition-delay:.2s">
-          <div class="plan-name">Business</div>
-          <div class="plan-price">₦15,000</div>
-          <div class="plan-period">per month</div>
-          <ul class="plan-features">
-            <li>✓ Everything in Pro</li>
-            <li>✓ Up to 5 team members</li>
-            <li>✓ Multiple service listings</li>
-            <li>✓ Advanced analytics</li>
-            <li>✓ Repeat client engine</li>
-            <li>✓ Custom branding</li>
-            <li>✓ Priority support</li>
-            <li>✓ API access</li>
+        <!-- BUSINESS -->
+        <div class="pricing-card reveal" style="transition-delay:.16s">
+          <div class="pricing-plan">Business</div>
+          <div class="pricing-price">₦15,000 <span>/month</span></div>
+          <div class="pricing-desc">For serious operators running multiple services or a team.</div>
+          <a href="auth/signup.html" class="pricing-btn outline">Get Business</a>
+          <ul class="pricing-features">
+            <li>Everything in Pro</li>
+            <li>Up to 5 team members</li>
+            <li>Multiple business profiles</li>
+            <li>Unlimited AI Outreach</li>
+            <li>Custom WhatsApp Bot training</li>
+            <li>Client portal access</li>
+            <li>Advanced analytics dashboard</li>
+            <li>Dedicated account manager</li>
           </ul>
-          <a href="auth/signup.html" class="plan-btn plan-btn-ghost">Get Business</a>
         </div>
+
       </div>
     </div>
   </section>
 
-  <!-- CTA -->
+  <!-- CTA SECTION -->
   <section class="cta-section">
     <div class="section-inner">
-      <h2 class="cta-title">You have the skill.<br><span class="gradient-text">Let ERGIO do the rest.</span></h2>
-      <p class="cta-sub">Join thousands of Nigerian students already building real businesses with ERGIO.</p>
-      <button class="cta-btn" onclick="document.getElementById('promptInput').focus(); window.scrollTo({top:0,behavior:'smooth'})">Start building for free →</button>
+      <h2>Your first client is<br><span class="gradient-text">one prompt away.</span></h2>
+      <p>Join 2,847 Nigerian entrepreneurs already growing with ERGIO.</p>
+      <div class="cta-buttons">
+        <a href="auth/signup.html" class="btn-primary">
+          Launch my business free
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="#engines" class="btn-ghost">See how it works</a>
+      </div>
     </div>
   </section>
 
   <!-- FOOTER -->
-  <footer class="footer">
+  <footer>
     <div class="footer-inner">
-      <div class="footer-brand">
-        <img src="assets/ergio-logo.jpg" alt="ERGIO" style="width:32px;height:32px;border-radius:8px">
-        <span>ERGIO</span>
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="#" class="logo">
+            <span class="logo-text">ERGIO</span>
+          </a>
+          <p>You bring the skill. ERGIO brings the clients. The African freelancer's complete business engine.</p>
+        </div>
+        <div class="footer-links">
+          <div class="footer-col">
+            <h4>Product</h4>
+            <a href="#features">Features</a>
+            <a href="#engines">Engines</a>
+            <a href="#pricing">Pricing</a>
+            <a href="dashboard/index.html">Dashboard</a>
+          </div>
+          <div class="footer-col">
+            <h4>Tools</h4>
+            <a href="directory.html">Directory</a>
+            <a href="match.html">Find a Pro</a>
+            <a href="pay.html">Pay a Pro</a>
+            <a href="refer.html">Refer & Earn</a>
+          </div>
+          <div class="footer-col">
+            <h4>Account</h4>
+            <a href="auth/signup.html">Sign Up</a>
+            <a href="auth/login.html">Sign In</a>
+            <a href="mailto:hello@ergio.app">Contact</a>
+          </div>
+        </div>
       </div>
-      <div class="footer-links">
-        <a href="#features">Features</a>
-        <a href="#engines">Engines</a>
-        <a href="directory.html">Directory</a>
-        <a href="match.html">Find a Pro</a>
-        <a href="#pricing">Pricing</a>
-        <a href="refer.html">Refer & Earn</a>
-        <a href="auth/login.html">Sign in</a>
-        <a href="auth/signup.html">Get started</a>
+      <div class="footer-bottom">
+        <p>© 2026 ERGIO. Built for Africa. Powered by AI.</p>
+        <p>Lagos, Nigeria 🇳🇬</p>
       </div>
-      <div class="footer-copy">© 2026 ERGIO. Built for Africa. 🌍</div>
     </div>
   </footer>
 
   <!-- BUILD OVERLAY -->
   <div class="build-overlay" id="buildOverlay">
-    <div class="build-container">
-
-      <!-- LEFT CONSOLE -->
-      <div class="build-console" id="buildConsole">
-
+    <div class="build-header">
+      <div class="build-header-left">
+        <span class="build-logo">ERGIO</span>
+        <span class="build-title" id="buildTitle">Building your business...</span>
+      </div>
+      <button class="build-close" onclick="closeBuild()">✕</button>
+    </div>
+    <div class="build-body">
+      <!-- CONSOLE -->
+      <div class="build-console">
         <!-- Q&A PHASE -->
-        <div class="qa-phase" id="qaPanel" style="display:flex">
-          <div class="qa-header">
-            <img src="assets/ergio-logo.jpg" alt="ERGIO" class="qa-logo-img" />
-            <span class="qa-ergio-label">ERGIO AI</span>
-            <button class="qa-close" id="buildClose">✕</button>
+        <div id="qaPhase" class="qa-phase">
+          <div class="qa-question" id="qaQuestion">
+            <h3 id="qaTitle">What city are you based in?</h3>
+            <p id="qaDesc">This helps us find local clients for you</p>
+            <div class="qa-progress" id="qaProgress"></div>
           </div>
-          <div class="qa-progress-bar"><div class="qa-progress-fill" id="qaProgressFill"></div></div>
-          <div class="qa-body" id="qaContent"></div>
-          <div class="qa-footer">
-            <button class="qa-back" id="qaBack" style="display:none">← Back</button>
-            <button class="qa-next" id="qaNext" disabled>Continue →</button>
+          <div class="qa-options" id="qaOptions"></div>
+          <div class="qa-input-row" id="qaInputRow" style="display:none">
+            <input type="text" class="qa-text-input" id="qaTextInput" placeholder="Type your answer..." />
+            <button class="qa-next-btn" onclick="qaNext()">Next →</button>
           </div>
         </div>
 
         <!-- BUILD PHASE -->
-          <!-- UPLOAD ZONE -->
-          <div class="upload-zone" id="uploadZone" style="display:none">
-            <div class="upload-area" id="uploadArea">
-              <div class="upload-icon">📎</div>
-              <div class="upload-text">Drop files here or tap to upload</div>
-              <div class="upload-hint">Logos, photos, menus, brand assets, PDFs — anything ERGIO can use</div>
-              <input type="file" id="uploadInput" multiple hidden accept="image/*,application/pdf,.doc,.docx,.txt,.csv">
-            </div>
-            <div class="upload-list" id="uploadList"></div>
+        <div id="buildPhase" style="display:none; flex-direction:column; height:100%">
+          <div class="console-header">
+            <h3>Building your business</h3>
+            <p id="buildStatus">Initializing AI engines...</p>
           </div>
-        <div class="build-phase" id="buildPanel" style="display:none">
-          <div class="build-phase-header">
-            <div class="build-status"><div class="status-dot" id="statusDot"></div><span id="statusText">Building your business...</span></div>
-            <button class="qa-close" id="buildClose2">✕</button>
+          <div class="console-body" id="taskList">
+            <div class="task-list" id="taskItems"></div>
           </div>
-          <div class="build-progress-wrap">
-            <div class="build-progress-bar"><div class="build-progress-fill" id="progressBar"></div></div>
-            <span class="build-progress-pct" id="progressText">0/7</span>
-          </div>
-          <div class="task-list" id="buildLog"></div>
-          <div class="build-footer-stats">
-            <div class="bf-stat"><span class="bf-label">Tasks</span><span class="bf-value" id="statTasks">0</span></div>
-            <div class="bf-stat"><span class="bf-label">Time</span><span class="bf-value" id="statTime">0s</span></div>
-            <div class="bf-stat"><span class="bf-label">Status</span><span class="bf-value" style="color:#00FF9D">Building...</span></div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-label" id="progressLabel">0% complete</div>
           </div>
         </div>
 
         <!-- LAUNCH PHASE -->
-        <div class="launch-phase" id="launchPanel" style="display:none">
-          <div class="launch-success">
-            <div class="launch-check-circle">✓</div>
-            <h2 class="launch-title">Your business is live.</h2>
-            <p class="launch-sub" id="launchSub">Welcome to ERGIO.</p>
-            <div class="launch-url" id="launchUrl">ergio.app/your-business</div>
-            <div class="launch-business-name" id="launchBusinessName" style="display:none"></div>
+        <div id="launchPhase" style="display:none">
+          <div class="console-header">
+            <h3>🎉 Your business is live!</h3>
+            <p>All engines are running</p>
+          </div>
+          <div class="launch-phase">
+            <div class="launch-stat"><span class="launch-stat-icon">🌐</span><div class="launch-stat-text"><h4>Website</h4><p id="launchWebsite">Generated & ready</p></div></div>
+            <div class="launch-stat"><span class="launch-stat-icon">💳</span><div class="launch-stat-text"><h4>Payments</h4><p>Paystack connected</p></div></div>
+            <div class="launch-stat"><span class="launch-stat-icon">📅</span><div class="launch-stat-text"><h4>Bookings</h4><p>Online booking active</p></div></div>
+            <div class="launch-stat"><span class="launch-stat-icon">🤖</span><div class="launch-stat-text"><h4>4 Engines</h4><p>Finding clients now...</p></div></div>
             <div class="launch-actions">
-              <a href="auth/signup.html" class="launch-btn-primary">Open my dashboard →</a>
-              <button class="launch-btn-outline" id="buildClose3">Back to home</button>
+              <button class="launch-btn primary" onclick="viewWebsite()">View My Business Site</button>
+              <button class="launch-btn secondary" onclick="window.location.href='dashboard/index.html'">Open Dashboard</button>
             </div>
           </div>
-
-          <!-- CHAT REFINEMENT (Lovable Chat Mode) -->
-          <div class="chat-refine-box" id="chatBox" style="display:none">
-            <div class="chat-refine-header">
-              <span class="chat-refine-title">💬 Refine your website</span>
-              <span class="chat-refine-hint">Ask ERGIO to change anything</span>
-            </div>
+          <!-- CHAT REFINEMENT -->
+          <div class="chat-mode">
+            <div class="chat-label">✦ Chat to refine</div>
             <div class="chat-messages" id="chatMessages"></div>
-            <div class="chat-input-wrap">
-              <input type="text" id="chatInput" placeholder='Try: "make the colors blue" or "add a pricing section"' autocomplete="off"/>
-              <button id="chatSend">↑</button>
+            <div class="chat-input-row">
+              <input type="text" id="chatInput" placeholder='Try: "make the hero blue" or "add a gallery section"' autocomplete="off"/>
+              <button class="chat-send" onclick="sendChatEdit()">Edit</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- RIGHT PREVIEW -->
-      <div class="build-preview" id="previewPane">
-        <div class="preview-browser">
-          <div class="preview-browser-bar">
-            <div class="browser-dots"><span></span><span></span><span></span></div>
-            <div class="preview-url-bar" id="previewUrlBar">ergio.app/your-business</div>
-            <div class="browser-reload">↻</div>
-          </div>
-          <div class="preview-browser-content">
-            <iframe id="previewFrame" title="Live Preview"></iframe>
-          </div>
+      <!-- PREVIEW -->
+      <div class="build-preview">
+        <div class="preview-header">
+          <div class="preview-dots"><span></span><span></span><span></span></div>
+          <div class="preview-url" id="previewUrl">ergio.app/your-business</div>
         </div>
-        <div class="preview-white-flow">
-          <div class="flow-line"></div><div class="flow-line"></div><div class="flow-line"></div>
-          <div class="flow-line"></div><div class="flow-line"></div>
+        <div class="preview-placeholder" id="previewPlaceholder">
+          <div class="preview-placeholder-icon">✦</div>
+          <p>Your live website will appear here<br>as ERGIO builds it</p>
         </div>
+        <iframe class="preview-frame" id="previewFrame" style="display:none" title="Business Preview"></iframe>
       </div>
     </div>
   </div>
@@ -380,4 +416,3 @@
   <script src="script.js"></script>
 </body>
 </html>
-<!-- ERGIO - Auto-deploy enabled Thu Jul 16 09:43:00 UTC 2026 -->

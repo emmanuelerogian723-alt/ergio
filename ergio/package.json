@@ -5,7 +5,8 @@
   "description": "ERGIO — Business-in-a-box for African freelancers",
   "type": "module",
   "dependencies": {
-    "@supabase/supabase-js": "^2.45.0"
+    "@supabase/supabase-js": "^2.45.0",
+    "pg": "^8.22.0"
   },
   "engines": {
     "node": ">=18"
