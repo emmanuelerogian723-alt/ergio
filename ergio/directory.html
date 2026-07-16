@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find Services — ERGIO Directory</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#050508;--surface:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--cyan:#00D9FF;--green:#00FF9D;--blue:#2563FF;--gold:#FFB800;--text:#F8FAFC;--muted:#94A3B8}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    a{text-decoration:none;color:inherit}
+
+    .header{position:sticky;top:0;z-index:100;background:rgba(5,5,8,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between}
+    .logo{display:flex;align-items:center;gap:.6rem}
+    .logo img{width:36px;height:36px;border-radius:10px}
+    .logo span{font-size:1.2rem;font-weight:800}
+    .nav-links{display:flex;gap:1.5rem;align-items:center}
+    .nav-links a{color:var(--muted);font-size:.9rem;transition:color .2s}
+    .nav-links a:hover{color:var(--text)}
+    .nav-cta{padding:.5rem 1.2rem;background:linear-gradient(135deg,var(--cyan),var(--green));color:#09090B;border-radius:10px;font-weight:700;font-size:.85rem}
+
+    .hero-section{padding:3rem 2rem;text-align:center}
+    .hero-title{font-size:2.5rem;font-weight:800;margin-bottom:.5rem}
+    .hero-title .grad{background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero-sub{color:var(--muted);font-size:1.1rem;margin-bottom:2rem}
+
+    .search-bar{max-width:600px;margin:0 auto;display:flex;gap:.5rem}
+    .search-input{flex:1;padding:1rem 1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:14px;color:var(--text);font-size:1rem;outline:none;transition:all .3s;font-family:'Inter',sans-serif}
+    .search-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,217,255,.1)}
+    .search-btn{padding:0 1.5rem;background:linear-gradient(135deg,var(--cyan),var(--green));color:#09090B;border:none;border-radius:14px;font-weight:700;cursor:pointer;font-size:.95rem;transition:all .3s}
+    .search-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,217,255,.3)}
+
+    .filters{max-width:1200px;margin:1.5rem auto;padding:0 2rem;display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center}
+    .filter-chip{padding:.5rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:20px;font-size:.85rem;cursor:pointer;transition:all .2s;color:var(--muted)}
+    .filter-chip:hover{border-color:var(--cyan);color:var(--text)}
+    .filter-chip.active{background:rgba(0,217,255,.1);border-color:var(--cyan);color:var(--cyan)}
+
+    .results-grid{max-width:1200px;margin:0 auto;padding:2rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
+    .biz-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;transition:all .3s;cursor:pointer;position:relative;overflow:hidden}
+    .biz-card:hover{border-color:rgba(0,217,255,.3);transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,.3)}
+    .biz-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--green));transform:scaleX(0);transition:transform .3s;transform-origin:left}
+    .biz-card:hover::before{transform:scaleX(1)}
+    .biz-top{display:flex;align-items:center;gap:.8rem;margin-bottom:.8rem}
+    .biz-avatar{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--cyan),var(--blue));display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700;color:#09090B;flex-shrink:0}
+    .biz-name{font-weight:700;font-size:1rem}
+    .biz-type{font-size:.75rem;color:var(--muted)}
+    .biz-desc{font-size:.85rem;color:var(--muted);line-height:1.5;margin-bottom:.8rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .biz-meta{display:flex;gap:1rem;font-size:.8rem;color:var(--muted)}
+    .biz-meta span{display:flex;align-items:center;gap:.3rem}
+    .biz-badge{position:absolute;top:1rem;right:1rem;padding:.2rem .6rem;border-radius:20px;font-size:.7rem;font-weight:600}
+    .badge-pro{background:rgba(0,217,255,.1);color:var(--cyan);border:1px solid rgba(0,217,255,.2)}
+    .badge-free{background:rgba(0,255,157,.1);color:var(--green);border:1px solid rgba(0,255,157,.2)}
+    .badge-biz{background:rgba(255,184,0,.1);color:var(--gold);border:1px solid rgba(255,184,0,.2)}
+
+    .load-more{text-align:center;padding:2rem}
+    .load-more-btn{padding:.8rem 2rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--text);cursor:pointer;font-size:.9rem;transition:all .2s;font-family:'Inter',sans-serif}
+    .load-more-btn:hover{border-color:var(--cyan)}
+
+    .footer{text-align:center;padding:3rem 2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border)}
+
+    @media(max-width:768px){.header{padding:1rem}.hero-title{font-size:1.8rem}.results-grid{padding:1rem;grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a class="logo" href="../index.html">
+      <img src="../assets/ergio-logo.jpg" alt="ERGIO" onerror="this.style.display='none'">
+      <span>ERGIO</span>
+    </a>
+    <div class="nav-links">
+      <a href="../index.html">Home</a>
+      <a href="directory.html">Directory</a>
+      <a href="match.html">Find Service</a>
+      <a href="../auth/login.html">Sign in</a>
+      <a href="../auth/signup.html" class="nav-cta">Get started</a>
+    </div>
+  </div>
+
+  <div class="hero-section">
+    <h1 class="hero-title">Find local <span class="grad">professionals</span></h1>
+    <p class="hero-sub">Search 1,200+ verified businesses across Nigeria</p>
+    <div class="search-bar">
+      <input type="text" class="search-input" id="searchInput" placeholder="What service do you need? e.g. plumber in Lagos" onkeypress="if(event.key==='Enter')search()">
+      <button class="search-btn" onclick="search()">Search</button>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="filter-chip active" onclick="filter(this,'all')">All</div>
+    <div class="filter-chip" onclick="filter(this,'designer')">Design</div>
+    <div class="filter-chip" onclick="filter(this,'cleaner')">Cleaning</div>
+    <div class="filter-chip" onclick="filter(this,'fitness')">Fitness</div>
+    <div class="filter-chip" onclick="filter(this,'food')">Food</div>
+    <div class="filter-chip" onclick="filter(this,'photographer')">Photo</div>
+    <div class="filter-chip" onclick="filter(this,'developer')">Dev</div>
+    <div class="filter-chip" onclick="filter(this,'beauty')">Beauty</div>
+    <div class="filter-chip" onclick="filter(this,'events')">Events</div>
+  </div>
+
+  <div class="results-grid" id="resultsGrid"></div>
+
+  <div class="load-more">
+    <button class="load-more-btn" onclick="loadMore()">Load more businesses</button>
+  </div>
+
+  <div class="footer">
+    ERGIO — You bring the skill. We bring the clients.
+  </div>
+
+  <script>
+    const businesses = [
+      {name:'PixelForge Studios',type:'designer',city:'Lagos',desc:'Brand identity, web design, and digital experiences for ambitious startups.',plan:'pro',rating:4.9,reviews:47},
+      {name:'Fresh & Clean Abuja',type:'cleaner',city:'Abuja',desc:'Professional home and office cleaning. Eco-friendly products. Same-day service.',plan:'business',rating:4.8,reviews:92},
+      {name:'FitLife Coaching',type:'fitness',city:'Lagos',desc:'Personal fitness training, nutrition plans, and online coaching.',plan:'free',rating:4.7,reviews:31},
+      {name:'Emeka Photography',type:'photographer',city:'Enugu',desc:'Wedding, portrait, and event photography. Cinematic editing.',plan:'free',rating:5.0,reviews:18},
+      {name:'Kano Web Solutions',type:'developer',city:'Kano',desc:'Custom websites, e-commerce, and mobile apps for small businesses.',plan:'pro',rating:4.9,reviews:24},
+      {name:'Glow Beauty Bar',type:'beauty',city:'Lagos',desc:'Makeup, facials, and beauty treatments. Mobile service available.',plan:'pro',rating:4.8,reviews:56},
+      {name:'Perfect Events NG',type:'events',city:'Port Harcourt',desc:'Wedding and event planning. Full coordination, catering, decor.',plan:'business',rating:4.9,reviews:38},
+      {name:'Tunde Cakes',type:'food',city:'Ibadan',desc:'Custom birthday and wedding cakes. Delivery across the city.',plan:'free',rating:4.9,reviews:67},
+      {name:'CodeCraft Studio',type:'developer',city:'Lagos',desc:'Full-stack development, API integration, and technical consulting.',plan:'pro',rating:5.0,reviews:12},
+      {name:'Sparkle Clean',type:'cleaner',city:'Lagos',desc:'Deep cleaning, move-in/out cleaning, and post-construction cleanup.',plan:'free',rating:4.6,reviews:29},
+      {name:'Braids by Ada',type:'beauty',city:'Abuja',desc:'Protective styling, braids, locs, and natural hair care.',plan:'free',rating:4.9,reviews:84},
+      {name:'Prime Fitness',type:'fitness',city:'Port Harcourt',desc:'Group classes, personal training, and corporate wellness programs.',plan:'pro',rating:4.7,reviews:22},
+    ];
+
+    const typeIcons = {designer:'🎨',cleaner:'🧹',fitness:'💪',food:'🍽️',photographer:'📸',developer:'💻',beauty:'💄',events:'🎉',other:'✨'};
+    let currentFilter = 'all';
+    let shown = 6;
+
+    function render() {
+      const grid = document.getElementById('resultsGrid');
+      const filtered = currentFilter === 'all' ? businesses : businesses.filter(b => b.type === currentFilter);
+      grid.innerHTML = filtered.slice(0, shown).map(b => `
+        <div class="biz-card" onclick="window.location.href='#${b.name.replace(/\s/g,'-').toLowerCase()}'">
+          <div class="biz-badge badge-${b.plan==='free'?'free':b.plan==='pro'?'pro':'biz'}">${b.plan==='free'?'Free':b.plan==='pro'?'Pro':'Business'}</div>
+          <div class="biz-top">
+            <div class="biz-avatar">${typeIcons[b.type]||'✨'}</div>
+            <div>
+              <div class="biz-name">${b.name}</div>
+              <div class="biz-type">${b.city}</div>
+            </div>
+          </div>
+          <div class="biz-desc">${b.desc}</div>
+          <div class="biz-meta">
+            <span>⭐ ${b.rating}</span>
+            <span>💬 ${b.reviews} reviews</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filter(el, type) {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      currentFilter = type;
+      shown = 6;
+      render();
+    }
+
+    function search() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      if (!q) return render();
+      const grid = document.getElementById('resultsGrid');
+      const results = businesses.filter(b => 
+        b.name.toLowerCase().includes(q) || 
+        b.desc.toLowerCase().includes(q) || 
+        b.city.toLowerCase().includes(q) ||
+        b.type.toLowerCase().includes(q)
+      );
+      grid.innerHTML = results.length ? results.map(b => `
+        <div class="biz-card">
+          <div class="biz-badge badge-${b.plan==='free'?'free':b.plan==='pro'?'pro':'biz'}">${b.plan==='free'?'Free':b.plan==='pro'?'Pro':'Business'}</div>
+          <div class="biz-top">
+            <div class="biz-avatar">${typeIcons[b.type]||'✨'}</div>
+            <div><div class="biz-name">${b.name}</div><div class="biz-type">${b.city}</div></div>
+          </div>
+          <div class="biz-desc">${b.desc}</div>
+          <div class="biz-meta"><span>⭐ ${b.rating}</span><span>💬 ${b.reviews} reviews</span></div>
+        </div>
+      `).join('') : '<p style="color:var(--muted);text-align:center;grid-column:1/-1">No businesses found. Try a different search.</p>';
+    }
+
+    function loadMore() {
+      shown += 6;
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>
