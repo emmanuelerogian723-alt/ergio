@@ -142,7 +142,7 @@ const reveals = document.querySelectorAll('.reveal');
 const revealObs = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
+      entry.target.classList.add('in');
       revealObs.unobserve(entry.target);
     }
   });
@@ -753,6 +753,16 @@ if (buildClose) buildClose.addEventListener('click', closeBuild);
 document.addEventListener('DOMContentLoaded', () => {
   const closeBtns = document.querySelectorAll('[id^="buildClose"]');
   closeBtns.forEach(btn => btn.addEventListener('click', closeBuild));
+
+  // Trigger reveal for elements already in viewport on page load
+  setTimeout(() => {
+    document.querySelectorAll('.reveal').forEach(el => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight) {
+        el.classList.add('in');
+      }
+    });
+  }, 100);
 });
 
 // ============ HELPER FUNCTIONS ============
@@ -767,3 +777,4 @@ window.fillPrompt = function(text) {
 window.closeBuild = closeBuild;
 window.startBuild = startBuild;
 window.ERGIO = { startBuild, closeBuild };
+
