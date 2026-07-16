@@ -506,34 +506,69 @@ async function handleEnhancePrompt(req, res) {
 // ============================================
 async function groqFallback(req, res, prompt, systemPrompt, model) {
   const groqKey = process.env.GROQ_API_KEY;
-  if (!groqKey) return res.status(500).json({ error: 'Neither Jan AI nor Groq available.' });
+  const openrouterKey = process.env.OPENROUTER_API_KEY;
   
-  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model,
-      messages: [
-        ...(systemPrompt ? [{ role: 'system', content: systemPrompt }] : []),
-        { role: 'user', content: prompt },
-      ],
-      temperature: 0.7,
-      max_tokens: 2048,
-    }),
-  });
-  
-  if (!response.ok) {
-    const err = await response.text();
-    return res.status(502).json({ error: `Groq fallback failed: ${err}` });
+  const messages = [
+    ...(systemPrompt ? [{ role: 'system', content: systemPrompt }] : []),
+    { role: 'user', content: prompt }
+  ];
+
+  // Try Groq first
+  if (groqKey) {
+    try {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + groqKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: model || 'gemma2-9b-it', messages, temperature: 0.7, max_tokens: 2048 }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return res.status(200).json({
+          engine: 'Groq (fallback for Jan AI)',
+          model: model || 'gemma2-9b-it',
+          content: data.choices?.[0]?.message?.content || '',
+          usage: data.usage,
+          local: false,
+        });
+      }
+    } catch (e) {}
   }
-  
-  const data = await response.json();
-  return res.status(200).json({
-    engine: 'Groq (fallback for Jan AI)',
-    model,
-    content: data.choices?.[0]?.message?.content || '',
-    usage: data.usage,
-    local: false,
-    note: 'Jan AI not available locally. Used Groq cloud instead.',
-  });
+
+  // Try OpenRouter second
+  if (openrouterKey) {
+    try {
+      const orModel = model === 'gemma2-9b-it' ? 'google/gemma-2-9b-it:free' : 'meta-llama/llama-3.3-70b-instruct';
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + openrouterKey, 'Content-Type': 'application/json', 'HTTP-Referer': 'https://ergio.vercel.app', 'X-Title': 'ERGIO' },
+        body: JSON.stringify({ model: orModel, messages, temperature: 0.7, max_tokens: 2048 }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return res.status(200).json({
+          engine: 'OpenRouter (fallback)',
+          model: orModel,
+          content: data.choices?.[0]?.message?.content || '',
+          local: false,
+        });
+      }
+    } catch (e) {}
+  }
+
+  // Final fallback: Pollinations text API (no key needed, completely free)
+  try {
+    const pollinationsPrompt = (systemPrompt ? systemPrompt + ' ' : '') + prompt;
+    const response = await fetch('https://text.pollinations.ai/' + encodeURIComponent(pollinationsPrompt));
+    if (response.ok) {
+      const content = await response.text();
+      return res.status(200).json({
+        engine: 'Pollinations (free, no key)',
+        model: 'openai',
+        content: content,
+        local: false,
+      });
+    }
+  } catch (e) {}
+
+  return res.status(500).json({ error: 'All AI providers failed. Set GROQ_API_KEY or OPENROUTER_API_KEY on Vercel.' });
 }
