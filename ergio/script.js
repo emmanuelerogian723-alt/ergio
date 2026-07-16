@@ -170,6 +170,14 @@ const questions = [
 let currentQ = 0;
 
 function startBuild(prompt) {
+  // If prompt is not a string (e.g., it's a click event), read from the input
+  if (typeof prompt !== 'string' || !prompt.trim()) {
+    prompt = document.getElementById('promptInput')?.value?.trim() || '';
+  }
+  if (!prompt) {
+    alert('Please describe what you do first!');
+    return;
+  }
   buildAnswers = { prompt };
   buildOverlay.classList.add('active');
   document.body.style.overflow = 'hidden';
