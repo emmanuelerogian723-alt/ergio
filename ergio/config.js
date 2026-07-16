@@ -1,17 +1,16 @@
 // ========================================
 // ERGIO Client-Side Configuration
-// Replace these with your actual Supabase credentials
 // The anon key is safe to expose publicly (RLS protects your data)
 // ========================================
 
 window.ERGIO_CONFIG = {
-  // Supabase - Get these from: Supabase Dashboard > Settings > API
-  supabaseUrl: 'https://xxfbvjhebwxdkkjynnkz.supabase.co',
-  supabaseAnonKey: 'YOUR_SUPABASE_ANON_KEY', // Replace with your anon key
+  // Supabase - Ergio project (active)
+  supabaseUrl: 'https://owcxfzlanlrulflsyvlr.supabase.co',
+  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93Y3hmemxhbmxydWxmbHN5dmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxNzI5NDIsImV4cCI6MjA5OTc0ODk0Mn0.k6IISu8k8QoU1CGLF0U3319qqDvEIwYY8PPXXvwfbAw',
   
   // API Base URL (for Vercel deployment, this will be your domain)
   apiBase: window.location.origin.includes('github.io') 
-    ? 'https://your-ergio-app.vercel.app' 
+    ? 'https://ergio.vercel.app' 
     : window.location.origin,
   
   // Groq AI Models (free tier)
