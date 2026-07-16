@@ -33,15 +33,10 @@ export default async function handler(req, res) {
     // Multiple search queries to find potential clients
     const searchQueries = [
       `I need ${businessType} in ${city}`,
-      `looking for ${businessType} ${city} Nigeria`,
-      `hire ${businessType} ${city}`,
-      `${businessType} needed urgently ${city}`,
-      `seeking ${businessType} services ${city} Nigeria`,
-      `where can I find ${businessType} in ${city}`,
+      `hire ${businessType} ${city} Nigeria`,
+      `looking for ${businessType} services ${city}`,
       `best ${businessType} ${city} Nigeria`,
-      `${businessType} ${city} site:twitter.com OR site:nairaland.com OR site:jiji.com.ng`,
-      `need ${businessType} ${city} site:facebook.com`,
-      `${businessType} recommendation ${city} Nigeria`
+      `${businessType} needed ${city} Nigeria`
     ];
 
     let allResults = [];
@@ -60,7 +55,7 @@ export default async function handler(req, res) {
       }
 
       if (allResults.length >= 30) break;
-      await new Promise(r => setTimeout(r, 300));
+      await new Promise(r => setTimeout(r, 100));
     }
 
     send('search_complete', { totalResults: allResults.length });
@@ -69,7 +64,7 @@ export default async function handler(req, res) {
     send('status', { task: 'Extracting contact information from results...' });
 
     const leads = [];
-    const scrapeLimit = Math.min(allResults.length, 10);
+    const scrapeLimit = Math.min(allResults.length, 5);
 
     for (let i = 0; i < scrapeLimit; i++) {
       const result = allResults[i];
@@ -139,7 +134,7 @@ Return JSON:
           // Skip this lead on error
         }
 
-        await new Promise(r => setTimeout(r, 200));
+        await new Promise(r => setTimeout(r, 100));
       }
     }
 

@@ -96,13 +96,13 @@ let currentInstance = 0;
 export async function searxngSearch(query, options = {}) {
   const resultsCount = options.count || 20;
 
-  // Try SearXNG instances first
-  for (let i = 0; i < SEARXNG_INSTANCES.length; i++) {
+  // Try SearXNG instances first (max 3, 2s timeout each)
+  for (let i = 0; i < Math.min(3, SEARXNG_INSTANCES.length); i++) {
     const instance = SEARXNG_INSTANCES[(currentInstance + i) % SEARXNG_INSTANCES.length];
     try {
       const url = `${instance}/search?q=${encodeURIComponent(query)}&categories=general&language=en&format=json&safesearch=1`;
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 6000);
+      const timeout = setTimeout(() => controller.abort(), 2000);
       const response = await fetch(url, {
         signal: controller.signal,
         headers: { 'Accept': 'application/json', 'User-Agent': 'ERGIO/1.0 (+https://ergio.app)' }
@@ -135,7 +135,7 @@ async function duckDuckGoSearch(query, count) {
   try {
     const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
+    const timeout = setTimeout(() => controller.abort(), 5000);
     const response = await fetch(url, {
       signal: controller.signal,
       headers: {
