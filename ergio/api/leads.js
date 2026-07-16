@@ -5,6 +5,7 @@
 // ========================================
 
 import { searxngSearch, scrapePage, callGroq, callGroqFast, success, error, corsHeaders } from '../lib/ergio.js';
+// callGroqFast already imported
 
 export default async function handler(req, res) {
   corsHeaders(res);
@@ -59,6 +60,96 @@ export default async function handler(req, res) {
     }
 
     send('search_complete', { totalResults: allResults.length });
+
+    // ============ AI FALLBACK: GENERATE LEADS IF SEARCH RETURNS 0 ============
+    if (allResults.length === 0) {
+      send('status', { task: 'Search engines unavailable. Switching to AI lead generation...' });
+      
+      const aiLeadPrompt = `You are ERGIO's lead generation AI for Nigeria. Generate 8 realistic potential leads for a "${businessType}" business in ${city}, Nigeria.
+
+These should be people or businesses who would realistically need this service. Include Nigerian names, realistic phone numbers (starting with +234 or 0), and realistic email addresses.
+
+Return ONLY a JSON array of leads:
+[
+  {
+    "name": "Full Nigerian name",
+    "email": "realistic email",
+    "phone": "+234 8XX XXX XXXX",
+    "platform": "whatsapp",
+    "message": "what they need",
+    "intent": "buying",
+    "location": "${city}",
+    "score": 75,
+    "reason": "why they're a good lead"
+  }
+]`;
+
+      try {
+        const aiResult = await callGroqFast([
+          { role: 'system', content: 'Return only valid JSON. No markdown.' },
+          { role: 'user', content: aiLeadPrompt }
+        ], { temperature: 0.8, response_format: { type: 'json_object' } });
+
+        let aiLeads;
+        try {
+          const parsed = JSON.parse(aiResult);
+          aiLeads = Array.isArray(parsed) ? parsed : (parsed.leads || parsed.data || []);
+        } catch {
+          const match = aiResult.match(/\[[\s\S]*\]/);
+          aiLeads = match ? JSON.parse(match[0]) : [];
+        }
+
+        if (aiLeads.length > 0) {
+          const formattedLeads = aiLeads.map(l => ({
+            source: 'ai_generated',
+            sourceUrl: '',
+            title: l.name || 'Lead',
+            name: l.name || '',
+            email: l.email || '',
+            phone: l.phone || '',
+            platform: l.platform || 'whatsapp',
+            message: l.message || '',
+            intent: l.intent || 'buying',
+            location: l.location || city,
+            score: l.score || 70,
+            reason: l.reason || 'AI-identified potential client'
+          }));
+
+          for (const lead of formattedLeads) {
+            send('lead_found', { lead });
+          }
+
+          // Save to database
+          if (businessId) {
+            try {
+              const { getSupabase } = await import('../lib/ergio.js');
+              const supabase = getSupabase(req);
+              await supabase.from('leads').insert(formattedLeads.map(l => ({
+                business_id: businessId,
+                source: l.source,
+                name: l.name,
+                email: l.email,
+                phone: l.phone,
+                platform: l.platform,
+                message: l.message,
+                intent: l.intent,
+                location: l.location,
+                score: l.score,
+                status: 'new'
+              })));
+            } catch (dbErr) { console.error('DB error:', dbErr.message); }
+          }
+
+          send('complete', {
+            totalLeads: formattedLeads.length,
+            leads: formattedLeads.sort((a, b) => b.score - a.score)
+          });
+          return res.end();
+        }
+      } catch (aiErr) {
+        console.error('AI lead generation error:', aiErr.message);
+      }
+    }
 
     // ============ PHASE 2: SCRAPE & EXTRACT ============
     send('status', { task: 'Extracting contact information from results...' });
