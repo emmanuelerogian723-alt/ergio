@@ -131,39 +131,48 @@ async function duckDuckGoSearch(query, count) {
   try {
     const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+    const timeout = setTimeout(() => controller.abort(), 10000);
     const response = await fetch(url, {
       signal: controller.signal,
       headers: {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html', 'Accept-Language': 'en-US,en;q=0.9'
+        'Accept': 'text/html,application/xhtml+xml',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Referer': 'https://duckduckgo.com/'
       }
     });
     clearTimeout(timeout);
-    if (!response.ok) return [];
+    if (!response.ok) { console.error('DDG response not ok:', response.status); return []; }
 
     const html = await response.text();
+    const $ = cheerio.load(html);
     const results = [];
     
-    // Parse DDG HTML — result links
-    const linkRegex = /<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g;
-    let match;
-    while ((match = linkRegex.exec(html)) !== null && results.length < count) {
-      let linkUrl = match[1];
-      if (linkUrl.includes('uddg=')) linkUrl = decodeURIComponent(linkUrl.split('uddg=')[1].split('&')[0]);
-      const title = match[2].replace(/<[^>]+>/g, '').trim();
-      if (title && linkUrl && !linkUrl.includes('duckduckgo.com')) {
-        results.push({ title, url: linkUrl, content: '', engine: 'duckduckgo', score: results.length });
+    // Use cheerio to parse results
+    $('.result__a').each((i, el) => {
+      if (results.length >= count) return;
+      let href = $(el).attr('href') || '';
+      const title = $(el).text().trim();
+      
+      // DDG wraps URLs in redirect links
+      if (href.includes('uddg=')) {
+        href = decodeURIComponent(href.split('uddg=')[1].split('&')[0]);
+      } else if (href.startsWith('//duckduckgo.com')) {
+        href = 'https:' + href;
       }
-    }
+      
+      if (title && href && !href.includes('duckduckgo.com') && href.startsWith('http')) {
+        results.push({ title, url: href, content: '', engine: 'duckduckgo', score: results.length });
+      }
+    });
 
-    // Snippet extraction
-    const snippetRegex = /<a[^>]+class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g;
-    let snippetMatch; let idx = 0;
-    while ((snippetMatch = snippetRegex.exec(html)) !== null && idx < results.length) {
-      results[idx].content = snippetMatch[1].replace(/<[^>]+>/g, '').trim();
-      idx++;
-    }
+    // Extract snippets
+    $('.result__snippet').each((i, el) => {
+      if (i < results.length) {
+        results[i].content = $(el).text().trim();
+      }
+    });
+
     return results;
   } catch (err) { console.error('DDG error:', err.message); return []; }
 }

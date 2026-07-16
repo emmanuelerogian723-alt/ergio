@@ -24,12 +24,14 @@ import social from '../ergio/api/social.js';
 import upload from '../ergio/api/upload.js';
 import whatsapp from '../ergio/api/whatsapp.js';
 import refine from '../ergio/api/refine.js';
+import transform from '../ergio/api/transform.js';
 
 const handlers = {
   auth, engines, business, bookings, payments, generate,
   leads, outreach, reviews, referrals, seo, analytics,
   notifications, card, expenses, invoices,
-  'smart-pricing': smartPricing, social, upload, whatsapp, refine
+  'smart-pricing': smartPricing, social, upload, whatsapp, refine,
+  transform
 };
 
 export default async function handler(req, res) {

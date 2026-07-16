@@ -38,7 +38,10 @@ export default async function handler(req, res) {
       `${businessType} needed urgently ${city}`,
       `seeking ${businessType} services ${city} Nigeria`,
       `where can I find ${businessType} in ${city}`,
-      `best ${businessType} ${city} Nigeria`
+      `best ${businessType} ${city} Nigeria`,
+      `${businessType} ${city} site:twitter.com OR site:nairaland.com OR site:jiji.com.ng`,
+      `need ${businessType} ${city} site:facebook.com`,
+      `${businessType} recommendation ${city} Nigeria`
     ];
 
     let allResults = [];

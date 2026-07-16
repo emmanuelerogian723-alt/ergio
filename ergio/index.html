@@ -381,5 +381,77 @@
   <script src="config.js"></script>
   <script src="script.js"></script>
 <script src="cookie-consent.js"></script>
+
+    <!-- Website Transformer -->
+    <div id="transformSection" style="max-width:700px;margin:2rem auto;padding:2rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;display:none">
+      <h3 style="font-size:1.3rem;margin-bottom:.5rem;color:#F8FAFC">🔄 Transform Your Existing Website</h3>
+      <p style="color:#94A3B8;font-size:.9rem;margin-bottom:1.5rem">Drop your old website link and ERGIO AI will rebuild it into something better.</p>
+      <div style="display:flex;gap:.5rem">
+        <input type="url" id="transformUrl" placeholder="https://your-old-website.com" style="flex:1;padding:1rem;border-radius:12px;background:#151A20;border:1px solid #2D353C;color:#fff;font-size:1rem">
+        <button onclick="startTransform()" style="padding:0 2rem;border:none;border-radius:12px;background:linear-gradient(135deg,#A78BFA,#7C3AED);color:#fff;font-weight:700;cursor:pointer;font-size:1rem">Transform →</button>
+      </div>
+      <div id="transformProgress" style="margin-top:1.5rem;display:none"></div>
+    </div>
+    
+    <script>
+    function showTransform() {
+      document.getElementById('qaOverlay').style.display = 'none';
+      document.getElementById('transformSection').style.display = 'block';
+    }
+    
+    async function startTransform() {
+      const url = document.getElementById('transformUrl').value.trim();
+      if (!url) return alert('Please enter your website URL');
+      
+      const progress = document.getElementById('transformProgress');
+      progress.style.display = 'block';
+      progress.innerHTML = '<p style="color:#94A3B8">🔄 Transforming your website...</p>';
+      
+      const response = await fetch('/api/transform', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+      
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let websiteHtml = '';
+      let improvements = [];
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        const text = decoder.decode(value);
+        const lines = text.split('\n');
+        
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const event = JSON.parse(line.slice(6));
+          
+          if (event.type === 'status') {
+            progress.innerHTML = '<p style="color:#00D9FF">' + event.data.task + '</p>';
+          } else if (event.type === 'scraped') {
+            progress.innerHTML += '<p style="color:#94A3B8">📄 Found: ' + event.data.title + '</p>';
+          } else if (event.type === 'plan') {
+            progress.innerHTML += '<p style="color:#94A3B8">🎯 Plan: ' + event.data.plan.businessName + '</p>';
+          } else if (event.type === 'website') {
+            websiteHtml = event.data.html;
+            improvements = event.data.improvements || [];
+          } else if (event.type === 'complete') {
+            progress.innerHTML += '<p style="color:#10F981">✅ ' + event.data.message + '</p>';
+          }
+        }
+      }
+      
+      if (websiteHtml) {
+        // Show the transformed website in a new tab
+        const blob = new Blob([websiteHtml], { type: 'text/html' });
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+        progress.innerHTML += '<p style="margin-top:1rem"><a href="' + blobUrl + '" target="_blank" style="color:#00D9FF">🔗 View your new website →</a></p>';
+      }
+    }
+    </script>
 </body>
 </html>

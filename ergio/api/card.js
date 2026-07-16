@@ -50,7 +50,7 @@ export default async function handler(req, res) {
         if (dbErr) return error(res, dbErr.message, 500);
         return success(res, data, 200);
       } else {
-        const { data, error: dbErr } = await supabase.from('businesses').insert({ ...cardData, created_date: new Date().toISOString() }).select().single();
+        const { data, error: dbErr } = await supabase.from('businesses').insert(cardData).select().single();
         if (dbErr) return error(res, dbErr.message, 500);
         return success(res, data, 201);
       }
