@@ -4,9 +4,9 @@
 // Uses Supabase Storage for persistence
 // ========================================
 
-const supabase = require('@supabase/supabase-js');
+import { createClient } from '@supabase/supabase-js';
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS');
@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
       return res.status(500).json({ error: 'Supabase not configured' });
     }
 
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+    const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
     const url = new URL(req.url, `http://${req.headers.host}`);
     const pathParts = url.pathname.replace('/api/upload', '').replace(/^\//, '');
     const action = pathParts || 'list';
