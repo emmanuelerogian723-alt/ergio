@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ERGIO Analytics — Platform Monitor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../config.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#050508;--surface:rgba(255,255,255,0.04);--surface2:rgba(255,255,255,0.02);--border:rgba(255,255,255,0.08);--cyan:#00D9FF;--green:#00FF9D;--blue:#2563FF;--gold:#FFB800;--red:#FF4757;--text:#F8FAFC;--muted:#94A3B8;--sidebar:260px}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+
+    /* Sidebar */
+    .sidebar{width:var(--sidebar);background:rgba(255,255,255,0.02);border-right:1px solid var(--border);padding:1.5rem 0;position:fixed;height:100vh;overflow-y:auto;z-index:10}
+    .sidebar-logo{display:flex;align-items:center;gap:.6rem;padding:0 1.5rem;margin-bottom:2rem;text-decoration:none}
+    .sidebar-logo img{width:40px;height:40px;border-radius:10px}
+    .sidebar-logo span{font-size:1.3rem;font-weight:800;color:var(--text)}
+    .sidebar-section{padding:0 .75rem;margin-bottom:1.5rem}
+    .sidebar-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#475569;font-weight:600;padding:0 .75rem;margin-bottom:.5rem}
+    .nav-item{display:flex;align-items:center;gap:.7rem;padding:.7rem .75rem;border-radius:10px;color:var(--muted);text-decoration:none;font-size:.9rem;transition:all .2s;cursor:pointer;margin-bottom:.2rem}
+    .nav-item:hover{background:var(--surface);color:var(--text)}
+    .nav-item.active{background:rgba(0,217,255,.08);color:var(--cyan);border-left:2px solid var(--cyan)}
+    .nav-item .icon{font-size:1.1rem;width:20px;text-align:center}
+
+    /* Main content */
+    .main{margin-left:var(--sidebar);flex:1;padding:2rem;min-width:0}
+    .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}
+    .page-title{font-size:1.6rem;font-weight:700}
+    .page-sub{color:var(--muted);font-size:.85rem;margin-top:.2rem}
+    .header-actions{display:flex;gap:.5rem}
+    .header-btn{padding:.6rem 1.2rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:.85rem;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+    .header-btn:hover{border-color:var(--cyan)}
+    .header-btn.primary{background:linear-gradient(135deg,var(--cyan),var(--green));color:#09090B;border:none;font-weight:600}
+
+    /* Stats grid */
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;position:relative;overflow:hidden;transition:all .3s}
+    .stat-card:hover{border-color:rgba(0,217,255,.3);transform:translateY(-2px)}
+    .stat-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--accent,var(--cyan))}
+    .stat-icon{font-size:1.5rem;margin-bottom:.5rem}
+    .stat-value{font-size:2rem;font-weight:800;line-height:1}
+    .stat-label{color:var(--muted);font-size:.8rem;margin-top:.3rem;text-transform:uppercase;letter-spacing:.05em}
+    .stat-change{font-size:.75rem;margin-top:.5rem;display:flex;align-items:center;gap:.3rem}
+    .stat-change.up{color:var(--green)}
+    .stat-change.down{color:var(--red)}
+
+    /* Charts */
+    .charts-row{display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1.5rem}
+    .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem}
+    .chart-title{font-size:1rem;font-weight:600;margin-bottom:1rem}
+    .chart-container{height:200px;position:relative}
+
+    /* Bar chart */
+    .bar-chart{display:flex;align-items:flex-end;gap:.5rem;height:180px;padding-bottom:1.5rem}
+    .bar{flex:1;background:linear-gradient(180deg,var(--cyan),rgba(0,217,255,.2));border-radius:6px 6px 0 0;position:relative;transition:all .3s;cursor:pointer;min-height:4px}
+    .bar:hover{background:linear-gradient(180deg,var(--green),rgba(0,255,157,.2))}
+    .bar-label{position:absolute;bottom:-1.2rem;left:50%;transform:translateX(-50%);font-size:.7rem;color:var(--muted)}
+    .bar-value{position:absolute;top:-1.2rem;left:50%;transform:translateX(-50%);font-size:.7rem;color:var(--text);opacity:0;transition:opacity .3s}
+    .bar:hover .bar-value{opacity:1}
+
+    /* Donut chart */
+    .donut-chart{width:160px;height:160px;margin:0 auto;position:relative}
+    .donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+    .donut-center .num{font-size:1.8rem;font-weight:800}
+    .donut-center .label{font-size:.7rem;color:var(--muted)}
+    .donut-legend{margin-top:1rem;display:flex;flex-direction:column;gap:.4rem}
+    .legend-item{display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--muted)}
+    .legend-dot{width:10px;height:10px;border-radius:50%}
+
+    /* Table */
+    .table-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem}
+    .table-title{font-size:1rem;font-weight:600;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center}
+    .data-table{width:100%;border-collapse:collapse}
+    .data-table th{text-align:left;padding:.7rem .5rem;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:#475569;border-bottom:1px solid var(--border);font-weight:600}
+    .data-table td{padding:.7rem .5rem;font-size:.85rem;border-bottom:1px solid rgba(255,255,255,.04)}
+    .data-table tr:hover td{background:rgba(0,217,255,.02)}
+    .badge{padding:.2rem .6rem;border-radius:20px;font-size:.7rem;font-weight:600}
+    .badge-green{background:rgba(0,255,157,.1);color:var(--green);border:1px solid rgba(0,255,157,.2)}
+    .badge-cyan{background:rgba(0,217,255,.1);color:var(--cyan);border:1px solid rgba(0,217,255,.2)}
+    .badge-gold{background:rgba(255,184,0,.1);color:var(--gold);border:1px solid rgba(255,184,0,.2)}
+    .badge-red{background:rgba(255,71,87,.1);color:var(--red);border:1px solid rgba(255,71,87,.2)}
+
+    /* Activity feed */
+    .activity-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem}
+    .activity-item{display:flex;gap:.8rem;padding:.6rem 0;border-bottom:1px solid rgba(255,255,255,.04)}
+    .activity-item:last-child{border-bottom:none}
+    .activity-dot{width:8px;height:8px;border-radius:50%;margin-top:.4rem;flex-shrink:0}
+    .activity-text{font-size:.85rem;color:var(--text)}
+    .activity-time{font-size:.75rem;color:#475569;margin-top:.2rem}
+
+    /* Engine monitor */
+    .engine-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+    .engine-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;text-align:center}
+    .engine-icon{font-size:2rem;margin-bottom:.5rem}
+    .engine-name{font-weight:600;font-size:.9rem;margin-bottom:.3rem}
+    .engine-status{font-size:.75rem;color:var(--green);display:flex;align-items:center;justify-content:center;gap:.3rem}
+    .engine-status .pulse{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .engine-stat{font-size:1.5rem;font-weight:800;margin:.5rem 0}
+    .engine-label{font-size:.7rem;color:var(--muted);text-transform:uppercase}
+
+    /* Revenue chart */
+    .revenue-chart{display:flex;align-items:flex-end;gap:1rem;height:160px;padding:1rem 0}
+    .rev-bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:.3rem}
+    .rev-bar-fill{width:100%;max-width:40px;background:linear-gradient(180deg,var(--green),rgba(0,255,157,.1));border-radius:8px 8px 0 0;transition:all .5s;min-height:4px;position:relative}
+    .rev-bar-fill:hover{filter:brightness(1.2)}
+    .rev-bar-label{font-size:.7rem;color:var(--muted)}
+    .rev-bar-amount{font-size:.7rem;color:var(--green);font-weight:600}
+
+    /* Loading */
+    .loading{text-align:center;padding:3rem;color:var(--muted)}
+    .loading .spinner{display:inline-block;width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin .6s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* Tabs */
+    .tabs{display:flex;gap:.5rem;margin-bottom:1.5rem;border-bottom:1px solid var(--border);padding-bottom:0}
+    .tab{padding:.6rem 1.2rem;border:none;background:none;color:var(--muted);font-size:.9rem;cursor:pointer;transition:all .2s;border-bottom:2px solid transparent;font-family:'Inter',sans-serif;font-weight:500}
+    .tab:hover{color:var(--text)}
+    .tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+
+    @media(max-width:768px){
+      :root{--sidebar:0}
+      .sidebar{display:none}
+      .main{padding:1rem}
+      .stats-grid{grid-template-columns:repeat(2,1fr)}
+      .charts-row{grid-template-columns:1fr}
+      .engine-grid{grid-template-columns:repeat(2,1fr)}
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <a class="sidebar-logo" href="../dashboard/index.html">
+      <img src="../assets/ergio-logo.jpg" alt="ERGIO" onerror="this.style.display='none'">
+      <span>ERGIO</span>
+    </a>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Analytics</div>
+      <a class="nav-item active" onclick="switchTab('overview')"><span class="icon">📊</span> Overview</a>
+      <a class="nav-item" onclick="switchTab('engines')"><span class="icon">⚙️</span> Engine Monitor</a>
+      <a class="nav-item" onclick="switchTab('revenue')"><span class="icon">💰</span> Revenue</a>
+      <a class="nav-item" onclick="switchTab('users')"><span class="icon">👥</span> Users</a>
+      <a class="nav-item" onclick="switchTab('leads')"><span class="icon">🎯</span> Leads</a>
+      <a class="nav-item" onclick="switchTab('activity')"><span class="icon">📡</span> Activity Feed</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Platform</div>
+      <a class="nav-item" href="../dashboard/index.html"><span class="icon">🏠</span> Business Dashboard</a>
+      <a class="nav-item" href="../auth/login.html"><span class="icon">🚪</span> Sign Out</a>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Platform Analytics</h1>
+        <p class="page-sub" id="lastUpdate">Real-time monitoring · Last updated: just now</p>
+      </div>
+      <div class="header-actions">
+        <button class="header-btn" onclick="refreshData()">Refresh</button>
+        <button class="header-btn primary" onclick="exportReport()">Export Report</button>
+      </div>
+    </div>
+
+    <!-- Overview Tab -->
+    <div id="tab-overview" class="tab-content">
+      <div class="stats-grid">
+        <div class="stat-card" style="--accent:var(--cyan)">
+          <div class="stat-icon">🏪</div>
+          <div class="stat-value" id="kpiBusinesses">0</div>
+          <div class="stat-label">Total Businesses</div>
+          <div class="stat-change up">+12 this week</div>
+        </div>
+        <div class="stat-card" style="--accent:var(--green)">
+          <div class="stat-icon">💳</div>
+          <div class="stat-value" id="kpiRevenue">&#8358;0</div>
+          <div class="stat-label">Monthly Revenue</div>
+          <div class="stat-change up">+23% vs last month</div>
+        </div>
+        <div class="stat-card" style="--accent:var(--gold)">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-value" id="kpiLeads">0</div>
+          <div class="stat-label">Active Leads</div>
+          <div class="stat-change up">+47 today</div>
+        </div>
+        <div class="stat-card" style="--accent:var(--blue)">
+          <div class="stat-icon">📅</div>
+          <div class="stat-value" id="kpiBookings">0</div>
+          <div class="stat-label">Bookings This Month</div>
+          <div class="stat-change up">+8% vs last month</div>
+        </div>
+      </div>
+
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-title">Business Growth (Last 7 Days)</div>
+          <div class="bar-chart" id="growthChart">
+            <div class="bar" style="height:40%"><span class="bar-value">23</span><span class="bar-label">Mon</span></div>
+            <div class="bar" style="height:55%"><span class="bar-value">31</span><span class="bar-label">Tue</span></div>
+            <div class="bar" style="height:70%"><span class="bar-value">42</span><span class="bar-label">Wed</span></div>
+            <div class="bar" style="height:60%"><span class="bar-value">38</span><span class="bar-label">Thu</span></div>
+            <div class="bar" style="height:85%"><span class="bar-value">51</span><span class="bar-label">Fri</span></div>
+            <div class="bar" style="height:50%"><span class="bar-value">29</span><span class="bar-label">Sat</span></div>
+            <div class="bar" style="height:95%"><span class="bar-value">67</span><span class="bar-label">Sun</span></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Plan Distribution</div>
+          <div class="donut-chart">
+            <svg viewBox="0 0 100 100" style="transform:rotate(-90deg)">
+              <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12"/>
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#00D9FF" stroke-width="12" stroke-dasharray="151 251" stroke-dashoffset="0"/>
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#00FF9D" stroke-width="12" stroke-dasharray="63 251" stroke-dashoffset="-151"/>
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#FFB800" stroke-width="12" stroke-dasharray="38 251" stroke-dashoffset="-214"/>
+            </svg>
+            <div class="donut-center">
+              <div class="num" id="donutTotal">1,247</div>
+              <div class="label">Total Users</div>
+            </div>
+          </div>
+          <div class="donut-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#00D9FF"></div>Free Starter (60%)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#00FF9D"></div>Pro &#8358;5k (25%)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#FFB800"></div>Business &#8358;15k (15%)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="engine-grid">
+        <div class="engine-card">
+          <div class="engine-icon">📍</div>
+          <div class="engine-name">Local Discovery</div>
+          <div class="engine-status"><div class="pulse"></div> Active</div>
+          <div class="engine-stat">342</div>
+          <div class="engine-label">SEO Pages Live</div>
+        </div>
+        <div class="engine-card">
+          <div class="engine-icon">⚡</div>
+          <div class="engine-name">Demand Matching</div>
+          <div class="engine-status"><div class="pulse"></div> Active</div>
+          <div class="engine-stat">1,847</div>
+          <div class="engine-label">Matches Today</div>
+        </div>
+        <div class="engine-card">
+          <div class="engine-icon">🔍</div>
+          <div class="engine-name">AI Outreach</div>
+          <div class="engine-status"><div class="pulse"></div> Active</div>
+          <div class="engine-stat">892</div>
+          <div class="engine-label">Emails Sent</div>
+        </div>
+        <div class="engine-card">
+          <div class="engine-icon">🔄</div>
+          <div class="engine-name">Repeat Clients</div>
+          <div class="engine-status"><div class="pulse"></div> Active</div>
+          <div class="engine-stat">156</div>
+          <div class="engine-label">Follow-ups Sent</div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-title">Recent Business Launches <span style="font-size:.8rem;color:var(--muted)">Last 24 hours</span></div>
+        <table class="data-table">
+          <thead><tr><th>Business</th><th>Type</th><th>City</th><th>Plan</th><th>Status</th><th>Joined</th></tr></thead>
+          <tbody id="recentTable">
+            <tr><td>PixelForge Studios</td><td>Design</td><td>Lagos</td><td><span class="badge badge-cyan">Pro</span></td><td><span class="badge badge-green">Active</span></td><td>2 min ago</td></tr>
+            <tr><td>Fresh &amp; Clean Abuja</td><td>Cleaning</td><td>Abuja</td><td><span class="badge badge-gold">Business</span></td><td><span class="badge badge-green">Active</span></td><td>15 min ago</td></tr>
+            <tr><td>FitLife Coaching</td><td>Fitness</td><td>Lagos</td><td><span class="badge badge-green">Free</span></td><td><span class="badge badge-cyan">Building</span></td><td>32 min ago</td></tr>
+            <tr><td>Emeka Photography</td><td>Photo</td><td>Enugu</td><td><span class="badge badge-green">Free</span></td><td><span class="badge badge-green">Active</span></td><td>1 hr ago</td></tr>
+            <tr><td>Kano Web Solutions</td><td>Dev</td><td>Kano</td><td><span class="badge badge-cyan">Pro</span></td><td><span class="badge badge-green">Active</span></td><td>2 hr ago</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Revenue Tab -->
+    <div id="tab-revenue" class="tab-content" style="display:none">
+      <div class="stats-grid">
+        <div class="stat-card" style="--accent:var(--green)">
+          <div class="stat-icon">💰</div>
+          <div class="stat-value">&#8358;4.2M</div>
+          <div class="stat-label">Total Revenue (YTD)</div>
+        </div>
+        <div class="stat-card" style="--accent:var(--cyan)">
+          <div class="stat-icon">📈</div>
+          <div class="stat-value">&#8358;890K</div>
+          <div class="stat-label">This Month</div>
+        </div>
+        <div class="stat-card" style="--accent:var(--gold)">
+          <div class="stat-icon">👤</div>
+          <div class="stat-value">&#8358;7,140</div>
+          <div class="stat-label">ARPU</div>
+        </div>
+        <div class="stat-card" style="--accent:var(--blue)">
+          <div class="stat-icon">📊</div>
+          <div class="stat-value">94.2%</div>
+          <div class="stat-label">Retention Rate</div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Monthly Revenue (2026)</div>
+        <div class="revenue-chart" id="revenueChart"></div>
+      </div>
+    </div>
+
+    <!-- Engines Tab -->
+    <div id="tab-engines" class="tab-content" style="display:none">
+      <div class="engine-grid">
+        <div class="engine-card"><div class="engine-icon">📍</div><div class="engine-name">Local Discovery</div><div class="engine-status"><div class="pulse"></div> Running</div><div class="engine-stat">342</div><div class="engine-label">Active SEO Pages</div></div>
+        <div class="engine-card"><div class="engine-icon">⚡</div><div class="engine-name">Demand Matching</div><div class="engine-status"><div class="pulse"></div> Running</div><div class="engine-stat">1,847</div><div class="engine-label">Matches Today</div></div>
+        <div class="engine-card"><div class="engine-icon">🔍</div><div class="engine-name">AI Outreach</div><div class="engine-status"><div class="pulse"></div> Running</div><div class="engine-stat">892</div><div class="engine-label">Emails Today</div></div>
+        <div class="engine-card"><div class="engine-icon">🔄</div><div class="engine-name">Repeat Clients</div><div class="engine-status"><div class="pulse"></div> Running</div><div class="engine-stat">156</div><div class="engine-label">Follow-ups Today</div></div>
+      </div>
+      <div class="table-card">
+        <div class="table-title">Engine Performance Detail</div>
+        <table class="data-table">
+          <thead><tr><th>Engine</th><th>Status</th><th>Processed Today</th><th>Success Rate</th><th>Avg Response Time</th><th>Last Run</th></tr></thead>
+          <tbody>
+            <tr><td>📍 Local Discovery SEO</td><td><span class="badge badge-green">Active</span></td><td>342</td><td>98.2%</td><td>1.2s</td><td>2 min ago</td></tr>
+            <tr><td>⚡ Demand Matching</td><td><span class="badge badge-green">Active</span></td><td>1,847</td><td>94.7%</td><td>0.8s</td><td>Real-time</td></tr>
+            <tr><td>🔍 AI Outreach</td><td><span class="badge badge-green">Active</span></td><td>892</td><td>87.3%</td><td>3.4s</td><td>5 min ago</td></tr>
+            <tr><td>🔄 Repeat Clients</td><td><span class="badge badge-green">Active</span></td><td>156</td><td>91.1%</td><td>1.8s</td><td>1 hr ago</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Activity Tab -->
+    <div id="tab-activity" class="tab-content" style="display:none">
+      <div class="activity-card">
+        <div class="table-title">Live Activity Feed</div>
+        <div id="activityFeed">
+          <div class="activity-item"><div class="activity-dot" style="background:var(--green)"></div><div><div class="activity-text">New business launched: PixelForge Studios in Lagos (Pro plan)</div><div class="activity-time">2 min ago</div></div></div>
+          <div class="activity-item"><div class="activity-dot" style="background:var(--cyan)"></div><div><div class="activity-text">Payment received: &#8358;5,000 from Fresh &amp; Clean Abuja</div><div class="activity-time">5 min ago</div></div></div>
+          <div class="activity-item"><div class="activity-dot" style="background:var(--gold)"></div><div><div class="activity-text">Demand Match: Wedding photographer matched with client in Enugu</div><div class="activity-time">12 min ago</div></div></div>
+          <div class="activity-item"><div class="activity-dot" style="background:var(--cyan)"></div><div><div class="activity-text">AI Outreach: 12 personalized emails sent for Kano Web Solutions</div><div class="activity-time">18 min ago</div></div></div>
+          <div class="activity-item"><div class="activity-dot" style="background:var(--green)"></div><div><div class="activity-text">Repeat Client: Follow-up sent to 8 past clients of FitLife Coaching</div><div class="activity-time">25 min ago</div></div></div>
+          <div class="activity-item"><div class="activity-dot" style="background:var(--gold)"></div><div><div class="activity-text">New booking: Emeka Photography booked for Saturday event</div><div class="activity-time">34 min ago</div></div></div>
+          <div class="activity-item"><div class="activity-dot" style="background:var(--green)"></div><div><div class="activity-text">SEO page indexed: "cleaning services in Abuja" now ranking #3 on Google</div><div class="activity-time">1 hr ago</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Animate KPI counters
+    function animateValue(el, start, end, duration = 1500, prefix = '', suffix = '') {
+      const range = end - start;
+      const stepTime = 20;
+      const steps = duration / stepTime;
+      const increment = range / steps;
+      let current = start;
+      const timer = setInterval(() => {
+        current += increment;
+        if (current >= end) { current = end; clearInterval(timer); }
+        el.textContent = prefix + Math.floor(current).toLocaleString() + suffix;
+      }, stepTime);
+    }
+
+    // Animate on load
+    window.addEventListener('DOMContentLoaded', () => {
+      animateValue(document.getElementById('kpiBusinesses'), 0, 1247);
+      animateValue(document.getElementById('kpiLeads'), 0, 3892);
+      animateValue(document.getElementById('kpiBookings'), 0, 487);
+      setTimeout(() => {
+        document.getElementById('kpiRevenue').textContent = '\u20A6890K';
+      }, 1500);
+
+      // Revenue chart
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul'];
+      const values = [120, 180, 250, 340, 520, 710, 890];
+      const chart = document.getElementById('revenueChart');
+      months.forEach((m, i) => {
+        const bar = document.createElement('div');
+        bar.className = 'rev-bar';
+        bar.innerHTML = `<div class="rev-bar-amount">\u20A6${values[i]}K</div><div class="rev-bar-fill" style="height:0"></div><div class="rev-bar-label">${m}</div>`;
+        chart.appendChild(bar);
+        setTimeout(() => {
+          bar.querySelector('.rev-bar-fill').style.height = (values[i] / 890 * 140) + 'px';
+        }, i * 100 + 200);
+      });
+    });
+
+    // Tab switching
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+      const el = document.getElementById(`tab-${tab}`);
+      if (el) el.style.display = 'block';
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      event?.target?.closest?.('.nav-item')?.classList.add('active');
+    }
+
+    function refreshData() {
+      const sub = document.getElementById('lastUpdate');
+      sub.textContent = 'Refreshing...';
+      setTimeout(() => {
+        sub.textContent = 'Real-time monitoring · Last updated: just now';
+      }, 1500);
+    }
+
+    function exportReport() {
+      const data = {
+        generated: new Date().toISOString(),
+        platform: 'ERGIO Analytics',
+        kpis: {
+          businesses: 1247,
+          monthlyRevenue: '890K NGN',
+          activeLeads: 3892,
+          bookingsThisMonth: 487,
+        },
+        engines: {
+          localDiscovery: { active: true, pages: 342 },
+          demandMatching: { active: true, matchesToday: 1847 },
+          aiOutreach: { active: true, emailsToday: 892 },
+          repeatClients: { active: true, followupsToday: 156 },
+        }
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ergio-analytics-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+    }
+
+    // Auto-refresh every 30 seconds
+    setInterval(() => {
+      document.getElementById('lastUpdate').textContent = 'Real-time monitoring · Last updated: just now';
+    }, 30000);
+  </script>
+</body>
+</html>

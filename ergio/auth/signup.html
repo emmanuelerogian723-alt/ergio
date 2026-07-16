@@ -3,285 +3,481 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create your business — ERGIO</title>
+  <title>Launch your business — ERGIO</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../config.js"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--bg:#050508;--surface:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--cyan:#00D9FF;--green:#00FF9D;--blue:#2563FF;--text:#F8FAFC;--muted:#94A3B8}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow-y:auto}
+    :root{--bg:#050508;--surface:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--cyan:#00D9FF;--green:#00FF9D;--blue:#2563FF;--gold:#FFB800;--text:#F8FAFC;--muted:#94A3B8}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:1rem}
+
     .aurora{position:fixed;inset:0;z-index:0;overflow:hidden}
-    .blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.3}
+    .blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.3;will-change:transform}
     .blob:nth-child(1){width:400px;height:400px;background:var(--cyan);top:-10%;right:-10%;animation:f1 8s ease-in-out infinite}
     .blob:nth-child(2){width:500px;height:500px;background:var(--green);bottom:-20%;left:-10%;animation:f2 10s ease-in-out infinite}
     .blob:nth-child(3){width:300px;height:300px;background:var(--blue);top:50%;right:30%;animation:f3 12s ease-in-out infinite}
+    .blob:nth-child(4){width:200px;height:200px;background:var(--gold);top:15%;left:15%;animation:f4 9s ease-in-out infinite;opacity:.15}
     @keyframes f1{0%,100%{transform:translate(0,0)}50%{transform:translate(-40px,30px)}}
     @keyframes f2{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,-40px)}}
     @keyframes f3{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,-20px)}}
-    .signup-container{position:relative;z-index:1;width:100%;max-width:480px;padding:2rem}
-    .signup-card{background:rgba(255,255,255,0.03);backdrop-filter:blur(40px);border:1px solid var(--border);border-radius:24px;padding:2.5rem;box-shadow:0 20px 60px rgba(0,0,0,.5)}
-    .auth-logo{display:flex;align-items:center;gap:.6rem;justify-content:center;margin-bottom:1rem;text-decoration:none}
-    .auth-logo img{width:48px;height:48px;border-radius:12px}
-    .auth-logo span{font-size:1.5rem;font-weight:800}
-    .step-indicator{display:flex;gap:.5rem;justify-content:center;margin-bottom:1.5rem}
-    .step-dot{width:28px;height:4px;border-radius:2px;background:var(--border);transition:all .3s}
-    .step-dot.active{background:linear-gradient(90deg,var(--cyan),var(--green))}
+    @keyframes f4{0%,100%{transform:translate(0,0)}50%{transform:translate(-20px,20px)}}
+
+    .particles{position:fixed;inset:0;z-index:0;pointer-events:none}
+    .particle{position:absolute;width:2px;height:2px;border-radius:50%;opacity:0;animation:pRise 15s linear infinite}
+    @keyframes pRise{0%{opacity:0;transform:translateY(100vh) scale(0)}10%{opacity:.6}90%{opacity:.6}100%{opacity:0;transform:translateY(-10vh) scale(1)}}
+
+    .signup-container{position:relative;z-index:1;width:100%;max-width:500px;padding:1rem}
+    .signup-card{background:rgba(255,255,255,0.03);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid var(--border);border-radius:28px;padding:2.5rem;box-shadow:0 20px 60px rgba(0,0,0,.5);position:relative;overflow:hidden}
+    .signup-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green),var(--cyan),transparent);animation:shimmer 3s ease-in-out infinite}
+    @keyframes shimmer{0%,100%{opacity:0.3}50%{opacity:1}}
+
+    .auth-logo{display:flex;align-items:center;gap:.6rem;justify-content:center;margin-bottom:.3rem;text-decoration:none}
+    .auth-logo img{width:56px;height:56px;border-radius:14px;object-fit:cover}
+    .auth-logo span{font-size:1.6rem;font-weight:800;color:var(--text)}
+    .auth-tagline{text-align:center;color:var(--muted);font-size:.85rem;margin-bottom:1.5rem}
+
+    /* Progress indicator */
+    .step-indicator{display:flex;gap:.4rem;justify-content:center;margin-bottom:2rem}
+    .step-dot{width:32px;height:4px;border-radius:2px;background:var(--border);transition:all .4s}
+    .step-dot.active{background:linear-gradient(90deg,var(--cyan),var(--green));width:48px}
     .step-dot.done{background:var(--green)}
-    .form-step{display:none;animation:fadeUp .4s ease}
+
+    /* Form steps */
+    .form-step{display:none;animation:fadeUp .5s ease}
     .form-step.active{display:block}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-    .step-title{font-size:1.4rem;font-weight:700;margin-bottom:.4rem}
-    .step-sub{color:var(--muted);margin-bottom:1.5rem;font-size:.9rem}
-    .input-group{margin-bottom:1rem}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+
+    .step-title{font-size:1.5rem;font-weight:700;margin-bottom:.4rem}
+    .step-title .gradient{background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .step-sub{color:var(--muted);margin-bottom:1.8rem;font-size:.9rem}
+
+    .input-group{margin-bottom:1rem;position:relative}
     .input-label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.4rem;font-weight:500}
-    .input-field{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:.85rem 1rem;color:var(--text);font-size:.95rem;outline:none;transition:all .3s}
-    .input-field:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,217,255,.1)}
+    .input-wrap{position:relative}
+    .input-field{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:.9rem 1rem .9rem 2.8rem;color:var(--text);font-size:.95rem;outline:none;transition:all .3s;font-family:'Inter',sans-serif}
+    .input-field:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,217,255,.1);background:rgba(0,217,255,.02)}
     .input-field::placeholder{color:#475569}
+    .input-icon{position:absolute;left:.9rem;top:50%;transform:translateY(-50%);width:20px;height:20px;color:#475569}
+    .input-wrap:focus-within .input-icon{color:var(--cyan)}
+
+    /* Business type grid */
     .biz-types{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem;margin-top:.5rem}
-    .biz-type{padding:.8rem;border:1px solid var(--border);border-radius:12px;cursor:pointer;text-align:center;transition:all .3s;font-size:.85rem}
-    .biz-type:hover{border-color:var(--cyan);background:rgba(0,217,255,.05)}
-    .biz-type.selected{border-color:var(--cyan);background:rgba(0,217,255,.1);color:var(--cyan)}
-    .biz-type .icon{font-size:1.5rem;display:block;margin-bottom:.3rem}
+    .biz-type{padding:1rem .8rem;border:1px solid var(--border);border-radius:14px;cursor:pointer;text-align:center;transition:all .3s;font-size:.85rem;background:var(--surface)}
+    .biz-type:hover{border-color:var(--cyan);background:rgba(0,217,255,.05);transform:translateY(-2px)}
+    .biz-type.selected{border-color:var(--cyan);background:rgba(0,217,255,.1);color:var(--cyan);box-shadow:0 0 0 2px rgba(0,217,255,.2)}
+    .biz-type .icon{font-size:1.8rem;display:block;margin-bottom:.4rem}
+
+    /* Location select */
+    .city-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;margin-top:.5rem}
+    .city-option{padding:.8rem;border:1px solid var(--border);border-radius:12px;cursor:pointer;text-align:center;transition:all .3s;font-size:.85rem;background:var(--surface)}
+    .city-option:hover{border-color:var(--cyan)}
+    .city-option.selected{border-color:var(--green);background:rgba(0,255,157,.05);color:var(--green)}
+
+    /* Plan options */
     .plan-options{display:flex;flex-direction:column;gap:.6rem}
-    .plan-option{padding:1rem;border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .3s;display:flex;justify-content:space-between;align-items:center}
-    .plan-option:hover{border-color:var(--cyan)}
-    .plan-option.selected{border-color:var(--green);background:rgba(0,255,157,.05)}
-    .plan-name{font-weight:700;font-size:1rem}
-    .plan-price{font-size:.9rem;color:var(--muted)}
-    .plan-badge{font-size:.7rem;padding:.2rem .5rem;border-radius:6px;background:rgba(0,255,157,.15);color:var(--green);font-weight:600}
-    .btn-row{display:flex;gap:.6rem;margin-top:1.5rem}
-    .btn{padding:.9rem 1.5rem;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .3s}
-    .btn-primary{background:linear-gradient(135deg,var(--cyan),var(--green));color:#09090B;flex:1}
+    .plan-option{padding:1.2rem;border:1px solid var(--border);border-radius:16px;cursor:pointer;transition:all .3s;display:flex;justify-content:space-between;align-items:center;background:var(--surface)}
+    .plan-option:hover{border-color:var(--cyan);transform:translateX(4px)}
+    .plan-option.selected{border-color:var(--green);background:rgba(0,255,157,.05);box-shadow:0 0 0 2px rgba(0,255,157,.15)}
+    .plan-option.popular{border-color:var(--cyan);position:relative}
+    .plan-option.popular::after{content:'MOST POPULAR';position:absolute;top:-10px;right:16px;font-size:.65rem;font-weight:700;background:linear-gradient(135deg,var(--cyan),var(--green));color:#09090B;padding:2px 10px;border-radius:20px}
+    .plan-name{font-weight:700;font-size:1rem;margin-bottom:.2rem}
+    .plan-price{font-size:1.3rem;font-weight:800}
+    .plan-price small{font-size:.7rem;font-weight:400;color:var(--muted)}
+    .plan-features{font-size:.75rem;color:var(--muted);margin-top:.3rem}
+
+    /* Buttons */
+    .auth-btn{width:100%;padding:.95rem;border:none;border-radius:14px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .3s;margin-top:1.2rem;display:flex;align-items:center;justify-content:center;gap:.5rem;font-family:'Inter',sans-serif}
+    .btn-primary{background:linear-gradient(135deg,var(--cyan),var(--green));color:#09090B;position:relative;overflow:hidden}
     .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,217,255,.3)}
+    .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
     .btn-secondary{background:var(--surface);border:1px solid var(--border);color:var(--text)}
-    .btn-google{background:var(--surface);border:1px solid var(--border);color:var(--text);width:100%;display:flex;align-items:center;justify-content:center;gap:.6rem;margin-bottom:1rem;padding:.85rem;border-radius:12px;cursor:pointer;font-size:1rem;font-weight:600;transition:all .3s}
+    .btn-secondary:hover{background:rgba(255,255,255,.06)}
+    .btn-google{background:var(--surface);border:1px solid var(--border);color:var(--text);display:flex;align-items:center;justify-content:center;gap:.6rem}
     .btn-google:hover{background:rgba(255,255,255,.06)}
-    .auth-divider{display:flex;align-items:center;gap:1rem;margin:1rem 0;color:#475569;font-size:.8rem}
+
+    .auth-divider{display:flex;align-items:center;gap:1rem;margin:1.2rem 0;color:#475569;font-size:.8rem}
     .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
-    .alert{padding:.8rem 1rem;border-radius:10px;margin-bottom:1rem;font-size:.85rem;display:none}
+
+    .alert{padding:.8rem 1rem;border-radius:12px;margin-bottom:1rem;font-size:.85rem;display:none}
+    .alert.show{display:block;animation:fadeUp .3s ease}
     .alert-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#f87171}
     .alert-success{background:rgba(0,255,157,.1);border:1px solid rgba(0,255,157,.3);color:var(--green)}
-    .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(9,9,11,.3);border-top-color:#09090B;border-radius:50%;animation:spin .6s linear infinite}
+
+    .spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(9,9,11,.3);border-top-color:#09090B;border-radius:50%;animation:spin .6s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* Success step */
+    .success-icon{width:80px;height:80px;margin:0 auto 1.5rem;position:relative}
+    .success-icon svg{width:100%;height:100%}
+    .success-icon circle{fill:none;stroke:var(--green);stroke-width:3;stroke-dasharray:166;stroke-dashoffset:166;animation:drawCircle .8s ease forwards}
+    .success-icon path{fill:none;stroke:var(--green);stroke-width:4;stroke-dasharray:48;stroke-dashoffset:48;animation:drawCheck .4s ease .8s forwards}
+    @keyframes drawCircle{to{stroke-dashoffset:0}}
+    @keyframes drawCheck{to{stroke-dashoffset:0}}
+    .success-glow{position:absolute;inset:-20px;border-radius:50%;background:var(--green);opacity:0;filter:blur(30px);animation:glowPulse 2s ease infinite}
+    @keyframes glowPulse{0%,100%{opacity:0}50%{opacity:.2}}
+
+    .btn-row{display:flex;gap:.6rem}
+    .btn-row .auth-btn{margin-top:.6rem}
+
     .auth-footer{text-align:center;margin-top:1.5rem;font-size:.9rem;color:var(--muted)}
     .auth-footer a{color:var(--cyan);text-decoration:none;font-weight:600}
-    .back-home{position:fixed;top:1.5rem;left:1.5rem;z-index:2;color:var(--muted);text-decoration:none;font-size:.9rem}
-    .back-home:hover{color:var(--cyan)}
+
+    /* Build animation on success step */
+    .build-anim{display:flex;flex-direction:column;gap:.5rem;margin:1.5rem 0}
+    .build-line{display:flex;align-items:center;gap:.6rem;font-size:.85rem;color:var(--muted);opacity:0;animation:buildLine .4s ease forwards}
+    @keyframes buildLine{to{opacity:1}}
+    .build-line .check{width:18px;height:18px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .build-line .check::after{content:'';width:8px;height:4px;border-left:2px solid #09090B;border-bottom:2px solid #09090B;transform:rotate(-45deg)}
+
+    @media(max-width:480px){
+      .signup-container{padding:0}
+      .signup-card{padding:2rem 1.5rem}
+      .biz-types{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
-  <div class="aurora"><div class="blob"></div><div class="blob"></div><div class="blob"></div></div>
-  <a href="../index.html" class="back-home">← ERGIO</a>
+  <div class="aurora">
+    <div class="blob"></div><div class="blob"></div><div class="blob"></div><div class="blob"></div>
+  </div>
+  <div class="particles" id="particles"></div>
 
   <div class="signup-container">
     <div class="signup-card">
-      <a href="../index.html" class="auth-logo">
-        <img src="https://media.base44.com/images/public/whatsapp/6a56e5b5f88d60b0fb2a0007/your_agent/6a56e5b5f88d60b0fb2a0008/c0d1985c5_whatsapp_image_2154745675070690.jpg" alt="ERGIO">
+      <a class="auth-logo" href="../index.html">
+        <img src="../assets/ergio-logo.jpg" alt="ERGIO" onerror="this.style.display='none'">
         <span>ERGIO</span>
       </a>
+      <p class="auth-tagline">From skill to business in 60 seconds</p>
 
       <div class="step-indicator">
-        <div class="step-dot active" id="dot1"></div>
+        <div class="step-dot active" id="dot0"></div>
+        <div class="step-dot" id="dot1"></div>
         <div class="step-dot" id="dot2"></div>
         <div class="step-dot" id="dot3"></div>
       </div>
 
-      <div class="alert alert-error" id="alertError"></div>
-      <div class="alert alert-success" id="alertSuccess"></div>
+      <div class="alert" id="alert"></div>
 
-      <!-- STEP 1: ACCOUNT -->
-      <div class="form-step active" id="step1">
-        <h2 class="step-title">Create your account</h2>
-        <p class="step-sub">Free forever plan. No credit card needed.</p>
+      <!-- Step 1: Account -->
+      <div class="form-step active" id="step0">
+        <h2 class="step-title">Create your <span class="gradient">account</span></h2>
+        <p class="step-sub">Start building your business. Free forever to start.</p>
 
-        <button class="btn-google" onclick="signUpGoogle()">
-          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-          Sign up with Google
+        <button class="auth-btn btn-google" onclick="googleSignup()">
+          <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+          Continue with Google
         </button>
 
-        <div class="auth-divider">or with email</div>
+        <div class="auth-divider">or use email</div>
 
-        <div class="input-group">
-          <label class="input-label">Full name</label>
-          <input type="text" class="input-field" id="fullName" placeholder="Your name" autocomplete="name"/>
-        </div>
-        <div class="input-group">
-          <label class="input-label">Email</label>
-          <input type="email" class="input-field" id="email" placeholder="you@example.com" required autocomplete="email"/>
-        </div>
-        <div class="input-group">
-          <label class="input-label">Password</label>
-          <input type="password" class="input-field" id="password" placeholder="Min 8 characters" required autocomplete="new-password"/>
-        </div>
-        <div class="input-group">
-          <label class="input-label">Phone (WhatsApp)</label>
-          <input type="tel" class="input-field" id="phone" placeholder="+234 800 000 0000" autocomplete="tel"/>
-        </div>
+        <form onsubmit="return nextStep(event)">
+          <div class="input-group">
+            <label class="input-label">Full name</label>
+            <div class="input-wrap">
+              <input type="text" class="input-field" id="fullName" placeholder="Emmanuel Erogian" required>
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Email</label>
+            <div class="input-wrap">
+              <input type="email" class="input-field" id="email" placeholder="you@example.com" required>
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Password</label>
+            <div class="input-wrap">
+              <input type="password" class="input-field" id="password" placeholder="Min 8 characters" required minlength="8">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+          </div>
+          <button type="submit" class="auth-btn btn-primary">Continue</button>
+        </form>
 
-        <button class="btn btn-primary" style="width:100%;margin-top:.5rem" onclick="goStep2()">Continue →</button>
+        <div class="auth-footer">Already have an account? <a href="login.html">Sign in</a></div>
       </div>
 
-      <!-- STEP 2: BUSINESS TYPE -->
-      <div class="form-step" id="step2">
-        <h2 class="step-title">What do you do?</h2>
-        <p class="step-sub">Pick your business type. ERGIO customizes everything based on this.</p>
+      <!-- Step 2: Business Type -->
+      <div class="form-step" id="step1">
+        <h2 class="step-title">What's your <span class="gradient">skill?</span></h2>
+        <p class="step-sub">Tell us what you do. ERGIO will build your business around it.</p>
 
-        <div class="biz-types">
-          <div class="biz-type" onclick="selectBiz(this,'design')"><span class="icon">🎨</span>Design & Creative</div>
-          <div class="biz-type" onclick="selectBiz(this,'services')"><span class="icon">🧹</span>Home Services</div>
-          <div class="biz-type" onclick="selectBiz(this,'food')"><span class="icon">🍱</span>Food & Catering</div>
-          <div class="biz-type" onclick="selectBiz(this,'beauty')"><span class="icon">💄</span>Beauty & Fashion</div>
-          <div class="biz-type" onclick="selectBiz(this,'tech')"><span class="icon">💻</span>Tech & Digital</div>
-          <div class="biz-type" onclick="selectBiz(this,'teaching')"><span class="icon">📚</span>Teaching & Coaching</div>
-          <div class="biz-type" onclick="selectBiz(this,'health')"><span class="icon">💪</span>Health & Fitness</div>
-          <div class="biz-type" onclick="selectBiz(this,'other')"><span class="icon">✨</span>Other</div>
+        <div class="biz-types" id="bizTypes">
+          <div class="biz-type" onclick="selectType(this,'designer')">🎟️ Designer</div>
+          <div class="biz-type" onclick="selectType(this,'cleaner')">🧹 Cleaning</div>
+          <div class="biz-type" onclick="selectType(this,'fitness')">💪 Fitness</div>
+          <div class="biz-type" onclick="selectType(this,'food')">🍱 Food</div>
+          <div class="biz-type" onclick="selectType(this,'photographer')">📸 Photographer</div>
+          <div class="biz-type" onclick="selectType(this,'developer')">💻 Developer</div>
+          <div class="biz-type" onclick="selectType(this,'tutor')">📚 Tutor</div>
+          <div class="biz-type" onclick="selectType(this,'beauty')">💄 Beauty</div>
+          <div class="biz-type" onclick="selectType(this,'events')">🎉 Events</div>
+          <div class="biz-type" onclick="selectType(this,'repair')">🔧 Repair</div>
+          <div class="biz-type" onclick="selectType(this,'consultant')">📊 Consultant</div>
+          <div class="biz-type" onclick="selectType(this,'other')">✨ Other</div>
+        </div>
+
+        <div class="input-group" style="margin-top:1rem">
+          <label class="input-label">Or describe what you do (optional)</label>
+          <input type="text" class="input-field" id="skillDesc" placeholder="e.g. I make custom wedding cakes in Abuja" style="padding-left:1rem">
         </div>
 
         <div class="btn-row">
-          <button class="btn btn-secondary" onclick="goStep(1)">← Back</button>
-          <button class="btn btn-primary" onclick="goStep3()">Continue →</button>
+          <button class="auth-btn btn-secondary" onclick="prevStep()">Back</button>
+          <button class="auth-btn btn-primary" onclick="nextStep()">Continue</button>
         </div>
       </div>
 
-      <!-- STEP 3: PLAN -->
+      <!-- Step 3: Location -->
+      <div class="form-step" id="step2">
+        <h2 class="step-title">Where are <span class="gradient">you?</span></h2>
+        <p class="step-sub">So ERGIO can find clients in your area.</p>
+
+        <div class="city-grid" id="cityGrid">
+          <div class="city-option" onclick="selectCity(this,'Lagos')">Lagos</div>
+          <div class="city-option" onclick="selectCity(this,'Abuja')">Abuja</div>
+          <div class="city-option" onclick="selectCity(this,'Port Harcourt')">Port Harcourt</div>
+          <div class="city-option" onclick="selectCity(this,'Ibadan')">Ibadan</div>
+          <div class="city-option" onclick="selectCity(this,'Kano')">Kano</div>
+          <div class="city-option" onclick="selectCity(this,'Enugu')">Enugu</div>
+          <div class="city-option" onclick="selectCity(this,'Benin City')">Benin City</div>
+          <div class="city-option" onclick="selectCity(this,'other')">Other city</div>
+        </div>
+
+        <div class="input-group" style="margin-top:1rem">
+          <label class="input-label">Your city (if not listed)</label>
+          <input type="text" class="input-field" id="customCity" placeholder="Enter your city" style="padding-left:1rem">
+        </div>
+
+        <div class="btn-row">
+          <button class="auth-btn btn-secondary" onclick="prevStep()">Back</button>
+          <button class="auth-btn btn-primary" onclick="nextStep()">Continue</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Plan + Launch -->
       <div class="form-step" id="step3">
-        <h2 class="step-title">Choose your plan</h2>
-        <p class="step-sub">Start free. Upgrade when you're making money.</p>
+        <h2 class="step-title">Choose your <span class="gradient">plan</span></h2>
+        <p class="step-sub">Start free. Upgrade when you're earning.</p>
 
         <div class="plan-options">
-          <div class="plan-option selected" onclick="selectPlan(this,'free')" id="planFree">
-            <div><div class="plan-name">Free Starter</div><div class="plan-price">₦0/month</div></div>
-            <span class="plan-badge">Current</span>
+          <div class="plan-option selected" onclick="selectPlan(this,'free')" data-plan="free">
+            <div>
+              <div class="plan-name">Starter</div>
+              <div class="plan-features">Business profile, payment link, booking, directory listing</div>
+            </div>
+            <div class="plan-price">Free<small>/forever</small></div>
           </div>
-          <div class="plan-option" onclick="selectPlan(this,'pro')" id="planPro">
-            <div><div class="plan-name">Pro <span class="plan-badge">Most Popular</span></div><div class="plan-price">₦5,000/month</div></div>
+          <div class="plan-option popular" onclick="selectPlan(this,'pro')" data-plan="pro">
+            <div>
+              <div class="plan-name">Pro</div>
+              <div class="plan-features">Custom domain, full website, WhatsApp bot, AI outreach, income tracker</div>
+            </div>
+            <div class="plan-price">&#8358;5,000<small>/month</small></div>
           </div>
-          <div class="plan-option" onclick="selectPlan(this,'business')" id="planBusiness">
-            <div><div class="plan-name">Business</div><div class="plan-price">₦15,000/month</div></div>
+          <div class="plan-option" onclick="selectPlan(this,'business')" data-plan="business">
+            <div>
+              <div class="plan-name">Business</div>
+              <div class="plan-features">Up to 5 team members, multiple listings, advanced analytics, API access</div>
+            </div>
+            <div class="plan-price">&#8358;15,000<small>/month</small></div>
           </div>
         </div>
 
-        <div class="btn-row">
-          <button class="btn btn-secondary" onclick="goStep(2)">← Back</button>
-          <button class="btn btn-primary" id="submitBtn" onclick="submitSignup()">Create my account →</button>
+        <button class="auth-btn btn-primary" id="launchBtn" onclick="launchBusiness()">Launch my business</button>
+
+        <div class="btn-row" style="margin-top:.6rem">
+          <button class="auth-btn btn-secondary" onclick="prevStep()">Back</button>
         </div>
       </div>
 
-      <p class="auth-footer">Already have an account? <a href="login.html">Sign in</a></p>
+      <!-- Success -->
+      <div class="form-step" id="stepSuccess">
+        <div class="success-icon">
+          <div class="success-glow"></div>
+          <svg viewBox="0 0 52 52">
+            <circle cx="26" cy="26" r="25"/>
+            <path d="M14 27l8 8 16-16"/>
+          </svg>
+        </div>
+        <h2 class="step-title" style="text-align:center">Your business is <span class="gradient">live!</span></h2>
+        <p class="step-sub" style="text-align:center">ERGIO is building your website, brand, and client engines...</p>
+        
+        <div class="build-anim" id="buildAnim"></div>
+
+        <button class="auth-btn btn-primary" onclick="goToDashboard()">Go to my dashboard</button>
+      </div>
     </div>
   </div>
 
   <script>
+    const SUPABASE_URL = window.ERGIO_CONFIG?.supabaseUrl || 'YOUR_SUPABASE_URL';
+    const SUPABASE_KEY = window.ERGIO_CONFIG?.supabaseAnonKey || 'YOUR_ANON_KEY';
     let supabase;
-    let selectedBizType = '';
-    let selectedPlan = 'free';
-    let currentStep = 1;
-
-    function initSupabase() {
-      const cfg = window.ERGIO_CONFIG;
-      if (!cfg || cfg.supabaseUrl.includes('YOUR_')) {
-        showAlert('error', 'Add your Supabase credentials to config.js');
-        return false;
-      }
-      if (!supabase) {
-        supabase = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
-      }
-      return true;
+    if (SUPABASE_URL && SUPABASE_KEY && SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     }
+
+    // Particles
+    const pc = document.getElementById('particles');
+    for (let i = 0; i < 30; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random()*100+'%';
+      p.style.animationDelay = Math.random()*15+'s';
+      p.style.animationDuration = (10+Math.random()*10)+'s';
+      ['#00D9FF','#00FF9D','#2563FF'][Math.floor(Math.random()*3)];
+      p.style.background = ['#00D9FF','#00FF9D','#2563FF'][Math.floor(Math.random()*3)];
+      pc.appendChild(p);
+    }
+
+    let currentStep = 0;
+    const formData = { bizType: null, city: null, plan: 'free' };
 
     function showAlert(type, msg) {
-      const el = document.getElementById(type === 'error' ? 'alertError' : 'alertSuccess');
-      document.getElementById(type === 'error' ? 'alertSuccess' : 'alertError').style.display = 'none';
-      el.textContent = msg;
-      el.style.display = 'block';
+      const a = document.getElementById('alert');
+      a.className = `alert show alert-${type}`;
+      a.textContent = msg;
+      setTimeout(() => a.classList.remove('show'), 5000);
     }
 
-    function goStep(step) {
+    function updateDots() {
+      for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById(`dot${i}`);
+        dot.className = 'step-dot' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
+      }
+    }
+
+    function showStep(n) {
       document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
-      document.getElementById('step' + step).classList.add('active');
-      document.querySelectorAll('.step-dot').forEach((d, i) => {
-        d.classList.remove('active', 'done');
-        if (i + 1 < step) d.classList.add('done');
-        if (i + 1 === step) d.classList.add('active');
-      });
-      currentStep = step;
+      document.getElementById(`step${n}`).classList.add('active');
+      currentStep = n;
+      updateDots();
     }
 
-    function goStep2() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      if (!email || !password) { showAlert('error', 'Please fill in email and password'); return; }
-      if (password.length < 8) { showAlert('error', 'Password must be at least 8 characters'); return; }
-      goStep(2);
+    function nextStep(e) {
+      if (e) e.preventDefault();
+      if (currentStep === 0) {
+        const email = document.getElementById('email').value;
+        const pwd = document.getElementById('password').value;
+        if (!email || !pwd) { showAlert('error', 'Please fill in all fields'); return false; }
+        if (pwd.length < 8) { showAlert('error', 'Password must be at least 8 characters'); return false; }
+      }
+      if (currentStep === 1 && !formData.bizType && !document.getElementById('skillDesc').value) {
+        showAlert('error', 'Please select a skill or describe what you do');
+        return false;
+      }
+      if (currentStep === 2 && !formData.city && !document.getElementById('customCity').value) {
+        showAlert('error', 'Please select your city');
+        return false;
+      }
+      if (formData.city === 'other' && document.getElementById('customCity').value) {
+        formData.city = document.getElementById('customCity').value;
+      }
+      showStep(currentStep + 1);
+      return false;
     }
 
-    function goStep3() {
-      if (!selectedBizType) { showAlert('error', 'Please select your business type'); return; }
-      goStep(3);
+    function prevStep() {
+      if (currentStep > 0) showStep(currentStep - 1);
     }
 
-    function selectBiz(el, type) {
+    function selectType(el, type) {
       document.querySelectorAll('.biz-type').forEach(b => b.classList.remove('selected'));
       el.classList.add('selected');
-      selectedBizType = type;
+      formData.bizType = type;
+    }
+
+    function selectCity(el, city) {
+      document.querySelectorAll('.city-option').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      formData.city = city;
     }
 
     function selectPlan(el, plan) {
       document.querySelectorAll('.plan-option').forEach(p => p.classList.remove('selected'));
       el.classList.add('selected');
-      selectedPlan = plan;
+      formData.plan = plan;
     }
 
-    async function submitSignup() {
-      if (!initSupabase()) return;
+    async function googleSignup() {
+      if (!supabase) { showAlert('error', 'Supabase not configured yet'); return; }
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin + '/auth/signup.html' }
+      });
+      if (error) showAlert('error', error.message);
+    }
 
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const fullName = document.getElementById('fullName').value || '';
-      const phone = document.getElementById('phone').value || '';
-
-      const btn = document.getElementById('submitBtn');
-      btn.innerHTML = '<span class="spinner"></span>';
+    async function launchBusiness() {
+      const btn = document.getElementById('launchBtn');
       btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Launching...';
 
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { full_name: fullName, phone, business_type: selectedBizType, plan: selectedPlan }
+      try {
+        if (!supabase) throw new Error('Supabase not configured. Add credentials to config.js');
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const fullName = document.getElementById('fullName').value;
+
+        // Create auth account
+        const { data, error } = await supabase.auth.signUp({
+          email, password,
+          options: { data: { full_name: fullName, biz_type: formData.bizType, city: formData.city, plan: formData.plan } }
+        });
+
+        if (error) throw error;
+
+        // Show success with build animation
+        showStep(999);
+        document.getElementById('stepSuccess').classList.add('active');
+        updateDots();
+
+        // Animate build steps
+        const steps = [
+          'Creating your business profile',
+          'Generating your brand colors',
+          'Building your website',
+          'Setting up payment (Paystack)',
+          'Connecting booking system',
+          'Activating 4 client engines',
+          'Submitting to local directories',
+          'Your business is live!'
+        ];
+
+        const buildAnim = document.getElementById('buildAnim');
+        for (let i = 0; i < steps.length; i++) {
+          await new Promise(r => setTimeout(r, 600));
+          const line = document.createElement('div');
+          line.className = 'build-line';
+          line.style.animationDelay = '0s';
+          line.innerHTML = `<div class="check"></div>${steps[i]}`;
+          buildAnim.appendChild(line);
+        }
+
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Launch my business';
+        showAlert('error', err.message);
+      }
+    }
+
+    function goToDashboard() {
+      window.location.href = '../dashboard/index.html';
+    }
+
+    // Check existing session
+    if (supabase) {
+      supabase.auth.getSession().then(({ data }) => {
+        if (data.session) {
+          showStep(1); // Skip account creation if logged in
         }
       });
-
-      btn.innerHTML = 'Create my account →';
-      btn.disabled = false;
-
-      if (error) {
-        showAlert('error', error.message);
-      } else if (data.session) {
-        showAlert('success', 'Account created! Redirecting...');
-        setTimeout(() => window.location.href = '../dashboard/index.html', 800);
-      } else {
-        showAlert('success', 'Check your email to confirm your account, then sign in.');
-        setTimeout(() => window.location.href = 'login.html', 2000);
-      }
     }
-
-    async function signUpGoogle() {
-      if (!initSupabase()) return;
-      await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: window.location.origin + '/dashboard/index.html' }
-      });
-    }
-
-    // Check if already logged in
-    (async () => {
-      if (initSupabase()) {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) window.location.href = '../dashboard/index.html';
-      }
-    })();
   </script>
 </body>
 </html>
