@@ -109,7 +109,16 @@ export async function callGroq(messages, options = {}) {
     }
   }
 
-  throw new Error('All AI providers failed');
+  // Final fallback: Pollinations text API (no key needed, completely free)
+  try {
+    const pollinationsPrompt = messages.map(m => m.content).join(' ');
+    const response = await fetch('https://text.pollinations.ai/' + encodeURIComponent(pollinationsPrompt));
+    if (response.ok) {
+      return await response.text();
+    }
+  } catch (e) {}
+
+  throw new Error('All AI providers failed. Set GROQ_API_KEY or OPENROUTER_API_KEY on Vercel.');
 }
 
 // Fast model for simple tasks
