@@ -76,25 +76,25 @@ async function handleSignup(req, res, body) {
     return res.status(400).json({ error: data.message || data.msg || 'Signup failed' });
   }
   
-  // Insert profile into business_users table
+  // Insert profile into profiles table
   if (data.user) {
     try {
-      await fetch(`${url}/rest/v1/business_users`, {
+      await fetch(`${url}/rest/v1/profiles`, {
         method: 'POST',
         headers: {
           'apikey': key,
-          'Authorization': `Bearer ${data.access_token}`,
+          'Authorization': `Bearer ${data.access_token || key}`,
           'Content-Type': 'application/json',
           'Prefer': 'return=minimal',
         },
         body: JSON.stringify({
           id: data.user.id,
-          email,
+          user_id: data.user.id,
           full_name: fullName,
-          biz_type: bizType,
-          city,
-          plan,
-          status: 'active',
+          phone: null,
+          avatar_url: null,
+          plan: plan,
+          plan_status: 'active',
         }),
       });
     } catch (e) {
@@ -235,7 +235,7 @@ async function handleProfile(req, res, body) {
   
   if (req.method === 'GET') {
     // Get profile
-    const response = await fetch(`${url}/rest/v1/business_users?id=eq.${body.userId}`, {
+    const response = await fetch(`${url}/rest/v1/profiles?user_id=eq.${body.userId}`, {
       headers: {
         'apikey': key,
         'Authorization': `Bearer ${token}`,
@@ -249,7 +249,7 @@ async function handleProfile(req, res, body) {
   if (req.method === 'POST' || req.method === 'PATCH') {
     // Update profile
     const { userId, ...updates } = body;
-    const response = await fetch(`${url}/rest/v1/business_users?id=eq.${userId}`, {
+    const response = await fetch(`${url}/rest/v1/profiles?user_id=eq.${userId}`, {
       method: 'PATCH',
       headers: {
         'apikey': key,
@@ -263,4 +263,8 @@ async function handleProfile(req, res, body) {
     const data = await response.json();
     return res.status(200).json({ profile: data[0] || null, updated: true });
   }
+}
+
+async function handleGoogleCallback(req, res, body) {
+  return res.status(200).json({ message: 'Google OAuth callback - configure in Supabase Dashboard' });
 }
