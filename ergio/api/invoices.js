@@ -3,9 +3,9 @@
 // Creates professional invoices with PDF-ready HTML
 // ========================================
 
-const supabase = require('@supabase/supabase-js');
+import { createClient } from '@supabase/supabase-js';
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
     // ---- LIST INVOICES ----
     if (req.method === 'GET' && action === 'list') {
       if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) return res.status(500).json({ error: 'Supabase not configured' });
-      const sb = supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+      const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
       const businessId = url.searchParams.get('business_id');
 
       let query = sb.from('invoices').select('*').order('created_at', { ascending: false }).limit(50);
@@ -51,7 +51,7 @@ module.exports = async (req, res) => {
 
       // Save to Supabase if configured
       if (SUPABASE_URL && SUPABASE_SERVICE_KEY) {
-        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+        const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
         await sb.from('invoices').insert({
           invoice_number: invoiceNumber,
           business_name: business_name || 'My Business',
