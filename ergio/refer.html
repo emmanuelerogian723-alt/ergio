@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Earn with ERGIO — Referral Program</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#050508;--surface:rgba(255,255,255,.04);--border:rgba(255,255,255,.08);--cyan:#00D9FF;--green:#00FF9D;--blue:#2563FF;--gold:#FFB800;--text:#F8FAFC;--muted:#94A3B8}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+    .nav{position:sticky;top:0;z-index:100;background:rgba(5,5,8,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between}
+    .logo{display:flex;align-items:center;gap:.5rem;font-weight:800;font-size:1.2rem;text-decoration:none;color:var(--text)}
+    .logo img{width:32px;height:32px;border-radius:8px}
+    .nav-cta{padding:.5rem 1.2rem;background:linear-gradient(135deg,var(--cyan),var(--green));color:#09090B;border-radius:10px;font-weight:700;font-size:.85rem;text-decoration:none}
+
+    .hero{padding:4rem 2rem;text-align:center;max-width:800px;margin:0 auto}
+    .hero h1{font-size:2.8rem;font-weight:800;margin-bottom:1rem}
+    .hero h1 .grad{background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero p{color:var(--muted);font-size:1.15rem;margin-bottom:2rem}
+
+    .earn-card{max-width:500px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2rem;text-align:center;margin-bottom:2rem}
+    .earn-label{color:var(--muted);font-size:.85rem;margin-bottom:.5rem}
+    .earn-amount{font-size:3.5rem;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.5rem}
+    .earn-desc{color:var(--muted);font-size:.9rem}
+
+    .ref-link-box{max-width:500px;margin:0 auto 2rem;display:flex;gap:.5rem}
+    .ref-input{flex:1;padding:1rem 1.2rem;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:14px;color:var(--text);font-size:.95rem;outline:none;font-family:'Inter',sans-serif}
+    .ref-input:focus{border-color:var(--cyan)}
+    .copy-btn{padding:0 1.5rem;background:linear-gradient(135deg,var(--cyan),var(--green));color:#09090B;border:none;border-radius:14px;font-weight:700;cursor:pointer;font-size:.9rem;transition:all .3s;font-family:'Inter',sans-serif}
+    .copy-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,217,255,.3)}
+
+    .how-it-works{max-width:800px;margin:0 auto;padding:2rem}
+    .how-title{text-align:center;font-size:1.5rem;font-weight:700;margin-bottom:2rem}
+    .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem}
+    .step{text-align:center;padding:1.5rem}
+    .step-num{width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,var(--cyan),var(--green));display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:800;color:#09090B;margin:0 auto 1rem}
+    .step h3{font-size:1rem;margin-bottom:.5rem}
+    .step p{font-size:.85rem;color:var(--muted);line-height:1.5}
+
+    .rewards{max-width:600px;margin:2rem auto;padding:0 2rem}
+    .reward-row{display:flex;justify-content:space-between;align-items:center;padding:1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:.8rem;transition:all .2s}
+    .reward-row:hover{border-color:rgba(0,217,255,.2)}
+    .reward-left{display:flex;align-items:center;gap:1rem}
+    .reward-icon{font-size:1.8rem}
+    .reward-name{font-weight:600;font-size:.95rem}
+    .reward-desc{font-size:.8rem;color:var(--muted)}
+    .reward-amount{font-weight:800;color:var(--green);font-size:1.1rem}
+
+    .share-buttons{max-width:400px;margin:0 auto;display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+    .share-btn{padding:.7rem 1.2rem;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font-size:.85rem;font-family:'Inter',sans-serif;transition:all .2s;text-decoration:none;display:flex;align-items:center;gap:.4rem}
+    .share-btn:hover{border-color:var(--cyan);transform:translateY(-1px)}
+
+    .footer{text-align:center;padding:3rem 2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border)}
+
+    @media(max-width:600px){.hero h1{font-size:2rem}.ref-link-box{flex-direction:column}.steps{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <a class="logo" href="index.html"><img src="assets/ergio-logo.jpg" alt="ERGIO" onerror="this.style.display='none'"> ERGIO</a>
+    <a href="auth/signup.html" class="nav-cta">Get started free</a>
+  </div>
+
+  <div class="hero">
+    <h1>Earn <span class="grad">₦1,000</span><br>per referral.</h1>
+    <p>Share ERGIO with friends. When they subscribe to Pro or Business, you earn ₦1,000 cash. No limit.</p>
+  </div>
+
+  <div class="earn-card">
+    <div class="earn-label">Your total earnings</div>
+    <div class="earn-amount" id="earnings">₦0</div>
+    <div class="earn-desc" id="refCount">0 referrals signed up</div>
+  </div>
+
+  <div class="ref-link-box">
+    <input type="text" class="ref-input" id="refLink" readonly value="" />
+    <button class="copy-btn" onclick="copyLink()">Copy Link</button>
+  </div>
+
+  <div class="share-buttons">
+    <a class="share-btn" id="shareWA" href="#">💬 WhatsApp</a>
+    <a class="share-btn" id="shareTW" href="#">🐦 Twitter</a>
+    <a class="share-btn" id="shareFB" href="#">📘 Facebook</a>
+    <a class="share-btn" id="shareCopy2" onclick="copyLink()" href="#">📋 Copy</a>
+  </div>
+
+  <div class="how-it-works">
+    <div class="how-title">How it works</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Share your link</h3>
+        <p>Send your unique referral link to friends, family, or your WhatsApp groups.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>They sign up</h3>
+        <p>When someone clicks your link and creates an ERGIO account, they're tracked to you.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>They subscribe</h3>
+        <p>When they upgrade to Pro (₦5,000/mo) or Business (₦15,000/mo), you get paid.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h3>You earn</h3>
+        <p>₦1,000 per paid referral. Paid to your bank account every Friday. No cap.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="rewards">
+    <div class="reward-row">
+      <div class="reward-left"><div class="reward-icon">🥉</div><div><div class="reward-name">First referral</div><div class="reward-desc">When your 1st referral subscribes</div></div></div>
+      <div class="reward-amount">₦1,000</div>
+    </div>
+    <div class="reward-row">
+      <div class="reward-left"><div class="reward-icon">🥈</div><div><div class="reward-name">5 referrals</div><div class="reward-desc">Unlock 1 month of Pro free</div></div></div>
+      <div class="reward-amount">₦5,000 + Pro</div>
+    </div>
+    <div class="reward-row">
+      <div class="reward-left"><div class="reward-icon">🥇</div><div><div class="reward-name">20 referrals</div><div class="reward-desc">Become ERGIO Ambassador — 20% lifetime commission</div></div></div>
+      <div class="reward-amount">20% forever</div>
+    </div>
+    <div class="reward-row">
+      <div class="reward-left"><div class="reward-icon">💎</div><div><div class="reward-name">50 referrals</div><div class="reward-desc">Diamond partner — free Business plan for life</div></div></div>
+      <div class="reward-amount">Business free</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    ERGIO Referral Program — Earn while you help others build businesses.
+  </div>
+
+  <script>
+    // Generate referral code
+    const refCode = 'ERGIO' + Math.random().toString(36).substr(2, 6).toUpperCase();
+    const refLink = window.location.origin + window.location.pathname.replace('refer.html', '') + '?ref=' + refCode;
+
+    document.getElementById('refLink').value = refLink;
+
+    // Share links
+    const shareText = 'Check out ERGIO — it builds your business website and finds you clients automatically. Use my link to get started:';
+    document.getElementById('shareWA').href = 'https://wa.me/?text=' + encodeURIComponent(shareText + ' ' + refLink);
+    document.getElementById('shareTW').href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareText + ' ' + refLink);
+    document.getElementById('shareFB').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(refLink);
+
+    function copyLink() {
+      const input = document.getElementById('refLink');
+      input.select();
+      navigator.clipboard.writeText(refLink).then(() => {
+        alert('Link copied! Share it with your friends.');
+      }).catch(() => {
+        document.execCommand('copy');
+        alert('Link copied! Share it with your friends.');
+      });
+    }
+  </script>
+</body>
+</html>

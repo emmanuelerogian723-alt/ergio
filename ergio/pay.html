@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upgrade to Pro — ERGIO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <script src="config.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#050508;--surface:rgba(255,255,255,.04);--border:rgba(255,255,255,.08);--cyan:#00D9FF;--green:#00FF9D;--blue:#2563FF;--gold:#FFB800;--text:#F8FAFC;--muted:#94A3B8}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+
+    .pay-card{max-width:480px;width:100%;background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:2.5rem;text-align:center;position:relative;overflow:hidden}
+    .pay-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--cyan),var(--green))}
+    .pay-logo{display:flex;align-items:center;justify-content:center;gap:.5rem;margin-bottom:1.5rem}
+    .pay-logo img{width:36px;height:36px;border-radius:8px}
+    .pay-logo span{font-size:1.3rem;font-weight:800}
+
+    .plan-badge{display:inline-block;padding:.3rem 1rem;background:linear-gradient(135deg,rgba(0,217,255,.1),rgba(0,255,157,.05));border:1px solid rgba(0,217,255,.2);border-radius:20px;font-size:.85rem;color:var(--cyan);font-weight:600;margin-bottom:1rem}
+    .pay-title{font-size:1.8rem;font-weight:800;margin-bottom:.5rem}
+    .pay-price{font-size:3rem;font-weight:900;margin-bottom:.3rem}
+    .pay-period{color:var(--muted);font-size:.95rem;margin-bottom:2rem}
+    .pay-features{text-align:left;margin-bottom:2rem;display:grid;gap:.6rem}
+    .pay-feature{display:flex;align-items:center;gap:.6rem;font-size:.9rem;color:var(--muted)}
+    .pay-feature svg{width:18px;height:18px;color:var(--green);flex-shrink:0}
+
+    .pay-btn{width:100%;padding:1.1rem;background:linear-gradient(135deg,var(--cyan),var(--green));color:#09090B;border:none;border-radius:14px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .3s;font-family:'Inter',sans-serif;margin-bottom:.8rem}
+    .pay-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,217,255,.3)}
+    .pay-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+    .pay-secure{display:flex;align-items:center;justify-content:center;gap:.4rem;color:var(--muted);font-size:.8rem;margin-bottom:1rem}
+    .pay-secure svg{width:14px;height:14px}
+
+    .pay-methods{display:flex;justify-content:center;gap:.5rem;margin-bottom:1.5rem}
+    .pay-method{padding:.3rem .8rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:.75rem;color:var(--muted)}
+
+    .pay-guarantee{padding:1rem;background:rgba(0,255,157,.05);border:1px solid rgba(0,255,157,.1);border-radius:12px;font-size:.85rem;color:var(--green);margin-bottom:1rem}
+    .pay-back{display:inline-block;color:var(--muted);font-size:.85rem;text-decoration:none;transition:color .2s}
+    .pay-back:hover{color:var(--text)}
+
+    .pay-error{color:#ef4444;font-size:.85rem;margin-bottom:1rem;display:none}
+    .pay-error.show{display:block}
+  </style>
+</head>
+<body>
+  <div class="pay-card">
+    <div class="pay-logo">
+      <img src="assets/ergio-logo.jpg" alt="ERGIO" onerror="this.style.display='none'">
+      <span>ERGIO</span>
+    </div>
+
+    <div class="plan-badge" id="planBadge">Pro Plan</div>
+    <div class="pay-title" id="planTitle">Upgrade to Pro</div>
+    <div class="pay-price" id="planPrice">₦5,000</div>
+    <div class="pay-period" id="planPeriod">per month</div>
+
+    <div class="pay-features" id="planFeatures"></div>
+
+    <div class="pay-guarantee">✓ 7-day money-back guarantee. No questions asked.</div>
+
+    <div class="pay-secure">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Secured by Paystack · 256-bit encryption
+    </div>
+
+    <div class="pay-methods">
+      <span class="pay-method">💳 Card</span>
+      <span class="pay-method">🏦 Transfer</span>
+      <span class="pay-method">📱 USSD</span>
+      <span class="pay-method">💵 Bank</span>
+    </div>
+
+    <div class="pay-error" id="payError"></div>
+
+    <button class="pay-btn" id="payBtn" onclick="startPayment()">Pay ₦5,000 with Paystack</button>
+
+    <a href="dashboard/index.html" class="pay-back">← Back to dashboard</a>
+  </div>
+
+  <script>
+    const plans = {
+      pro: {
+        name: 'Pro',
+        price: 5000,
+        period: 'per month',
+        features: [
+          'Custom domain included',
+          'Full AI-generated website',
+          'WhatsApp business bot',
+          'Unlimited client matching',
+          'AI Outreach engine',
+          'Income tracker + invoices',
+          'Smart pricing suggestions',
+        ],
+        paystackCode: 500000, // in kobo
+      },
+      business: {
+        name: 'Business',
+        price: 15000,
+        period: 'per month',
+        features: [
+          'Everything in Pro',
+          'Up to 5 team members',
+          'Multiple service listings',
+          'Advanced analytics',
+          'Repeat client engine',
+          'Custom branding',
+          'Priority support',
+        ],
+        paystackCode: 1500000, // in kobo
+      },
+    };
+
+    // Get plan from URL
+    const params = new URLSearchParams(window.location.search);
+    const planKey = params.get('plan') || 'pro';
+    const plan = plans[planKey] || plans.pro;
+
+    document.getElementById('planBadge').textContent = plan.name + ' Plan';
+    document.getElementById('planTitle').textContent = 'Upgrade to ' + plan.name;
+    document.getElementById('planPrice').textContent = '₦' + plan.price.toLocaleString();
+    document.getElementById('planPeriod').textContent = plan.period;
+    document.getElementById('planFeatures').innerHTML = plan.features.map(f =>
+      `<div class="pay-feature"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>${f}</div>`
+    ).join('');
+
+    // Update pay button text
+    document.getElementById('payBtn').textContent = `Pay ₦${plan.price.toLocaleString()} with Paystack`;
+
+    // Referral code check
+    const refCode = params.get('ref');
+    if (refCode) {
+      localStorage.setItem('ergio_ref', refCode);
+    }
+
+    function startPayment() {
+      const btn = document.getElementById('payBtn');
+      const errorEl = document.getElementById('payError');
+      btn.disabled = true;
+      btn.textContent = 'Initializing payment...';
+      errorEl.classList.remove('show');
+
+      // Get Paystack public key from config
+      const publicKey = window.ERGIO_CONFIG?.paystackPublicKey || '';
+
+      if (!publicKey || publicKey.includes('your_')) {
+        // Demo mode - Paystack not configured yet
+        errorEl.classList.add('show');
+        errorEl.textContent = 'Paystack is not configured yet. Add your Paystack public key to config.js to start accepting payments.';
+        btn.disabled = false;
+        btn.textContent = `Pay ₦${plan.price.toLocaleString()} with Paystack`;
+        return;
+      }
+
+      const handler = PaystackPop.setup({
+        key: publicKey,
+        email: localStorage.getItem('ergio_email') || 'user@example.com',
+        amount: plan.paystackCode,
+        currency: 'NGN',
+        ref: 'ERGIO_' + Date.now(),
+        metadata: {
+          custom_fields: [
+            { display_name: 'Plan', variable_name: 'plan', value: plan.name },
+            { display_name: 'Referral Code', variable_name: 'ref', value: refCode || '' },
+          ]
+        },
+        callback: function(response) {
+          btn.textContent = 'Payment successful! ✓';
+          btn.style.background = 'linear-gradient(135deg,#00FF9D,#00D9FF)';
+
+          // Redirect to dashboard after 2 seconds
+          setTimeout(() => {
+            window.location.href = 'dashboard/index.html?status=paid&plan=' + planKey + '&ref=' + response.reference;
+          }, 2000);
+        },
+        onClose: function() {
+          btn.disabled = false;
+          btn.textContent = `Pay ₦${plan.price.toLocaleString()} with Paystack`;
+        }
+      });
+
+      handler.openIframe();
+    }
+  </script>
+</body>
+</html>
