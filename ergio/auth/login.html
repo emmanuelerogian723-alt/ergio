@@ -265,11 +265,16 @@
 
     // Login with email/password
     async function handleLogin(e) {
-      e.preventDefault();
+      if (e) e.preventDefault();
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const btn = document.getElementById('loginBtn');
       const btnText = document.getElementById('loginBtnText');
+
+      if (!email || !password) {
+        showAlert('error', 'Please enter your email and password');
+        return false;
+      }
 
       btn.disabled = true;
       btnText.innerHTML = '<span class="spinner"></span>';
@@ -280,11 +285,21 @@
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
 
+        // Verify we actually got a session
+        if (!data.session) {
+          // Try to get the session explicitly
+          const { data: sessionData } = await supabase.auth.getSession();
+          if (!sessionData.session) throw new Error('Login succeeded but no session was created');
+        }
+
         // Show success animation
         document.getElementById('loginView').style.display = 'none';
         document.getElementById('successCheck').classList.add('show');
         
         showAlert('success', 'Welcome back! Redirecting to your dashboard...');
+        
+        // Store a flag so dashboard knows we just logged in
+        try { localStorage.setItem('ergio_just_logged_in', 'true'); } catch(e) {}
         
         setTimeout(() => {
           window.location.href = '../dashboard/index.html';
@@ -295,6 +310,7 @@
         btnText.textContent = 'Sign in to ERGIO';
         showAlert('error', err.message || 'Login failed. Check your credentials.');
       }
+      return false;
     }
 
     // Google sign-in

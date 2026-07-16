@@ -425,22 +425,38 @@
         const fullName = document.getElementById('fullName').value;
 
         // Create auth account
-        const { data, error } = await supabase.auth.signUp({
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email, password,
           options: { data: { full_name: fullName, biz_type: formData.bizType, city: formData.city, plan: formData.plan } }
         });
 
-        if (error) throw error;
-          
-          // Auto-confirm email — no need for email verification
-          try {
-            const API_BASE = window.location.origin;
-            await fetch(`${API_BASE}/api/auth-confirm`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email, userId: data.user?.id })
-            });
-          } catch (e) { console.log('Auto-confirm attempt failed:', e); }
+        if (signUpError) throw signUpError;
+
+        // Auto-confirm email via API
+        try {
+          const API_BASE = window.location.origin;
+          await fetch(`${API_BASE}/api/auth-confirm`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, userId: signUpData.user?.id })
+          });
+        } catch (e) { console.log('Auto-confirm attempt failed:', e); }
+
+        // IMMEDIATELY sign in to get a session (don't wait for email confirmation)
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email, password
+        });
+
+        if (signInError) {
+          // If sign-in fails (email not confirmed yet), try one more time after a short delay
+          console.log('First sign-in attempt failed, retrying...', signInError.message);
+          await new Promise(r => setTimeout(r, 1500));
+          const { error: retryError } = await supabase.auth.signInWithPassword({ email, password });
+          if (retryError) {
+            console.log('Sign-in retry failed:', retryError.message);
+            // Continue anyway — the build animation will show, and user can sign in manually
+          }
+        }
 
         // Show success with build animation
         showStep(999);

@@ -5,7 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard — ERGIO</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+    function enterDemoMode() {
+      document.getElementById('loginPrompt').style.display = 'none';
+      // Create a demo user object
+      currentUser = { id: 'demo-user', email: 'demo@ergio.app', user_metadata: { full_name: 'Demo User' } };
+      isDemoMode = true;
+      initDashboard(currentUser);
+    }
+
+  </script>
   <script src="../config.js"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -56,6 +65,7 @@
     @keyframes spin{to{transform:rotate(360deg)}}
     .login-prompt{text-align:center;padding:4rem 2rem}
     .login-prompt a{display:inline-block;margin-top:1rem;padding:.8rem 2rem;background:linear-gradient(135deg,var(--cyan),var(--green));color:#09090B;border-radius:100px;text-decoration:none;font-weight:700}
+    .login-prompt .demo-btn{display:block;margin:1rem auto 0;max-width:200px;padding:.6rem 1.5rem;background:transparent;border:1px solid rgba(255,255,255,.2);color:#94A3B8;border-radius:100px;text-decoration:none;font-size:.85rem}
     @media(max-width:768px){.sidebar{display:none}.main{margin-left:0;padding:1rem}.two-col{grid-template-columns:1fr}}
   </style>
 </head>
@@ -89,9 +99,11 @@
 
     <div id="loginPrompt" style="display:none">
       <div class="login-prompt">
-        <h2>Please sign in to view your dashboard</h2>
-        <p>Your analytics, bookings, leads, and engine status are here.</p>
+        <div style="font-size:3rem;margin-bottom:1rem">🔐</div>
+        <h2>Welcome to ERGIO</h2>
+        <p style="color:#94A3B8;margin:1rem 0">Sign in to access your business dashboard, or explore in demo mode.</p>
         <a href="../auth/login.html">Sign in →</a>
+        <a href="#" class="demo-btn" onclick="enterDemoMode();return false;">Explore in demo mode →</a>
       </div>
     </div>
 
@@ -181,6 +193,7 @@
   <script>
     let supabase;
     let currentUser = null;
+    let isDemoMode = false;
     let currentBusinessId = null;
 
     function initSupabase() {
