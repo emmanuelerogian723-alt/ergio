@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ergio — Template Gallery</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg:#09090B;--surface:#111827;--border:#1E293B;--text:#F8FAFC;--muted:#64748B;--cyan:#00D9FF;--green:#10F981;--purple:#A78BFA}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    .nav{position:sticky;top:0;z-index:100;background:rgba(9,9,11,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between}
+    .nav-logo{font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .nav-links{display:flex;gap:1.5rem}
+    .nav-links a{color:var(--muted);text-decoration:none;font-size:.9rem;font-weight:500;transition:color .3s}
+    .nav-links a:hover{color:var(--cyan)}
+    .hero{text-align:center;padding:3rem 2rem 2rem}
+    .hero h1{font-size:2.5rem;font-weight:800;margin-bottom:.5rem}
+    .hero h1 span{background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .hero p{color:var(--muted);font-size:1rem;max-width:600px;margin:0 auto}
+    .filters{display:flex;gap:.5rem;justify-content:center;padding:1.5rem;flex-wrap:wrap}
+    .filter-btn{padding:.5rem 1.2rem;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--muted);font-size:.85rem;font-weight:500;cursor:pointer;transition:all .3s}
+    .filter-btn.active{background:linear-gradient(135deg,var(--cyan),var(--green));color:#09090B;border-color:transparent}
+    .filter-btn:hover{border-color:var(--cyan);color:var(--text)}
+    .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.5rem;padding:1rem 2rem 3rem;max-width:1400px;margin:0 auto}
+    .template-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;transition:all .4s;cursor:pointer}
+    .template-card:hover{transform:translateY(-6px);border-color:var(--cyan);box-shadow:0 20px 60px rgba(0,217,255,0.1)}
+    .template-preview{width:100%;height:200px;background:linear-gradient(135deg,#1a1a2e,#16213e);position:relative;overflow:hidden}
+    .template-preview iframe{width:200%;height:200%;transform:scale(0.5);transform-origin:top left;border:none;pointer-events:none}
+    .template-badge{position:absolute;top:.8rem;right:.8rem;padding:.3rem .7rem;border-radius:8px;font-size:.7rem;font-weight:700;text-transform:uppercase}
+    .badge-3d{background:linear-gradient(135deg,var(--purple),#7C3AED);color:#fff}
+    .badge-hot{background:linear-gradient(135deg,#FF6B6B,#FF4757);color:#fff}
+    .badge-new{background:linear-gradient(135deg,var(--green),var(--cyan));color:#09090B}
+    .badge-pro{background:linear-gradient(135deg,#FFD700,#FFA500);color:#09090B}
+    .template-info{padding:1.2rem}
+    .template-name{font-size:1.1rem;font-weight:700;margin-bottom:.3rem}
+    .template-type{color:var(--muted);font-size:.85rem;margin-bottom:.6rem}
+    .template-tags{display:flex;gap:.4rem;flex-wrap:wrap}
+    .template-tag{padding:.2rem .6rem;background:rgba(0,217,255,0.1);color:var(--cyan);border-radius:6px;font-size:.7rem;font-weight:600}
+    .template-actions{display:flex;gap:.5rem;padding:0 1.2rem 1.2rem}
+    .template-btn{flex:1;padding:.7rem;border:none;border-radius:10px;font-size:.85rem;font-weight:700;cursor:pointer;text-decoration:none;text-align:center;transition:all .3s}
+    .btn-use{background:linear-gradient(135deg,var(--cyan),var(--green));color:#09090B}
+    .btn-preview{background:rgba(255,255,255,0.05);color:var(--text);border:1px solid var(--border)}
+    .empty-state{text-align:center;padding:3rem;color:var(--muted)}
+    .cta{text-align:center;padding:3rem 2rem;background:linear-gradient(135deg,rgba(0,217,255,0.05),rgba(16,249,129,0.05));border-top:1px solid var(--border)}
+    .cta h2{font-size:1.8rem;font-weight:800;margin-bottom:.5rem}
+    .cta p{color:var(--muted);margin-bottom:1.5rem}
+    .cta-btn{display:inline-block;padding:1rem 2.5rem;background:linear-gradient(135deg,var(--cyan),var(--green));color:#09090B;border-radius:14px;font-weight:700;text-decoration:none;font-size:1rem;transition:all .3s}
+    .cta-btn:hover{transform:scale(1.05);box-shadow:0 10px 40px rgba(0,217,255,0.3)}
+    @media(max-width:768px){.gallery{grid-template-columns:1fr}.nav-links{display:none}}
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">ERGIO</a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="templates.html" style="color:var(--cyan)">Templates</a>
+      <a href="directory.html">Directory</a>
+      <a href="match.html">Find a Pro</a>
+      <a href="auth/signup.html">Get Started</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <h1>Template <span>Gallery</span></h1>
+    <p>Real websites built with Ergio AI. Use any as a starting point — just like Lovable and Base44.</p>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="filterTemplates('all')">All</button>
+    <button class="filter-btn" onclick="filterTemplates('beauty')">Beauty</button>
+    <button class="filter-btn" onclick="filterTemplates('food')">Food</button>
+    <button class="filter-btn" onclick="filterTemplates('tech')">Tech</button>
+    <button class="filter-btn" onclick="filterTemplates('health')">Health</button>
+    <button class="filter-btn" onclick="filterTemplates('fashion')">Fashion</button>
+    <button class="filter-btn" onclick="filterTemplates('3d')">3D / Interactive</button>
+    <button class="filter-btn" onclick="filterTemplates('pro')">Pro / Business</button>
+  </div>
+
+  <div class="gallery" id="gallery">
+    <!-- Templates will be loaded here -->
+    <div class="empty-state">Loading templates...</div>
+  </div>
+
+  <div class="cta">
+    <h2>Build Your Own Template</h2>
+    <p>Describe your business and Ergio AI builds a complete website in seconds.</p>
+    <a href="index.html" class="cta-btn">Start Building →</a>
+  </div>
+
+  <script>
+    // Built-in starter templates + dynamically loaded user-created sites
+    const BUILTIN_TEMPLATES = [
+      {
+        id: 'salon-pro', name: 'GlowUp Salon', type: 'Beauty Studio', category: 'beauty',
+        tags: ['Booking', 'Gallery', 'Paystack'], badge: 'hot',
+        preview: 'A modern salon website with booking system, service gallery, and online payments',
+        html: '<div style="background:linear-gradient(135deg,#FF6B9D,#C44569);height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:2rem;font-weight:800">GlowUp Salon</div>'
+      },
+      {
+        id: 'restaurant-3d', name: 'Le Petit Chef 3D', type: 'Restaurant', category: '3d',
+        tags: ['3D Menu', 'Reservations', 'Animations'], badge: '3d',
+        preview: '3D rotating menu cards, animated food gallery, table reservations',
+        html: '<div style="background:linear-gradient(135deg,#2C3E50,#3498DB);height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:2rem;font-weight:800">Le Petit Chef</div>'
+      },
+      {
+        id: 'tech-startup', name: 'NaijaTech', type: 'Tech Startup', category: 'tech',
+        tags: ['SaaS', 'Pricing', 'API Docs'], badge: 'new',
+        preview: 'Modern tech startup landing page with pricing tiers and API documentation',
+        html: '<div style="background:linear-gradient(135deg,#0F172A,#1E40AF);height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:2rem;font-weight:800">NaijaTech</div>'
+      },
+      {
+        id: 'fashion-boutique', name: 'Lagos Couture', type: 'Fashion Store', category: 'fashion',
+        tags: ['Shop', 'Lookbook', 'Instagram'], badge: 'pro',
+        preview: 'Fashion boutique with product grid, lookbook gallery, and Instagram feed',
+        html: '<div style="background:linear-gradient(135deg,#1a1a2e,#E94560);height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:2rem;font-weight:800">Lagos Couture</div>'
+      },
+      {
+        id: 'clinic-pro', name: 'MedCare Plus', type: 'Health Clinic', category: 'health',
+        tags: ['Appointments', 'Telehealth', 'Pharmacy'], badge: 'new',
+        preview: 'Health clinic with appointment booking, telehealth, and pharmacy ordering',
+        html: '<div style="background:linear-gradient(135deg,#0D9488,#14B8A6);height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:2rem;font-weight:800">MedCare Plus</div>'
+      },
+      {
+        id: 'food-truck', name: 'Bola\'s Kitchen', type: 'Food Business', category: 'food',
+        tags: ['Menu', 'Order Online', 'Delivery'], badge: 'hot',
+        preview: 'Food truck website with online ordering, delivery tracking, and menu',
+        html: '<div style="background:linear-gradient(135deg,#F59E0B,#D97706);height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:2rem;font-weight:800">Bola\'s Kitchen</div>'
+      },
+      {
+        id: 'fitness-3d', name: 'FitZone 3D', type: 'Fitness Studio', category: '3d',
+        tags: ['3D Tour', 'Class Booking', 'Membership'], badge: '3d',
+        preview: '3D virtual gym tour, class scheduling, and membership management',
+        html: '<div style="background:linear-gradient(135deg,#059669,#10B981);height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:2rem;font-weight:800">FitZone 3D</div>'
+      },
+      {
+        id: 'agency-pro', name: 'CreativeHub Agency', type: 'Agency', category: 'pro',
+        tags: ['Portfolio', 'Case Studies', 'Contact'], badge: 'pro',
+        preview: 'Creative agency portfolio with case studies, team profiles, and contact form',
+        html: '<div style="background:linear-gradient(135deg,#6366F1,#8B5CF6);height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:2rem;font-weight:800">CreativeHub</div>'
+      },
+      {
+        id: 'realtor-3d', name: 'Estate360', type: 'Real Estate', category: '3d',
+        tags: ['3D Tours', 'Listings', 'Mortgage Calc'], badge: '3d',
+        preview: 'Real estate with 3D property tours, listings, and mortgage calculator',
+        html: '<div style="background:linear-gradient(135deg,#7C3AED,#5B21B6);height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:2rem;font-weight:800">Estate360</div>'
+      }
+    ];
+
+    let allTemplates = [...BUILTIN_TEMPLATES];
+    let currentFilter = 'all';
+
+    async function loadUserTemplates() {
+      try {
+        // Load user-generated websites from Supabase
+        const SUPABASE_URL = window.ERGIO_CONFIG?.supabaseUrl;
+        const SUPABASE_KEY = window.ERGIO_CONFIG?.supabaseAnonKey;
+        if (!SUPABASE_URL || !SUPABASE_KEY) return;
+
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/generated_websites?select=id,business_name,business_type,html_content,brand_colors,created_date&order=created_date.desc&limit=20`, {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`
+          }
+        });
+
+        if (!response.ok) return;
+        const websites = await response.json();
+
+        websites.forEach(w => {
+          if (w.html_content) {
+            allTemplates.push({
+              id: `user-${w.id}`,
+              name: w.business_name || 'User Website',
+              type: w.business_type || 'Business',
+              category: 'pro',
+              tags: ['User Created', 'Ergio AI'],
+              badge: 'new',
+              isUserCreated: true,
+              html: w.html_content,
+              preview: `Website built by ${w.business_name || 'a user'} using Ergio AI`
+            });
+          }
+        });
+      } catch (err) {
+        console.log('No user templates loaded:', err.message);
+      }
+    }
+
+    function renderTemplates() {
+      const gallery = document.getElementById('gallery');
+      const filtered = currentFilter === 'all' ? allTemplates : allTemplates.filter(t => t.category === currentFilter || (currentFilter === '3d' && t.tags.includes('3D')));
+
+      if (filtered.length === 0) {
+        gallery.innerHTML = '<div class="empty-state">No templates in this category yet. <a href="index.html" style="color:var(--cyan)">Build one →</a></div>';
+        return;
+      }
+
+      gallery.innerHTML = filtered.map(t => `
+        <div class="template-card" onclick="useTemplate('${t.id}')">
+          <div class="template-preview">
+            ${t.html ? t.html : `<div style="background:var(--surface);height:100%;display:flex;align-items:center;justify-content:center;color:var(--muted)">${t.name}</div>`}
+            ${t.badge ? `<span class="template-badge badge-${t.badge}">${t.badge === '3d' ? '3D' : t.badge}</span>` : ''}
+          </div>
+          <div class="template-info">
+            <div class="template-name">${t.name}</div>
+            <div class="template-type">${t.type}${t.isUserCreated ? ' · ✨ User Created' : ''}</div>
+            <div class="template-tags">${t.tags.map(tag => `<span class="template-tag">${tag}</span>`).join('')}</div>
+          </div>
+          <div class="template-actions">
+            <a href="index.html" class="template-btn btn-use" onclick="event.stopPropagation()">Use Template</a>
+            <button class="template-btn btn-preview" onclick="event.stopPropagation();previewTemplate('${t.id}')">Preview</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterTemplates(cat) {
+      currentFilter = cat;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      renderTemplates();
+    }
+
+    function useTemplate(id) {
+      window.location.href = `index.html?template=${id}`;
+    }
+
+    function previewTemplate(id) {
+      const template = allTemplates.find(t => t.id === id);
+      if (template && template.html) {
+        const w = window.open('', '_blank');
+        w.document.write(template.html);
+        w.document.close();
+      } else {
+        alert('Preview coming soon! Click "Use Template" to start building.');
+      }
+    }
+
+    // Initialize
+    (async () => {
+      await loadUserTemplates();
+      renderTemplates();
+    })();
+  </script>
+
+  <!-- Cookie consent -->
+  <script src="cookie-consent.js"></script>
+  <!-- Config -->
+  <script src="config.js"></script>
+</body>
+</html>

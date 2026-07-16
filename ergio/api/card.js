@@ -1,10 +1,9 @@
 // ========================================
-// ERGIO API — /api/card
-// Digital Business Card: generates a shareable
-// one-page business card with QR code
+// ERGIO API — /api/card (GET + POST)
+// Digital Business Card: generates shareable card with QR code
 // ========================================
 
-import { getSupabase, success, error, corsHeaders } from '../lib/ergio.js';
+import { getSupabase, success, error, corsHeaders, generateSlug } from '../lib/ergio.js';
 
 export default async function handler(req, res) {
   corsHeaders(res);
@@ -15,38 +14,49 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
       const { businessId, slug } = req.query;
-
       let query = supabase.from('businesses').select('*, services(*)');
-
-      if (businessId) {
-        query = query.eq('id', businessId).single();
-      } else if (slug) {
-        query = query.eq('slug', slug).single();
-      } else {
-        return error(res, 'businessId or slug required', 400);
-      }
+      if (businessId) query = query.eq('id', businessId).single();
+      else if (slug) query = query.eq('slug', slug).single();
+      else return error(res, 'businessId or slug required', 400);
 
       const { data: business, error: dbErr } = await query;
       if (dbErr || !business) return error(res, 'Business not found', 404);
 
-      // Generate QR code URL (free QR API, no key)
-      const cardUrl = `https://ergio.app/${business.slug}`;
+      const cardUrl = `https://ergio.vercel.app/card?slug=${business.slug || business.id}`;
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(cardUrl)}`;
 
-      // Return the business card HTML
+      if (req.query.format === 'json') return success(res, { business, cardUrl, qrUrl });
+
       const cardHtml = generateCardHTML(business, qrUrl);
-
-      if (req.query.format === 'json') {
-        return success(res, { business, cardUrl, qrUrl });
-      }
-
-      // Return HTML page
       res.setHeader('Content-Type', 'text/html');
       return res.status(200).send(cardHtml);
     }
 
-    return error(res, 'Method not allowed', 405);
+    if (req.method === 'POST') {
+      // Create or update business card
+      const { businessId, name, type, city, phone, whatsapp, email, description, logoUrl, brandColors } = req.body;
+      if (!name) return error(res, 'Business name required', 400);
 
+      const slug = generateSlug(name);
+      const cardData = {
+        ...(businessId ? { id: businessId } : {}),
+        name, type, city, phone, whatsapp, email, description,
+        logo_url: logoUrl, brand_colors: brandColors, slug,
+        updated_date: new Date().toISOString()
+      };
+
+      if (businessId) {
+        const { data, error: dbErr } = await supabase.from('businesses').update(cardData).eq('id', businessId).select().single();
+        if (dbErr) return error(res, dbErr.message, 500);
+        return success(res, data, 200);
+      } else {
+        const { data, error: dbErr } = await supabase.from('businesses').insert({ ...cardData, created_date: new Date().toISOString() }).select().single();
+        if (dbErr) return error(res, dbErr.message, 500);
+        return success(res, data, 201);
+      }
+    }
+
+    return error(res, 'Method not allowed', 405);
   } catch (err) {
     return error(res, err.message, 500);
   }
@@ -55,7 +65,6 @@ export default async function handler(req, res) {
 function generateCardHTML(business, qrUrl) {
   const colors = business.brand_colors || { primary: '#00D9FF', secondary: '#09090B' };
   const services = business.services || [];
-
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -90,7 +99,6 @@ function generateCardHTML(business, qrUrl) {
     .card-actions{display:flex;gap:.5rem;padding:1rem 1.5rem}
     .card-btn{flex:1;padding:.7rem;border:none;border-radius:10px;font-size:.85rem;font-weight:700;cursor:pointer;text-decoration:none;text-align:center}
     .btn-book{background:${colors.primary};color:#09090B}
-    .btn-pay{background:rgba(255,255,255,0.06);color:#F8FAFC;border:1px solid rgba(255,255,255,0.1)}
     .btn-wa{background:#25D366;color:#fff}
     .qr-section{text-align:center;padding:1rem 1.5rem 2rem}
     .qr-img{width:120px;height:120px;border-radius:12px;margin:0 auto .5rem}
@@ -109,17 +117,9 @@ function generateCardHTML(business, qrUrl) {
       <div class="card-type">${business.type || 'Business'}</div>
       ${business.city ? `<div class="card-location">📍 ${business.city}, ${business.country || 'Nigeria'}</div>` : ''}
     </div>
-
     <div class="card-body">
       ${business.description ? `<div class="card-section"><div class="card-section-title">About</div><div class="card-desc">${business.description}</div></div>` : ''}
-
-      ${services.length > 0 ? `<div class="card-section">
-        <div class="card-section-title">Services & Pricing</div>
-        <div class="services-list">
-          ${services.map(s => `<div class="service-row"><span class="service-name">${s.name}</span><span class="service-price">₦${(s.price || 0).toLocaleString()}</span></div>`).join('')}
-        </div>
-      </div>` : ''}
-
+      ${services.length > 0 ? `<div class="card-section"><div class="card-section-title">Services & Pricing</div><div class="services-list">${services.map(s => `<div class="service-row"><span class="service-name">${s.name}</span><span class="service-price">₦${(s.price || 0).toLocaleString()}</span></div>`).join('')}</div></div>` : ''}
       <div class="card-section">
         <div class="card-section-title">Contact</div>
         ${business.phone ? `<div class="contact-row"><div class="contact-icon">📞</div><div class="contact-info"><a href="tel:${business.phone}">${business.phone}</a></div></div>` : ''}
@@ -127,20 +127,15 @@ function generateCardHTML(business, qrUrl) {
         ${business.email ? `<div class="contact-row"><div class="contact-icon">✉️</div><div class="contact-info"><a href="mailto:${business.email}">${business.email}</a></div></div>` : ''}
       </div>
     </div>
-
     <div class="card-actions">
       <a href="#" class="card-btn btn-book" onclick="alert('Booking powered by ERGIO');return false">📅 Book Now</a>
       <a href="https://wa.me/${(business.whatsapp || '').replace(/\\D/g,'')}" class="card-btn btn-wa">💬 WhatsApp</a>
     </div>
-
     <div class="qr-section">
       <img src="${qrUrl}" alt="QR Code" class="qr-img">
       <div class="qr-hint">Scan to save this card</div>
     </div>
-
-    <div class="card-footer">
-      Powered by <a href="https://ergio.app">ERGIO</a> · Built for Africa 🌍
-    </div>
+    <div class="card-footer">Powered by <a href="https://ergio.vercel.app">ERGIO</a> · Built for Africa 🌍</div>
   </div>
 </body>
 </html>`;

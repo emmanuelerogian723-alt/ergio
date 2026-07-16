@@ -34,11 +34,14 @@ export default async function handler(req, res) {
 User's input: "${prompt}"
 Additional answers: ${JSON.stringify(answers || {})}
 
+If the user mentions "3D", "interactive", "animated", "immersive", or wants something unique, set websiteType to "3d". Otherwise use "standard".
+
 Create a business plan. Return ONLY valid JSON with this structure:
 {
   "businessName": "A catchy, professional name",
   "tagline": "Short memorable tagline",
   "type": "business type (e.g. restaurant, salon, design studio)",
+  "websiteType": "standard" or "3d" (use 3d for interactive/immersive requests),
   "description": "2-3 sentence business description",
   "brandColors": {
     "primary": "#hex color",
@@ -160,7 +163,10 @@ Return JSON with:
     // ============ STEP 4: GENERATE WEBSITE HTML ============
     const colors = plan.brandColors || { primary: '#00D9FF', secondary: '#09090B', accent: '#00FF9D', bg: '#09090B' };
 
-    const websiteHtml = generateWebsiteHTML(plan, brand, content, colors, logoUrl);
+    const is3D = plan.websiteType === '3d' || (prompt + JSON.stringify(answers || {})).toLowerCase().includes('3d') || (prompt + JSON.stringify(answers || {})).toLowerCase().includes('interactive') || (prompt + JSON.stringify(answers || {})).toLowerCase().includes('animated');
+    const websiteHtml = is3D 
+      ? generate3DWebsiteHTML(plan, brand, content, colors, logoUrl)
+      : generateWebsiteHTML(plan, brand, content, colors, logoUrl);
     send('website', { html: websiteHtml, logoUrl });
     send('status', { task: 'Setting up booking system...', step: 5, total: 7 });
 
@@ -216,7 +222,26 @@ Return JSON with:
   }
 }
 
-// ============ WEBSITE HTML GENERATOR ============
+// ============ SAVE TO SUPABASE ============
+    try {
+      const { getSupabase } = await import('../lib/ergio.js');
+      const supabase = getSupabase(req);
+      const userId = req.body.userId || null;
+      
+      await supabase.from('generated_websites').insert({
+        business_name: plan.businessName,
+        business_type: plan.type,
+        html_content: websiteHtml,
+        brand_colors: colors,
+        website_type: is3D ? '3d' : 'standard',
+        created_by: userId,
+        created_date: new Date().toISOString()
+      });
+    } catch (dbErr) {
+      console.error('Template save error:', dbErr.message);
+    }
+
+    // ============ WEBSITE HTML GENERATOR ============
 function generateWebsiteHTML(plan, brand, content, colors, logoUrl) {
   const hero = content.hero || {};
   const about = content.about || '';
@@ -404,6 +429,202 @@ function generateWebsiteHTML(plan, brand, content, colors, logoUrl) {
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({event_type:'page_view', event_data:{business:'${plan.businessName}'}})
     }).catch(()=>{});
+  </script>
+</body>
+</html>`;
+}
+
+// ============ 3D WEBSITE GENERATOR ============
+function generate3DWebsiteHTML(plan, brand, content, colors, logoUrl) {
+  const hero = content.hero || {};
+  const about = content.about || '';
+  const whyChooseUs = content.whyChooseUs || [];
+  const testimonials = content.testimonials || [];
+  
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${content.seoTitle || plan.businessName + ' — ' + plan.tagline}</title>
+  <meta name="description" content="${content.seoDescription || plan.description || ''}">
+  <meta name="keywords" content="${(plan.seoKeywords || []).join(', ')}">
+  <meta property="og:title" content="${plan.businessName}">
+  <meta property="og:description" content="${plan.tagline || ''}">
+  <meta property="og:image" content="${logoUrl}">
+  <!-- Three.js for 3D effects -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--primary:${colors.primary || '#00D9FF'};--secondary:${colors.secondary || '#09090B'};--accent:${colors.accent || '#00FF9D'};--bg:${colors.bg || '#09090B'}}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:#F8FAFC;line-height:1.6;overflow-x:hidden}
+    #three-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;opacity:0.4}
+    .nav{display:flex;justify-content:space-between;align-items:center;padding:1.5rem 5%;position:sticky;top:0;background:rgba(9,9,11,0.7);backdrop-filter:blur(20px);z-index:100}
+    .nav-logo{display:flex;align-items:center;gap:.6rem;font-weight:800;font-size:1.3rem;color:#fff;text-decoration:none}
+    .nav-logo img{width:36px;height:36px;border-radius:8px}
+    .nav-links a{color:#94A3B8;text-decoration:none;margin-left:2rem;font-size:.95rem;transition:color .3s}
+    .nav-links a:hover{color:var(--primary)}
+    .nav-cta{background:var(--primary);color:#09090B;padding:.6rem 1.5rem;border-radius:100px;font-weight:700;text-decoration:none;font-size:.9rem}
+    .hero{text-align:center;padding:8rem 5% 5rem;max-width:900px;margin:0 auto;position:relative}
+    .hero h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:800;margin-bottom:1.5rem;line-height:1.05;animation:fadeInUp 1s ease}
+    .hero h1 span{background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .hero p{font-size:1.3rem;color:#94A3B8;max-width:600px;margin:0 auto 2rem;animation:fadeInUp 1.2s ease}
+    .hero-cta{display:inline-flex;gap:1rem;flex-wrap:wrap;justify-content:center;animation:fadeInUp 1.4s ease}
+    .btn-primary{background:linear-gradient(135deg,var(--primary),var(--accent));color:#09090B;padding:1.1rem 2.5rem;border-radius:100px;font-weight:700;text-decoration:none;border:none;cursor:pointer;font-size:1.1rem;transition:all .3s;box-shadow:0 10px 40px rgba(0,217,255,0.3)}
+    .btn-primary:hover{transform:scale(1.08);box-shadow:0 15px 50px rgba(0,217,255,0.5)}
+    .btn-outline{background:rgba(255,255,255,0.05);color:#fff;padding:1.1rem 2.5rem;border-radius:100px;border:1px solid rgba(255,255,255,0.2);text-decoration:none;font-weight:600;font-size:1.1rem;backdrop-filter:blur(10px)}
+    .badge-3d{display:inline-block;padding:.4rem 1rem;background:linear-gradient(135deg,#A78BFA,#7C3AED);border-radius:20px;font-size:.8rem;font-weight:700;color:#fff;margin-bottom:1.5rem;animation:pulse 2s infinite}
+    section{padding:5rem 5%;max-width:1200px;margin:0 auto}
+    .section-title{font-size:2.2rem;font-weight:800;margin-bottom:.5rem;text-align:center}
+    .section-title span{background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .section-sub{color:#94A3B8;text-align:center;margin-bottom:3rem}
+    .service-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:2rem;transition:all .4s;backdrop-filter:blur(20px);position:relative;overflow:hidden}
+    .service-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--primary),var(--accent));transform:scaleX(0);transition:transform .4s}
+    .service-card:hover{transform:translateY(-8px);border-color:var(--primary);box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+    .service-card:hover::before{transform:scaleX(1)}
+    .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+    .service-card h3{font-size:1.3rem;margin-bottom:.5rem}
+    .service-card p{color:#94A3B8;margin-bottom:1rem}
+    .service-price{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem}
+    .why-item{text-align:center;padding:2rem;background:rgba(255,255,255,0.02);border-radius:16px;transition:transform .3s}
+    .why-item:hover{transform:scale(1.05)}
+    .why-item .icon{font-size:2.5rem;margin-bottom:.5rem;display:inline-block;animation:float 3s ease-in-out infinite}
+    .testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem}
+    .testimonial{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:2rem;backdrop-filter:blur(20px)}
+    .contact{background:linear-gradient(135deg,rgba(0,217,255,0.08),rgba(0,255,157,0.05));border-radius:28px;padding:4rem;text-align:center;margin:2rem 5%;backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08)}
+    .footer{text-align:center;padding:3rem;color:#64748B;font-size:.9rem;border-top:1px solid rgba(255,255,255,0.08)}
+    .footer a{color:var(--primary);text-decoration:none}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+    @media(max-width:768px){.nav-links{display:none}section{padding:3rem 5%}}
+  </style>
+</head>
+<body>
+  <canvas id="three-canvas"></canvas>
+  <nav class="nav">
+    <a href="#" class="nav-logo">
+      ${logoUrl ? `<img src="${logoUrl}" alt="${plan.businessName}">` : ''}
+      <span>${plan.businessName}</span>
+    </a>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="#contact" class="nav-cta">Book Now</a>
+  </nav>
+
+  <div class="hero">
+    <div class="badge-3d">✨ 3D Interactive Experience</div>
+    <h1>${(hero.headline || plan.tagline || 'Welcome to ' + plan.businessName)}</h1>
+    <p>${hero.subheadline || plan.description || ''}</p>
+    <div class="hero-cta">
+      <a href="#contact" class="btn-primary">${hero.cta || 'Book Now'}</a>
+      <a href="#services" class="btn-outline">View Services</a>
+    </div>
+  </div>
+
+  <section id="services">
+    <h2 class="section-title">Our <span>Services</span></h2>
+    <p class="section-sub">Professional services tailored to your needs</p>
+    <div class="services-grid">
+      ${(plan.services || []).map((s, i) => `
+        <div class="service-card" style="animation:fadeInUp ${0.5 + i * 0.1}s ease">
+          <h3>${s.name}</h3>
+          <p>${s.description || ''}</p>
+          <div class="service-price">₦${(s.price || 0).toLocaleString()}</div>
+        </div>
+      `).join('')}
+    </div>
+  </section>
+
+  ${whyChooseUs.length ? `
+  <section id="why">
+    <h2 class="section-title">Why <span>Choose Us</span></h2>
+    <div class="why-grid">
+      ${whyChooseUs.map((w, i) => `
+        <div class="why-item">
+          <div class="icon">${['⚡','✨','🎯','🚀','💎','🌟'][i % 6]}</div>
+          <h4>${w}</h4>
+        </div>
+      `).join('')}
+    </div>
+  </section>` : ''}
+
+  ${testimonials.length ? `
+  <section id="testimonials">
+    <h2 class="section-title">Client <span>Reviews</span></h2>
+    <div class="testimonials">
+      ${testimonials.map(t => `
+        <div class="testimonial">
+          <p>"${t.text}"</p>
+          <div style="font-weight:700;margin-top:1rem">${t.name}</div>
+          <div style="color:#94A3B8;font-size:.9rem">${t.location || ''}</div>
+        </div>
+      `).join('')}
+    </div>
+  </section>` : ''}
+
+  <section id="contact" class="contact">
+    <h2 style="font-size:2rem;margin-bottom:1rem">Get In Touch</h2>
+    <p style="color:#94A3B8;margin-bottom:2rem">Ready to work with us?</p>
+    <a href="#" class="btn-primary" onclick="alert('Booking powered by ERGIO');return false;">Book Appointment</a>
+  </section>
+
+  <div class="footer">
+    <p>© ${new Date().getFullYear()} ${plan.businessName}. Powered by <a href="https://ergio.vercel.app">ERGIO</a></p>
+  </div>
+
+  <script>
+    // Three.js 3D background — floating particles
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({canvas: document.getElementById('three-canvas'), alpha: true, antialias: true});
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.position.z = 50;
+
+    // Create floating particles
+    const particles = [];
+    const particleCount = 80;
+    for (let i = 0; i < particleCount; i++) {
+      const geometry = new THREE.SphereGeometry(Math.random() * 0.5 + 0.1, 8, 8);
+      const material = new THREE.MeshBasicMaterial({color: new THREE.Color('${colors.primary || '#00D9FF'}'), transparent: true, opacity: 0.6});
+      const particle = new THREE.Mesh(geometry, material);
+      particle.position.set((Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100);
+      particle.speed = Math.random() * 0.02 + 0.01;
+      scene.add(particle);
+      particles.push(particle);
+    }
+
+    // Mouse interaction
+    let mouseX = 0, mouseY = 0;
+    document.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      particles.forEach(p => {
+        p.position.y += p.speed;
+        p.rotation.x += p.speed;
+        p.rotation.y += p.speed;
+        if (p.position.y > 50) p.position.y = -50;
+      });
+      camera.position.x += (mouseX * 10 - camera.position.x) * 0.05;
+      camera.position.y += (-mouseY * 10 - camera.position.y) * 0.05;
+      camera.lookAt(scene.position);
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
   </script>
 </body>
 </html>`;
