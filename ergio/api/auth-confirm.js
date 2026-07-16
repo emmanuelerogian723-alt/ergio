@@ -53,8 +53,9 @@ export default async function handler(req, res) {
       });
 
       if (listResponse.ok) {
-        const users = await listResponse.json();
-        const user = users.find(u => u.email === email);
+        const usersData = await listResponse.json();
+        const usersList = usersData.users || usersData;
+        const user = usersList.find(u => u.email === email);
         if (user) {
           const confirmResponse = await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${user.id}`, {
             method: 'PUT',
