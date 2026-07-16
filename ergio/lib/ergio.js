@@ -5,15 +5,14 @@
 // ============ SUPABASE CLIENT ============
 import { createClient } from '@supabase/supabase-js';
 
+// Fallback credentials (Ergio project) — used when Vercel env vars are not set
+const SUPABASE_URL_FALLBACK = 'https://owcxfzlanlrulflsyvlr.supabase.co';
+const SUPABASE_ANON_FALLBACK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93Y3hmemxhbmxydWxmbHN5dmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxNzI5NDIsImV4cCI6MjA5OTc0ODk0Mn0.k6IISu8k8QoU1CGLF0U3319qqDvEIwYY8PPXXvwfbAw';
+
 export function getSupabase(req) {
-  const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
+  const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || SUPABASE_URL_FALLBACK;
+  const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY || SUPABASE_ANON_FALLBACK;
 
-  if (!url || !key) {
-    throw new Error('Missing Supabase credentials');
-  }
-
-  // Use service role for server-side operations (bypasses RLS)
   const supabase = createClient(url, key, {
     auth: { persistSession: false }
   });
@@ -34,12 +33,13 @@ export async function getUser(req) {
   return user;
 }
 
-// ============ GROQ AI CLIENT ============
+// ============ AI CLIENT (Groq + OpenRouter fallback) ============
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 export async function callGroq(messages, options = {}) {
-  const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) throw new Error('Missing GROQ_API_KEY');
+  const groqKey = process.env.GROQ_API_KEY;
+  const openrouterKey = process.env.OPENROUTER_API_KEY;
 
   const model = options.model || 'llama-3.3-70b-versatile';
   const temperature = options.temperature ?? 0.7;
@@ -58,26 +58,58 @@ export async function callGroq(messages, options = {}) {
     body.response_format = options.response_format;
   }
 
-  const response = await fetch(GROQ_URL, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(body)
-  });
-
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Groq API error: ${response.status} ${err}`);
+  // Try Groq first, then OpenRouter
+  const providers = [];
+  if (groqKey) {
+    providers.push({ url: GROQ_URL, key: groqKey, model });
+  }
+  if (openrouterKey) {
+    // OpenRouter uses different model names
+    const orModel = model.includes('llama-3.3-70b') ? 'meta-llama/llama-3.3-70b-instruct'
+      : model.includes('llama-3.1-8b') ? 'meta-llama/llama-3.1-8b-instruct'
+      : model.includes('gemma2') ? 'google/gemma-2-9b-it:free'
+      : 'meta-llama/llama-3.3-70b-instruct';
+    providers.push({ url: OPENROUTER_URL, key: openrouterKey, model: orModel });
   }
 
-  if (stream) {
-    return response.body; // Return the ReadableStream for SSE
+  if (providers.length === 0) {
+    throw new Error('Missing AI API key. Set GROQ_API_KEY or OPENROUTER_API_KEY in Vercel environment variables.');
   }
 
-  const data = await response.json();
-  return data.choices[0].message.content;
+  for (const provider of providers) {
+    try {
+      const response = await fetch(provider.url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${provider.key}`,
+          'Content-Type': 'application/json',
+          ...(provider.url === OPENROUTER_URL && {
+            'HTTP-Referer': 'https://ergio.vercel.app',
+            'X-Title': 'ERGIO'
+          })
+        },
+        body: JSON.stringify({ ...body, model: provider.model })
+      });
+
+      if (!response.ok) {
+        const err = await response.text();
+        console.error(`AI provider error (${provider.url}): ${response.status} ${err}`);
+        continue; // Try next provider
+      }
+
+      if (stream) {
+        return response.body;
+      }
+
+      const data = await response.json();
+      return data.choices[0].message.content;
+    } catch (err) {
+      console.error(`AI provider error: ${err.message}`);
+      continue;
+    }
+  }
+
+  throw new Error('All AI providers failed');
 }
 
 // Fast model for simple tasks
@@ -86,9 +118,6 @@ export async function callGroqFast(messages, options = {}) {
 }
 
 // ============ SEARXNG SEARCH ENGINE ============
-// Free, open-source meta search engine. Queries 70+ search engines.
-// No API key needed. Uses public instances with fallback.
-
 const SEARXNG_INSTANCES = [
   'https://search.sapti.me',
   'https://searx.be',
@@ -107,7 +136,6 @@ export async function searxngSearch(query, options = {}) {
   const language = options.language || 'en';
   const resultsCount = options.count || 20;
 
-  // Try multiple instances for reliability
   for (let i = 0; i < SEARXNG_INSTANCES.length; i++) {
     const instance = SEARXNG_INSTANCES[(currentInstance + i) % SEARXNG_INSTANCES.length];
 
@@ -143,15 +171,13 @@ export async function searxngSearch(query, options = {}) {
       }));
 
     } catch (err) {
-      continue; // Try next instance
+      continue;
     }
   }
 
-  // Fallback: Google scrape via HTML
   return googleFallback(query, resultsCount);
 }
 
-// Fallback: direct Google HTML scraping
 async function googleFallback(query, count) {
   try {
     const url = `https://www.google.com/search?q=${encodeURIComponent(query)}&num=${count}`;
@@ -162,7 +188,6 @@ async function googleFallback(query, count) {
     });
     const html = await response.text();
 
-    // Parse results using regex (lightweight, no cheerio needed for this)
     const results = [];
     const linkRegex = /<a href="\/url\?q=([^"&]+)&[^"]*"[^>]*>([^<]+)<\/a>/g;
     let match;
@@ -209,51 +234,28 @@ export async function scrapePage(url, options = {}) {
     const html = await response.text();
     const $ = cheerio.load(html);
 
-    // Extract useful data
     const title = $('title').text().trim() || '';
     const metaDesc = $('meta[name="description"]').attr('content') || '';
     const h1 = $('h1').first().text().trim() || '';
 
-    // Extract all text content (clean)
     $('script, style, nav, footer, header, aside, noscript').remove();
     const bodyText = $('body').text().replace(/\s+/g, ' ').trim().substring(0, 5000);
 
-    // Extract emails
     const emailRegex = /[\w.+-]+@[\w-]+\.[\w.-]+/g;
     const emails = [...new Set(bodyText.match(emailRegex) || [])].filter(e =>
       !e.endsWith('.png') && !e.endsWith('.jpg') && !e.endsWith('.css')
     );
 
-    // Extract phone numbers (Nigerian + international)
     const phoneRegex = /(\+?234[\s-]?\d{3}[\s-]?\d{3,4}|\+?\d{3}[\s-]?\d{3}[\s-]?\d{4}|0\d{3}[\s-]?\d{3}[\s-]?\d{4})/g;
     const phones = [...new Set(bodyText.match(phoneRegex) || [])];
 
-    // Extract social links
     const socials = {};
-    $('a[href*="twitter.com"], a[href*="x.com"]').each((_, el) => {
-      socials.twitter = $(el).attr('href');
-    });
-    $('a[href*="instagram.com"]').each((_, el) => {
-      socials.instagram = $(el).attr('href');
-    });
-    $('a[href*="facebook.com"]').each((_, el) => {
-      socials.facebook = $(el).attr('href');
-    });
-    $('a[href*="wa.me"], a[href*="whatsapp.com"]').each((_, el) => {
-      socials.whatsapp = $(el).attr('href');
-    });
+    $('a[href*="twitter.com"], a[href*="x.com"]').each((_, el) => { socials.twitter = $(el).attr('href'); });
+    $('a[href*="instagram.com"]').each((_, el) => { socials.instagram = $(el).attr('href'); });
+    $('a[href*="facebook.com"]').each((_, el) => { socials.facebook = $(el).attr('href'); });
+    $('a[href*="wa.me"], a[href*="whatsapp.com"]').each((_, el) => { socials.whatsapp = $(el).attr('href'); });
 
-    return {
-      url,
-      title,
-      metaDescription: metaDesc,
-      h1,
-      content: bodyText,
-      emails,
-      phones,
-      socials,
-      scrapedAt: new Date().toISOString()
-    };
+    return { url, title, metaDescription: metaDesc, h1, content: bodyText, emails, phones, socials, scrapedAt: new Date().toISOString() };
   } catch (err) {
     return null;
   }
@@ -279,11 +281,7 @@ export function corsHeaders(res) {
 
 // ============ SLUG GENERATOR ============
 export function generateSlug(text) {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .substring(0, 50);
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').substring(0, 50);
 }
 
 // ============ LOGO GENERATION (Pollinations - Free, no key) ============
@@ -304,7 +302,7 @@ export async function paystackInit(amount, email, reference, metadata = {}, call
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      amount: Math.round(amount * 100), // Paystack uses kobo
+      amount: Math.round(amount * 100),
       email,
       reference,
       callback_url: callbackUrl,
