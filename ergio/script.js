@@ -310,7 +310,7 @@ async function startRealGeneration() {
 
   const buildLog = document.getElementById('buildLog');
   const progressBar = document.getElementById('progressBar');
-  const progressFill = document.getElementById('progressFill');
+  const progressFill = document.getElementById('progressBar');
   const progressText = document.getElementById('progressText');
   const statTasks = document.getElementById('statTasks');
   const statTime = document.getElementById('statTime');
