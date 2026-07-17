@@ -97,6 +97,28 @@ Rules:
       else throw new Error('Failed to parse business plan');
     }
 
+    // Fallback: detect websiteCategory from business type if AI didn't provide it
+    if (!plan.websiteCategory) {
+      const typeLower = (plan.type || '').toLowerCase();
+      const promptLower = (prompt || '').toLowerCase();
+      const combined = typeLower + ' ' + promptLower;
+      if (/restaurant|food|dining|cafe|menu|kitchen|eatery|bistro/.test(combined)) plan.websiteCategory = 'restaurant';
+      else if (/shop|store|product|buy|sell|ecommerce|retail|fashion|boutique/.test(combined)) plan.websiteCategory = 'ecommerce';
+      else if (/portfolio|showcase|creative|design|photography/.test(combined)) plan.websiteCategory = 'portfolio';
+      else if (/saas|software|app|platform|api|tech|startup/.test(combined)) plan.websiteCategory = 'saas';
+      else if (/blog|news|article|magazine/.test(combined)) plan.websiteCategory = 'blog';
+      else if (/property|real ?estate|housing|rent|apartment/.test(combined)) plan.websiteCategory = 'realestate';
+      else if (/gym|fitness|yoga|workout|health ?club|wellness/.test(combined)) plan.websiteCategory = 'fitness';
+      else if (/clinic|doctor|hospital|health|medical|dental|pharmacy/.test(combined)) plan.websiteCategory = 'clinic';
+      else if (/agency|studio|firm|consultancy|marketing/.test(combined)) plan.websiteCategory = 'agency';
+      else if (/school|course|academy|tutor|education|training/.test(combined)) plan.websiteCategory = 'education';
+      else if (/event|conference|wedding|party|festival/.test(combined)) plan.websiteCategory = 'events';
+      else plan.websiteCategory = 'landing';
+    }
+
+    send('plan', { plan });
+    send('status', { task: '🎨 Creating brand identity...', step: 2, total: 8 });
+
     // ============ STEP 2: BRAND IDENTITY ============
     const brandPrompt = `Create brand identity for "${plan.businessName}", a ${plan.type} in ${plan.city}, Nigeria.
 Tagline: "${plan.tagline}"
@@ -232,28 +254,7 @@ Return JSON with:
     // ============ STEP 5: GENERATE WEBSITE HTML WITH REAL IMAGES ============
     const colors = plan.brandColors || { primary: '#00D9FF', secondary: '#09090B', accent: '#00FF9D', bg: '#09090B' };
 
-    // Fallback: detect websiteCategory from business type if AI didn't provide it
-    if (!plan.websiteCategory) {
-      const type = (plan.type || '').toLowerCase();
-      const promptText = (prompt || '').toLowerCase();
-      if (/restaurant|food|dining|cafe|menu|kitchen|eatery|bistro/.test(type + ' ' + promptText)) plan.websiteCategory = 'restaurant';
-      else if (/shop|store|product|buy|sell|ecommerce|retail|fashion|boutique/.test(type + ' ' + promptText)) plan.websiteCategory = 'ecommerce';
-      else if (/portfolio|showcase|creative|design|photography|art/.test(type + ' ' + promptText)) plan.websiteCategory = 'portfolio';
-      else if (/saas|software|app|platform|api|tech|startup|ai/.test(type + ' ' + promptText)) plan.websiteCategory = 'saas';
-      else if (/blog|news|article|magazine|content/.test(type + ' ' + promptText)) plan.websiteCategory = 'blog';
-      else if (/property|real ?estate|housing|rent|apartment|listing/.test(type + ' ' + promptText)) plan.websiteCategory = 'realestate';
-      else if (/gym|fitness|yoga|workout|health ?club|wellness/.test(type + ' ' + promptText)) plan.websiteCategory = 'fitness';
-      else if (/clinic|doctor|hospital|health|medical|dental|pharmacy/.test(type + ' ' + promptText)) plan.websiteCategory = 'clinic';
-      else if (/agency|studio|firm|consultancy|marketing/.test(type + ' ' + promptText)) plan.websiteCategory = 'agency';
-      else if (/school|course|academy|tutor|education|training/.test(type + ' ' + promptText)) plan.websiteCategory = 'education';
-      else if (/event|conference|wedding|party|festival/.test(type + ' ' + promptText)) plan.websiteCategory = 'events';
-      else plan.websiteCategory = 'landing';
-    }
-    
-    send('plan', { plan });
-    send('status', { task: '🎨 Creating brand identity...', step: 2, total: 8 });
-
-        const is3D = plan.websiteType === '3d' || 
+    const is3D = plan.websiteType === '3d' || 
       /3d|interactive|animated|immersive|motion|3dimentional/i.test(prompt + JSON.stringify(answers || {}));
     
     const websiteHtml = is3D 
