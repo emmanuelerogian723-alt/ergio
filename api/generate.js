@@ -261,7 +261,7 @@ Return JSON with:
       ? generate3DWebsiteHTML(plan, brand, content, colors, logoUrl, images)
       : generateWebsiteHTML(plan, brand, content, colors, logoUrl, images);
 
-    send('website', { html: websiteHtml, logoUrl, imageCount: totalImages });
+    send('website', { html: websiteHtml, logoUrl, imageCount: totalImages, designStyle: (typeof style !== "undefined" ? style.name : "aurora-dark") });
     send('status', { task: '🔧 Setting up booking & payments...', step: 6, total: 8 });
 
     await delay(400);
@@ -636,7 +636,199 @@ function generateTypeSections(plan, content, colors, images = {}) {
 
 
 // ============ WEBSITE HTML GENERATOR (STANDARD + MOTION GRAPHICS) ============
+
+// ===== DESIGN STYLE ENGINE =====
+// Multiple design templates so each website looks different
+const DESIGN_STYLES = [
+  {
+    name: 'aurora-dark',
+    bg: '#09090B',
+    surface: 'rgba(255,255,255,0.03)',
+    border: 'rgba(255,255,255,0.08)',
+    heroStyle: 'gradient-text',
+    heroGradient: 'linear-gradient(135deg, var(--primary), var(--accent))',
+    cardStyle: 'glassmorphism',
+    cardBg: 'rgba(255,255,255,0.03)',
+    cardBorder: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: '16px',
+    fontHead: 'Space Grotesk',
+    fontBody: 'Inter',
+    navStyle: 'blur',
+    sectionPadding: '6rem 2rem',
+    buttonStyle: 'gradient-pill',
+    animation: 'reveal',
+  },
+  {
+    name: 'editorial-light',
+    bg: '#FAFAF9',
+    surface: '#FFFFFF',
+    border: 'rgba(0,0,0,0.08)',
+    heroStyle: 'serif-bold',
+    heroGradient: 'none',
+    cardStyle: 'shadow-card',
+    cardBg: '#FFFFFF',
+    cardBorder: '1px solid rgba(0,0,0,0.06)',
+    borderRadius: '12px',
+    fontHead: 'Georgia, serif',
+    fontBody: 'Inter',
+    navStyle: 'solid-white',
+    sectionPadding: '5rem 2rem',
+    buttonStyle: 'solid-dark',
+    animation: 'fade-up',
+  },
+  {
+    name: 'brutalist-bold',
+    bg: '#0A0A0A',
+    surface: '#1A1A1A',
+    border: '#333',
+    heroStyle: 'outline-text',
+    heroGradient: 'none',
+    cardStyle: 'bordered',
+    cardBg: 'transparent',
+    cardBorder: '2px solid #333',
+    borderRadius: '0px',
+    fontHead: 'Space Grotesk',
+    fontBody: 'Inter',
+    navStyle: 'solid-dark',
+    sectionPadding: '7rem 2rem',
+    buttonStyle: 'bordered-square',
+    animation: 'slide-in',
+  },
+  {
+    name: 'organic-soft',
+    bg: '#F5F3EE',
+    surface: '#FFFFFF',
+    border: 'rgba(0,0,0,0.06)',
+    heroStyle: 'warm-gradient',
+    heroGradient: 'linear-gradient(135deg, #D97706, #B45309)',
+    cardStyle: 'soft-shadow',
+    cardBg: '#FFFFFF',
+    cardBorder: 'none',
+    borderRadius: '24px',
+    fontHead: 'Georgia, serif',
+    fontBody: 'Inter',
+    navStyle: 'transparent',
+    sectionPadding: '5rem 2rem',
+    buttonStyle: 'pill-warm',
+    animation: 'fade-up',
+  },
+  {
+    name: 'neon-cyber',
+    bg: '#05050A',
+    surface: 'rgba(0,217,255,0.03)',
+    border: 'rgba(0,217,255,0.15)',
+    heroStyle: 'neon-glow',
+    heroGradient: 'linear-gradient(135deg, #00D9FF, #00FF9D)',
+    cardStyle: 'neon-border',
+    cardBg: 'rgba(0,217,255,0.02)',
+    cardBorder: '1px solid rgba(0,217,255,0.2)',
+    borderRadius: '8px',
+    fontHead: 'JetBrains Mono',
+    fontBody: 'Inter',
+    navStyle: 'cyber-blur',
+    sectionPadding: '6rem 2rem',
+    buttonStyle: 'neon-square',
+    animation: 'glitch-in',
+  },
+  {
+    name: 'magazine-clean',
+    bg: '#FFFFFF',
+    surface: '#F8F8F8',
+    border: 'rgba(0,0,0,0.1)',
+    heroStyle: 'split-layout',
+    heroGradient: 'none',
+    cardStyle: 'minimal',
+    cardBg: 'transparent',
+    cardBorder: '1px solid rgba(0,0,0,0.08)',
+    borderRadius: '8px',
+    fontHead: 'Georgia, serif',
+    fontBody: 'Inter',
+    navStyle: 'minimal',
+    sectionPadding: '5rem 2rem',
+    buttonStyle: 'underline',
+    animation: 'fade-up',
+  },
+];
+
+function pickDesignStyle(prompt, plan) {
+  // Try to match style to business type
+  const p = (prompt + ' ' + JSON.stringify(plan || {})).toLowerCase();
+  
+  if (/luxury|premium|high.end|exclusive|elite/.test(p)) return DESIGN_STYLES[3]; // organic-soft
+  if (/tech|saas|cyber|crypto|ai|artificial|robot|futur/.test(p)) return DESIGN_STYLES[4]; // neon-cyber
+  if (/editorial|magazine|blog|news|publish/.test(p)) return DESIGN_STYLES[5]; // magazine-clean
+  if (/restaurant|food|cafe|bakery|catering/.test(p)) return DESIGN_STYLES[3]; // organic-soft
+  if (/fashion|design|studio|creative|art/.test(p)) return DESIGN_STYLES[1]; // editorial-light
+  if (/bold|brutalist|agency|startup/.test(p)) return DESIGN_STYLES[2]; // brutalist-bold
+  if (/beauty|salon|spa|wellness/.test(p)) return DESIGN_STYLES[3]; // organic-soft
+  
+  // Random pick for variety
+  return DESIGN_STYLES[Math.floor(Math.random() * DESIGN_STYLES.length)];
+}
+
+
+
+function generateStyleCSS(style, colors) {
+  const primary = colors.primary || '#00D9FF';
+  const accent = colors.accent || '#00FF9D';
+  const bg = style.bg;
+  const isDark = bg.startsWith('#0') || bg.startsWith('#1');
+  const textColor = isDark ? '#F8FAFC' : '#1A1A1A';
+  const mutedColor = isDark ? '#94A3B8' : '#666';
+  
+  const buttonStyles = {
+    'gradient-pill': `background:linear-gradient(135deg,${primary},${accent});border:none;border-radius:100px;color:${isDark?'#000':'#fff'};padding:14px 32px;font-weight:700;`,
+    'solid-dark': `background:${isDark?'#fff':'#0A0A0A'};border:none;border-radius:8px;color:${isDark?'#000':'#fff'};padding:14px 32px;font-weight:700;`,
+    'bordered-square': `background:transparent;border:2px solid ${textColor};border-radius:0;color:${textColor};padding:14px 32px;font-weight:700;text-transform:uppercase;letter-spacing:1px;`,
+    'pill-warm': `background:linear-gradient(135deg,${primary},${accent});border:none;border-radius:100px;color:#fff;padding:14px 32px;font-weight:600;`,
+    'neon-square': `background:transparent;border:1px solid ${primary};border-radius:4px;color:${primary};padding:14px 28px;font-weight:600;text-transform:uppercase;box-shadow:0 0 20px ${primary}33;`,
+    'underline': `background:none;border:none;color:${textColor};font-weight:700;border-bottom:2px solid ${primary};padding:4px 0;`,
+  };
+  
+  const heroStyles = {
+    'gradient-text': `font-size:clamp(2.5rem,7vw,5rem);font-weight:900;letter-spacing:-0.03em;background:linear-gradient(135deg,${primary},${accent});-webkit-background-clip:text;-webkit-text-fill-color:transparent;`,
+    'serif-bold': `font-size:clamp(2.5rem,7vw,5rem);font-weight:800;letter-spacing:-0.02em;color:${textColor};`,
+    'outline-text': `font-size:clamp(3rem,8vw,6rem);font-weight:900;letter-spacing:-0.04em;color:transparent;-webkit-text-stroke:2px ${textColor};`,
+    'warm-gradient': `font-size:clamp(2.5rem,7vw,5rem);font-weight:800;letter-spacing:-0.02em;background:linear-gradient(135deg,${primary},${accent});-webkit-background-clip:text;-webkit-text-fill-color:transparent;`,
+    'neon-glow': `font-size:clamp(2.5rem,7vw,5rem);font-weight:900;letter-spacing:-0.03em;color:${primary};text-shadow:0 0 30px ${primary}66,0 0 60px ${primary}33;`,
+    'split-layout': `font-size:clamp(2rem,5vw,4rem);font-weight:700;letter-spacing:-0.02em;color:${textColor};`,
+  };
+  
+  const cardStyles = {
+    'glassmorphism': `background:rgba(255,255,255,0.03);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:16px;`,
+    'shadow-card': `background:#fff;border:1px solid rgba(0,0,0,0.06);border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.08);`,
+    'bordered': `background:transparent;border:2px solid #333;border-radius:0;`,
+    'soft-shadow': `background:#fff;border:none;border-radius:24px;box-shadow:0 8px 30px rgba(0,0,0,0.06);`,
+    'neon-border': `background:rgba(0,217,255,0.02);border:1px solid rgba(0,217,255,0.2);border-radius:8px;box-shadow:0 0 20px rgba(0,217,255,0.1);`,
+    'minimal': `background:transparent;border:1px solid rgba(0,0,0,0.08);border-radius:8px;`,
+  };
+  
+  const navStyles = {
+    'blur': `backdrop-filter:blur(20px);background:rgba(${isDark?'7,8,13':'255,255,255'},0.8);border-bottom:1px solid rgba(${isDark?'255,255,255':'0,0,0'},0.08);`,
+    'solid-white': `background:#fff;border-bottom:1px solid rgba(0,0,0,0.06);`,
+    'solid-dark': `background:#0A0A0A;border-bottom:2px solid #333;`,
+    'transparent': `background:transparent;border:none;`,
+    'cyber-blur': `backdrop-filter:blur(20px);background:rgba(5,5,10,0.8);border-bottom:1px solid rgba(0,217,255,0.15);`,
+    'minimal': `background:#fff;border-bottom:1px solid rgba(0,0,0,0.1);`,
+  };
+  
+  return `
+    :root{--primary:${primary};--accent:${accent};--bg:${bg};--text:${textColor};--muted:${mutedColor};--surface:${style.surface};--border:${style.border};--radius:${style.borderRadius};}
+    body{background:var(--bg);color:var(--text);font-family:'${style.fontBody}','Inter',sans-serif;overflow-x:hidden}
+    h1,h2,h3{font-family:'${style.fontHead}','Inter',sans-serif}
+    .hero h1{${heroStyles[style.heroStyle]||heroStyles['gradient-text']}}
+    .nav{${navStyles[style.navStyle]||navStyles['blur']}}
+    .card{${cardStyles[style.cardStyle]||cardStyles['glassmorphism']}}
+    .btn-primary{${buttonStyles[style.buttonStyle]||buttonStyles['gradient-pill']}cursor:pointer;transition:all .2s}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px ${primary}44}
+    section{padding:${style.sectionPadding}}
+  `;
+}
+
+
 function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {}) {
+  const style = pickDesignStyle(plan?.businessName || '', plan);
+
   const hero = content.hero || {};
   const about = content.about || '';
   const whyChooseUs = content.whyChooseUs || [];

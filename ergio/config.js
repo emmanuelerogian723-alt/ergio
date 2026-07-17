@@ -7,15 +7,17 @@ window.ERGIO_CONFIG = {
 
   // Firebase Auth (main authentication)
   firebase: {
-    apiKey: "AIzaSyPlaceholder-ConfigureInFirebaseConsole",
-    authDomain: "ergio-app.firebaseapp.com",
-    projectId: "ergio-app",
-    storageBucket: "ergio-app.appspot.com",
-    messagingSenderId: "000000000000",
-    appId: "1:000000000000:web:placeholder"
+    apiKey: "AIzaSyBRhBF6Nscqz53rMCF0ykAcMnWuRIrfgJw",
+    authDomain: "ominiassist-ai.firebaseapp.com",
+    databaseURL: "https://ominiassist-ai-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "ominiassist-ai",
+    storageBucket: "ominiassist-ai.firebasestorage.app",
+    messagingSenderId: "585541885776",
+    appId: "1:585541885776:web:28294a89e8e411cd3fd655",
+    measurementId: "G-Z49NFZYTW3"
   },
 
-  // Supabase (database only)
+  // Supabase (database)
   supabaseUrl: 'https://owcxfzlanlrulflsyvlr.supabase.co',
   supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93Y3hmemxhbmxydWxmbHN5dmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxNzI5NDIsImV4cCI6MjA5OTc0ODk0Mn0.k6IISu8k8QoU1CGLF0U3319qqDvEIwYY8PPXXvwfbAw',
   
