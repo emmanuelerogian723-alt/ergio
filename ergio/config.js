@@ -4,8 +4,18 @@ window.ERGIO_CONFIG = {
   apiBase: window.location.origin.includes('github.io') 
     ? 'https://ergio.vercel.app' 
     : window.location.origin,
-  
-  // Supabase (Auth + Database)
+
+  // Firebase Auth (main authentication)
+  firebase: {
+    apiKey: "AIzaSyPlaceholder-ConfigureInFirebaseConsole",
+    authDomain: "ergio-app.firebaseapp.com",
+    projectId: "ergio-app",
+    storageBucket: "ergio-app.appspot.com",
+    messagingSenderId: "000000000000",
+    appId: "1:000000000000:web:placeholder"
+  },
+
+  // Supabase (database only)
   supabaseUrl: 'https://owcxfzlanlrulflsyvlr.supabase.co',
   supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93Y3hmemxhbmxydWxmbHN5dmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxNzI5NDIsImV4cCI6MjA5OTc0ODk0Mn0.k6IISu8k8QoU1CGLF0U3319qqDvEIwYY8PPXXvwfbAw',
   

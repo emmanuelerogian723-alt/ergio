@@ -149,6 +149,7 @@
     }
 
 </script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
     // ── Advisor Engine ──
     async function runAdvisorAnalysis() {
       const btn = document.getElementById('advisorRunBtn');
@@ -292,6 +293,7 @@
     }
 
 </script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js">
     // ── Advisor Engine ──
     async function runAdvisorAnalysis() {
       const btn = document.getElementById('advisorRunBtn');
@@ -1126,58 +1128,71 @@
   </div>
 
   <script>
-    // ── Supabase Init (Auth + Database) ──
-    const ERGIO_CFG = window.ERGIO_CONFIG;
+    // ── Firebase Auth Init (graceful) ──
+    let fbAuth = null;
+    try {
+      const FB_CFG = window.ERGIO_CONFIG.firebase;
+      if (FB_CFG && FB_CFG.apiKey && !FB_CFG.apiKey.includes('Placeholder')) {
+        firebase.initializeApp(FB_CFG);
+        fbAuth = firebase.auth();
+      }
+    } catch(e) { console.log('Firebase not configured yet:', e.message); }
+
+    // ── Supabase (database) ──
     let sbClient = null;
     let currentUser = null;
 
     function initSupabase() {
-      if (!ERGIO_CFG || !ERGIO_CFG.supabaseUrl) return false;
-      sbClient = supabase.createClient(ERGIO_CFG.supabaseUrl, ERGIO_CFG.supabaseAnonKey);
+      const cfg = window.ERGIO_CONFIG;
+      if (!cfg || !cfg.supabaseUrl) return false;
+      sbClient = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
       return true;
     }
 
-    async function checkAuth() {
+    function checkAuth() {
       initSupabase();
       
-      // Check localStorage first for quick display
+      // Check localStorage first for quick auth
       const savedUser = localStorage.getItem('ergio_user');
       if (savedUser) {
         try { currentUser = JSON.parse(savedUser); } catch(e) {}
       }
 
-      // Check Supabase session
-      try {
-        const { data: { session } } = await sbClient.auth.getSession();
-        if (session) {
-          currentUser = {
-            id: session.user.id,
-            uid: session.user.id,
-            email: session.user.email,
-            user_metadata: {
-              full_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
-              biz_type: currentUser?.bizType || localStorage.getItem('ergio_biz_type') || 'general business',
-              city: currentUser?.city || localStorage.getItem('ergio_city') || 'Nigeria'
+      if (fbAuth) {
+        // Firebase is configured — use it
+        fbAuth.onAuthStateChanged((user) => {
+          if (user) {
+            currentUser = {
+              id: user.uid,
+              uid: user.uid,
+              email: user.email,
+              user_metadata: {
+                full_name: user.displayName || user.email?.split('@')[0] || 'User',
+                biz_type: currentUser?.bizType || localStorage.getItem('ergio_biz_type') || 'general business',
+                city: currentUser?.city || localStorage.getItem('ergio_city') || 'Nigeria'
+              }
+            };
+            localStorage.setItem('ergio_user', JSON.stringify({
+              uid: user.uid, id: user.uid,
+              email: user.email,
+              fullName: user.displayName || user.email?.split('@')[0]
+            }));
+            initDashboard();
+          } else {
+            if (currentUser && (currentUser.id || currentUser.uid)) {
+              initDashboard();
+            } else {
+              showLoginPrompt();
             }
-          };
-          localStorage.setItem('ergio_user', JSON.stringify({
-            id: session.user.id,
-            uid: session.user.id,
-            email: session.user.email,
-            fullName: session.user.user_metadata?.full_name || session.user.email?.split('@')[0]
-          }));
-          initDashboard();
-          return;
-        }
-      } catch(e) {
-        console.log('Session check error:', e.message);
-      }
-
-      // Fallback: check localStorage
-      if (currentUser && currentUser.id) {
-        initDashboard();
+          }
+        });
       } else {
-        showLoginPrompt();
+        // Firebase not configured — use localStorage session (Supabase auth fallback)
+        if (currentUser && (currentUser.id || currentUser.uid)) {
+          initDashboard();
+        } else {
+          showLoginPrompt();
+        }
       }
     }
 
@@ -1439,14 +1454,16 @@
     }
 
     async function handleLogout() {
+      try { if (fbAuth) await fbAuth.signOut(); } catch(e) {}
       try { if (sbClient) await sbClient.auth.signOut(); } catch(e) {}
       localStorage.removeItem('ergio_user');
       window.location.href = '../auth/login.html';
     }
 
-    // 8-second timeout: if Supabase session check is slow, fall back to localStorage
+    // Add a 5-second timeout to prevent infinite loading
     setTimeout(() => {
-      if (document.getElementById('loadingState') && document.getElementById('loadingState').style.display !== 'none') {
+      if (document.getElementById('loadingState').style.display !== 'none') {
+        // Check localStorage fallback
         const savedUser = localStorage.getItem('ergio_user');
         if (savedUser) {
           try {
@@ -1459,7 +1476,7 @@
           showLoginPrompt();
         }
       }
-    }, 8000);
+    }, 5000);
 
     // ════════════════════════════════════════════
     // AGENTIC MODE — AI Agents
