@@ -1,11 +1,6 @@
 // ========================================
-<<<<<<< HEAD
 // ERGIO — Shared Libraries
 // Uses OpenRouter for AI, Supabase for DB, Paystack for payments
-=======
-// ERGIO — Shared Libraries (v4.0)
-// Updated: DuckDuckGo fallback search, multi-engine lead scanner
->>>>>>> 4c9893205a9a3ded0eff561230b34fdcfe30e278
 // ========================================
 
 // ============ SUPABASE CLIENT ============
@@ -15,7 +10,6 @@ const SUPABASE_URL_FALLBACK = 'https://owcxfzlanlrulflsyvlr.supabase.co';
 const SUPABASE_ANON_FALLBACK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93Y3hmemxhbmxydWxmbHN5dmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxNzI5NDIsImV4cCI6MjA5OTc0ODk0Mn0.k6IISu8k8QoU1CGLF0U3319qqDvEIwYY8PPXXvwfbAw';
 
 export function getSupabase(req) {
-<<<<<<< HEAD
   const url = process.env.SUPABASE_URL || 'https://owcxfzlanlrulflsyvlr.supabase.co';
   const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93Y3hmemxhbmxydWxmbHN5dmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxNzI5NDIsImV4cCI6MjA5OTc0ODk0Mn0.k6IISu8k8QoU1CGLF0U3319qqDvEIwYY8PPXXvwfbAw';
 
@@ -24,11 +18,6 @@ export function getSupabase(req) {
   });
 
   return supabase;
-=======
-  const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || SUPABASE_URL_FALLBACK;
-  const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY || SUPABASE_ANON_FALLBACK;
-  return createClient(url, key, { auth: { persistSession: false } });
->>>>>>> 4c9893205a9a3ded0eff561230b34fdcfe30e278
 }
 
 export async function getUser(req) {
@@ -41,26 +30,9 @@ export async function getUser(req) {
   return user;
 }
 
-<<<<<<< HEAD
-// ============ AI CLIENT (OpenRouter) ============
-const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-
-export async function callGroq(messages, options = {}) {
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) throw new Error('Missing OPENROUTER_API_KEY');
-=======
-// ============ AI CLIENT (Groq + OpenRouter + Pollinations fallback) ============
-const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-
-export async function callGroq(messages, options = {}) {
-  const groqKey = process.env.GROQ_API_KEY;
-  const openrouterKey = process.env.OPENROUTER_API_KEY;
->>>>>>> 4c9893205a9a3ded0eff561230b34fdcfe30e278
-
+// ============ AI CLIENT (OpenRouter) =====
   const model = options.model || 'meta-llama/llama-3.3-70b-instruct';
   const temperature = options.temperature ?? 0.7;
-<<<<<<< HEAD
   const maxTokens = options.maxTokens || 4096;
 
   const body = {
@@ -69,12 +41,6 @@ export async function callGroq(messages, options = {}) {
     temperature,
     max_tokens: maxTokens,
   };
-=======
-  const maxTokens = options.maxTokens || 8000;
-  const stream = options.stream || false;
-
-  const body = { messages, temperature, max_tokens: maxTokens, stream };
->>>>>>> 4c9893205a9a3ded0eff561230b34fdcfe30e278
 
 
   // Provider chain: Groq (Llama 3.3 70B) → Groq (Gemma 2 9B) → OpenRouter (Llama 3.3 70B)
@@ -108,7 +74,6 @@ export async function callGroq(messages, options = {}) {
     });
   }
 
-<<<<<<< HEAD
   const response = await fetch(OPENROUTER_URL, {
     method: 'POST',
     headers: {
@@ -123,56 +88,6 @@ export async function callGroq(messages, options = {}) {
   if (!response.ok) {
     const err = await response.text();
     throw new Error(`AI API error: ${response.status} ${err.substring(0, 200)}`);
-=======
-  if (providers.length === 0) throw new Error('Missing AI API key. Set GROQ_API_KEY or OPENROUTER_API_KEY.');
-
-  for (const provider of providers) {
-    try {
-      const response = await fetch(provider.url, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${provider.key}`,
-          'Content-Type': 'application/json',
-          ...(provider.extraHeaders || {})
-        },
-        body: JSON.stringify({ 
-          ...body, 
-          model: provider.model,
-          ...(options.response_format && !provider.model.includes('gemma') ? 
-            { response_format: options.response_format } : {})
-        }),
-        signal: AbortSignal.timeout(12000)
-      });
-      if (!response.ok) { 
-        console.error(`AI error (${provider.label}): ${response.status}`);
-        continue; 
-      }
-      if (stream) return response.body;
-      const data = await response.json();
-      const result = data.choices[0].message.content;
-      console.log(`✅ AI success via ${provider.label} (${result.length} chars)`);
-      return result;
-    } catch (err) { 
-      console.error(`AI error (${provider.label}): ${err.message}`); 
-      continue; 
-    }
-  }
-
-  // Pollinations fallback — free, no key needed
-  try {
-    const systemMsg = messages.find(m => m.role === 'system')?.content || '';
-    const userMsg = messages.find(m => m.role === 'user')?.content || '';
-    const combined = systemMsg ? systemMsg + '\n\n' + userMsg : userMsg;
-    const pollRes = await fetch('https://text.pollinations.ai/' + encodeURIComponent(combined), {
-      signal: AbortSignal.timeout(15000)
-    });
-    if (pollRes.ok) {
-      const text = await pollRes.text();
-      return text;
-    }
-  } catch (pollErr) {
-    console.error('Pollinations fallback failed:', pollErr.message);
->>>>>>> 4c9893205a9a3ded0eff561230b34fdcfe30e278
   }
   
   throw new Error('All AI providers failed. Set GROQ_API_KEY or OPENROUTER_API_KEY.');
@@ -182,35 +97,14 @@ export async function callGroqFast(messages, options = {}) {
   return callGroq(messages, { ...options, model: 'meta-llama/llama-3.1-8b-instruct' });
 }
 
-<<<<<<< HEAD
-// ============ SEARXNG SEARCH ENGINE ============
-const SEARXNG_INSTANCES = [
-  'https://search.sapti.me',
-  'https://searx.be',
-  'https://searxng.site',
-  'https://search.mpty.live',
-  'https://searx.work',
-  'https://paulgo.io'
-=======
-// ============ SEARCH ENGINES (Multi-engine fallback) ============
-const SEARXNG_INSTANCES = [
-  'https://search.sapti.me', 'https://searx.be', 'https://search.bus-hit.me',
-  'https://searx.tiekoetter.com', 'https://search.ononoki.org', 'https://searxng.site',
-  'https://search.mpty.live', 'https://searx.work', 'https://paulgo.io'
->>>>>>> 4c9893205a9a3ded0eff561230b34fdcfe30e278
-];
+// ============ SEARXNG SEARCH ENGINE =====];
 
 let currentInstance = 0;
 
 export async function searxngSearch(query, options = {}) {
   const resultsCount = options.count || 20;
 
-<<<<<<< HEAD
   for (let i = 0; i < SEARXNG_INSTANCES.length; i++) {
-=======
-  // Try SearXNG instances first (max 3, 2s timeout each)
-  for (let i = 0; i < Math.min(3, SEARXNG_INSTANCES.length); i++) {
->>>>>>> 4c9893205a9a3ded0eff561230b34fdcfe30e278
     const instance = SEARXNG_INSTANCES[(currentInstance + i) % SEARXNG_INSTANCES.length];
     try {
       const url = `${instance}/search?q=${encodeURIComponent(query)}&categories=general&language=en&format=json&safesearch=1`;
@@ -228,7 +122,6 @@ export async function searxngSearch(query, options = {}) {
         title: r.title || '', url: r.url || '', content: r.content || '',
         engine: r.engine || 'searxng', score: r.score || 0
       }));
-<<<<<<< HEAD
 
     } catch (err) {
       continue;
@@ -238,78 +131,7 @@ export async function searxngSearch(query, options = {}) {
   return [];
 }
 
-// ============ WEB SCRAPER ============
-export async function scrapePage(url, options = {}) {
-  const timeout = options.timeout || 8000;
-=======
-    } catch (err) { continue; }
-  }
-
-  // Fallback 1: DuckDuckGo HTML
-  const ddgResults = await duckDuckGoSearch(query, resultsCount);
-  if (ddgResults.length > 0) return ddgResults;
-
-  // Fallback 2: Bing HTML search (very reliable on serverless)
-  const bingResults = await bingSearch(query, resultsCount);
-  if (bingResults.length > 0) return bingResults;
-
-  // Fallback 3: Google scraping
-  return googleFallback(query, resultsCount);
-}
-
-// DuckDuckGo HTML search (reliable, rarely blocked)
-async function duckDuckGoSearch(query, count) {
-  try {
-    const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3000);
-    const response = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Referer': 'https://duckduckgo.com/'
-      }
-    });
-    clearTimeout(timeout);
-    if (!response.ok) { console.error('DDG response not ok:', response.status); return []; }
-
-    const html = await response.text();
-    const $ = cheerio.load(html);
-    const results = [];
-    
-    // Use cheerio to parse results
-    $('.result__a').each((i, el) => {
-      if (results.length >= count) return;
-      let href = $(el).attr('href') || '';
-      const title = $(el).text().trim();
-      
-      // DDG wraps URLs in redirect links
-      if (href.includes('uddg=')) {
-        href = decodeURIComponent(href.split('uddg=')[1].split('&')[0]);
-      } else if (href.startsWith('//duckduckgo.com')) {
-        href = 'https:' + href;
-      }
-      
-      if (title && href && !href.includes('duckduckgo.com') && href.startsWith('http')) {
-        results.push({ title, url: href, content: '', engine: 'duckduckgo', score: results.length });
-      }
-    });
-
-    // Extract snippets
-    $('.result__snippet').each((i, el) => {
-      if (i < results.length) {
-        results[i].content = $(el).text().trim();
-      }
-    });
-
-    return results;
-  } catch (err) { console.error('DDG error:', err.message); return []; }
-}
-
->>>>>>> 4c9893205a9a3ded0eff561230b34fdcfe30e278
-
+// ============ WEB SCRAPER =====
 // Bing HTML search (reliable on serverless, rarely blocked)
 async function bingSearch(query, count) {
   try {
@@ -396,7 +218,6 @@ export async function scrapePage(url, options = {}) {
     if (!response.ok) return null;
 
     const html = await response.text();
-<<<<<<< HEAD
 
     // Lightweight parsing without cheerio (avoid dependency issues)
     const title = html.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1]?.trim() || '';
@@ -410,18 +231,10 @@ export async function scrapePage(url, options = {}) {
       .replace(/\s+/g, ' ')
       .trim()
       .substring(0, 5000);
-=======
-    const $ = cheerio.load(html);
-    const title = $('title').text().trim() || '';
-    const metaDesc = $('meta[name="description"]').attr('content') || '';
-    $('script, style, nav, footer, header, aside, noscript').remove();
-    const bodyText = $('body').text().replace(/\s+/g, ' ').trim().substring(0, 5000);
->>>>>>> 4c9893205a9a3ded0eff561230b34fdcfe30e278
 
     const emailRegex = /[\w.+-]+@[\w-]+\.[\w.-]+/g;
     const emails = [...new Set(bodyText.match(emailRegex) || [])].filter(e => !e.endsWith('.png') && !e.endsWith('.jpg') && !e.endsWith('.css'));
 
-<<<<<<< HEAD
     // Extract phone numbers
     const phoneRegex = /(\+?234[\s-]?\d{3}[\s-]?\d{3,4}|\+?\d{3}[\s-]?\d{3}[\s-]?\d{4}|0\d{3}[\s-]?\d{3}[\s-]?\d{4})/g;
     const phones = [...new Set(bodyText.match(phoneRegex) || [])];
@@ -438,19 +251,6 @@ export async function scrapePage(url, options = {}) {
   } catch (err) {
     return null;
   }
-=======
-    const phoneRegex = /(\+?234[\s-]?\d{3}[\s-]?\d{3,4}|\+?\d{3}[\s-]?\d{3}[\s-]?\d{4}|0\d{3}[\s-]?\d{3}[\s-]?\d{4})/g;
-    const phones = [...new Set(bodyText.match(phoneRegex) || [])];
-
-    const socials = {};
-    $('a[href*="twitter.com"], a[href*="x.com"]').each((_, el) => { socials.twitter = $(el).attr('href'); });
-    $('a[href*="instagram.com"]').each((_, el) => { socials.instagram = $(el).attr('href'); });
-    $('a[href*="facebook.com"]').each((_, el) => { socials.facebook = $(el).attr('href'); });
-    $('a[href*="wa.me"], a[href*="whatsapp.com"]').each((_, el) => { socials.whatsapp = $(el).attr('href'); });
-
-    return { url, title, metaDescription: metaDesc, content: bodyText, emails, phones, socials, scrapedAt: new Date().toISOString() };
-  } catch (err) { return null; }
->>>>>>> 4c9893205a9a3ded0eff561230b34fdcfe30e278
 }
 
 // ============ RESPONSE HELPERS ============
@@ -473,11 +273,7 @@ export function generateSlug(text) {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').substring(0, 50);
 }
 
-<<<<<<< HEAD
-// ============ LOGO GENERATION (Pollinations - Free) ============
-=======
->>>>>>> 4c9893205a9a3ded0eff561230b34fdcfe30e278
-export function generateLogoUrl(prompt, style = 'modern') {
+// ============ LOGO GENERATION (Pollinations - Free) =====export function generateLogoUrl(prompt, style = 'modern') {
   const enhanced = `professional ${style} logo for ${prompt}, minimalist, clean, vector style, centered, white background`;
   return `https://image.pollinations.ai/prompt/${encodeURIComponent(enhanced)}?width=512&height=512&nologo=true&seed=${Date.now()}`;
 }
@@ -488,7 +284,6 @@ export async function paystackInit(amount, email, reference, metadata = {}, call
   if (!secretKey) throw new Error('Missing PAYSTACK_SECRET_KEY');
   const response = await fetch('https://api.paystack.co/transaction/initialize', {
     method: 'POST',
-<<<<<<< HEAD
     headers: {
       'Authorization': `Bearer ${secretKey}`,
       'Content-Type': 'application/json'
@@ -500,10 +295,6 @@ export async function paystackInit(amount, email, reference, metadata = {}, call
       callback_url: callbackUrl,
       metadata
     })
-=======
-    headers: { 'Authorization': `Bearer ${secretKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ amount: Math.round(amount * 100), email, reference, callback_url: callbackUrl, metadata })
->>>>>>> 4c9893205a9a3ded0eff561230b34fdcfe30e278
   });
   const data = await response.json();
   if (!data.status) throw new Error(data.message || 'Paystack init failed');
@@ -514,37 +305,13 @@ export async function paystackVerify(reference) {
   const secretKey = process.env.PAYSTACK_SECRET_KEY;
   if (!secretKey) throw new Error('Missing PAYSTACK_SECRET_KEY');
   const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
-<<<<<<< HEAD
     headers: {
       'Authorization': `Bearer ${secretKey}`,
     }
-=======
-    headers: { 'Authorization': `Bearer ${secretKey}` }
->>>>>>> 4c9893205a9a3ded0eff561230b34fdcfe30e278
   });
   const data = await response.json();
-<<<<<<< HEAD
   return data;
 }
 
-// ============ DELAY HELPER ============
-export function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-// ============ POLLINATIONS TEXT API (Free, no key) ============
-export async function pollText(prompt) {
-  try {
-    const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}?model=openai`;
-    const resp = await fetch(url, { signal: AbortSignal.timeout(12000) });
-    if (resp.ok) return await resp.text();
-    return '';
-  } catch (e) {
-    return '';
-  }
-=======
-  if (!data.status) throw new Error(data.message || 'Paystack verify failed');
-  return data.data;
->>>>>>> 4c9893205a9a3ded0eff561230b34fdcfe30e278
-}
+// ============ DELAY HELPER =====}
 // redeploy trigger 1784282722
