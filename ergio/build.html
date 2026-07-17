@@ -637,6 +637,7 @@
       <div class="sidebar-tab active" onclick="switchTab('chat')" id="tab-chat">💬 Chat</div>
       <div class="sidebar-tab" onclick="switchTab('history')" id="tab-history">🕐 History</div>
       <div class="sidebar-tab" onclick="switchTab('files')" id="tab-files">📁 Files</div>
+      <div class="sidebar-tab" onclick="switchTab('plugins')" id="tab-plugins">🔌 Plugins</div>
     </div>
 
     <!-- CHAT TAB -->
@@ -668,6 +669,40 @@
     <!-- FILES TAB -->
     <div id="tab-content-files" style="display:none;flex:1;overflow-y:auto;padding:12px">
       <div id="filesList" style="font-size:13px;color:var(--muted);text-align:center;padding:24px">No files yet.</div>
+    </div>
+
+
+    <!-- PLUGINS TAB -->
+    <div id="tab-content-plugins" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div style="overflow-y:auto;padding:16px;flex:1">
+        <div class="style-engine-display" id="styleEngineDisplay" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:16px">
+          <div style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px">
+            <span style="font-size:16px">🎨</span> <span id="currentStyleName">Auto-selected</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px" id="currentStyleDesc">ERGIO picks the best design style for your business</div>
+          <button style="width:100%;padding:8px;margin-top:8px;background:var(--hover);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:11px;cursor:pointer;transition:all 0.2s" onclick="openStyleModal()">🎨 Choose a different style</button>
+        </div>
+
+        <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px">🔌 Built-in Tools</div>
+        <div class="plugin-grid" id="builtinToolsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px"></div>
+
+        <div style="font-size:11px;font-weight:700;color:var(--muted);margin:16px 0 8px;text-transform:uppercase;letter-spacing:0.5px;border-top:1px solid var(--border);padding-top:12px">🚀 MCP Plugins</div>
+        <div class="plugin-grid" id="mcpPluginsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px"></div>
+
+        <div style="font-size:11px;font-weight:700;color:var(--muted);margin:16px 0 8px;text-transform:uppercase;letter-spacing:0.5px;border-top:1px solid var(--border);padding-top:12px">⚙️ Connected Servers</div>
+        <div id="connectedServers" style="font-size:12px;color:var(--muted);padding:8px 0">
+          No MCP servers connected yet.
+        </div>
+
+        <div style="font-size:11px;font-weight:700;color:var(--muted);margin:16px 0 8px;text-transform:uppercase;letter-spacing:0.5px;border-top:1px solid var(--border);padding-top:12px">📦 GitHub Deploy</div>
+        <div style="padding:8px 0">
+          <input style="width:100%;padding:8px 12px;margin-bottom:8px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit" id="ghRepoInput" placeholder="repo-name (e.g. my-business-site)" />
+          <input style="width:100%;padding:8px 12px;margin-bottom:8px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit" id="ghTokenInput" type="password" placeholder="GitHub token (ghp_...)" />
+          <button style="width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#6e7681,#58a6ff);border:none;color:#fff;font-weight:700;font-size:13px;cursor:pointer;transition:all 0.2s" id="ghDeployBtn" onclick="deployToGitHub()">
+            🚀 Deploy to GitHub
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- INPUT AREA -->
@@ -708,6 +743,9 @@
         <button class="device-btn" id="deviceMobile" onclick="setDevice('mobile')" title="Mobile">📱</button>
       </div>
       <div class="preview-actions">
+        <button class="edit-mode-btn" id="editModeBtn" onclick="toggleEditMode()" title="Click any element on the preview to edit it" style="padding:6px 12px;border-radius:8px;font-size:12px;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px">
+          🎯 Point-to-Edit
+        </button>
         <button class="icon-btn" onclick="refreshPreview()" title="Refresh">🔄</button>
         <button class="icon-btn" onclick="toggleCode()" id="codeToggle" title="View Code">💻</button>
         <button class="deploy-btn" id="deployBtn" onclick="openDeployModal()" disabled>
@@ -717,7 +755,8 @@
     </div>
 
     <!-- Preview Frame -->
-    <div class="preview-frame" id="previewFrame">
+    <div class="preview-frame" id="previewFrame" style="position:relative">
+      <div class="edit-overlay" id="editOverlay" style="position:absolute;inset:0;z-index:5;display:none;cursor:crosshair;pointer-events:none"></div>
       <div class="preview-empty" id="previewEmpty">
         <div class="preview-empty-icon">🌐</div>
         <div class="preview-empty-title">Your website will appear here</div>
