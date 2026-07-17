@@ -173,79 +173,78 @@ Return JSON:
     send('status', { task: '✍️ Writing premium copy...', step: 4, total: 8 });
 
     // ============ STEP 4: WEBSITE CONTENT ============
-    const contentPrompt = `You are writing premium website copy for "${plan.businessName}", a ${plan.type} in ${plan.city}, Nigeria.
-Services: ${JSON.stringify(plan.services)}
+    // Build type-specific content prompt (smaller = faster)
+    const cat = plan.websiteCategory || 'landing';
+    const typeFields = {
+      restaurant: '"menu": [{"name":"item","description":"desc","price":2500,"category":"starters|mains|desserts|drinks"}] (8 items)',
+      ecommerce: '"products": [{"name":"product","description":"desc","price":5000,"category":"category"}] (6 items)',
+      portfolio: '"projects": [{"title":"project","description":"desc","tags":["tag1"]}] (6 items)',
+      saas: '"pricingPlans": [{"name":"plan","price":10000,"period":"month","features":["feat1","feat2"],"popular":false}] (3 plans)',
+      blog: '"articles": [{"title":"article","excerpt":"summary","category":"category","date":"2026-07-01","readTime":"5 min"}] (5 articles)',
+      realestate: '"properties": [{"title":"property","price":5000000,"location":"Lagos","beds":3,"baths":2,"type":"rent|sale"}] (6 properties)',
+      fitness: '"classList": [{"name":"class","description":"desc","schedule":"Mon 6am","duration":"60 min","trainer":"name"}] (6 classes)',
+      clinic: '"doctors": [{"name":"Dr. Name","specialty":"specialty","available":"Mon-Fri"}] (4 doctors)',
+      agency: '"team": [{"name":"person","role":"role","bio":"short bio"}] (4 members)',
+      education: '"courses": [{"title":"course","description":"desc","duration":"12 weeks","price":50000,"level":"beginner"}] (4 courses)',
+      events: '"eventSchedule": [{"time":"9:00","title":"title","speaker":"name","description":"desc"}] (6 events)',
+      landing: ''
+    };
+
+    const contentPrompt = `Write website copy for "${plan.businessName}", a ${plan.type} in ${plan.city}, Nigeria. 
+Services: ${JSON.stringify(plan.services || [])}
 Brand voice: ${brand.brandVoice || 'professional'}
-Tone: ${plan.tone || 'professional'}
-Design style: ${plan.designStyle || 'modern'}
 
-IMPORTANT: Write like Apple and Nike — bold, concise, powerful. No generic phrases like "We are committed to" or "Quality service you can trust."
-Use active voice. Make every sentence punch. Include Nigerian cultural references where natural.
+Write bold, concise copy like Apple/Nike. Include Nigerian cultural references.
 
-Based on the website category "${plan.websiteCategory || 'landing'}", include the appropriate type-specific fields:
-
-- restaurant: Include "menu" array with items [{name, description, price, category}]
-- ecommerce: Include "products" array [{name, description, price, image (search query), category}]
-- portfolio: Include "projects" array [{title, description, tags, image (search query)}]
-- saas: Include "pricingPlans" array [{name, price, period, features[], popular}]
-- blog: Include "articles" array [{title, excerpt, category, date, readTime}]
-- realestate: Include "properties" array [{title, price, location, beds, baths, type, image}]
-- fitness: Include "classList" array [{name, description, schedule, duration, trainer}]
-- clinic: Include "doctors" array [{name, specialty, available, image}] and "services" list
-- agency: Include "team" array [{name, role, bio, image}] and "process" array [{step, title, description}]
-- education: Include "courses" array [{title, description, duration, price, level}]
-- events: Include "eventSchedule" array [{time, title, speaker, description}] and "speakers" array
-- landing: Standard services + testimonials
-
-Return JSON with:
+Return ONLY JSON:
 {
-  "hero": {
-    "headline": "powerful headline",
-    "subheadline": "supporting text",
-    "cta": "button text"
-  },
-  "about": "2 paragraph about section, mention the business is in ${plan.city} Nigeria",
-  "servicesHtml": "HTML for services section, each service as a card with name, description, price in ₦",
+  "hero": {"headline": "punchy headline", "subheadline": "supporting text", "cta": "button text"},
+  "about": "2 paragraphs about the business in ${plan.city}",
+  "servicesHtml": "HTML cards for each service with name, description, price in ₦",
   "whyChooseUs": ["reason1", "reason2", "reason3", "reason4"],
-  "testimonials": [
-    {"name": "Nigerian name", "text": "review text", "location": "area in Nigeria"}
-  ],
-  "faq": [
-    {"q": "question", "a": "answer"}
-  ],
-  "menu": [{"name": "item", "description": "desc", "price": 2500, "category": "starters|mains|desserts|drinks"}],
-  "products": [{"name": "product", "description": "desc", "price": 5000, "category": "category", "image": "search query"}],
-  "projects": [{"title": "project", "description": "desc", "tags": ["tag1"], "image": "search query"}],
-  "pricingPlans": [{"name": "plan", "price": 10000, "period": "month", "features": ["feat1"], "popular": false}],
-  "articles": [{"title": "article", "excerpt": "summary", "category": "category", "date": "2026-01-01", "readTime": "5 min"}],
-  "properties": [{"title": "property", "price": 5000000, "location": "Lagos", "beds": 3, "baths": 2, "type": "rent|sale", "image": "search query"}],
-  "classList": [{"name": "class", "description": "desc", "schedule": "Mon 6am", "duration": "60 min", "trainer": "name"}],
-  "doctors": [{"name": "Dr. Name", "specialty": "specialty", "available": "Mon-Fri", "image": "search query"}],
-  "courses": [{"title": "course", "description": "desc", "duration": "12 weeks", "price": 50000, "level": "beginner"}],
-  "team": [{"name": "person", "role": "role", "bio": "short bio", "image": "search query"}],
-  "process": [{"step": 1, "title": "title", "description": "desc"}],
-  "eventSchedule": [{"time": "9:00", "title": "title", "speaker": "name", "description": "desc"}],
-  "seoTitle": "SEO optimized title tag",
+  "testimonials": [{"name": "Nigerian name", "text": "review", "location": "area in Nigeria"}, 3 items],
+  "faq": [{"q": "question", "a": "answer"}, 4 items],
+  ${typeFields[cat] || ''}
+  "seoTitle": "SEO title",
   "seoDescription": "SEO meta description",
-  "contactInfo": {
-    "phone": "Nigerian phone format",
-    "email": "info@businessname.com",
-    "address": "address in ${plan.city}",
-    "whatsapp": "whatsapp number"
-  }
+  "contactInfo": {"phone": "+234...", "email": "info@...", "address": "address in ${plan.city}", "whatsapp": "+234..."}
 }`;
 
     const contentResult = await callGroq([
       { role: 'system', content: 'You are ERGIO, expert copywriter for Nigerian businesses. Return only valid JSON.' },
       { role: 'user', content: contentPrompt }
-    ], { temperature: 0.75, maxTokens: 4096, response_format: { type: 'json_object' } });
+    ], { temperature: 0.75, maxTokens: 3000, response_format: { type: 'json_object' } });
 
     let content;
     try {
       content = JSON.parse(contentResult);
     } catch {
       const match = contentResult.match(/\{[\s\S]*\}/);
-      content = match ? JSON.parse(match[0]) : {};
+      try { content = match ? JSON.parse(match[0]) : {}; } catch { content = {}; }
+    }
+    
+    // Fallback content if AI failed
+    if (!content.hero) {
+      content = {
+        hero: { headline: plan.businessName, subheadline: plan.tagline || plan.description || '', cta: 'Get Started' },
+        about: `${plan.businessName} is a ${plan.type} located in ${plan.city}, Nigeria. ${plan.description || 'We provide exceptional service to our clients.'}`,
+        servicesHtml: (plan.services || []).map(s => `<div class="service-card"><h3>${s.name}</h3><p>${s.description || ''}</p><div class="price">₦${(s.price||0).toLocaleString()}</div></div>`).join(''),
+        whyChooseUs: ['Expert team', 'Fast delivery', 'Affordable pricing', 'Quality guaranteed'],
+        testimonials: [
+          {name: 'Adebayo O.', text: 'Excellent service, highly recommend!', location: 'Lagos'},
+          {name: 'Chioma N.', text: 'Professional and reliable.', location: 'Abuja'},
+          {name: 'Kunle A.', text: 'Best in the business.', location: 'Port Harcourt'}
+        ],
+        faq: [
+          {q: 'How can I contact you?', a: `Call us or visit our office in ${plan.city}.`},
+          {q: 'What are your hours?', a: 'We are open Monday to Saturday, 8am to 6pm.'},
+          {q: 'Do you offer delivery?', a: 'Yes, we offer delivery within ' + plan.city + ' and surrounding areas.'},
+          {q: 'How do I book?', a: 'You can book online or call us directly.'}
+        ],
+        contactInfo: {phone: '+234 800 000 0000', email: `info@${(plan.businessName||'business').toLowerCase().replace(/[^a-z0-9]/g,'')}.com`, address: `${plan.city}, Nigeria`, whatsapp: '+234 800 000 0000'},
+        seoTitle: `${plan.businessName} | ${plan.type} in ${plan.city}`,
+        seoDescription: plan.description || `${plan.businessName} - ${plan.type} in ${plan.city}, Nigeria`
+      };
     }
 
     send('content', { content });
