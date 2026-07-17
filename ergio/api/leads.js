@@ -81,10 +81,10 @@ Return ONLY a JSON array of leads:
 ]`;
 
       try {
-        const aiResult = await callGroqFast([
-          { role: 'system', content: 'Return only valid JSON. No markdown.' },
+        const aiResult = await callGroq([
+          { role: 'system', content: 'Return only valid JSON. No markdown. Return a JSON array of leads.' },
           { role: 'user', content: aiLeadPrompt }
-        ], { temperature: 0.8, response_format: { type: 'json_object' } });
+        ], { temperature: 0.8, maxTokens: 2000, response_format: { type: 'json_object' } });
 
         let aiLeads;
         try {

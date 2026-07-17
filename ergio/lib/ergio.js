@@ -105,6 +105,22 @@ export async function callGroq(messages, options = {}) {
     }
   }
 
+  // Pollinations fallback — free, no key needed
+  try {
+    const systemMsg = messages.find(m => m.role === 'system')?.content || '';
+    const userMsg = messages.find(m => m.role === 'user')?.content || '';
+    const combined = systemMsg ? systemMsg + '\n\n' + userMsg : userMsg;
+    const pollRes = await fetch('https://text.pollinations.ai/' + encodeURIComponent(combined), {
+      signal: AbortSignal.timeout(15000)
+    });
+    if (pollRes.ok) {
+      const text = await pollRes.text();
+      return text;
+    }
+  } catch (pollErr) {
+    console.error('Pollinations fallback failed:', pollErr.message);
+  }
+  
   throw new Error('All AI providers failed. Set GROQ_API_KEY or OPENROUTER_API_KEY.');
 }
 
