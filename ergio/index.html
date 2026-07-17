@@ -50,7 +50,7 @@ img{display:block;max-width:100%}
 .nav-links a:hover{color:var(--text)}
 .nav-cta{padding:0.6rem 1.4rem;border-radius:100px;background:linear-gradient(135deg,var(--cyan),var(--green));color:#000;font-weight:700;font-size:0.85rem;border:none;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s}
 .nav-cta:hover{transform:translateY(-1px);box-shadow:0 0 30px rgba(0,217,255,0.3)}
-@media(max-width:768px){.nav-links{display:none}.nav{padding:1rem 1.2rem}}
+@media(max-width:768px){.nav-links{display:none}.nav{padding:1rem 1.2rem}.nav-login-text{display:none}}
 
 /* ===== HERO ===== */
 .hero{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:7rem 2rem 4rem;text-align:center}
@@ -419,7 +419,10 @@ img{display:block;max-width:100%}
 <a href="#templates" onclick="scrollToSection('templates')">Templates</a>
 <a href="#pricing" onclick="scrollToSection('pricing')">Pricing</a>
 </div>
-<button class="nav-cta" onclick="document.getElementById('prompt').focus();window.scrollTo({top:0,behavior:'smooth'})">Start Building</button>
+<div style="display:flex;align-items:center;gap:0.75rem">
+<a href="auth/login.html" style="color:var(--text2);font-size:0.85rem;font-weight:600;text-decoration:none;padding:0.5rem 1rem;border-radius:100px;border:1px solid rgba(255,255,255,0.12);transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">Log in</a>
+<a href="auth/signup.html" class="nav-cta" style="text-decoration:none;display:inline-block">Sign up free</a>
+</div>
 </nav>
 
 <!-- Hero -->
@@ -472,7 +475,7 @@ Launch Business
 </div>
 <div class="alt-image">
 <span class="img-badge">● Live Build Console</span>
-<img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&q=80" alt="Team working on business creation" loading="lazy" onerror="this.style.background='linear-gradient(135deg,#1a1a2e,#16213e)';this.style.height='200px';this.src=''">
+<img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&auto=format&fit=crop" alt="Team working on business creation" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x450/0a0b10/00D9FF?text=ERGIO'">
 </div>
 </div>
 </section>
@@ -494,7 +497,7 @@ Launch Business
 </div>
 <div class="alt-image">
 <span class="img-badge">● All-in-one platform</span>
-<img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80" alt="Business dashboard analytics" loading="lazy" onerror="this.style.background='linear-gradient(135deg,#1a1a2e,#16213e)';this.style.height='200px';this.src=''">
+<img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop" alt="Business dashboard analytics" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x450/0a0b10/00D9FF?text=ERGIO'">
 </div>
 </div>
 </section>
@@ -522,42 +525,42 @@ Launch Business
 <p class="section-desc">Combine the power of AI with hands-on creative control. Every choice is yours. Every detail feels like you.</p>
 <div class="features-grid">
 <div class="feature-card reveal">
-<img src="https://images.unsplash.com/photo-1545235617-7a424c1a6468?w=600&q=80" alt="Website design" loading="lazy" onerror="this.style.background='linear-gradient(135deg,#1a1a2e,#16213e)';this.style.height='200px';this.src=''">
+<img src="https://images.unsplash.com/photo-1545235617-7a424c1a6468?w=600&auto=format&fit=crop" alt="Website design" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x450/0a0b10/00D9FF?text=ERGIO'">
 <div class="feature-card-body">
 <h3>Website Builder</h3>
 <p>Production-ready, responsive, SEO-optimized websites generated from your prompt. Landing pages, portfolios, dashboards, booking systems.</p>
 </div>
 </div>
 <div class="feature-card reveal">
-<img src="https://images.unsplash.com/photo-1572044162444-ad60f128bdea?w=600&q=80" alt="Brand identity" loading="lazy" onerror="this.style.background='linear-gradient(135deg,#1a1a2e,#16213e)';this.style.height='200px';this.src=''">
+<img src="https://images.unsplash.com/photo-1572044162444-ad60f128bdea?w=600&auto=format&fit=crop" alt="Brand identity" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x450/0a0b10/00D9FF?text=ERGIO'">
 <div class="feature-card-body">
 <h3>Brand Identity</h3>
 <p>AI generates your logo, color palette, typography, and brand guidelines. Consistent across every touchpoint of your business.</p>
 </div>
 </div>
 <div class="feature-card reveal">
-<img src="https://images.unsplash.com/photo-1556761175-b413da4baf72?w=600&q=80" alt="CRM dashboard" loading="lazy" onerror="this.style.background='linear-gradient(135deg,#1a1a2e,#16213e)';this.style.height='200px';this.src=''">
+<img src="https://images.unsplash.com/photo-1556761175-b413da4baf72?w=600&auto=format&fit=crop" alt="CRM dashboard" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x450/0a0b10/00D9FF?text=ERGIO'">
 <div class="feature-card-body">
 <h3>CRM & Dashboard</h3>
 <p>Track clients, bookings, revenue, and expenses. Your complete business operations center with real-time analytics.</p>
 </div>
 </div>
 <div class="feature-card reveal">
-<img src="https://images.unsplash.com/photo-1556742049-0cf034c90dcb?w=600&q=80" alt="Payment processing" loading="lazy" onerror="this.style.background='linear-gradient(135deg,#1a1a2e,#16213e)';this.style.height='200px';this.src=''">
+<img src="https://images.unsplash.com/photo-1556742049-0cf034c90dcb?w=600&auto=format&fit=crop" alt="Payment processing" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x450/0a0b10/00D9FF?text=ERGIO'">
 <div class="feature-card-body">
 <h3>Payments & Invoices</h3>
 <p>Paystack and Flutterwave integration. Automatic invoicing, payment tracking, and subscription management built in.</p>
 </div>
 </div>
 <div class="feature-card reveal">
-<img src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=600&q=80" alt="Calendar booking" loading="lazy" onerror="this.style.background='linear-gradient(135deg,#1a1a2e,#16213e)';this.style.height='200px';this.src=''">
+<img src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=600&auto=format&fit=crop" alt="Calendar booking" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x450/0a0b10/00D9FF?text=ERGIO'">
 <div class="feature-card-body">
 <h3>Bookings & Calendar</h3>
 <p>Smart scheduling with automated WhatsApp reminders. Clients book, pay, and get confirmed — all automatic.</p>
 </div>
 </div>
 <div class="feature-card reveal">
-<img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&q=80" alt="Contracts and proposals" loading="lazy" onerror="this.style.background='linear-gradient(135deg,#1a1a2e,#16213e)';this.style.height='200px';this.src=''">
+<img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&auto=format&fit=crop" alt="Contracts and proposals" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x450/0a0b10/00D9FF?text=ERGIO'">
 <div class="feature-card-body">
 <h3>Contracts & Proposals</h3>
 <p>Generate professional contracts, proposals, and quotes. Send to clients for e-signature directly from your dashboard.</p>
@@ -599,27 +602,27 @@ Launch Business
 </div>
 <div class="gallery-grid">
 <div class="gallery-item reveal">
-<img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80" alt="Restaurant template" loading="lazy" onerror="this.style.background='linear-gradient(135deg,#1a1a2e,#16213e)';this.style.height='200px';this.src=''">
+<img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&auto=format&fit=crop" alt="Restaurant template" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x450/0a0b10/00D9FF?text=ERGIO'">
 <div class="overlay"><h4>Restaurant</h4><span>Food & Dining</span></div>
 </div>
 <div class="gallery-item reveal">
-<img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&q=80" alt="Fashion template" loading="lazy" onerror="this.style.background='linear-gradient(135deg,#1a1a2e,#16213e)';this.style.height='200px';this.src=''">
+<img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&auto=format&fit=crop" alt="Fashion template" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x450/0a0b10/00D9FF?text=ERGIO'">
 <div class="overlay"><h4>Fashion Brand</h4><span>Retail & E-commerce</span></div>
 </div>
 <div class="gallery-item reveal">
-<img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&q=80" alt="Legal template" loading="lazy" onerror="this.style.background='linear-gradient(135deg,#1a1a2e,#16213e)';this.style.height='200px';this.src=''">
+<img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&auto=format&fit=crop" alt="Legal template" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x450/0a0b10/00D9FF?text=ERGIO'">
 <div class="overlay"><h4>Law Firm</h4><span>Legal Services</span></div>
 </div>
 <div class="gallery-item reveal">
-<img src="https://images.unsplash.com/photo-1519494026892-80bbd2d4fd71?w=600&q=80" alt="Medical template" loading="lazy" onerror="this.style.background='linear-gradient(135deg,#1a1a2e,#16213e)';this.style.height='200px';this.src=''">
+<img src="https://images.unsplash.com/photo-1519494026892-80bbd2d4fd71?w=600&auto=format&fit=crop" alt="Medical template" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x450/0a0b10/00D9FF?text=ERGIO'">
 <div class="overlay"><h4>Medical Clinic</h4><span>Healthcare</span></div>
 </div>
 <div class="gallery-item reveal">
-<img src="https://images.unsplash.com/photo-1531973576160-7125cd663d86?w=600&q=80" alt="Tech startup template" loading="lazy" onerror="this.style.background='linear-gradient(135deg,#1a1a2e,#16213e)';this.style.height='200px';this.src=''">
+<img src="https://images.unsplash.com/photo-1531973576160-7125cd663d86?w=600&auto=format&fit=crop" alt="Tech startup template" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x450/0a0b10/00D9FF?text=ERGIO'">
 <div class="overlay"><h4>Tech Startup</h4><span>Technology</span></div>
 </div>
 <div class="gallery-item reveal">
-<img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80" alt="Creative studio template" loading="lazy" onerror="this.style.background='linear-gradient(135deg,#1a1a2e,#16213e)';this.style.height='200px';this.src=''">
+<img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&auto=format&fit=crop" alt="Creative studio template" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x450/0a0b10/00D9FF?text=ERGIO'">
 <div class="overlay"><h4>Creative Studio</h4><span>Design & Media</span></div>
 </div>
 </div>

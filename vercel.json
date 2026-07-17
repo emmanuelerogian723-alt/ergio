@@ -23,6 +23,15 @@
     },
     "api/firebase-config.js": {
       "maxDuration": 10
+    },
+    "api/leads.js": {
+      "maxDuration": 30
+    },
+    "api/outreach.js": {
+      "maxDuration": 30
+    },
+    "api/bookings.js": {
+      "maxDuration": 30
     }
   },
   "rewrites": [

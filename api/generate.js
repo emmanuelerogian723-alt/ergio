@@ -8,6 +8,8 @@
 
 import { callGroq, callGroqFast, success, error, corsHeaders, generateSlug, generateLogoUrl, getSupabase } from '../lib/ergio.js';
 import { searchImages, planImages, fetchWebsiteImages, generateAIImage, getFallbackImage } from '../lib/images.js';
+import { generateRichWebsiteHTML } from '../lib/website-generator.js';
+
 
 export default async function handler(req, res) {
   corsHeaders(res);
@@ -259,7 +261,7 @@ Return JSON with:
     
     const websiteHtml = is3D 
       ? generate3DWebsiteHTML(plan, brand, content, colors, logoUrl, images)
-      : generateWebsiteHTML(plan, brand, content, colors, logoUrl, images);
+      : generateRichWebsiteHTML(plan, brand, content, colors, logoUrl, images);
 
     send('website', { html: websiteHtml, logoUrl, imageCount: totalImages, designStyle: (typeof style !== "undefined" ? style.name : "aurora-dark") });
     send('status', { task: '🔧 Setting up booking & payments...', step: 6, total: 8 });
