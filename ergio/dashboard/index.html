@@ -1057,6 +1057,74 @@
         </div>
       </div>
     </div>
+    <!-- ── Advisor Tab ── -->
+    <div id="tab-advisor" class="tab-content">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+        <div>
+          <h1 style="font-size:28px; margin:0; background:linear-gradient(135deg,#10b981,#3b82f6); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">🧠 AI Business Advisor</h1>
+          <p style="color:#94a3b8; margin:4px 0 0;">Your personal business consultant — analyzes your data and gives smart recommendations</p>
+        </div>
+        <button onclick="runAdvisorAnalysis()" id="advisorRunBtn" style="background:linear-gradient(135deg,#10b981,#3b82f6); color:white; border:none; padding:12px 24px; border-radius:12px; font-size:14px; font-weight:600; cursor:pointer; box-shadow:0 4px 14px rgba(16,185,129,0.3);">
+          📊 Analyze My Business
+        </button>
+      </div>
+
+      <div id="advisorHealthCard" style="display:none; background:linear-gradient(135deg, #1e293b, #0f172a); border:1px solid #334155; border-radius:20px; padding:32px; margin-bottom:24px; position:relative; overflow:hidden;">
+        <div style="position:absolute; top:-50px; right:-50px; width:200px; height:200px; background:radial-gradient(circle, rgba(16,185,129,0.15), transparent); border-radius:50%;"></div>
+        <div style="display:flex; align-items:center; gap:32px;">
+          <div style="position:relative; width:160px; height:160px; flex-shrink:0;">
+            <svg width="160" height="160" viewBox="0 0 160 160" style="transform:rotate(-90deg);">
+              <circle cx="80" cy="80" r="70" fill="none" stroke="#1e293b" stroke-width="12"/>
+              <circle id="advisorScoreCircle" cx="80" cy="80" r="70" fill="none" stroke="url(#advisorGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="440" stroke-dashoffset="440" style="transition:stroke-dashoffset 2s ease;"/>
+              <defs>
+                <linearGradient id="advisorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#10b981"/>
+                  <stop offset="100%" stop-color="#3b82f6"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center;">
+              <div id="advisorScoreValue" style="font-size:42px; font-weight:800; color:white;">0</div>
+              <div style="font-size:11px; color:#94a3b8; text-transform:uppercase; letter-spacing:1px;">Health Score</div>
+            </div>
+          </div>
+          <div style="flex:1;">
+            <div id="advisorHealthStatus" style="font-size:22px; font-weight:700; color:#10b981; margin-bottom:8px;">Analyzing...</div>
+            <div id="advisorBusinessName" style="color:#94a3b8; font-size:14px; margin-bottom:16px;"></div>
+            <div id="advisorMetricsRow" style="display:flex; gap:24px; flex-wrap:wrap;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="advisorBreakdown" style="display:none; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom:24px;"></div>
+
+      <div id="advisorInsights" style="display:none; margin-bottom:24px;">
+        <h3 style="color:white; font-size:18px; margin:0 0 16px;">💡 Key Insights</h3>
+        <div id="advisorInsightsList" style="display:flex; flex-direction:column; gap:12px;"></div>
+      </div>
+
+      <div id="advisorRecs" style="display:none; margin-bottom:24px;">
+        <h3 style="color:white; font-size:18px; margin:0 0 16px;">🎯 Recommendations</h3>
+        <div id="advisorRecsList" style="display:flex; flex-direction:column; gap:12px;"></div>
+      </div>
+
+      <div style="background:linear-gradient(135deg, #1e293b, #0f172a); border:1px solid #334155; border-radius:20px; padding:24px; margin-bottom:24px;">
+        <h3 style="color:white; font-size:18px; margin:0 0 8px;">💬 Ask Your Advisor</h3>
+        <p style="color:#94a3b8; font-size:13px; margin:0 0 16px;">Ask any business question — pricing, marketing, growth, strategy. Get instant AI advice tailored to your business.</p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+          <button onclick="askAdvisor('How should I price my services?')" class="advisor-quick">💰 How should I price?</button>
+          <button onclick="askAdvisor('How do I get more clients?')" class="advisor-quick">🎯 How to get clients?</button>
+          <button onclick="askAdvisor('How do I grow my business?')" class="advisor-quick">📈 How to grow?</button>
+          <button onclick="askAdvisor('How do I market my business?')" class="advisor-quick">📣 How to market?</button>
+        </div>
+        <div id="advisorChat" style="max-height:300px; overflow-y:auto; margin-bottom:16px; display:flex; flex-direction:column; gap:12px;"></div>
+        <div style="display:flex; gap:12px;">
+          <input type="text" id="advisorInput" placeholder="Ask anything about your business..." style="flex:1; background:#0f172a; border:1px solid #334155; border-radius:12px; padding:14px 16px; color:white; font-size:14px; outline:none;" onkeypress="if(event.key==='Enter') askAdvisorFromInput()">
+          <button onclick="askAdvisorFromInput()" style="background:linear-gradient(135deg,#10b981,#3b82f6); color:white; border:none; padding:14px 24px; border-radius:12px; font-size:14px; font-weight:600; cursor:pointer;">Ask</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script>
