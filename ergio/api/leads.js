@@ -33,30 +33,26 @@ export default async function handler(req, res) {
     // ============ PHASE 1: SEARCH ============
     // Multiple search queries to find potential clients
     const searchQueries = [
-      `I need ${businessType} in ${city}`,
+      `I need ${businessType} in ${city} Nigeria`,
       `hire ${businessType} ${city} Nigeria`,
-      `looking for ${businessType} services ${city}`,
-      `best ${businessType} ${city} Nigeria`,
-      `${businessType} needed ${city} Nigeria`
+      `looking for ${businessType} services ${city}`
     ];
 
     let allResults = [];
 
     for (const query of searchQueries) {
       send('status', { task: `Searching: "${query}"` });
-      const results = await searxngSearch(query, { count: 15, language: 'en' });
-
-      for (const result of results) {
-        // Filter out irrelevant results
-        if (result.url && !result.url.includes('youtube.com') &&
-            !result.url.includes('facebook.com') &&
-            !result.url.includes('instagram.com')) {
-          allResults.push(result);
+      try {
+        const results = await searxngSearch(query, { count: 10, language: 'en' });
+        for (const result of results) {
+          if (result.url && !result.url.includes('youtube.com') &&
+              !result.url.includes('facebook.com') &&
+              !result.url.includes('instagram.com')) {
+            allResults.push(result);
+          }
         }
-      }
-
-      if (allResults.length >= 30) break;
-      await new Promise(r => setTimeout(r, 100));
+        if (allResults.length >= 20) break;
+      } catch (e) { continue; }
     }
 
     send('search_complete', { totalResults: allResults.length });

@@ -5,9 +5,29 @@
     }
   },
   "rewrites": [
-    { "source": "/auth/:path*", "destination": "/ergio/auth/:path*" },
-    { "source": "/dashboard/:path*", "destination": "/ergio/dashboard/:path*" },
-    { "source": "/widget/:path*", "destination": "/ergio/widget/:path*" },
-    { "source": "/templates/:path*", "destination": "/ergio/templates/:path*" }
+    {
+      "source": "/auth/:path*",
+      "destination": "/ergio/auth/:path*"
+    },
+    {
+      "source": "/dashboard/:path*",
+      "destination": "/ergio/dashboard/:path*"
+    },
+    {
+      "source": "/widget/:path*",
+      "destination": "/ergio/widget/:path*"
+    },
+    {
+      "source": "/templates/:path*",
+      "destination": "/ergio/templates/:path*"
+    },
+    {
+      "source": "/site/:slug*",
+      "destination": "/ergio/site.html"
+    },
+    {
+      "source": "/preview.html",
+      "destination": "/ergio/preview.html"
+    }
   ]
 }

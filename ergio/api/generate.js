@@ -283,12 +283,15 @@ Return JSON with:
       const supabase = getSupabase(req);
       const userId = req.body.userId || null;
       
+      const siteSlug = generateSlug(plan.businessName);
       await supabase.from('generated_websites').insert({
         business_name: plan.businessName,
         business_type: plan.type,
         html_content: websiteHtml,
         brand_colors: colors,
         website_type: is3D ? '3d' : 'standard',
+        website_category: plan.websiteCategory || 'landing',
+        slug: siteSlug,
         created_by: userId,
         created_date: new Date().toISOString()
       });
@@ -309,21 +312,34 @@ Return JSON with:
     send('engines', { engines });
 
     // ============ FINAL RESULT ============
+    // Generate shareable deploy URL
+    const slug = generateSlug(plan.businessName);
+    const deployUrl = `https://ergio.vercel.app/site/${slug}`;
+    const previewUrl = `https://ergio.vercel.app/preview.html?site=${slug}`;
+    
     send('complete', {
       business: {
         name: plan.businessName,
         tagline: plan.tagline,
         type: plan.type,
-        slug: generateSlug(plan.businessName),
+        websiteCategory: plan.websiteCategory || 'landing',
+        slug,
         logoUrl,
         brandColors: colors,
         city: plan.city,
         services: plan.services || [],
         websiteHtml,
         content,
-        images: { total: totalImages, sources: ['pixabay', 'unsplash'] }
+        images: { total: totalImages, sources: ['pixabay', 'unsplash'] },
+        deployUrl,
+        previewUrl,
+        shareUrl: deployUrl,
+        vercelUrl: deployUrl
       },
-      message: 'Your business is ready!'
+      message: 'Your business is ready!',
+      deployUrl,
+      previewUrl,
+      shareUrl: deployUrl
     });
 
     res.end();

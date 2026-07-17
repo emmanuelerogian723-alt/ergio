@@ -130,7 +130,7 @@ export async function searxngSearch(query, options = {}) {
     try {
       const url = `${instance}/search?q=${encodeURIComponent(query)}&categories=general&language=en&format=json&safesearch=1`;
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 2000);
+      const timeout = setTimeout(() => controller.abort(), 1500);
       const response = await fetch(url, {
         signal: controller.signal,
         headers: { 'Accept': 'application/json', 'User-Agent': 'ERGIO/1.0 (+https://ergio.app)' }
@@ -163,7 +163,7 @@ async function duckDuckGoSearch(query, count) {
   try {
     const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
+    const timeout = setTimeout(() => controller.abort(), 3000);
     const response = await fetch(url, {
       signal: controller.signal,
       headers: {
