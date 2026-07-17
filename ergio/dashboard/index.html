@@ -136,6 +136,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
         Analytics
       </div>
+      <div class="nav-item" onclick="switchTab('agents')" data-tab="agents" style="background:linear-gradient(135deg,rgba(0,217,255,.08),rgba(139,92,246,.08));border-left-color:var(--cyan)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M12 11v10m-4-7l4 4 4-4M5 21h14"/></svg>
+        🤖 Agents
+      </div>
     </div>
     <div class="sidebar-footer">
       <div class="user-badge">
@@ -347,6 +351,46 @@
           <div class="icon">📊</div>
           <h3>Analytics coming soon</h3>
           <p>Once your website is live and getting traffic, you'll see detailed analytics here — views, clicks, conversions, and traffic sources.</p>
+        </div>
+      </div>
+
+      <!-- AGENTIC MODE TAB -->
+      <div class="tab-content" id="tab-agents">
+        <div style="margin-bottom:1.5rem">
+          <h2 style="font-size:1.5rem;margin-bottom:.5rem">🤖 Agentic Mode</h2>
+          <p style="color:var(--muted)">Autonomous AI agents that build and run your entire business. Each agent specializes in a different domain.</p>
+        </div>
+
+        <!-- Agent Grid -->
+        <div id="agentGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-bottom:2rem">
+          <!-- Filled dynamically -->
+        </div>
+
+        <!-- Workflow Buttons -->
+        <div style="margin-bottom:1.5rem">
+          <h3 style="font-size:1.1rem;margin-bottom:.8rem">Choose a Workflow</h3>
+          <div style="display:flex;flex-wrap:wrap;gap:.8rem">
+            <button class="btn btn-primary" onclick="runAgents('full-launch')" id="fullLaunchBtn" style="background:linear-gradient(135deg,var(--cyan),var(--blue))">
+              🚀 Full Business Launch (All 7 Agents)
+            </button>
+            <button class="btn btn-ghost" onclick="runAgents('website-only')">🏗️ Website Build</button>
+            <button class="btn btn-ghost" onclick="runAgents('marketing-sprint')">📣 Marketing Sprint</button>
+            <button class="btn btn-ghost" onclick="runAgents('ops-setup')">⚙️ Operations Setup</button>
+          </div>
+        </div>
+
+        <!-- Agent Activity Log -->
+        <div id="agentActivity" style="display:none">
+          <h3 style="font-size:1.1rem;margin-bottom:.8rem">Agent Activity</h3>
+          <div id="agentLog" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;max-height:400px;overflow-y:auto;font-family:'Courier New',monospace;font-size:.85rem">
+          </div>
+        </div>
+
+        <!-- Agent Results -->
+        <div id="agentResults" style="display:none">
+          <h3 style="font-size:1.1rem;margin-bottom:.8rem;margin-top:1.5rem">Results</h3>
+          <div id="agentResultsContent" style="display:grid;gap:1rem">
+          </div>
         </div>
       </div>
     </div>
@@ -688,6 +732,158 @@
         }
       }
     }, 5000);
+
+    // ════════════════════════════════════════════
+    // AGENTIC MODE — AI Agents
+    // ════════════════════════════════════════════
+
+    const AGENT_ICONS = {
+      ceo: { icon: '👑', name: 'CEO Agent', color: '#FFD700' },
+      planner: { icon: '📋', name: 'Business Planner', color: '#00D9FF' },
+      'web-engineer': { icon: '🏗️', name: 'Website Engineer', color: '#00FF9D' },
+      backend: { icon: '⚙️', name: 'Backend Engineer', color: '#8B5CF6' },
+      frontend: { icon: '🎨', name: 'Frontend Engineer', color: '#FF6B6B' },
+      marketing: { icon: '📣', name: 'Marketing Agent', color: '#FF9500' },
+      ops: { icon: '🔄', name: 'Operations Agent', color: '#2563FF' }
+    };
+
+    const agentStates = {};
+
+    function renderAgentGrid() {
+      const grid = document.getElementById('agentGrid');
+      if (!grid) return;
+      grid.innerHTML = Object.entries(AGENT_ICONS).map(([id, a]) => {
+        const state = agentStates[id] || 'idle';
+        const stateColor = state === 'working' ? '#FFB800' : state === 'done' ? '#00FF9D' : '#1E2730';
+        const stateText = state === 'working' ? 'Working...' : state === 'done' ? 'Complete' : 'Idle';
+        return `
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.2rem;position:relative;overflow:hidden">
+            <div style="position:absolute;top:0;left:0;width:4px;height:100%;background:${a.color};opacity:.6"></div>
+            <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.6rem">
+              <div style="font-size:1.8rem">${a.icon}</div>
+              <div>
+                <div style="font-weight:700;font-size:.95rem">${a.name}</div>
+                <div style="font-size:.75rem;color:${stateColor}">● ${stateText}</div>
+              </div>
+            </div>
+            <div id="agent-${id}-message" style="font-size:.82rem;color:var(--muted);min-height:2.4rem">
+              ${state === 'working' ? (agentStates[id + '_msg'] || 'Thinking...') : 'Ready for tasks'}
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    let agentRunning = false;
+    async function runAgents(workflow) {
+      if (agentRunning) return;
+
+      const prompt = currentUser?.user_metadata?.biz_type || 'General Business';
+      agentRunning = true;
+
+      // Reset states
+      Object.keys(AGENT_ICONS).forEach(id => { agentStates[id] = 'idle'; });
+      renderAgentGrid();
+
+      document.getElementById('agentActivity').style.display = 'block';
+      document.getElementById('agentResults').style.display = 'none';
+      const log = document.getElementById('agentLog');
+      log.innerHTML = '<div style="color:var(--cyan)">🚀 Launching workflow: ' + workflow + '</div>';
+
+      // Disable buttons
+      document.querySelectorAll('#tab-agents button').forEach(b => b.disabled = true);
+
+      try {
+        const response = await fetch(window.ERGIO_CONFIG.apiBase + '/api/agents', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, workflow })
+        });
+
+        if (!response.ok) throw new Error('Agent request failed');
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        const results = {};
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const text = decoder.decode(value);
+          const lines = text.split('\n');
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            try {
+              const event = JSON.parse(line.slice(6));
+              handleAgentEvent(event, results, log);
+            } catch(e) {}
+          }
+        }
+
+        // Show results
+        renderAgentResults(results);
+
+      } catch(e) {
+        log.innerHTML += '<div style="color:var(--red)">❌ Error: ' + e.message + '</div>';
+      }
+
+      agentRunning = false;
+      document.querySelectorAll('#tab-agents button').forEach(b => b.disabled = false);
+    }
+
+    function handleAgentEvent(event, results, log) {
+      const { type, data } = event;
+
+      if (type === 'agent_start') {
+        agentStates[data.agentId] = 'working';
+        agentStates[data.agentId + '_msg'] = data.task;
+        renderAgentGrid();
+        log.innerHTML += '<div style="color:' + (AGENT_ICONS[data.agentId]?.color || '#fff') + '">' +
+          data.icon + ' <b>' + data.agentName + '</b>: ' + data.task + '</div>';
+        log.scrollTop = log.scrollHeight;
+      }
+
+      if (type === 'agent_progress') {
+        agentStates[data.agentId + '_msg'] = data.message;
+        const msgEl = document.getElementById('agent-' + data.agentId + '-message');
+        if (msgEl) msgEl.textContent = data.message;
+        log.innerHTML += '<div style="color:var(--muted);padding-left:2rem">→ ' + data.message + '</div>';
+        log.scrollTop = log.scrollHeight;
+      }
+
+      if (type === 'agent_done') {
+        agentStates[data.agentId] = 'done';
+        renderAgentGrid();
+        results[data.agentId] = data.result;
+        const name = AGENT_ICONS[data.agentId]?.name || data.agentId;
+        log.innerHTML += '<div style="color:var(--green)">✓ ' + name + ' completed</div>';
+        log.scrollTop = log.scrollHeight;
+      }
+
+      if (type === 'complete') {
+        log.innerHTML += '<div style="color:var(--green);font-weight:700;margin-top:.5rem">🎉 ' + data.message + '</div>';
+      }
+    }
+
+    function renderAgentResults(results) {
+      const container = document.getElementById('agentResultsContent');
+      document.getElementById('agentResults').style.display = 'block';
+
+      let html = '';
+      for (const [agentId, result] of Object.entries(results)) {
+        const agent = AGENT_ICONS[agentId];
+        if (!agent) continue;
+        html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem">' +
+          '<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem">' +
+          '<span style="font-size:1.4rem">' + agent.icon + '</span>' +
+          '<span style="font-weight:700">' + agent.name + ' — Results</span></div>' +
+          '<pre style="font-size:.8rem;color:var(--muted);white-space:pre-wrap;max-height:300px;overflow-y:auto">' +
+          JSON.stringify(result, null, 2).replace(/</g, '&lt;') + '</pre></div>';
+      }
+      container.innerHTML = html || '<p style="color:var(--muted)">No results to display</p>';
+    }
+
+    // Render agent grid on load
+    renderAgentGrid();
 
     // Start
     checkAuth();
