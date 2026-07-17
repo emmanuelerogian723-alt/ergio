@@ -88,7 +88,8 @@ export async function callGroq(messages, options = {}) {
           model: provider.model,
           ...(options.response_format && !provider.model.includes('gemma') ? 
             { response_format: options.response_format } : {})
-        })
+        }),
+        signal: AbortSignal.timeout(12000)
       });
       if (!response.ok) { 
         console.error(`AI error (${provider.label}): ${response.status}`);
