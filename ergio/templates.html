@@ -3,79 +3,254 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ERGIO — Website Gallery</title>
-<meta name="description" content="Explore real websites built with ERGIO AI. Clone any site as your starting point.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>Templates — ERGIO</title>
+<link rel="icon" href="/ergio/favicon.ico">
 <style>
-:root{--cyan:#00D9FF;--purple:#8B5CF6;--card:#161629;--border:rgba(255,255,255,.08);--bg:#08080F}
-*{font-family:'Space Grotesk',sans-serif;box-sizing:border-box}
-body{background:var(--bg);color:#fff;margin:0}
-.glow{position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:400px;background:radial-gradient(ellipse,rgba(0,217,255,.15),transparent 70%);pointer-events:none;z-index:0}
-@keyframes spin{to{transform:rotate(360deg)}}
-.site-card{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;transition:all .4s;cursor:pointer}
-.site-card:hover{transform:translateY(-6px);border-color:var(--cyan);box-shadow:0 20px 60px rgba(0,217,255,.1)}
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#09090B;--card:#111115;--border:#1E1E2E;--text:#E4E4F0;--muted:#6B6B8A;--accent:#00D9FF;--green:#00FF9D}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh}
+nav{display:flex;align-items:center;padding:16px 40px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(9,9,11,0.9);backdrop-filter:blur(20px);z-index:100;gap:16px}
+.nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none}
+.logo-dot{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#00D9FF,#00FF9D);display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;font-size:13px}
+.nav-logo span{font-size:16px;font-weight:800;color:var(--text)}
+.nav-links{display:flex;gap:24px;margin-left:32px}
+.nav-links a{font-size:14px;color:var(--muted);text-decoration:none;transition:color .15s}
+.nav-links a:hover{color:var(--text)}
+.nav-cta{margin-left:auto;padding:8px 20px;background:linear-gradient(135deg,var(--accent),var(--green));border-radius:100px;font-size:13px;font-weight:700;color:#000;text-decoration:none;cursor:pointer;border:none}
+
+.page-header{padding:60px 40px 40px;text-align:center}
+.page-title{font-size:clamp(2rem,5vw,3.5rem);font-weight:900;margin-bottom:16px}
+.gradient-text{background:linear-gradient(135deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.page-sub{font-size:1.1rem;color:var(--muted);max-width:560px;margin:0 auto 32px}
+
+.filter-bar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:0 40px 40px}
+.filter-btn{padding:8px 18px;border-radius:100px;background:var(--card);border:1px solid var(--border);font-size:13px;color:var(--muted);cursor:pointer;transition:all .15s}
+.filter-btn:hover,.filter-btn.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700}
+
+.templates-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px;padding:0 40px 80px;max-width:1400px;margin:0 auto}
+
+.template-card{border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--border);transition:all .25s;cursor:pointer;display:flex;flex-direction:column}
+.template-card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,217,255,0.12)}
+.template-preview{position:relative;height:200px;background:#0D0D16;overflow:hidden;flex-shrink:0}
+.template-preview iframe{width:200%;height:200%;transform:scale(0.5);transform-origin:top left;pointer-events:none;border:none}
+.template-preview-img{width:100%;height:100%;object-fit:cover}
+.template-preview-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 60%,rgba(0,0,0,0.8));display:flex;align-items:flex-end;padding:12px;opacity:0;transition:opacity .2s}
+.template-card:hover .template-preview-overlay{opacity:1}
+.template-preview-overlay button{flex:1;padding:8px;background:linear-gradient(135deg,var(--accent),var(--green));border:none;border-radius:8px;font-size:12px;font-weight:700;color:#000;cursor:pointer}
+.template-meta{padding:16px}
+.template-category{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.template-name{font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px}
+.template-desc{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px}
+.template-footer{display:flex;align-items:center;gap:8px;margin-top:auto}
+.template-type{font-size:11px;padding:3px 8px;border-radius:100px;background:rgba(0,217,255,0.1);color:var(--accent);border:1px solid rgba(0,217,255,0.2)}
+.template-real{font-size:11px;padding:3px 8px;border-radius:100px;background:rgba(0,255,157,0.1);color:var(--green);border:1px solid rgba(0,255,157,0.2)}
+.use-btn{margin-left:auto;padding:6px 14px;background:var(--border);border:none;border-radius:8px;font-size:12px;font-weight:700;color:var(--text);cursor:pointer;transition:all .15s}
+.use-btn:hover{background:var(--accent);color:#000}
+
+.section-divider{padding:0 40px 20px;max-width:1400px;margin:0 auto}
+.section-label{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.live-badge{padding:3px 8px;border-radius:100px;background:rgba(0,255,157,0.15);color:var(--green);font-size:10px;border:1px solid rgba(0,255,157,0.3)}
+
+.empty-live{text-align:center;padding:40px;color:var(--muted);grid-column:1/-1}
+.empty-live h3{font-size:18px;color:var(--text);margin-bottom:8px}
+.empty-live p{font-size:14px;line-height:1.6}
+
+/* Loading skeleton */
+.skeleton{background:linear-gradient(90deg,var(--card) 25%,var(--border) 50%,var(--card) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-card{border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--border)}
+.skel-img{height:200px}
+.skel-text{height:16px;border-radius:4px;margin:16px 16px 8px}
+.skel-text-short{height:13px;border-radius:4px;margin:0 16px 16px;width:60%}
+
+@media(max-width:768px){.templates-grid{grid-template-columns:1fr;padding:0 20px 60px}.page-header{padding:40px 20px 24px}.filter-bar{padding:0 20px 24px}.section-divider{padding:0 20px 16px}}
 </style>
 </head>
 <body>
-<div class="glow"></div>
-<script src="config.js"></script>
-<div style="position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:24px">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:40px">
-<a href="/" style="font-size:1.5rem;font-weight:800;text-decoration:none;color:var(--cyan)">ERGIO</a>
-<a href="/" style="padding:10px 24px;border-radius:12px;border:1px solid var(--border);color:#fff;text-decoration:none;font-weight:600">← Back to Builder</a>
+
+<nav>
+  <a href="/ergio/" class="nav-logo">
+    <div class="logo-dot">E</div>
+    <span>ERGIO</span>
+  </a>
+  <div class="nav-links">
+    <a href="/ergio/">Home</a>
+    <a href="/ergio/directory.html">Directory</a>
+    <a href="/ergio/match.html">Find a Pro</a>
+  </div>
+  <a href="/ergio/build.html" class="nav-cta">Start Building →</a>
+</nav>
+
+<div class="page-header">
+  <div class="page-title">Websites Built by <span class="gradient-text">Real Businesses</span></div>
+  <div class="page-sub">Every template here was generated by ERGIO AI for a real Nigerian business. Use any as your starting point — customized instantly.</div>
 </div>
-<div style="text-align:center;margin-bottom:48px">
-<h1 style="font-size:3rem;font-weight:700;margin:0 0 12px">Website <span style="background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Gallery</span></h1>
-<p style="color:rgba(255,255,255,.5);font-size:1.1rem;margin:0">Real websites built by real businesses with ERGIO AI</p>
+
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="filterCat('all')">All</button>
+  <button class="filter-btn" onclick="filterCat('restaurant')">🍽️ Restaurant</button>
+  <button class="filter-btn" onclick="filterCat('salon')">💇 Salon</button>
+  <button class="filter-btn" onclick="filterCat('ecommerce')">🛍️ Shop</button>
+  <button class="filter-btn" onclick="filterCat('agency')">🎨 Agency</button>
+  <button class="filter-btn" onclick="filterCat('realestate')">🏠 Real Estate</button>
+  <button class="filter-btn" onclick="filterCat('fitness')">💪 Fitness</button>
+  <button class="filter-btn" onclick="filterCat('saas')">🚀 SaaS</button>
+  <button class="filter-btn" onclick="filterCat('clinic')">🏥 Clinic</button>
 </div>
-<div id="statsBar" style="display:flex;gap:24px;justify-content:center;margin-bottom:40px;flex-wrap:wrap"></div>
-<div id="filterChips" style="display:flex;gap:8px;justify-content:center;margin-bottom:32px;flex-wrap:wrap"></div>
-<div id="galleryGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:24px">
-<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:rgba(255,255,255,.4)">
-<div style="display:inline-block;width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin 1s linear infinite"></div>
-<p style="margin-top:16px">Loading real websites from ERGIO database...</p>
+
+<!-- Live user-generated websites -->
+<div style="max-width:1400px;margin:0 auto">
+  <div class="section-divider">
+    <div class="section-label">
+      🌐 Live Websites from Real Users
+      <span class="live-badge">LIVE</span>
+    </div>
+  </div>
+  <div class="templates-grid" id="liveGrid">
+    <div class="skel-card"><div class="skel-img skeleton"></div><div class="skel-text skeleton"></div><div class="skel-text-short skeleton"></div></div>
+    <div class="skel-card"><div class="skel-img skeleton"></div><div class="skel-text skeleton"></div><div class="skel-text-short skeleton"></div></div>
+    <div class="skel-card"><div class="skel-img skeleton"></div><div class="skel-text skeleton"></div><div class="skel-text-short skeleton"></div></div>
+  </div>
+
+  <!-- Starter templates -->
+  <div class="section-divider" style="margin-top:20px">
+    <div class="section-label">⚡ ERGIO Starter Templates</div>
+  </div>
+  <div class="templates-grid" id="starterGrid"></div>
 </div>
-</div>
-<div id="emptyState" style="display:none;text-align:center;padding:80px 20px">
-<div style="font-size:4rem;margin-bottom:16px">🎨</div>
-<h2 style="font-size:1.5rem;font-weight:600;margin:0 0 8px">No websites published yet</h2>
-<p style="color:rgba(255,255,255,.4);margin:0 0 24px">Be the first to build and publish your website with ERGIO AI!</p>
-<a href="/" style="display:inline-block;padding:14px 32px;border-radius:12px;background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000;font-weight:700;text-decoration:none">Build Your Website →</a>
-</div>
-</div>
+
 <script>
-const SUPABASE_URL=window.ERGIO_CONFIG?.supabaseUrl||'';
-const SUPABASE_KEY=window.ERGIO_CONFIG?.supabaseAnonKey||'';
-let allSites=[]; let activeFilter='all';
-async function loadGallery(){
-const grid=document.getElementById('galleryGrid');
-try{
-const res=await fetch(`${SUPABASE_URL}/rest/v1/generated_websites?select=id,business_name,business_type,html_content,brand_colors,created_date&order=created_date.desc&limit=50`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-const data=await res.json();
-allSites=(data||[]).filter(s=>s.html_content&&s.html_content.length>200);
-if(allSites.length===0){grid.style.display='none';document.getElementById('emptyState').style.display='block';document.getElementById('statsBar').style.display='none';document.getElementById('filterChips').style.display='none';return;}
-const categories=[...new Set(allSites.map(s=>s.business_type||'Other'))];
-document.getElementById('statsBar').innerHTML=`<div style="padding:12px 20px;border-radius:12px;border:1px solid var(--border);background:var(--card)"><div style="font-size:1.8rem;font-weight:700;color:var(--cyan)">${allSites.length}</div><div style="font-size:.8rem;color:rgba(255,255,255,.4)">Websites Built</div></div><div style="padding:12px 20px;border-radius:12px;border:1px solid var(--border);background:var(--card)"><div style="font-size:1.8rem;font-weight:700;color:var(--purple)">${categories.length}</div><div style="font-size:.8rem;color:rgba(255,255,255,.4)">Business Types</div></div><div style="padding:12px 20px;border-radius:12px;border:1px solid var(--border);background:var(--card)"><div style="font-size:1.8rem;font-weight:700;color:#10B981">100%</div><div style="font-size:.8rem;color:rgba(255,255,255,.4)">AI Generated</div></div>`;
-const chips=['all',...categories];
-document.getElementById('filterChips').innerHTML=chips.map(c=>`<button onclick="filterGallery('${c}')" style="padding:8px 16px;border-radius:20px;border:1px solid ${c===activeFilter?'var(--cyan)':'var(--border)'};background:${c===activeFilter?'rgba(0,217,255,.1)':'var(--card)'};color:${c===activeFilter?'var(--cyan)':'rgba(255,255,255,.6)'};cursor:pointer;font-size:.85rem;font-weight:600;text-transform:capitalize">${c==='all'?'All Sites':c}</button>`).join('');
-renderGallery();
-}catch(e){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:rgba(255,255,255,.4)"><div style="font-size:3rem">⚠️</div><p>Could not load gallery.</p></div>`;}
+const STARTER_TEMPLATES = [
+  { name: 'Spice Route Lagos', category: 'restaurant', type: 'Restaurant', desc: 'Fusion restaurant with online menu, table reservations, and food delivery integration.', prompt: 'A modern fusion restaurant in Lagos called Spice Route with online ordering', colors: ['#FF6B35', '#1a0a00'] },
+  { name: 'GlowUp Beauty', category: 'salon', type: 'Salon & Spa', desc: 'Luxury hair salon and spa with online booking, service menu, and client testimonials.', prompt: 'A luxury hair salon and spa in Lagos called GlowUp Beauty with online bookings', colors: ['#FF69B4', '#1a001a'] },
+  { name: 'TechBridge Agency', category: 'agency', type: 'Tech Agency', desc: 'Digital agency showcasing web, mobile and branding services with portfolio and case studies.', prompt: 'A tech agency in Lagos called TechBridge building websites and apps for SMEs', colors: ['#00D9FF', '#000a1a'] },
+  { name: 'FitLife Gym Abuja', category: 'fitness', type: 'Fitness Center', desc: 'Modern gym with class schedule, membership plans, trainer profiles and online sign-up.', prompt: 'A premium gym and fitness center in Abuja called FitLife', colors: ['#FF4D6D', '#0a0000'] },
+  { name: 'Prestige Realty', category: 'realestate', type: 'Real Estate', desc: 'Real estate agency listing Lagos properties with virtual tours, search filters and agent contacts.', prompt: 'A premium real estate agency in Lagos called Prestige Realty listing luxury properties', colors: ['#00FF9D', '#000a08'] },
+  { name: 'MedCare Clinic', category: 'clinic', type: 'Medical Clinic', desc: 'Family clinic with doctor profiles, online appointment booking, and health services listing.', prompt: 'A family medical clinic in Lagos called MedCare with online appointment booking', colors: ['#00CED1', '#000a0a'] },
+  { name: 'StyleVault Store', category: 'ecommerce', type: 'Fashion Store', desc: 'Women\'s fashion store with product grid, cart, Paystack checkout, and size guides.', prompt: 'An online fashion store for women called StyleVault with Paystack payments', colors: ['#9D00FF', '#0a001a'] },
+  { name: 'LegalEdge Firm', category: 'agency', type: 'Law Firm', desc: 'Corporate law firm with practice areas, attorney profiles, case studies and consultation booking.', prompt: 'A corporate law firm in Lagos called LegalEdge with online consultation booking', colors: ['#C0A060', '#0a0800'] },
+  { name: 'CloudStack SaaS', category: 'saas', type: 'SaaS Product', desc: 'B2B SaaS product with feature showcase, pricing tiers, API docs teaser and free trial CTA.', prompt: 'A B2B SaaS platform for African businesses called CloudStack', colors: ['#FF9500', '#0a0500'] },
+];
+
+let activeFilter = 'all';
+let liveWebsites = [];
+
+async function loadLiveWebsites() {
+  try {
+    const res = await fetch('/api/business?limit=12&sort=-created_date');
+    const data = await res.json();
+    const websites = (data.businesses || data.data || []).filter(b => b.websiteHtml || b.websiteUrl || b.slug);
+    liveWebsites = websites;
+    renderLiveGrid();
+  } catch {
+    // Fallback: show starter as live
+    liveWebsites = [];
+    renderLiveGrid();
+  }
 }
-function filterGallery(cat){activeFilter=cat;loadGallery();}
-function renderGallery(){
-const grid=document.getElementById('galleryGrid');
-const filtered=activeFilter==='all'?allSites:allSites.filter(s=>(s.business_type||'Other')===activeFilter);
-grid.innerHTML=filtered.map(site=>{
-const colors=site.brand_colors||['#00D9FF','#8B5CF6'];
-const grad=`linear-gradient(135deg, ${colors[0]||'#00D9FF'}, ${colors[1]||'#8B5CF6'})`;
-const date=new Date(site.created_date).toLocaleDateString('en-NG',{month:'short',day:'numeric',year:'numeric'});
-const safeHtml=(site.html_content||'').replace(/"/g,'&quot;').replace(/</g,'&lt;').slice(0,50000);
-return `<div class="site-card"><div style="height:220px;overflow:hidden;position:relative;border-bottom:1px solid var(--border)"><iframe srcdoc="${safeHtml}" style="width:1280px;height:720px;transform:scale(0.265);transform-origin:top left;border:none;pointer-events:none" loading="lazy"></iframe><div style="position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(transparent,var(--card))"></div></div><div style="padding:20px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><h3 style="font-size:1.1rem;font-weight:600;margin:0">${site.business_name||'Untitled'}</h3><span style="padding:4px 10px;border-radius:8px;font-size:.7rem;font-weight:600;background:rgba(0,217,255,.1);color:var(--cyan)">${site.business_type||'Other'}</span></div><p style="color:rgba(255,255,255,.4);font-size:.8rem;margin:0 0 16px">Built ${date}</p><button onclick="remixSite('${site.id}')" style="width:100%;padding:10px;border-radius:10px;border:none;background:${grad};color:#000;font-weight:700;cursor:pointer">⚡ Remix This Site</button></div></div>`;
-}).join('');
+
+function renderLiveGrid() {
+  const grid = document.getElementById('liveGrid');
+  const filtered = activeFilter === 'all' ? liveWebsites : liveWebsites.filter(w => {
+    const cat = (w.category || w.type || '').toLowerCase();
+    return cat.includes(activeFilter);
+  });
+  
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-live">
+        <h3>Be the first in your category!</h3>
+        <p>No live websites in this category yet. Build yours now and it'll appear here — inspiring others.</p>
+        <a href="/ergio/build.html" style="display:inline-block;margin-top:16px;padding:10px 24px;background:linear-gradient(135deg,#00D9FF,#00FF9D);border-radius:100px;font-size:13px;font-weight:700;color:#000;text-decoration:none">Build Free →</a>
+      </div>`;
+    return;
+  }
+  
+  grid.innerHTML = filtered.map(biz => {
+    const slug = biz.slug || biz.id;
+    const url = `/ergio/site.html?slug=${slug}`;
+    const cat = (biz.category || biz.type || 'business');
+    return `
+      <div class="template-card" data-cat="${cat}" onclick="window.open('${url}','_blank')">
+        <div class="template-preview">
+          ${biz.websiteHtml 
+            ? `<iframe srcdoc="${escHtml(biz.websiteHtml.substring(0,5000))}" scrolling="no"></iframe>`
+            : `<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#0D0D16;font-size:48px">${getCatIcon(cat)}</div>`}
+          <div class="template-preview-overlay">
+            <button onclick="event.stopPropagation();useTemplate('${biz.name || biz.businessName}')">Use This Template →</button>
+          </div>
+        </div>
+        <div class="template-meta">
+          <div class="template-category">${cat}</div>
+          <div class="template-name">${biz.name || biz.businessName || 'Business'}</div>
+          <div class="template-desc">${(biz.description || '').substring(0, 100)}${(biz.description || '').length > 100 ? '...' : ''}</div>
+          <div class="template-footer">
+            <span class="template-real">✓ Real Business</span>
+            <span class="template-type">${cat}</span>
+            <button class="use-btn" onclick="event.stopPropagation();useTemplate('${biz.name || biz.businessName}')">Use →</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
 }
-function remixSite(id){const site=allSites.find(s=>s.id===id);if(!site)return;localStorage.setItem('ergio_remix',JSON.stringify({html:site.html_content,businessName:site.business_name,businessType:site.business_type,brandColors:site.brand_colors}));window.location.href='/?remix='+id;}
-loadGallery();
+
+function renderStarterGrid() {
+  const grid = document.getElementById('starterGrid');
+  const filtered = activeFilter === 'all' ? STARTER_TEMPLATES : STARTER_TEMPLATES.filter(t => t.category === activeFilter);
+  
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:40px">No starter templates in this category yet.</div>';
+    return;
+  }
+  
+  grid.innerHTML = filtered.map(t => `
+    <div class="template-card" data-cat="${t.category}">
+      <div class="template-preview" style="background:linear-gradient(135deg,${t.colors[1]},${t.colors[0]}20);display:flex;align-items:center;justify-content:center;font-size:64px">
+        ${getCatIcon(t.category)}
+      </div>
+      <div class="template-meta">
+        <div class="template-category">${t.category}</div>
+        <div class="template-name">${t.name}</div>
+        <div class="template-desc">${t.desc}</div>
+        <div class="template-footer">
+          <span class="template-type">${t.type}</span>
+          <button class="use-btn" onclick="useTemplate('${t.prompt}')">Use Template →</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function getCatIcon(cat) {
+  const icons = {restaurant:'🍽️',salon:'💇',beauty:'💄',fitness:'💪',gym:'🏋️',realestate:'🏠',property:'🏠',ecommerce:'🛍️',shop:'🛒',agency:'🎨',saas:'🚀',clinic:'🏥',medical:'🏥',law:'⚖️',legal:'⚖️',education:'📚',school:'🎓'};
+  for (const [k,v] of Object.entries(icons)) {
+    if (cat.toLowerCase().includes(k)) return v;
+  }
+  return '🌐';
+}
+
+function escHtml(html) {
+  return html.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function filterCat(cat) {
+  activeFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.trim().toLowerCase().includes(cat) || (cat==='all' && b.textContent.trim()==='All'));
+  });
+  renderLiveGrid();
+  renderStarterGrid();
+}
+
+function useTemplate(promptOrName) {
+  localStorage.setItem('ergio_initial_prompt', promptOrName);
+  window.location.href = '/ergio/build.html';
+}
+
+// Init
+loadLiveWebsites();
+renderStarterGrid();
 </script>
 </body>
 </html>

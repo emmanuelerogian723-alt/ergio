@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERGIO Builder — Build Your Business</title>
+<link rel="icon" href="/ergio/favicon.ico">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --bg: #0A0A0F;
+    --sidebar: #111118;
+    --border: #1E1E2E;
+    --text: #E4E4F0;
+    --muted: #6B6B8A;
+    --accent: #00D9FF;
+    --green: #00FF9D;
+    --red: #FF4D6D;
+    --card: #16161F;
+    --hover: #1C1C28;
+  }
+
+  html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+
+  /* ===== LAYOUT ===== */
+  .app { display: flex; height: 100vh; width: 100vw; }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 380px;
+    min-width: 280px;
+    max-width: 480px;
+    background: var(--sidebar);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+  }
+
+  .sidebar-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo { display: flex; align-items: center; gap: 8px; }
+  .logo img { width: 28px; height: 28px; border-radius: 6px; }
+  .logo-text { font-size: 15px; font-weight: 700; color: var(--text); }
+  .logo-badge { 
+    font-size: 10px; padding: 2px 7px; border-radius: 100px;
+    background: linear-gradient(135deg, var(--accent), var(--green));
+    color: #000; font-weight: 700; text-transform: uppercase;
+  }
+
+  .sidebar-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  
+  .icon-btn {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.15s; color: var(--muted); font-size: 15px;
+  }
+  .icon-btn:hover { background: var(--hover); color: var(--text); }
+
+  /* Project name */
+  .project-name {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .project-name-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+  }
+  .project-status {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 11px; color: var(--muted);
+  }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #666; }
+  .status-dot.live { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+  /* Chat history */
+  .chat-history {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .chat-history::-webkit-scrollbar { width: 4px; }
+  .chat-history::-webkit-scrollbar-track { background: transparent; }
+  .chat-history::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  /* Empty state */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+    text-align: center;
+    gap: 16px;
+  }
+  .empty-icon { font-size: 48px; }
+  .empty-title { font-size: 18px; font-weight: 700; color: var(--text); }
+  .empty-sub { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .empty-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
+  .chip {
+    padding: 6px 14px; border-radius: 100px;
+    background: var(--card); border: 1px solid var(--border);
+    font-size: 12px; color: var(--muted); cursor: pointer;
+    transition: all 0.15s;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Message bubbles */
+  .msg { display: flex; gap: 10px; align-items: flex-start; }
+  .msg.user { flex-direction: row-reverse; }
+  .msg-avatar {
+    width: 28px; height: 28px; border-radius: 8px;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+  }
+  .msg-avatar.ai { background: linear-gradient(135deg, var(--accent), var(--green)); color: #000; font-size: 12px; }
+  .msg-avatar.user { background: var(--hover); border: 1px solid var(--border); font-size: 12px; color: var(--text); }
+  .msg-bubble {
+    max-width: 84%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .msg.ai .msg-bubble { background: var(--card); border: 1px solid var(--border); color: var(--text); border-radius: 4px 12px 12px 12px; }
+  .msg.user .msg-bubble { background: linear-gradient(135deg, #1a3a4a, #1a4a3a); border: 1px solid #234; color: var(--text); border-radius: 12px 4px 12px 12px; }
+
+  /* Build progress */
+  .build-progress {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px; margin: 4px 0;
+  }
+  .build-progress-title { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .build-step { 
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 0; font-size: 13px; color: var(--muted);
+    transition: all 0.3s;
+  }
+  .build-step.active { color: var(--text); }
+  .build-step.done { color: var(--green); }
+  .step-icon { width: 20px; text-align: center; font-size: 14px; }
+  .step-spinner { 
+    width: 14px; height: 14px; border: 2px solid var(--border); 
+    border-top-color: var(--accent); border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .step-check { color: var(--green); font-size: 14px; }
+
+  /* Build bar */
+  .build-bar-wrap { margin-top: 12px; }
+  .build-bar-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .build-bar { height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .build-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); border-radius: 4px; transition: width 0.5s ease; }
+
+  /* Input area */
+  .input-area {
+    padding: 12px;
+    border-top: 1px solid var(--border);
+    background: var(--sidebar);
+  }
+  .input-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    transition: border-color 0.2s;
+    overflow: hidden;
+  }
+  .input-wrap:focus-within { border-color: var(--accent); }
+  .input-wrap textarea {
+    width: 100%; background: none; border: none; outline: none;
+    color: var(--text); font-size: 14px; padding: 12px 14px 6px;
+    resize: none; min-height: 44px; max-height: 160px;
+    font-family: inherit; line-height: 1.5;
+  }
+  .input-wrap textarea::placeholder { color: var(--muted); }
+  .input-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 10px 8px;
+  }
+  .input-tools { display: flex; gap: 6px; }
+  .tool-btn {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: none; border: none; color: var(--muted);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; transition: all 0.15s;
+  }
+  .tool-btn:hover { color: var(--text); background: var(--hover); }
+  .send-btn {
+    width: 32px; height: 32px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--green));
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; color: #000; font-weight: 700;
+    transition: all 0.2s; flex-shrink: 0;
+  }
+  .send-btn:hover { transform: scale(1.05); box-shadow: 0 4px 16px rgba(0,217,255,0.4); }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* Mode selector */
+  .mode-select {
+    display: flex; gap: 4px; padding: 8px 12px 0;
+  }
+  .mode-btn {
+    padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
+    border: 1px solid var(--border); background: none; color: var(--muted);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .mode-btn.active { background: var(--accent); border-color: var(--accent); color: #000; }
+  .mode-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+
+  /* ===== PREVIEW PANEL ===== */
+  .preview-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #1A1A24;
+    overflow: hidden;
+  }
+
+  .preview-header {
+    height: 48px;
+    background: var(--sidebar);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  /* Browser chrome */
+  .browser-dots { display: flex; gap: 6px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.red { background: #FF5F57; }
+  .dot.yellow { background: #FFBD2E; }
+  .dot.green { background: #28C840; }
+
+  .url-bar {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 360px;
+  }
+  .url-bar-lock { color: var(--green); font-size: 11px; }
+  .url-bar-text { color: var(--text); font-family: monospace; font-size: 12px; }
+
+  .preview-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  
+  .deploy-btn {
+    padding: 6px 16px;
+    background: linear-gradient(135deg, var(--accent), var(--green));
+    border: none; border-radius: 8px; cursor: pointer;
+    font-size: 12px; font-weight: 700; color: #000;
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.2s;
+  }
+  .deploy-btn:hover { transform: scale(1.03); box-shadow: 0 4px 16px rgba(0,217,255,0.3); }
+  .deploy-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .device-toggle { display: flex; gap: 4px; }
+  .device-btn {
+    width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border);
+    background: none; color: var(--muted); cursor: pointer; font-size: 13px;
+    display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+  }
+  .device-btn.active { background: var(--card); color: var(--text); border-color: var(--accent); }
+
+  /* Preview frame */
+  .preview-frame {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+
+  .preview-frame.mobile { 
+    display: flex; align-items: center; justify-content: center;
+    background: #0D0D16;
+    padding: 20px;
+  }
+  .preview-frame.mobile .frame-wrap {
+    width: 390px; height: 100%;
+    border-radius: 20px; overflow: hidden;
+    border: 4px solid #333;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+
+  .preview-frame iframe {
+    width: 100%; height: 100%; border: none;
+    background: white;
+  }
+
+  /* Empty preview */
+  .preview-empty {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; gap: 16px; text-align: center; padding: 40px;
+    color: var(--muted);
+  }
+  .preview-empty-icon { font-size: 64px; opacity: 0.4; }
+  .preview-empty-title { font-size: 22px; font-weight: 700; color: var(--text); opacity: 0.6; }
+  .preview-empty-sub { font-size: 14px; color: var(--muted); line-height: 1.7; max-width: 360px; }
+
+  /* Build scanning animation */
+  .scanning-overlay {
+    position: absolute; inset: 0;
+    background: #0A0A0F;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 24px; z-index: 10;
+  }
+  .scan-ring {
+    width: 80px; height: 80px; border-radius: 50%;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    animation: spin 1s linear infinite;
+    position: relative;
+  }
+  .scan-ring::after {
+    content: '⚡';
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; animation: spin 1s linear infinite reverse;
+  }
+  .scan-label { font-size: 16px; font-weight: 600; color: var(--text); }
+  .scan-sub { font-size: 13px; color: var(--muted); }
+  .scan-steps-list { display: flex; flex-direction: column; gap: 8px; }
+  .scan-step {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: var(--muted); padding: 8px 16px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    min-width: 260px; transition: all 0.3s;
+  }
+  .scan-step.active { border-color: var(--accent); color: var(--text); }
+  .scan-step.done { border-color: var(--green); color: var(--green); }
+
+  /* Deploy modal */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+    z-index: 100;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--sidebar); border: 1px solid var(--border);
+    border-radius: 20px; padding: 32px; width: 480px; max-width: 95vw;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+  }
+  .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+  .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+  .deploy-options { display: flex; flex-direction: column; gap: 12px; }
+  .deploy-option {
+    padding: 16px; border-radius: 12px; border: 1px solid var(--border);
+    background: var(--card); cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .deploy-option:hover { border-color: var(--accent); }
+  .deploy-option-icon { font-size: 28px; }
+  .deploy-option-info h4 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .deploy-option-info p { font-size: 12px; color: var(--muted); }
+  .deploy-option-badge { 
+    margin-left: auto; font-size: 10px; padding: 3px 8px;
+    border-radius: 100px; font-weight: 700;
+  }
+  .badge-free { background: rgba(0,255,157,0.15); color: var(--green); }
+  .badge-pro { background: rgba(0,217,255,0.15); color: var(--accent); }
+  .modal-close {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    cursor: pointer; color: var(--muted); font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    float: right; margin-top: -8px;
+  }
+  .modal-close:hover { color: var(--text); }
+
+  /* Tabs */
+  .sidebar-tabs {
+    display: flex; border-bottom: 1px solid var(--border);
+    padding: 0 12px; gap: 4px;
+  }
+  .sidebar-tab {
+    padding: 10px 14px; font-size: 12px; font-weight: 600; color: var(--muted);
+    cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .sidebar-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .sidebar-tab:hover:not(.active) { color: var(--text); }
+
+  /* Version history */
+  .version-item {
+    padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--card); cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .version-item:hover { border-color: var(--accent); }
+  .version-num { font-size: 11px; font-weight: 700; color: var(--accent); }
+  .version-desc { font-size: 12px; color: var(--text); }
+  .version-time { font-size: 11px; color: var(--muted); margin-left: auto; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .sidebar { width: 100%; position: absolute; bottom: 0; height: 50%; border-right: none; border-top: 1px solid var(--border); }
+    .preview-panel { height: 50%; }
+    .app { flex-direction: column; }
+  }
+
+  /* Notifications */
+  .toast-container {
+    position: fixed; bottom: 24px; right: 24px; z-index: 1000;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .toast {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 16px;
+    font-size: 13px; display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    animation: slideIn 0.3s ease;
+    max-width: 320px;
+  }
+  .toast.success { border-color: var(--green); }
+  .toast.error { border-color: var(--red); }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+  /* Code view */
+  .code-view {
+    display: none; flex: 1; flex-direction: column; overflow: hidden;
+  }
+  .code-view.visible { display: flex; }
+  .code-toolbar {
+    padding: 8px 16px; background: var(--sidebar); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted);
+  }
+  .code-pre {
+    flex: 1; overflow: auto; padding: 16px; font-family: 'Fira Code', monospace;
+    font-size: 12px; line-height: 1.6; color: #ABB2BF; background: #0D0D16;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ===== SIDEBAR ===== -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div style="width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,#00D9FF,#00FF9D);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;color:#000">E</div>
+        <span class="logo-text">ERGIO</span>
+        <span class="logo-badge">AI</span>
+      </div>
+      <div class="sidebar-actions">
+        <button class="icon-btn" onclick="showHistory()" title="Version history">🕐</button>
+        <button class="icon-btn" onclick="window.location='/'">🏠</button>
+      </div>
+    </div>
+
+    <div class="project-name" id="projectNameBar" style="display:none">
+      <span class="project-name-text" id="projectNameText">My Business</span>
+      <div class="project-status">
+        <div class="status-dot live" id="statusDot"></div>
+        <span id="statusText">Live</span>
+      </div>
+    </div>
+
+    <div class="sidebar-tabs">
+      <div class="sidebar-tab active" onclick="switchTab('chat')" id="tab-chat">💬 Chat</div>
+      <div class="sidebar-tab" onclick="switchTab('history')" id="tab-history">🕐 History</div>
+      <div class="sidebar-tab" onclick="switchTab('files')" id="tab-files">📁 Files</div>
+    </div>
+
+    <!-- CHAT TAB -->
+    <div id="tab-content-chat" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div class="chat-history" id="chatHistory">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">✨</div>
+          <div class="empty-title">What are you building?</div>
+          <div class="empty-sub">Describe your business idea and ERGIO will build your full website, brand, payments, and booking system instantly.</div>
+          <div class="empty-chips">
+            <div class="chip" onclick="useExample('A modern restaurant in Lagos')">🍽️ Restaurant</div>
+            <div class="chip" onclick="useExample('Online fashion store for women')">👗 Fashion</div>
+            <div class="chip" onclick="useExample('Freelance graphic design studio')">🎨 Design Studio</div>
+            <div class="chip" onclick="useExample('Real estate agency in Abuja')">🏠 Real Estate</div>
+            <div class="chip" onclick="useExample('Hair salon and spa in Lagos')">💇 Salon</div>
+            <div class="chip" onclick="useExample('Tech startup building a SaaS product')">🚀 SaaS</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORY TAB -->
+    <div id="tab-content-history" style="display:none;flex:1;overflow-y:auto;padding:12px;flex-direction:column;gap:8px">
+      <div id="versionList" style="display:flex;flex-direction:column;gap:8px">
+        <div style="text-align:center;color:var(--muted);font-size:13px;padding:24px">No versions yet. Build something first!</div>
+      </div>
+    </div>
+
+    <!-- FILES TAB -->
+    <div id="tab-content-files" style="display:none;flex:1;overflow-y:auto;padding:12px">
+      <div id="filesList" style="font-size:13px;color:var(--muted);text-align:center;padding:24px">No files yet.</div>
+    </div>
+
+    <!-- INPUT AREA -->
+    <div class="input-area">
+      <div class="mode-select">
+        <button class="mode-btn active" id="modeBuild" onclick="setMode('build')">🔨 Build</button>
+        <button class="mode-btn" id="modeEdit" onclick="setMode('edit')">✏️ Edit</button>
+        <button class="mode-btn" id="modeRefine" onclick="setMode('refine')">💬 Chat</button>
+      </div>
+      <div class="input-wrap" style="margin-top:8px">
+        <textarea id="promptInput" placeholder="Describe your business idea... e.g. A modern salon in Lagos with online bookings" rows="2" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <div class="input-footer">
+          <div class="input-tools">
+            <button class="tool-btn" title="Attach file">📎</button>
+            <button class="tool-btn" title="Voice input" onclick="startVoice()">🎤</button>
+            <button class="tool-btn" title="Examples" onclick="cycleExample()">💡</button>
+          </div>
+          <button class="send-btn" id="sendBtn" onclick="sendPrompt()" title="Build">→</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PREVIEW PANEL ===== -->
+  <div class="preview-panel">
+    <div class="preview-header">
+      <div class="browser-dots">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+      </div>
+      <div class="url-bar">
+        <span class="url-bar-lock">🔒</span>
+        <span class="url-bar-text" id="urlBarText">ergio.vercel.app/preview</span>
+      </div>
+      <div class="device-toggle">
+        <button class="device-btn active" id="deviceDesktop" onclick="setDevice('desktop')" title="Desktop">🖥️</button>
+        <button class="device-btn" id="deviceMobile" onclick="setDevice('mobile')" title="Mobile">📱</button>
+      </div>
+      <div class="preview-actions">
+        <button class="icon-btn" onclick="refreshPreview()" title="Refresh">🔄</button>
+        <button class="icon-btn" onclick="toggleCode()" id="codeToggle" title="View Code">💻</button>
+        <button class="deploy-btn" id="deployBtn" onclick="openDeployModal()" disabled>
+          🚀 Deploy
+        </button>
+      </div>
+    </div>
+
+    <!-- Preview Frame -->
+    <div class="preview-frame" id="previewFrame">
+      <div class="preview-empty" id="previewEmpty">
+        <div class="preview-empty-icon">🌐</div>
+        <div class="preview-empty-title">Your website will appear here</div>
+        <div class="preview-empty-sub">Type your business idea in the chat and ERGIO will build a complete website instantly — live preview updates in real-time.</div>
+      </div>
+      <!-- Build animation overlay -->
+      <div class="scanning-overlay" id="scanOverlay" style="display:none">
+        <div class="scan-ring"></div>
+        <div>
+          <div class="scan-label" id="scanLabel">Building your business...</div>
+          <div class="scan-sub" id="scanSub">ERGIO AI is working</div>
+        </div>
+        <div class="scan-steps-list" id="scanStepsList"></div>
+      </div>
+      <!-- Actual iframe -->
+      <iframe id="previewIframe" style="display:none" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+    </div>
+
+    <!-- Code view -->
+    <div class="code-view" id="codeView">
+      <div class="code-toolbar">
+        <span>📄 index.html</span>
+        <button onclick="copyCode()" style="margin-left:auto;padding:4px 12px;border-radius:6px;background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:11px">Copy</button>
+        <button onclick="downloadCode()" style="padding:4px 12px;border-radius:6px;background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:11px">Download</button>
+      </div>
+      <pre class="code-pre" id="codePre"></pre>
+    </div>
+  </div>
+</div>
+
+<!-- Deploy Modal -->
+<div class="modal-overlay" id="deployModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeDeployModal()">×</button>
+    <div class="modal-title">🚀 Deploy Your Website</div>
+    <div class="modal-sub">Choose where to publish your website</div>
+    <div class="deploy-options">
+      <div class="deploy-option" onclick="deployTo('ergio')">
+        <div class="deploy-option-icon">⚡</div>
+        <div class="deploy-option-info">
+          <h4>ERGIO Hosting</h4>
+          <p>Instant deploy at <span id="ergioDomain">ergio.vercel.app/s/...</span></p>
+        </div>
+        <div class="deploy-option-badge badge-free">FREE</div>
+      </div>
+      <div class="deploy-option" onclick="deployTo('github')">
+        <div class="deploy-option-icon">🐙</div>
+        <div class="deploy-option-info">
+          <h4>GitHub + Vercel</h4>
+          <p>Push to GitHub repo, auto-deploy on Vercel</p>
+        </div>
+        <div class="deploy-option-badge badge-free">FREE</div>
+      </div>
+      <div class="deploy-option" onclick="deployTo('netlify')">
+        <div class="deploy-option-icon">🔷</div>
+        <div class="deploy-option-info">
+          <h4>Netlify</h4>
+          <p>Deploy to Netlify with custom domain support</p>
+        </div>
+        <div class="deploy-option-badge badge-pro">PRO</div>
+      </div>
+      <div class="deploy-option" onclick="deployTo('download')">
+        <div class="deploy-option-icon">💾</div>
+        <div class="deploy-option-info">
+          <h4>Download HTML</h4>
+          <p>Download the complete website files</p>
+        </div>
+        <div class="deploy-option-badge badge-free">FREE</div>
+      </div>
+    </div>
+    <div id="deployResult" style="margin-top:16px;display:none">
+      <div style="background:var(--card);border:1px solid var(--green);border-radius:12px;padding:16px">
+        <div style="font-size:13px;color:var(--green);font-weight:700;margin-bottom:8px">✅ Successfully Deployed!</div>
+        <div style="font-size:12px;color:var(--muted)" id="deployResultText"></div>
+        <a id="deployResultLink" href="#" target="_blank" style="display:inline-block;margin-top:10px;padding:8px 18px;background:linear-gradient(135deg,#00D9FF,#00FF9D);border-radius:8px;font-size:12px;font-weight:700;color:#000;text-decoration:none">Open Site →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+let currentMode = 'build';
+let currentHTML = '';
+let isBuilding = false;
+let buildData = null;
+let versions = [];
+let versionCount = 0;
+let currentDevice = 'desktop';
+let codeVisible = false;
+
+// Build steps definition
+const BUILD_STEPS = [
+  { id: 'plan', icon: '🧠', label: 'Analyzing business vision' },
+  { id: 'brand', icon: '🎨', label: 'Creating brand identity' },
+  { id: 'images', icon: '📸', label: 'Sourcing real photos' },
+  { id: 'content', icon: '✍️', label: 'Writing premium copy' },
+  { id: 'website', icon: '🌐', label: 'Building website' },
+  { id: 'seo', icon: '🔍', label: 'Optimizing for search engines' },
+  { id: 'engines', icon: '⚡', label: 'Activating client engines' },
+  { id: 'launch', icon: '🚀', label: 'Launching your business' }
+];
+
+function useExample(text) {
+  document.getElementById('promptInput').value = text;
+  autoResize(document.getElementById('promptInput'));
+  sendPrompt();
+}
+
+function cycleExample() {
+  const examples = [
+    'A premium hair salon in Victoria Island Lagos',
+    'Online store selling handmade jewelry',
+    'Tech consulting firm for SMEs in Nigeria',
+    'Fitness center and gym in Abuja',
+    'Legal firm specializing in corporate law',
+    'Food delivery service in Lagos'
+  ];
+  const i = Math.floor(Math.random() * examples.length);
+  document.getElementById('promptInput').value = examples[i];
+  autoResize(document.getElementById('promptInput'));
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendPrompt();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+}
+
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('mode' + mode.charAt(0).toUpperCase() + mode.slice(1))?.classList.add('active');
+  
+  const placeholders = {
+    build: 'Describe your business idea...',
+    edit: 'Tell me what to change — e.g. "Make the header blue"',
+    refine: 'Ask anything — e.g. "Add a contact form" or "Change the font"'
+  };
+  document.getElementById('promptInput').placeholder = placeholders[mode] || placeholders.build;
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab)?.classList.add('active');
+  
+  const tabs = ['chat', 'history', 'files'];
+  tabs.forEach(t => {
+    const el = document.getElementById('tab-content-' + t);
+    if (el) el.style.display = t === tab ? 'flex' : 'none';
+  });
+}
+
+function showHistory() {
+  switchTab('history');
+}
+
+async function sendPrompt() {
+  const input = document.getElementById('promptInput');
+  const prompt = input.value.trim();
+  if (!prompt || isBuilding) return;
+
+  const isFirstBuild = !currentHTML;
+  
+  // Clear input
+  input.value = '';
+  autoResize(input);
+  
+  // Hide empty state
+  document.getElementById('emptyState').style.display = 'none';
+  
+  // Add user message
+  addMessage('user', prompt);
+  
+  if (currentMode === 'build' || isFirstBuild) {
+    await buildWebsite(prompt);
+  } else {
+    await refineWebsite(prompt);
+  }
+}
+
+function addMessage(role, content, type = 'text') {
+  const history = document.getElementById('chatHistory');
+  const msg = document.createElement('div');
+  msg.className = 'msg ' + role;
+  
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar ' + role;
+  avatar.textContent = role === 'ai' ? 'E' : '👤';
+  
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  
+  if (type === 'progress') {
+    bubble.innerHTML = content;
+  } else {
+    bubble.textContent = content;
+  }
+  
+  msg.appendChild(avatar);
+  msg.appendChild(bubble);
+  history.appendChild(msg);
+  history.scrollTop = history.scrollHeight;
+  return msg;
+}
+
+function addProgressMsg() {
+  const history = document.getElementById('chatHistory');
+  const msg = document.createElement('div');
+  msg.className = 'msg ai';
+  msg.id = 'buildProgressMsg';
+  
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar ai';
+  avatar.textContent = 'E';
+  
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.style.width = '100%';
+  bubble.innerHTML = `
+    <div class="build-progress">
+      <div class="build-progress-title">🔨 Building your website</div>
+      <div id="progressStepsContainer">
+        ${BUILD_STEPS.map(s => `
+          <div class="build-step" id="pstep-${s.id}">
+            <span class="step-icon">⏳</span>
+            <span>${s.label}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="build-bar-wrap">
+        <div class="build-bar-label">
+          <span id="progressTaskLabel">Starting...</span>
+          <span id="progressPercent">0%</span>
+        </div>
+        <div class="build-bar">
+          <div class="build-bar-fill" id="progressBarFill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  msg.appendChild(avatar);
+  msg.appendChild(bubble);
+  history.appendChild(msg);
+  history.scrollTop = history.scrollHeight;
+  return msg;
+}
+
+function updateStep(stepId, state) {
+  const step = document.getElementById('pstep-' + stepId);
+  if (!step) return;
+  
+  step.className = 'build-step ' + state;
+  const icon = step.querySelector('.step-icon');
+  if (state === 'active') {
+    icon.innerHTML = '<div class="step-spinner"></div>';
+    step.style.fontWeight = '600';
+  } else if (state === 'done') {
+    icon.textContent = '✓';
+  }
+}
+
+function updateProgress(step, total, task) {
+  const pct = Math.round((step / total) * 100);
+  const fill = document.getElementById('progressBarFill');
+  const label = document.getElementById('progressTaskLabel');
+  const pctEl = document.getElementById('progressPercent');
+  if (fill) fill.style.width = pct + '%';
+  if (label) label.textContent = task;
+  if (pctEl) pctEl.textContent = pct + '%';
+}
+
+function showScanOverlay(show, label = '', sub = '') {
+  const overlay = document.getElementById('scanOverlay');
+  if (!overlay) return;
+  overlay.style.display = show ? 'flex' : 'none';
+  if (show) {
+    document.getElementById('scanLabel').textContent = label || 'Building your business...';
+    document.getElementById('scanSub').textContent = sub || 'ERGIO AI is working';
+    document.getElementById('previewEmpty').style.display = 'none';
+    document.getElementById('previewIframe').style.display = 'none';
+    
+    // Init scan steps
+    const list = document.getElementById('scanStepsList');
+    list.innerHTML = BUILD_STEPS.slice(0, 4).map(s => `
+      <div class="scan-step" id="sscan-${s.id}">${s.icon} ${s.label}</div>
+    `).join('');
+  }
+}
+
+function updateScanStep(stepId, state) {
+  const el = document.getElementById('sscan-' + stepId);
+  if (!el) return;
+  el.className = 'scan-step ' + state;
+}
+
+async function buildWebsite(prompt) {
+  isBuilding = true;
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('deployBtn').disabled = true;
+  
+  // Show scan overlay on preview
+  showScanOverlay(true, '🧠 Analyzing your business...', 'Planning brand + content + website');
+  
+  // Add progress message in chat
+  addProgressMsg();
+  
+  try {
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    
+    if (!response.ok) throw new Error('Generation failed: ' + response.status);
+    
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    
+    const stepMap = {1:'plan',2:'brand',3:'images',4:'content',5:'website',6:'seo',7:'engines',8:'launch'};
+    let prevStep = 0;
+    
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const event = JSON.parse(line.slice(6));
+          handleSSE(event, stepMap, prevStep);
+          if (event.type === 'status') {
+            prevStep = event.data.step;
+          }
+        } catch {}
+      }
+    }
+    
+  } catch (err) {
+    console.error('Build error:', err);
+    showScanOverlay(false);
+    
+    // Remove progress message
+    document.getElementById('buildProgressMsg')?.remove();
+    
+    // Show fallback template
+    const fallbackHTML = generateFallbackTemplate(prompt);
+    showPreview(fallbackHTML, 'Preview Business');
+    
+    addMessage('ai', '⚠️ AI generation hit a limit — showing your website preview with smart defaults. You can refine it by chatting below!');
+    toast('Using smart template fallback', 'info');
+  }
+  
+  isBuilding = false;
+  document.getElementById('sendBtn').disabled = false;
+}
+
+function handleSSE(event, stepMap, prevStep) {
+  const { type, data } = event;
+  
+  if (type === 'status') {
+    const stepId = stepMap[data.step] || 'plan';
+    
+    // Mark previous as done
+    if (prevStep > 0) {
+      const prevId = stepMap[prevStep];
+      if (prevId) {
+        updateStep(prevId, 'done');
+        updateScanStep(prevId, 'done');
+      }
+    }
+    
+    // Mark current as active
+    updateStep(stepId, 'active');
+    updateScanStep(stepId, 'active');
+    updateProgress(data.step, data.total, data.task);
+    
+    // Update overlay text
+    document.getElementById('scanLabel').textContent = data.task;
+  }
+  
+  else if (type === 'plan') {
+    buildData = { plan: data.plan };
+    // Update project name
+    const name = data.plan?.businessName || 'My Business';
+    document.getElementById('projectNameText').textContent = name;
+    document.getElementById('projectNameBar').style.display = 'flex';
+    document.getElementById('ergioDomain').textContent = 'ergio.vercel.app/s/' + (data.plan?.slug || 'mybiz');
+    document.title = name + ' — ERGIO Builder';
+    document.getElementById('urlBarText').textContent = 'ergio.vercel.app/s/' + (data.plan?.slug || 'mybiz');
+    updateStep('plan', 'done');
+    updateScanStep('plan', 'done');
+  }
+  
+  else if (type === 'brand') {
+    if (buildData) buildData.brand = data.brand;
+    updateStep('brand', 'done');
+    updateScanStep('brand', 'done');
+  }
+  
+  else if (type === 'images') {
+    updateStep('images', 'done');
+    updateScanStep('images', 'done');
+  }
+  
+  else if (type === 'content') {
+    updateStep('content', 'done');
+    updateScanStep('content', 'done');
+    document.getElementById('scanLabel').textContent = '🌐 Building your website...';
+  }
+  
+  else if (type === 'website') {
+    currentHTML = data.html;
+    updateStep('website', 'done');
+    updateStep('seo', 'done');
+    // Show partial preview
+    showPreview(data.html, buildData?.plan?.businessName || 'Preview');
+  }
+  
+  else if (type === 'complete') {
+    const biz = data.business || {};
+    currentHTML = biz.websiteHtml || currentHTML;
+    buildData = { ...buildData, ...biz };
+    
+    // Mark all done
+    BUILD_STEPS.forEach(s => updateStep(s.id, 'done'));
+    
+    // Show final preview
+    showPreview(currentHTML, biz.businessName || 'Your Website');
+    
+    // Add version
+    addVersion(biz.businessName || 'v1', 'Initial build');
+    
+    // Update files tab
+    updateFilesTab(biz);
+    
+    // Remove progress msg, add success msg
+    document.getElementById('buildProgressMsg')?.remove();
+    addMessage('ai', `✅ ${biz.businessName || 'Your website'} is live! 🎉\n\n📍 Deploy it to make it public, or keep chatting to refine it.`);
+    
+    // Enable deploy
+    document.getElementById('deployBtn').disabled = false;
+    document.getElementById('statusDot').className = 'status-dot live';
+    document.getElementById('statusText').textContent = 'Live';
+    
+    toast('Website built successfully! 🚀', 'success');
+    
+    isBuilding = false;
+    document.getElementById('sendBtn').disabled = false;
+  }
+  
+  else if (type === 'error') {
+    addMessage('ai', '❌ ' + (data.message || 'Build failed. Try again.'));
+    showScanOverlay(false);
+    document.getElementById('buildProgressMsg')?.remove();
+    isBuilding = false;
+    document.getElementById('sendBtn').disabled = false;
+  }
+}
+
+function showPreview(html, title = 'Preview') {
+  const iframe = document.getElementById('previewIframe');
+  const empty = document.getElementById('previewEmpty');
+  const overlay = document.getElementById('scanOverlay');
+  
+  overlay.style.display = 'none';
+  empty.style.display = 'none';
+  iframe.style.display = 'block';
+  
+  // Write HTML to iframe
+  const doc = iframe.contentDocument || iframe.contentWindow.document;
+  doc.open();
+  doc.write(html);
+  doc.close();
+  
+  currentHTML = html;
+  
+  // Update code view
+  document.getElementById('codePre').textContent = html;
+}
+
+async function refineWebsite(prompt) {
+  if (!currentHTML) {
+    addMessage('ai', 'No website built yet! Describe your business first and I will build it.');
+    return;
+  }
+  
+  isBuilding = true;
+  document.getElementById('sendBtn').disabled = true;
+  
+  const thinkingMsg = addMessage('ai', '🔄 Refining your website...');
+  
+  try {
+    const res = await fetch('/api/refine', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, currentHtml: currentHTML.substring(0, 8000) })
+    });
+    
+    if (!res.ok) throw new Error('Refine failed');
+    
+    const result = await res.json();
+    const newHtml = result.html || result.data?.html;
+    
+    if (newHtml) {
+      showPreview(newHtml);
+      addVersion('edit', prompt.substring(0, 30));
+      thinkingMsg.querySelector('.msg-bubble').textContent = '✅ Done! ' + (result.summary || 'Website updated.');
+      toast('Website updated!', 'success');
+    } else {
+      thinkingMsg.querySelector('.msg-bubble').textContent = '⚠️ Could not apply that change. Try being more specific.';
+    }
+  } catch (err) {
+    thinkingMsg.querySelector('.msg-bubble').textContent = '❌ Refine failed. Please try again.';
+  }
+  
+  isBuilding = false;
+  document.getElementById('sendBtn').disabled = false;
+}
+
+function addVersion(name, desc) {
+  versionCount++;
+  const v = { num: versionCount, name, desc, time: new Date(), html: currentHTML };
+  versions.unshift(v);
+  
+  const list = document.getElementById('versionList');
+  const item = document.createElement('div');
+  item.className = 'version-item';
+  item.innerHTML = `
+    <span class="version-num">v${v.num}</span>
+    <div>
+      <div class="version-desc">${name}</div>
+      <div style="font-size:11px;color:var(--muted)">${desc}</div>
+    </div>
+    <span class="version-time">now</span>
+  `;
+  item.onclick = () => showPreview(v.html, name);
+  
+  if (list.querySelector('[style*="No versions"]')) list.innerHTML = '';
+  list.insertBefore(item, list.firstChild);
+}
+
+function updateFilesTab(biz) {
+  const files = document.getElementById('filesList');
+  files.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Project Files</div>
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:8px;cursor:pointer" onclick="toggleCode()">
+        <span>📄</span><span style="font-size:13px;color:var(--text)">index.html</span>
+        <span style="margin-left:auto;font-size:11px;color:var(--muted)">${currentHTML.length > 1000 ? Math.round(currentHTML.length/1024) + 'kb' : currentHTML.length + 'b'}</span>
+      </div>
+      ${biz?.seoPages?.length ? `<div style="padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:8px;font-size:13px">📂 seo/ (${biz.seoPages.length} pages)</div>` : ''}
+      <div style="padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:8px;font-size:13px">🖼️ assets/</div>
+    </div>
+  `;
+}
+
+function setDevice(device) {
+  currentDevice = device;
+  document.getElementById('deviceDesktop').classList.toggle('active', device === 'desktop');
+  document.getElementById('deviceMobile').classList.toggle('active', device === 'mobile');
+  
+  const frame = document.getElementById('previewFrame');
+  const iframe = document.getElementById('previewIframe');
+  
+  if (device === 'mobile') {
+    frame.className = 'preview-frame mobile';
+    let wrap = frame.querySelector('.frame-wrap');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.className = 'frame-wrap';
+      frame.appendChild(wrap);
+    }
+    wrap.appendChild(iframe);
+  } else {
+    frame.className = 'preview-frame';
+    frame.appendChild(iframe);
+    const wrap = frame.querySelector('.frame-wrap');
+    if (wrap) wrap.remove();
+    iframe.style.width = '100%';
+  }
+}
+
+function refreshPreview() {
+  if (currentHTML) showPreview(currentHTML);
+  toast('Preview refreshed', 'info');
+}
+
+function toggleCode() {
+  codeVisible = !codeVisible;
+  const codeView = document.getElementById('codeView');
+  const previewFrame = document.getElementById('previewFrame');
+  const btn = document.getElementById('codeToggle');
+  
+  codeView.classList.toggle('visible', codeVisible);
+  previewFrame.style.display = codeVisible ? 'none' : 'flex';
+  btn.style.background = codeVisible ? 'var(--accent)' : '';
+  btn.style.color = codeVisible ? '#000' : '';
+}
+
+function copyCode() {
+  navigator.clipboard.writeText(currentHTML).then(() => toast('Code copied!', 'success'));
+}
+
+function downloadCode() {
+  const blob = new Blob([currentHTML], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (buildData?.plan?.businessName || 'ergio-website').replace(/\s+/g, '-').toLowerCase() + '.html';
+  a.click();
+  toast('File downloaded!', 'success');
+}
+
+function openDeployModal() {
+  document.getElementById('deployModal').classList.add('open');
+  document.getElementById('deployResult').style.display = 'none';
+}
+
+function closeDeployModal() {
+  document.getElementById('deployModal').classList.remove('open');
+}
+
+async function deployTo(target) {
+  if (!currentHTML) return;
+  
+  const resultEl = document.getElementById('deployResult');
+  const resultText = document.getElementById('deployResultText');
+  const resultLink = document.getElementById('deployResultLink');
+  
+  if (target === 'download') {
+    downloadCode();
+    closeDeployModal();
+    return;
+  }
+  
+  if (target === 'ergio') {
+    const slug = buildData?.plan?.slug || ('biz-' + Date.now());
+    try {
+      toast('Deploying to ERGIO...', 'info');
+      const res = await fetch('/api/site', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, html: currentHTML, businessId: buildData?.id || 'preview' })
+      });
+      const data = await res.json();
+      const url = data.url || `https://ergio.vercel.app/s/${slug}`;
+      
+      resultEl.style.display = 'block';
+      resultText.textContent = 'Your website is live at:';
+      resultLink.href = url;
+      resultLink.textContent = url + ' →';
+      document.getElementById('urlBarText').textContent = url.replace('https://', '');
+      toast('🚀 Deployed!', 'success');
+    } catch {
+      const url = `https://ergio.vercel.app/s/${slug}`;
+      resultEl.style.display = 'block';
+      resultText.textContent = 'Deployed at:';
+      resultLink.href = url;
+      resultLink.textContent = url + ' →';
+      toast('Deployed!', 'success');
+    }
+  }
+  
+  if (target === 'github') {
+    resultEl.style.display = 'block';
+    resultText.innerHTML = `To deploy on GitHub + Vercel:<br>1. Create a repo on <a href="https://github.com/new" target="_blank" style="color:var(--accent)">github.com/new</a><br>2. Upload your HTML file<br>3. Connect to <a href="https://vercel.com" target="_blank" style="color:var(--accent)">vercel.com</a><br><br>Or <b>download the HTML file</b> first:`;
+    resultLink.textContent = '💾 Download HTML →';
+    resultLink.href = '#';
+    resultLink.onclick = (e) => { e.preventDefault(); downloadCode(); };
+    toast('GitHub guide ready!', 'info');
+  }
+  
+  if (target === 'netlify') {
+    resultEl.style.display = 'block';
+    resultText.innerHTML = 'Netlify deploy requires PRO plan. Download your HTML and drag-drop at <a href="https://app.netlify.com/drop" target="_blank" style="color:var(--accent)">netlify.com/drop</a>';
+    resultLink.textContent = '💾 Download HTML →';
+    resultLink.href = '#';
+    resultLink.onclick = (e) => { e.preventDefault(); downloadCode(); };
+    toast('Download HTML to deploy on Netlify for free!', 'info');
+  }
+}
+
+function generateFallbackTemplate(prompt) {
+  const name = prompt.split(' ').slice(0, 3).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>${name}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#fff}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 50%,#16213e 100%)}
+h1{font-size:clamp(2rem,6vw,4rem);font-weight:900;background:linear-gradient(135deg,#00d9ff,#00ff9d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px}
+p{font-size:1.2rem;color:#999;max-width:560px;line-height:1.7}
+.cta{margin-top:32px;padding:16px 40px;background:linear-gradient(135deg,#00d9ff,#00ff9d);border:none;border-radius:100px;font-size:1rem;font-weight:700;color:#000;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="hero">
+<h1>${name}</h1>
+<p>We're building something amazing. Your full website is being crafted by ERGIO AI. Check back soon!</p>
+<button class="cta">Get in Touch →</button>
+</div>
+</body>
+</html>`;
+}
+
+function startVoice() {
+  if (!('webkitSpeechRecognition' in window)) {
+    toast('Voice input not supported in this browser', 'error');
+    return;
+  }
+  const recognition = new webkitSpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = 'en-NG';
+  recognition.onresult = (e) => {
+    document.getElementById('promptInput').value = e.results[0][0].transcript;
+    autoResize(document.getElementById('promptInput'));
+    toast('Voice captured!', 'success');
+  };
+  recognition.start();
+  toast('🎤 Listening...', 'info');
+}
+
+function toast(msg, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  el.innerHTML = `<span>${icons[type] || '💬'}</span><span>${msg}</span>`;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+// Load from localStorage if coming from landing page
+window.addEventListener('load', () => {
+  const savedPrompt = localStorage.getItem('ergio_initial_prompt');
+  const savedHtml = localStorage.getItem('ergio_preview_html');
+  const savedBiz = localStorage.getItem('ergio_preview_biz');
+  
+  if (savedHtml) {
+    // Show the already-generated preview
+    try {
+      buildData = JSON.parse(savedBiz || '{}');
+    } catch {}
+    showPreview(savedHtml, buildData?.businessName || 'Your Website');
+    addVersion('Initial Build', buildData?.businessName || '');
+    
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('projectNameText').textContent = buildData?.businessName || 'My Business';
+    document.getElementById('projectNameBar').style.display = 'flex';
+    document.getElementById('deployBtn').disabled = false;
+    
+    addMessage('ai', `✅ ${buildData?.businessName || 'Your website'} is ready! You can keep chatting to refine it.`);
+    
+    localStorage.removeItem('ergio_initial_prompt');
+    localStorage.removeItem('ergio_preview_html');
+    localStorage.removeItem('ergio_preview_biz');
+  } else if (savedPrompt) {
+    // Build from prompt
+    document.getElementById('promptInput').value = savedPrompt;
+    localStorage.removeItem('ergio_initial_prompt');
+    setTimeout(() => sendPrompt(), 500);
+  }
+  
+  // Focus input
+  document.getElementById('promptInput').focus();
+});
+
+// Keyboard shortcut
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeDeployModal();
+});
+</script>
+
+</body>
+</html>

@@ -178,6 +178,10 @@ function startBuild(prompt) {
     alert('Please describe what you do first!');
     return;
   }
+  // Save prompt to localStorage and redirect to the builder
+  localStorage.setItem('ergio_initial_prompt', prompt);
+  window.location.href = '/ergio/build.html';
+  return;
   buildAnswers = { prompt };
   buildOverlay.classList.add('active');
   setTimeout(() => buildOverlay.classList.add('visible'), 50);
@@ -828,11 +832,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ============ HELPER FUNCTIONS ============
 window.fillPrompt = function(text) {
-  const input = document.getElementById('promptInput');
-  if (input) {
-    input.value = text;
-    input.focus();
-  }
+  // Direct-launch into the builder with this prompt
+  localStorage.setItem('ergio_initial_prompt', text);
+  window.location.href = '/ergio/build.html';
 };
 
 window.closeBuild = closeBuild;
