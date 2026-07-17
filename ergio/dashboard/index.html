@@ -140,6 +140,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M12 11v10m-4-7l4 4 4-4M5 21h14"/></svg>
         🤖 Agents
       </div>
+      <div class="nav-item" onclick="switchTab('plugins')" data-tab="plugins">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6m0 8v6M2 12h6m8 0h6M5 5l4 4m6 6l4 4M19 5l-4 4M5 19l4-4"/></svg>
+        🔌 MCP & Plugins
+      </div>
     </div>
     <div class="sidebar-footer">
       <div class="user-badge">
@@ -390,6 +394,80 @@
         <div id="agentResults" style="display:none">
           <h3 style="font-size:1.1rem;margin-bottom:.8rem;margin-top:1.5rem">Results</h3>
           <div id="agentResultsContent" style="display:grid;gap:1rem">
+          </div>
+        </div>
+      </div>
+
+      <!-- MCP & PLUGINS TAB -->
+      <div class="tab-content" id="tab-plugins">
+        <div style="margin-bottom:1.5rem">
+          <h2 style="font-size:1.5rem;margin-bottom:.5rem">🔌 MCP Servers & Plugins</h2>
+          <p style="color:var(--muted)">Connect any MCP (Model Context Protocol) server to extend your AI agents with external tools. Browse the marketplace or add a custom server.</p>
+        </div>
+
+        <!-- Tab switcher -->
+        <div style="display:flex;gap:.5rem;margin-bottom:1.5rem;border-bottom:1px solid var(--border);padding-bottom:.5rem">
+          <button class="btn" id="pluginTabMarketplace" onclick="switchPluginTab('marketplace')" style="border:none;background:var(--cyan);color:#000;font-weight:600">🏪 Marketplace</button>
+          <button class="btn" id="pluginTabMyServers" onclick="switchPluginTab('myservers')" style="border:none;background:transparent;color:var(--muted)">🔌 My Servers</button>
+        </div>
+
+        <!-- Marketplace View -->
+        <div id="pluginMarketplace">
+          <!-- Search -->
+          <input type="text" id="pluginSearch" placeholder="Search plugins..." oninput="filterPlugins()" style="width:100%;padding:.7rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:.9rem;margin-bottom:1rem">
+          <!-- Plugin Grid -->
+          <div id="pluginGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem"></div>
+        </div>
+
+        <!-- My Servers View -->
+        <div id="pluginMyServers" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+            <h3 style="font-size:1.1rem">Configured MCP Servers</h3>
+            <button class="btn btn-primary" onclick="showAddCustomServer()">+ Add Custom Server</button>
+          </div>
+          <div id="myServersList" style="display:grid;gap:.8rem">
+            <div style="background:var(--surface);border:1px dashed var(--border);border-radius:12px;padding:2rem;text-align:center;color:var(--muted)">
+              No MCP servers configured yet. Browse the marketplace to add one.
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Custom Server Modal -->
+        <div id="customServerModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2rem;max-width:500px;width:90%;max-height:80vh;overflow-y:auto">
+            <h3 style="font-size:1.2rem;margin-bottom:1rem">🔌 Add Custom MCP Server</h3>
+            <div style="display:grid;gap:.8rem">
+              <div>
+                <label style="font-size:.85rem;color:var(--muted);display:block;margin-bottom:.3rem">Server Name</label>
+                <input type="text" id="mcpName" placeholder="My MCP Server" style="width:100%;padding:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+              </div>
+              <div>
+                <label style="font-size:.85rem;color:var(--muted);display:block;margin-bottom:.3rem">Transport Type</label>
+                <select id="mcpTransport" style="width:100%;padding:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+                  <option value="sse">SSE (Server-Sent Events)</option>
+                  <option value="stdio">Stdio (Local Process)</option>
+                  <option value="websocket">WebSocket</option>
+                </select>
+              </div>
+              <div id="mcpUrlField">
+                <label style="font-size:.85rem;color:var(--muted);display:block;margin-bottom:.3rem">Server URL</label>
+                <input type="text" id="mcpUrl" placeholder="https://my-mcp-server.com/v1" style="width:100%;padding:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+              </div>
+              <div id="mcpCommandField" style="display:none">
+                <label style="font-size:.85rem;color:var(--muted);display:block;margin-bottom:.3rem">Command</label>
+                <input type="text" id="mcpCommand" placeholder="npx" style="width:100%;padding:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+                <label style="font-size:.85rem;color:var(--muted);display:block;margin-bottom:.3rem;margin-top:.5rem">Arguments (comma-separated)</label>
+                <input type="text" id="mcpArgs" placeholder="@modelcontextprotocol/server-gmail" style="width:100%;padding:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+              </div>
+              <div>
+                <label style="font-size:.85rem;color:var(--muted);display:block;margin-bottom:.3rem">Environment Variables (JSON)</label>
+                <textarea id="mcpEnv" placeholder='{"API_KEY":"your-key"}' style="width:100%;padding:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);min-height:60px;font-family:monospace;font-size:.8rem"></textarea>
+              </div>
+              <div style="display:flex;gap:.5rem;margin-top:.5rem">
+                <button class="btn btn-primary" onclick="addCustomServer()" style="flex:1">Add Server</button>
+                <button class="btn btn-ghost" onclick="document.getElementById('customServerModal').style.display='none'">Cancel</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -884,6 +962,221 @@
 
     // Render agent grid on load
     renderAgentGrid();
+
+    // ════════════════════════════════════════════
+    // MCP SERVERS & PLUGINS
+    // ════════════════════════════════════════════
+
+    let pluginMarketplace = [];
+    let userMcpServers = [];
+
+    async function loadPlugins() {
+      try {
+        const res = await fetch(window.ERGIO_CONFIG.apiBase + '/api/mcp?action=marketplace');
+        const data = await res.json();
+        pluginMarketplace = data.plugins || [];
+        renderPluginGrid();
+      } catch(e) {
+        console.error('Failed to load plugins:', e);
+      }
+    }
+
+    function renderPluginGrid(filter) {
+      const grid = document.getElementById('pluginGrid');
+      if (!grid) return;
+      let plugins = pluginMarketplace;
+      if (filter) {
+        filter = filter.toLowerCase();
+        plugins = plugins.filter(p =>
+          p.name.toLowerCase().includes(filter) ||
+          p.description.toLowerCase().includes(filter) ||
+          p.category.toLowerCase().includes(filter)
+        );
+      }
+      grid.innerHTML = plugins.map(p => `
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.2rem;transition:all .2s;cursor:pointer" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem">
+            <span style="font-size:1.8rem">${p.icon}</span>
+            <div>
+              <div style="font-weight:700;font-size:.95rem">${p.name} ${p.verified ? '✓' : ''}</div>
+              <div style="font-size:.7rem;color:var(--cyan)">${p.category}${p.popular ? ' · 🔥 Popular' : ''}</div>
+            </div>
+          </div>
+          <p style="font-size:.82rem;color:var(--muted);margin-bottom:.6rem">${p.description}</p>
+          ${p.env && p.env.length > 0 ? '<div style="font-size:.7rem;color:var(--muted);margin-bottom:.5rem">Requires: ' + p.env.map(e => '<code>' + e + '</code>').join(' ') + '</div>' : ''}
+          <button class="btn btn-primary" onclick="addPlugin('${p.id}')" style="width:100%;padding:.5rem;font-size:.85rem">+ Add</button>
+        </div>
+      `).join('');
+    }
+
+    function filterPlugins() {
+      const q = document.getElementById('pluginSearch').value;
+      renderPluginGrid(q);
+    }
+
+    function switchPluginTab(tab) {
+      document.getElementById('pluginTabMarketplace').style.background = tab === 'marketplace' ? 'var(--cyan)' : 'transparent';
+      document.getElementById('pluginTabMarketplace').style.color = tab === 'marketplace' ? '#000' : 'var(--muted)';
+      document.getElementById('pluginTabMyServers').style.background = tab === 'myservers' ? 'var(--cyan)' : 'transparent';
+      document.getElementById('pluginTabMyServers').style.color = tab === 'myservers' ? '#000' : 'var(--muted)';
+      document.getElementById('pluginMarketplace').style.display = tab === 'marketplace' ? 'block' : 'none';
+      document.getElementById('pluginMyServers').style.display = tab === 'myservers' ? 'block' : 'none';
+      if (tab === 'myservers') loadMyServers();
+    }
+
+    async function addPlugin(pluginId) {
+      const plugin = pluginMarketplace.find(p => p.id === pluginId);
+      if (!plugin) return;
+
+      try {
+        const res = await fetch(window.ERGIO_CONFIG.apiBase + '/api/mcp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: plugin.name,
+            pluginId: plugin.id,
+            transport: plugin.transport,
+            command: plugin.command,
+            args: plugin.args,
+            url: plugin.url,
+            envVars: {},
+            userId: currentUser?.uid || 'anon'
+          })
+        });
+        const data = await res.json();
+        alert(plugin.icon + ' ' + plugin.name + ' added! Configure env vars in My Servers tab.');
+        switchPluginTab('myservers');
+      } catch(e) {
+        alert('Failed to add plugin: ' + e.message);
+      }
+    }
+
+    async function loadMyServers() {
+      try {
+        const res = await fetch(window.ERGIO_CONFIG.apiBase + '/api/mcp?userId=' + (currentUser?.uid || 'anon'));
+        const data = await res.json();
+        userMcpServers = data.servers || [];
+        renderMyServers();
+      } catch(e) {
+        // Fallback to localStorage
+        userMcpServers = JSON.parse(localStorage.getItem('ergio_mcp_servers') || '[]');
+        renderMyServers();
+      }
+    }
+
+    function renderMyServers() {
+      const list = document.getElementById('myServersList');
+      if (!list) return;
+      if (!userMcpServers || userMcpServers.length === 0) {
+        list.innerHTML = '<div style="background:var(--surface);border:1px dashed var(--border);border-radius:12px;padding:2rem;text-align:center;color:var(--muted)">No MCP servers configured yet. Browse the marketplace to add one.</div>';
+        return;
+      }
+      list.innerHTML = userMcpServers.map(s => {
+        const plugin = pluginMarketplace.find(p => p.id === s.plugin_id);
+        const icon = plugin?.icon || '🔌';
+        return `
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem;display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:.8rem">
+              <span style="font-size:1.4rem">${icon}</span>
+              <div>
+                <div style="font-weight:600;font-size:.9rem">${s.name}</div>
+                <div style="font-size:.75rem;color:var(--muted)">${s.transport} · ${s.status || 'pending'}</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:.5rem">
+              <button class="btn btn-ghost" style="padding:.4rem .8rem;font-size:.8rem" onclick="testMcpServer('${s.id}')">Test</button>
+              <button class="btn btn-ghost" style="padding:.4rem .8rem;font-size:.8rem;color:var(--red)" onclick="removeMcpServer('${s.id}')">Remove</button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    async function testMcpServer(serverId) {
+      const server = userMcpServers.find(s => s.id == serverId);
+      if (!server) return;
+      try {
+        const res = await fetch(window.ERGIO_CONFIG.apiBase + '/api/mcp', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ serverId, url: server.url, transport: server.transport })
+        });
+        const data = await res.json();
+        if (data.status === 'connected') {
+          alert('✅ ' + server.name + ' is connected!\nTools: ' + (data.tools || []).map(t => t.name).join(', '));
+        }
+      } catch(e) {
+        alert('❌ Connection failed: ' + e.message);
+      }
+    }
+
+    async function removeMcpServer(serverId) {
+      try {
+        await fetch(window.ERGIO_CONFIG.apiBase + '/api/mcp', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ serverId, userId: currentUser?.uid || 'anon' })
+        });
+      } catch(e) {}
+      // Also remove from localStorage
+      userMcpServers = userMcpServers.filter(s => s.id != serverId);
+      localStorage.setItem('ergio_mcp_servers', JSON.stringify(userMcpServers));
+      renderMyServers();
+    }
+
+    function showAddCustomServer() {
+      document.getElementById('customServerModal').style.display = 'flex';
+      // Show/hide fields based on transport
+      document.getElementById('mcpTransport').onchange = function() {
+        const isStdio = this.value === 'stdio';
+        document.getElementById('mcpUrlField').style.display = isStdio ? 'none' : 'block';
+        document.getElementById('mcpCommandField').style.display = isStdio ? 'block' : 'none';
+      };
+    }
+
+    async function addCustomServer() {
+      const name = document.getElementById('mcpName').value || 'Custom MCP';
+      const transport = document.getElementById('mcpTransport').value;
+      const url = document.getElementById('mcpUrl').value;
+      const command = document.getElementById('mcpCommand').value;
+      const argsStr = document.getElementById('mcpArgs').value;
+      const envStr = document.getElementById('mcpEnv').value;
+
+      let args = [];
+      if (argsStr) args = argsStr.split(',').map(a => a.trim());
+
+      let envVars = {};
+      if (envStr) {
+        try { envVars = JSON.parse(envStr); } catch(e) { alert('Invalid env vars JSON'); return; }
+      }
+
+      try {
+        const res = await fetch(window.ERGIO_CONFIG.apiBase + '/api/mcp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name, pluginId: 'custom', transport, command, args, url,
+            envVars, userId: currentUser?.uid || 'anon'
+          })
+        });
+        const data = await res.json();
+        // Also save to localStorage as backup
+        userMcpServers.push(data.server);
+        localStorage.setItem('ergio_mcp_servers', JSON.stringify(userMcpServers));
+        document.getElementById('customServerModal').style.display = 'none';
+        renderMyServers();
+        // Clear fields
+        document.getElementById('mcpName').value = '';
+        document.getElementById('mcpUrl').value = '';
+        document.getElementById('mcpCommand').value = '';
+        document.getElementById('mcpArgs').value = '';
+        document.getElementById('mcpEnv').value = '';
+      } catch(e) {
+        alert('Failed to add server: ' + e.message);
+      }
+    }
+
+    // Load plugins on page load
+    loadPlugins();
 
     // Start
     checkAuth();
