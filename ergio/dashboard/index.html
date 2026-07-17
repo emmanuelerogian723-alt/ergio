@@ -6,6 +6,8 @@
   <title>Dashboard — ERGIO</title>
   <link rel="icon" href="../favicon.ico">
   <script src="../config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--bg:#0A0E14;--surface:#0F141C;--card:#131A23;--border:#1E2730;--text:#E8EEF4;--muted:#8B98A8;--cyan:#00D9FF;--green:#00FF9D;--blue:#2563FF;--red:#FF4757;--yellow:#FFB800;--purple:#8B5CF6}
@@ -351,6 +353,12 @@
   </div>
 
   <script>
+    // ── Firebase Auth Init ──
+    const FB_CFG = window.ERGIO_CONFIG.firebase;
+    firebase.initializeApp(FB_CFG);
+    const fbAuth = firebase.auth();
+
+    // ── Supabase (database only) ──
     let supabase = null;
     let currentUser = null;
 
@@ -361,20 +369,43 @@
       return true;
     }
 
-    async function checkAuth() {
-      if (!initSupabase()) {
-        showLoginPrompt();
-        return;
+    function checkAuth() {
+      initSupabase();
+      
+      // Check localStorage first for quick auth
+      const savedUser = localStorage.getItem('ergio_user');
+      if (savedUser) {
+        try { currentUser = JSON.parse(savedUser); } catch(e) {}
       }
 
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        showLoginPrompt();
-        return;
-      }
-
-      currentUser = session.user;
-      initDashboard();
+      // Listen for Firebase auth state
+      fbAuth.onAuthStateChanged((user) => {
+        if (user) {
+          currentUser = {
+            id: user.uid,
+            email: user.email,
+            user_metadata: {
+              full_name: user.displayName || user.email?.split('@')[0] || 'User',
+              biz_type: currentUser?.bizType || localStorage.getItem('ergio_biz_type') || 'general business',
+              city: currentUser?.city || localStorage.getItem('ergio_city') || 'Nigeria'
+            }
+          };
+          // Save user info
+          localStorage.setItem('ergio_user', JSON.stringify({
+            uid: user.uid,
+            email: user.email,
+            fullName: user.displayName || user.email?.split('@')[0]
+          }));
+          initDashboard();
+        } else {
+          // Check if we have a saved session in localStorage (fallback)
+          if (currentUser && currentUser.id) {
+            initDashboard();
+          } else {
+            showLoginPrompt();
+          }
+        }
+      });
     }
 
     function showLoginPrompt() {
@@ -387,7 +418,7 @@
       document.getElementById('loadingState').style.display = 'none';
       document.getElementById('dashboardContent').style.display = 'block';
 
-      const name = currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || 'User';
+      const name = currentUser.user_metadata?.full_name || currentUser.fullName || currentUser.email?.split('@')[0] || 'User';
       document.getElementById('userName').textContent = name;
       document.getElementById('userEmail').textContent = currentUser.email || '';
       document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
@@ -416,14 +447,14 @@
       try {
         // Get user's business
         const { data: businesses } = await supabase.from('businesses')
-          .select('*').eq('user_id', currentUser.id).limit(1);
+          .select('*').eq('user_id', currentUser.id || currentUser.uid).limit(1);
 
         // Get real counts
         const { count: leadsCount } = await supabase.from('leads')
-          .select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
+          .select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id || currentUser.uid);
 
         const { count: bookingsCount } = await supabase.from('bookings')
-          .select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
+          .select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id || currentUser.uid);
 
         // Render KPIs with real data
         renderKPIs(businesses?.length || 0, leadsCount || 0, bookingsCount || 0, 0);
@@ -431,7 +462,7 @@
         // Load recent leads
         if (leadsCount > 0) {
           const { data: recentLeads } = await supabase.from('leads')
-            .select('*').eq('user_id', currentUser.id).order('created_date', { ascending: false }).limit(5);
+            .select('*').eq('user_id', currentUser.id || currentUser.uid).order('created_date', { ascending: false }).limit(5);
           renderRecentLeads(recentLeads || []);
         } else {
           document.getElementById('recentLeads').innerHTML = `
@@ -445,7 +476,7 @@
         // Load bookings
         if (bookingsCount > 0) {
           const { data: bookings } = await supabase.from('bookings')
-            .select('*').eq('user_id', currentUser.id).order('created_date', { ascending: false }).limit(10);
+            .select('*').eq('user_id', currentUser.id || currentUser.uid).order('created_date', { ascending: false }).limit(10);
           renderBookings(bookings || []);
         }
 
@@ -546,7 +577,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            service: currentUser?.user_metadata?.biz_type || 'general business',
+            service: currentUser?.user_metadata?.biz_type || currentUser?.bizType || localStorage.getItem('ergio_biz_type') || 'general business',
             location: currentUser?.user_metadata?.city || 'Nigeria'
           })
         });
@@ -635,14 +666,26 @@
     }
 
     async function handleLogout() {
-      if (supabase) await supabase.auth.signOut();
+      try { await fbAuth.signOut(); } catch(e) {}
+      localStorage.removeItem('ergio_user');
       window.location.href = '../auth/login.html';
     }
 
     // Add a 5-second timeout to prevent infinite loading
     setTimeout(() => {
       if (document.getElementById('loadingState').style.display !== 'none') {
-        showLoginPrompt();
+        // Check localStorage fallback
+        const savedUser = localStorage.getItem('ergio_user');
+        if (savedUser) {
+          try {
+            currentUser = JSON.parse(savedUser);
+            initDashboard();
+          } catch(e) {
+            showLoginPrompt();
+          }
+        } else {
+          showLoginPrompt();
+        }
       }
     }, 5000);
 

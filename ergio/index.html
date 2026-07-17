@@ -326,108 +326,14 @@
   </footer>
 
   <!-- BUILD OVERLAY -->
-  <div class="build-overlay" id="buildOverlay">
-    <div class="build-container">
-
-      <!-- LEFT CONSOLE -->
-      <div class="build-console" id="buildConsole">
-
-        <!-- Q&A PHASE -->
-        <div class="qa-phase" id="qaPanel" style="display:flex">
-          <div class="qa-header">
-            <img src="assets/ergio-logo.jpg" alt="ERGIO" class="qa-logo-img" />
-            <span class="qa-ergio-label">ERGIO AI</span>
-            <button class="qa-close" id="buildClose">✕</button>
-          </div>
-          <div class="qa-progress-bar"><div class="qa-progress-fill" id="qaProgressFill"></div></div>
-          <div class="qa-body" id="qaContent"></div>
-          <div class="qa-footer">
-            <button class="qa-back" id="qaBack" style="display:none">← Back</button>
-            <button class="qa-next" id="qaNext" disabled>Continue →</button>
-          </div>
-        </div>
-
-        <!-- BUILD PHASE -->
-          <!-- UPLOAD ZONE -->
-          <div class="upload-zone" id="uploadZone" style="display:none">
-            <div class="upload-area" id="uploadArea">
-              <div class="upload-icon">📎</div>
-              <div class="upload-text">Drop files here or tap to upload</div>
-              <div class="upload-hint">Logos, photos, menus, brand assets, PDFs — anything ERGIO can use</div>
-              <input type="file" id="uploadInput" multiple hidden accept="image/*,application/pdf,.doc,.docx,.txt,.csv">
-            </div>
-            <div class="upload-list" id="uploadList"></div>
-          </div>
-        <div class="build-phase" id="buildPanel" style="display:none">
-          <div class="build-phase-header">
-            <div class="build-status"><div class="status-dot" id="statusDot"></div><span id="statusText">Building your business...</span></div>
-            <button class="qa-close" id="buildClose2">✕</button>
-          </div>
-          <div class="build-progress-wrap">
-            <div class="build-progress-bar"><div class="build-progress-fill" id="progressBar"></div></div>
-            <span class="build-progress-pct" id="progressText">0/7</span>
-          </div>
-          <div class="task-list" id="buildLog"></div>
-          <div class="build-footer-stats">
-            <div class="bf-stat"><span class="bf-label">Tasks</span><span class="bf-value" id="statTasks">0</span></div>
-            <div class="bf-stat"><span class="bf-label">Time</span><span class="bf-value" id="statTime">0s</span></div>
-            <div class="bf-stat"><span class="bf-label">Status</span><span class="bf-value" style="color:#00FF9D">Building...</span></div>
-          </div>
-        </div>
-
-        <!-- LAUNCH PHASE -->
-        <div class="launch-phase" id="launchPanel" style="display:none">
-          <div class="launch-success">
-            <div class="launch-check-circle">✓</div>
-            <h2 class="launch-title">Your business is live.</h2>
-            <p class="launch-sub" id="launchSub">Welcome to ERGIO.</p>
-            <div class="launch-url" id="launchUrl">ergio.app/your-business</div>
-            <div class="launch-business-name" id="launchBusinessName" style="display:none"></div>
-            <div class="launch-actions">
-              <a href="auth/signup.html" class="launch-btn-primary">Open my dashboard →</a>
-              <button class="launch-btn-outline" id="buildClose3">Back to home</button>
-            </div>
-          </div>
-
-          <!-- CHAT REFINEMENT (Lovable Chat Mode) -->
-          <div class="chat-refine-box" id="chatBox" style="display:none">
-            <div class="chat-refine-header">
-              <span class="chat-refine-title">💬 Refine your website</span>
-              <span class="chat-refine-hint">Ask ERGIO to change anything</span>
-            </div>
-            <div class="chat-messages" id="chatMessages"></div>
-            <div class="chat-input-wrap">
-              <input type="text" id="chatInput" placeholder='Try: "make the colors blue" or "add a pricing section"' autocomplete="off"/>
-              <button id="chatSend">↑</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- RIGHT PREVIEW -->
-      <div class="build-preview" id="previewPane">
-        <div class="preview-browser">
-          <div class="preview-browser-bar">
-            <div class="browser-dots"><span></span><span></span><span></span></div>
-            <div class="preview-url-bar" id="previewUrlBar">ergio.app/your-business</div>
-            <div class="browser-reload">↻</div>
-          </div>
-          <div class="preview-browser-content">
-            <iframe id="previewFrame" title="Live Preview"></iframe>
-          </div>
-        </div>
-        <div class="preview-white-flow">
-          <div class="flow-line"></div><div class="flow-line"></div><div class="flow-line"></div>
-          <div class="flow-line"></div><div class="flow-line"></div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Cinematic Build Overlay -->
+  <div class="build-overlay" id="buildOverlay"></div>
 
   <script src="config.js"></script>
   <script src="script.js"></script>
-<script src="cookie-consent.js"></script>
+  <script src="cinematic-build.js"></script>
 
+  
     <!-- Website Transformer -->
     <div id="transformSection" style="max-width:700px;margin:2rem auto;padding:2rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;display:none">
       <h3 style="font-size:1.3rem;margin-bottom:.5rem;color:#F8FAFC">🔄 Transform Your Existing Website</h3>

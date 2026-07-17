@@ -152,8 +152,8 @@ reveals.forEach(r => revealObs.observe(r));
 // ============ BUILD OVERLAY ============
 const buildOverlay = document.getElementById('buildOverlay');
 const qaPanel = document.getElementById('qaPanel');
-const buildPanel = document.getElementById('buildPanel');
-const launchPanel = document.getElementById('launchPanel');
+const buildPanel = null; // Replaced by cinematic build
+const launchPanel = null; // Replaced by cinematic build
 const previewPane = document.getElementById('previewPane');
 
 let buildAnswers = {};
@@ -183,10 +183,37 @@ function startBuild(prompt) {
   setTimeout(() => buildOverlay.classList.add('visible'), 50);
   document.body.style.overflow = 'hidden';
 
-  qaPanel.style.display = 'flex';
-  buildPanel.style.display = 'none';
-  launchPanel.style.display = 'none';
-  if (previewPane) previewPane.classList.add('visible');
+  // Build Q&A panel inline (will be replaced by cinematic after Q&A)
+  const overlay = document.getElementById('buildOverlay');
+  overlay.innerHTML = `
+    <div class="cinematic-container" style="max-width:520px;height:auto;min-height:400px">
+      <div class="cinematic-topbar">
+        <div class="cinematic-brand"><div class="cinematic-logo-dot"></div><span>ERGIO AI</span></div>
+        <div class="cinematic-status">Let's build your business</div>
+        <div class="cinematic-meta"><button class="cinematic-close" id="qaCloseBtn">✕</button></div>
+      </div>
+      <div style="padding:32px;display:flex;flex-direction:column;align-items:center">
+        <div class="qa-progress-bar" style="width:100%;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;margin-bottom:24px;overflow:hidden">
+          <div class="qa-progress-fill" id="qaProgressFill" style="height:100%;width:0%;background:linear-gradient(90deg,#00D9FF,#00FF9D);border-radius:2px;transition:width .4s"></div>
+        </div>
+        <div id="qaContent" style="width:100%"></div>
+        <div style="display:flex;justify-content:space-between;width:100%;margin-top:24px">
+          <button id="qaBack" style="padding:10px 20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#94A3B8;border-radius:100px;cursor:pointer;font-size:14px;display:none">← Back</button>
+          <button id="qaNext" style="padding:10px 24px;border:none;background:linear-gradient(135deg,#00D9FF,#00FF9D);color:#09090B;border-radius:100px;font-weight:700;cursor:pointer;font-size:14px;flex:1;margin-left:12px" disabled>Continue →</button>
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('qaCloseBtn')?.addEventListener('click', () => {
+    overlay.classList.remove('visible', 'active');
+    document.body.style.overflow = '';
+  });
+
+  // Re-attach event listeners
+  const qaNextBtn = document.getElementById('qaNext');
+  const qaBackBtn = document.getElementById('qaBack');
+  if (qaNextBtn) qaNextBtn.addEventListener('click', nextQuestion);
+  if (qaBackBtn) qaBackBtn.addEventListener('click', prevQuestion);
 
   currentQ = 0;
   showQuestion(0);
@@ -302,8 +329,15 @@ if (qaBackBtn) qaBackBtn.addEventListener('click', prevQuestion);
 
 // ============ REAL AI GENERATION (Pollinations - free, no key) ============
 async function startRealGeneration() {
-  qaPanel.style.display = 'none';
-  buildPanel.style.display = 'flex';
+  // Redirect to cinematic build experience
+  const overlay = document.getElementById('buildOverlay');
+  if (overlay) overlay.innerHTML = ''; // Clear old Q&A content
+  overlay.classList.remove('visible', 'active');
+  document.body.style.overflow = 'hidden';
+  // Small delay to let overlay clear
+  await new Promise(r => setTimeout(r, 100));
+  startCinematicBuild(buildAnswers.prompt || '', buildAnswers);
+  return;
 
   const buildLog = document.getElementById('buildLog');
   const progressBar = document.getElementById('progressBar');
@@ -767,13 +801,15 @@ async function refineWebsite(message) {
 
 // ============ CLOSE OVERLAY ============
 function closeBuild() {
-  buildOverlay.classList.remove('active');
+  const overlay = document.getElementById('buildOverlay');
+  if (overlay) {
+    overlay.classList.remove('active', 'visible');
+    overlay.innerHTML = '';
+  }
   document.body.style.overflow = '';
-  if (previewPane) previewPane.classList.remove('visible');
 }
 
-const buildClose = document.getElementById('buildClose');
-if (buildClose) buildClose.addEventListener('click', closeBuild);
+// Close button is now handled dynamically in Q&A and cinematic build
 
 document.addEventListener('DOMContentLoaded', () => {
   const closeBtns = document.querySelectorAll('[id^="buildClose"]');

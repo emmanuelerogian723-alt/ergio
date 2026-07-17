@@ -6,12 +6,14 @@
   <title>Sign Up — ERGIO</title>
   <meta name="description" content="Create your ERGIO account and launch your business in minutes.">
   <link rel="icon" href="../favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="../config.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <style>
     :root{--bg:#0A0E14;--surface:#0F141C;--card:#131A23;--border:#1E2730;--text:#E8EEF4;--muted:#8B98A8;--cyan:#00D9FF;--green:#00FF9D;--blue:#2563FF;--red:#FF4757;--yellow:#FFB800}
     *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
     .particles{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
     .particle{position:absolute;width:4px;height:4px;border-radius:50%;opacity:.15;animation:float 15s infinite ease-in-out}
     @keyframes float{0%,100%{transform:translateY(100vh) translateX(0);opacity:0}10%{opacity:.15}90%{opacity:.15}100%{transform:translateY(-10vh) translateX(50px)}}
@@ -41,8 +43,6 @@
     .btn-primary{background:linear-gradient(135deg,var(--cyan),var(--blue));color:#fff}
     .btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,217,255,.3)}
     .btn-primary:disabled{opacity:.6;transform:none}
-    .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}
-    .btn-ghost:hover{border-color:var(--cyan);color:var(--cyan)}
     .step-nav{display:flex;gap:.8rem;margin-top:1.5rem}
     .biz-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:1rem}
     .biz-type{padding:1rem;border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .2s;text-align:center}
@@ -73,25 +73,24 @@
     @keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
     .auth-footer{text-align:center;margin-top:1.5rem;color:var(--muted);font-size:.88rem}
     .auth-footer a{color:var(--cyan);text-decoration:none;font-weight:600}
-    .divider{text-align:center;color:var(--muted);font-size:.8rem;margin:1.2rem 0;position:relative}
-    .divider::before,.divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--border)}
-    .divider::before{left:0}.divider::after{right:0}
     .text-input{width:100%;padding:.8rem 1rem;border:1px solid var(--border);border-radius:12px;background:rgba(0,0,0,0.3);color:var(--text);font-size:.9rem;margin-bottom:.8rem}
     .text-input:focus{outline:none;border-color:var(--cyan)}
-    .custom-city{display:none;margin-top:.5rem}
+    .firebase-badge{display:flex;align-items:center;justify-content:center;gap:.4rem;margin-top:1rem;color:var(--muted);font-size:.72rem;opacity:.6}
+    .plan-section-title{font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:.5rem}
+    .plan-section-sub{color:var(--muted);font-size:.9rem;text-align:center;margin-bottom:1rem}
   </style>
 </head>
 <body>
   <div class="particles" id="particles"></div>
-
   <div class="auth-wrap">
     <div class="auth-card">
       <a href="../index.html" class="auth-logo">
-        <span class="dot"></span>
+        <div class="dot"></div>
         <span>ERGIO</span>
       </a>
       <p class="auth-tagline">Your AI Business Partner</p>
 
+      <div class="alert" id="alert"></div>
       <div class="step-indicator">
         <div class="step-dot active" id="dot0"></div>
         <div class="step-dot" id="dot1"></div>
@@ -99,102 +98,91 @@
         <div class="step-dot" id="dot3"></div>
       </div>
 
-      <div id="alert" class="alert"></div>
-
-      <!-- STEP 0: Account -->
       <div class="form-step active" id="step0">
-        <h2 style="font-size:1.4rem;margin-bottom:.3rem">Create your account</h2>
-        <p style="color:var(--muted);font-size:.85rem;margin-bottom:1.2rem">Start building your business in minutes.</p>
+        <h2 style="margin-bottom:1rem;font-size:1.3rem">Create your account</h2>
         <div class="input-group">
           <label class="input-label">Full name</label>
           <div class="input-wrap">
             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <input type="text" id="fullName" class="input-field" placeholder="Your full name" autocomplete="name">
+            <input type="text" class="input-field" id="fullName" placeholder="Your name" autocomplete="name">
           </div>
         </div>
         <div class="input-group">
           <label class="input-label">Email address</label>
           <div class="input-wrap">
-            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            <input type="email" id="email" class="input-field" placeholder="you@example.com" autocomplete="email">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>
+            <input type="email" class="input-field" id="email" placeholder="you@example.com" autocomplete="email">
           </div>
         </div>
         <div class="input-group">
           <label class="input-label">Password</label>
           <div class="input-wrap">
             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <input type="password" id="password" class="input-field" placeholder="At least 8 characters" autocomplete="new-password">
-            <button type="button" class="pwd-toggle" onclick="togglePwd()">Show</button>
+            <input type="password" class="input-field" id="password" placeholder="At least 8 characters" autocomplete="new-password">
+            <button class="pwd-toggle" onclick="togglePwd()">Show</button>
           </div>
         </div>
         <button class="auth-btn btn-primary" onclick="nextStep(event)">Continue →</button>
       </div>
 
-      <!-- STEP 1: Business Type -->
       <div class="form-step" id="step1">
-        <h2 style="font-size:1.4rem;margin-bottom:.3rem">What do you do?</h2>
-        <p style="color:var(--muted);font-size:.85rem;margin-bottom:1.2rem">Select your business type or describe it.</p>
+        <h2 style="margin-bottom:1rem;font-size:1.3rem">What do you do?</h2>
         <div class="biz-type-grid">
-          <div class="biz-type" onclick="selectType(this,'freelancer')"><div class="icon">💼</div><div class="name">Freelancer</div></div>
-          <div class="biz-type" onclick="selectType(this,'agency')"><div class="icon">🏢</div><div class="name">Agency</div></div>
-          <div class="biz-type" onclick="selectType(this,'restaurant')"><div class="icon">🍽️</div><div class="name">Restaurant</div></div>
-          <div class="biz-type" onclick="selectType(this,'shop')"><div class="icon">🛍️</div><div class="name">Shop / Store</div></div>
-          <div class="biz-type" onclick="selectType(this,'consultant')"><div class="icon">🎯</div><div class="name">Consultant</div></div>
-          <div class="biz-type" onclick="selectType(this,'other')"><div class="icon">✨</div><div class="name">Something else</div></div>
+          <div class="biz-type" onclick="selectType(this,'Beauty & Personal Care')"><div class="icon">💄</div><div class="name">Beauty & Care</div></div>
+          <div class="biz-type" onclick="selectType(this,'Food & Restaurant')"><div class="icon">🍽️</div><div class="name">Food & Restaurant</div></div>
+          <div class="biz-type" onclick="selectType(this,'Fashion & Retail')"><div class="icon">👗</div><div class="name">Fashion & Retail</div></div>
+          <div class="biz-type" onclick="selectType(this,'Services & Consulting')"><div class="icon">💼</div><div class="name">Services</div></div>
+          <div class="biz-type" onclick="selectType(this,'Tech & Digital')"><div class="icon">💻</div><div class="name">Tech & Digital</div></div>
+          <div class="biz-type" onclick="selectType(this,'Health & Fitness')"><div class="icon">💪</div><div class="name">Health & Fitness</div></div>
         </div>
-        <input type="text" id="skillDesc" class="text-input" placeholder="Or describe what you do (e.g. 'I make cakes')">
-        <div class="step-nav">
-          <button class="auth-btn btn-ghost" onclick="prevStep()">← Back</button>
-          <button class="auth-btn btn-primary" onclick="nextStep(event)" style="flex:1">Continue →</button>
-        </div>
+        <p style="color:var(--muted);font-size:.85rem;margin-bottom:.5rem">Or describe it:</p>
+        <input type="text" class="text-input" id="skillDesc" placeholder="e.g. Catering, Graphic Design, Law Firm...">
+        <button class="auth-btn btn-primary" onclick="nextStep(event)">Continue →</button>
+        <button class="auth-btn" style="background:transparent;border:1px solid var(--border);color:var(--muted);margin-top:.5rem" onclick="prevStep()">← Back</button>
       </div>
 
-      <!-- STEP 2: City -->
       <div class="form-step" id="step2">
-        <h2 style="font-size:1.4rem;margin-bottom:.3rem">Where are you?</h2>
-        <p style="color:var(--muted);font-size:.85rem;margin-bottom:1.2rem">ERGIO finds local clients near you.</p>
+        <h2 style="margin-bottom:1rem;font-size:1.3rem">Where are you?</h2>
         <div class="city-grid">
-          <div class="city-option" onclick="selectCity(this,'Lagos')">Lagos</div>
-          <div class="city-option" onclick="selectCity(this,'Abuja')">Abuja</div>
-          <div class="city-option" onclick="selectCity(this,'Port Harcourt')">Port Harcourt</div>
-          <div class="city-option" onclick="selectCity(this,'Ibadan')">Ibadan</div>
-          <div class="city-option" onclick="selectCity(this,'Kano')">Kano</div>
-          <div class="city-option" onclick="selectCity(this,'other')">Other</div>
+          <div class="city-option" onclick="selectCity(this,'Lagos')"><div>Lagos</div></div>
+          <div class="city-option" onclick="selectCity(this,'Abuja')"><div>Abuja</div></div>
+          <div class="city-option" onclick="selectCity(this,'Port Harcourt')"><div>Port Harcourt</div></div>
+          <div class="city-option" onclick="selectCity(this,'Kano')"><div>Kano</div></div>
+          <div class="city-option" onclick="selectCity(this,'Ibadan')"><div>Ibadan</div></div>
+          <div class="city-option" onclick="selectCity(this,'other')"><div>Other</div></div>
         </div>
-        <div class="custom-city" id="customCityGroup">
-          <input type="text" id="customCity" class="text-input" placeholder="Enter your city">
+        <div id="customCityGroup" style="display:none">
+          <input type="text" class="text-input" id="customCity" placeholder="Enter your city">
         </div>
-        <div class="step-nav">
-          <button class="auth-btn btn-ghost" onclick="prevStep()">← Back</button>
-          <button class="auth-btn btn-primary" onclick="nextStep(event)" style="flex:1">Continue →</button>
-        </div>
+        <button class="auth-btn btn-primary" onclick="nextStep(event)">Continue →</button>
+        <button class="auth-btn" style="background:transparent;border:1px solid var(--border);color:var(--muted);margin-top:.5rem" onclick="prevStep()">← Back</button>
       </div>
 
-      <!-- STEP 3: Plan -->
       <div class="form-step" id="step3">
-        <h2 style="font-size:1.4rem;margin-bottom:.3rem">Choose your plan</h2>
-        <p style="color:var(--muted);font-size:.85rem;margin-bottom:1.2rem">Start free. Upgrade when you earn.</p>
+        <h2 class="plan-section-title">Choose your plan</h2>
+        <p class="plan-section-sub">Start free. Upgrade when you earn.</p>
         <div class="plan-grid">
           <div class="plan-option selected" onclick="selectPlan(this,'free')">
-            <div><div class="plan-name">Starter</div><div style="font-size:.78rem;color:var(--muted)">Everything you need to start</div></div>
+            <div><div class="plan-name">Starter</div><div style="color:var(--muted);font-size:.85rem">Everything you need to start</div></div>
             <div class="plan-price">Free</div>
           </div>
           <div class="plan-option" onclick="selectPlan(this,'pro')">
-            <div><div class="plan-name">Pro</div><div style="font-size:.78rem;color:var(--muted)">Custom domain + AI website</div></div>
+            <div><div class="plan-name">Pro</div><div style="color:var(--muted);font-size:.85rem">Custom domain + AI website</div></div>
             <div class="plan-price">₦5,000/mo</div>
           </div>
           <div class="plan-option" onclick="selectPlan(this,'business')">
-            <div><div class="plan-name">Business</div><div style="font-size:.78rem;color:var(--muted)">WhatsApp bot + unlimited leads</div></div>
+            <div><div class="plan-name">Business</div><div style="color:var(--muted);font-size:.85rem">WhatsApp bot + unlimited leads</div></div>
             <div class="plan-price">₦15,000/mo</div>
           </div>
+          <div class="plan-option" onclick="selectPlan(this,'empire')">
+            <div><div class="plan-name">Empire</div><div style="color:var(--muted);font-size:.85rem">White-label + dedicated agent</div></div>
+            <div class="plan-price">₦100,000/mo</div>
+          </div>
         </div>
-        <div class="step-nav">
-          <button class="auth-btn btn-ghost" onclick="prevStep()">← Back</button>
-          <button class="auth-btn btn-primary" id="launchBtn" onclick="launchBusiness(event)" style="flex:1">🚀 Launch My Business</button>
-        </div>
+        <button class="auth-btn btn-primary" id="launchBtn" onclick="launchBusiness(event)">🚀 Launch My Business</button>
+        <button class="auth-btn" style="background:transparent;border:1px solid var(--border);color:var(--muted);margin-top:.5rem" onclick="prevStep()">← Back</button>
       </div>
 
-      <!-- SUCCESS -->
       <div class="success-screen" id="launchSuccess">
         <div class="check-circle">✓</div>
         <h2 style="margin-bottom:.5rem">You're in!</h2>
@@ -204,15 +192,20 @@
       <div class="auth-footer" id="authFooter">
         Already have an account? <a href="login.html">Sign in →</a>
       </div>
+      <div class="firebase-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="#FFA000"><path d="M3.89 15.673L6.255.461A.542.542 0 0 1 7.27.289L9.813 5.06 3.89 15.673zm16.795 3.691L18.433 5.365a.54.54 0 0 0-.949-.15L3.89 15.673l7.229 4.067a1.59 1.59 0 0 0 1.524 0l8.042-4.376zm-8.908-6.218l-2.448-4.858a.64.64 0 0 0-1.155.063L4.184 15l7.593-1.854z"/></svg>
+        Secured by Firebase Authentication
+      </div>
     </div>
   </div>
 
   <script>
-    // ── Supabase Init ──
-    const SUPA = window.ERGIO_CONFIG;
-    const sb = supabase.createClient(SUPA.supabaseUrl, SUPA.supabaseAnonKey);
+    // ── Firebase Init ──
+    const FB_CFG = window.ERGIO_CONFIG.firebase;
+    firebase.initializeApp(FB_CFG);
+    const auth = firebase.auth();
 
-    // Particles
+    // ── Particles ──
     const pc = document.getElementById('particles');
     for (let i = 0; i < 25; i++) {
       const p = document.createElement('div');
@@ -224,12 +217,13 @@
       pc.appendChild(p);
     }
 
+    // ── State ──
     let currentStep = 0;
     const formData = { bizType: null, city: null, plan: 'free' };
 
     function showAlert(type, msg) {
       const a = document.getElementById('alert');
-      a.className = `alert show alert-${type}`;
+      a.className = 'alert show alert-' + type;
       a.textContent = msg;
       if (type !== 'info') setTimeout(() => a.classList.remove('show'), 6000);
     }
@@ -237,20 +231,20 @@
     function togglePwd() {
       const pwd = document.getElementById('password');
       const btn = pwd.parentElement.querySelector('.pwd-toggle');
-      if (pwd.type==='password'){pwd.type='text';btn.textContent='Hide';}
-      else{pwd.type='password';btn.textContent='Show';}
+      if (pwd.type === 'password') { pwd.type = 'text'; btn.textContent = 'Hide'; }
+      else { pwd.type = 'password'; btn.textContent = 'Show'; }
     }
 
     function updateDots() {
       for (let i = 0; i < 4; i++) {
-        const dot = document.getElementById(`dot${i}`);
+        const dot = document.getElementById('dot' + i);
         dot.className = 'step-dot' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
       }
     }
 
     function showStep(n) {
       document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
-      document.getElementById(`step${n}`).classList.add('active');
+      document.getElementById('step' + n).classList.add('active');
       currentStep = n;
       updateDots();
     }
@@ -302,6 +296,7 @@
       formData.plan = plan;
     }
 
+    // ── FIREBASE SIGNUP ──
     async function launchBusiness(e) {
       if (e) e.preventDefault();
       const btn = document.getElementById('launchBtn');
@@ -316,55 +311,24 @@
         const city = formData.city || 'Nigeria';
         const plan = formData.plan || 'free';
 
-        // Step 1: Create Supabase auth account
-        const { data: signUpData, error: signUpError } = await sb.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { full_name: fullName, biz_type: bizType, city, plan }
-          }
-        });
+        // Step 1: Create Firebase Auth account
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
 
-        if (signUpError) {
-          throw new Error(signUpError.message || 'Signup failed');
-        }
+        // Step 2: Update display name
+        await cred.user.updateProfile({ displayName: fullName });
 
-        // Step 2: Auto-confirm the user (bypass email verification)
-        if (signUpData.user) {
-          try {
-            await fetch(`${window.ERGIO_CONFIG.apiBase}/api/auth-confirm`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email, userId: signUpData.user.id })
-            });
-          } catch(e) { /* non-blocking */ }
-        }
-
-        // Step 3: Sign in immediately to get a session
-        const { data: signInData, error: signInError } = await sb.auth.signInWithPassword({
-          email,
-          password
-        });
-
-        if (signInError) {
-          // If sign-in fails (not confirmed yet), redirect to login with a message
-          showAlert('info', 'Account created! Please sign in to continue.');
-          setTimeout(() => { window.location.href = 'login.html?email=' + encodeURIComponent(email); }, 1500);
-          return false;
-        }
-
-        // Step 4: Save profile to Supabase DB
+        // Step 3: Save profile to Supabase (database only, using user ID from Firebase)
+        const userId = cred.user.uid;
         try {
-          await fetch(`${SUPA.supabaseUrl}/rest/v1/profiles`, {
+          await fetch(window.ERGIO_CONFIG.supabaseUrl + '/rest/v1/profiles', {
             method: 'POST',
             headers: {
-              'apikey': SUPA.supabaseAnonKey,
-              'Authorization': `Bearer ${signInData.session.access_token}`,
+              'apikey': window.ERGIO_CONFIG.supabaseAnonKey,
               'Content-Type': 'application/json',
               'Prefer': 'return=minimal,resolution=ignore-duplicates'
             },
             body: JSON.stringify({
-              id: signInData.user.id,
+              id: userId,
               full_name: fullName,
               email: email,
               plan: plan,
@@ -372,7 +336,17 @@
               biz_type: bizType
             })
           });
-        } catch(e) { /* non-blocking */ }
+        } catch(e) { console.log('Profile save (non-blocking):', e.message); }
+
+        // Step 4: Store auth info in localStorage for dashboard
+        localStorage.setItem('ergio_user', JSON.stringify({
+          uid: userId,
+          email: email,
+          fullName: fullName,
+          bizType: bizType,
+          city: city,
+          plan: plan
+        }));
 
         // Step 5: Show success and redirect
         document.querySelectorAll('.form-step').forEach(s => s.style.display = 'none');
@@ -385,12 +359,20 @@
         btn.disabled = false;
         btn.textContent = '🚀 Launch My Business';
         let msg = err.message || 'Signup failed. Please try again.';
-        if (msg.includes('already')) msg = 'This email is already registered. Try logging in.';
-        if (msg.includes('weak')) msg = 'Password is too weak. Use at least 8 characters.';
+        if (msg.includes('already') || msg.includes('email-already-in-use')) msg = 'This email is already registered. Try logging in.';
+        if (msg.includes('weak') || msg.includes('weak-password')) msg = 'Password is too weak. Use at least 8 characters.';
+        if (msg.includes('invalid-email')) msg = 'Please enter a valid email address.';
         showAlert('error', msg);
       }
       return false;
     }
+
+    // Check if already logged in
+    auth.onAuthStateChanged((user) => {
+      if (user && window.location.search.includes('auto')) {
+        window.location.href = '../dashboard/index.html';
+      }
+    });
   </script>
 </body>
 </html>
