@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERGIO — AI Logo Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--cyan:#00D9FF;--purple:#8B5CF6;--card:#161629;--border:rgba(255,255,255,.08);--bg:#08080F}
+*{font-family:'Space Grotesk',sans-serif;box-sizing:border-box}
+body{background:var(--bg);color:#fff;margin:0;padding:0}
+.glow{position:fixed;top:-100px;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(0,217,255,.12),transparent 70%);pointer-events:none;z-index:0}
+input,select,textarea{background:#0D0D1A;border:1px solid var(--border);color:#fff;border-radius:10px;padding:12px 16px;font-size:1rem;outline:none;transition:.3s;width:100%}
+input:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,217,255,.1)}
+.btn{padding:14px 28px;border-radius:12px;border:none;font-weight:700;cursor:pointer;transition:.3s;font-size:1rem}
+.btn-primary{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,217,255,.3)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.style-chip{padding:10px 16px;border-radius:12px;border:1px solid var(--border);background:var(--card);cursor:pointer;transition:.3s;font-size:.9rem;font-weight:600;text-align:center}
+.style-chip:hover{border-color:var(--cyan)}
+.style-chip.active{border-color:var(--cyan);background:rgba(0,217,255,.1);color:var(--cyan)}
+.logo-preview{background:#fff;border-radius:16px;overflow:hidden;aspect-ratio:1;display:flex;align-items:center;justify-content:center}
+.logo-preview img{width:100%;height:100%;object-fit:cover}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div style="position:relative;z-index:1;max-width:800px;margin:0 auto;padding:24px">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:40px">
+<a href="/" style="font-size:1.5rem;font-weight:800;text-decoration:none;color:var(--cyan)">ERGIO</a>
+<a href="/ergio/dashboard/index.html" style="padding:10px 24px;border-radius:12px;border:1px solid var(--border);color:#fff;text-decoration:none;font-weight:600">Dashboard →</a>
+</div>
+<div style="text-align:center;margin-bottom:40px">
+<h1 style="font-size:2.5rem;font-weight:700;margin:0 0 12px">AI <span style="background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Logo Generator</span></h1>
+<p style="color:rgba(255,255,255,.5);margin:0">Generate a professional logo for your business in seconds — free</p>
+</div>
+
+<div style="background:var(--card);border:1px solid var(--border);border-radius:24px;padding:32px;margin-bottom:24px">
+<label style="display:block;margin-bottom:8px;font-weight:600">Business Name *</label>
+<input id="bizName" type="text" placeholder="e.g. Taste of Lagos" style="margin-bottom:20px">
+
+<label style="display:block;margin-bottom:8px;font-weight:600">Industry / Type</label>
+<input id="industry" type="text" placeholder="e.g. Catering, Restaurant, Salon" style="margin-bottom:20px">
+
+<label style="display:block;margin-bottom:8px;font-weight:600">Brand Colors (optional)</label>
+<input id="colors" type="text" placeholder="e.g. blue and gold, red and white" style="margin-bottom:20px">
+
+<label style="display:block;margin-bottom:12px;font-weight:600">Logo Style</label>
+<div id="styleGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px"></div>
+
+<button id="genBtn" class="btn btn-primary" style="width:100%" onclick="generateLogo()">🎨 Generate My Logo</button>
+</div>
+
+<div id="resultArea" style="display:none">
+<div id="singleResult" style="display:none">
+<h2 style="text-align:center;margin-bottom:24px">Your Logo</h2>
+<div style="background:var(--card);border:1px solid var(--border);border-radius:24px;padding:24px;margin-bottom:24px">
+<div class="logo-preview" style="max-width:400px;margin:0 auto"><img id="logoImg" src="" alt="Generated Logo"></div>
+<div style="display:flex;gap:12px;justify-content:center;margin-top:20px">
+<a id="downloadLink" href="#" download="logo.png" class="btn btn-primary" style="text-decoration:none">⬇ Download Logo</a>
+<button class="btn" style="background:var(--card);border:1px solid var(--border);color:#fff" onclick="generateLogo()">🔄 Regenerate</button>
+</div>
+</div>
+</div>
+<div id="variationsResult" style="display:none">
+<h2 style="text-align:center;margin-bottom:24px">4 Logo Variations</h2>
+<div id="variationsGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px"></div>
+</div>
+</div>
+</div>
+
+<script>
+const STYLES=['modern','luxury','playful','tech','vintage','eco','bold','creative'];
+let selectedStyle='modern';
+const grid=document.getElementById('styleGrid');
+STYLES.forEach(s=>{
+const el=document.createElement('div');
+el.className='style-chip'+(s==='modern'?' active':'');
+el.textContent=s.charAt(0).toUpperCase()+s.slice(1);
+el.onclick=()=>{document.querySelectorAll('.style-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');selectedStyle=s;};
+grid.appendChild(el);
+});
+
+async function generateLogo(){
+const name=document.getElementById('bizName').value.trim();
+const industry=document.getElementById('industry').value.trim();
+const colors=document.getElementById('colors').value.trim();
+if(!name){alert('Please enter your business name');return;}
+const btn=document.getElementById('genBtn');
+btn.disabled=true;btn.textContent='🎨 Generating...';
+document.getElementById('resultArea').style.display='block';
+document.getElementById('singleResult').style.display='block';
+document.getElementById('variationsResult').style.display='none';
+try{
+const params=new URLSearchParams({name,industry,style:selectedStyle,format:'single'});
+if(colors)params.set('colors',colors);
+const res=await fetch(`/api/logo?${params}`);
+const data=await res.json();
+if(data.success){
+document.getElementById('logoImg').src=data.imageUrl;
+document.getElementById('downloadLink').href=data.imageUrl;
+}
+}catch(e){alert('Error: '+e.message);}
+btn.disabled=false;btn.textContent='🎨 Generate My Logo';
+}
+</script>
+</body>
+</html>

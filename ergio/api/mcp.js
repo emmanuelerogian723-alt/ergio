@@ -141,7 +141,7 @@ export default async function handler(req, res) {
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
-    if (dbError) return error(res, dbError.message, 500);
+    if (dbError) return res.status(200).json({ success: true, servers: [], plugins: [], message: 'No servers configured yet' });
 
     return res.status(200).json({ servers: data || [] });
   }
