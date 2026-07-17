@@ -1,0 +1,58 @@
+{
+  "functions": {
+    "api/[endpoint].js": {
+      "maxDuration": 60
+    },
+    "api/generate.js": {
+      "maxDuration": 60
+    },
+    "api/site.js": {
+      "maxDuration": 30
+    },
+    "api/mcp.js": {
+      "maxDuration": 30
+    },
+    "api/logo.js": {
+      "maxDuration": 30
+    },
+    "api/critique.js": {
+      "maxDuration": 30
+    },
+    "api/advisor.js": {
+      "maxDuration": 30
+    },
+    "api/firebase-config.js": {
+      "maxDuration": 10
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/auth/:path*",
+      "destination": "/ergio/auth/:path*"
+    },
+    {
+      "source": "/dashboard/:path*",
+      "destination": "/ergio/dashboard/:path*"
+    },
+    {
+      "source": "/widget/:path*",
+      "destination": "/ergio/widget/:path*"
+    },
+    {
+      "source": "/templates/:path*",
+      "destination": "/ergio/templates/:path*"
+    },
+    {
+      "source": "/site/:slug*",
+      "destination": "/ergio/site.html"
+    },
+    {
+      "source": "/preview.html",
+      "destination": "/ergio/preview.html"
+    },
+    {
+      "source": "/guide.html",
+      "destination": "/ergio/guide.html"
+    }
+  ]
+}

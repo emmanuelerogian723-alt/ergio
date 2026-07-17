@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pharaoh Kitchen — Savor the Flavors of Nigeria</title>
+  <meta name="description" content="Pharaoh Kitchen is a premium restaurant in Lagos, Nigeria. Book your appointment today.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Pharaoh Kitchen">
+  <meta property="og:description" content="Savor the Flavors of Nigeria">
+  <meta property="og:image" content="https://pixabay.com/get/g5b0c89785a43d98dbbfcc7dc52327a788c6df0b490f3c134570646ee5aeb7d2dcf3408aa29c4b5a10fa97a70247631ec7c9856a4d619e96e976f992f0df748ff_1280.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--primary:#FF6B35;--accent:#F7931E;--bg:#0F0A06;--text:#F8FAFC;--muted:#94A3B8}
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+    .reveal{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+    .reveal.active{opacity:1;transform:translateY(0)}
+    .stagger>*{opacity:0;transform:translateY(30px);transition:all .6s cubic-bezier(.16,1,.3,1)}
+    .stagger.active>*:nth-child(1){opacity:1;transform:none;transition-delay:.1s}
+    .stagger.active>*:nth-child(2){opacity:1;transform:none;transition-delay:.2s}
+    .stagger.active>*:nth-child(3){opacity:1;transform:none;transition-delay:.3s}
+    .stagger.active>*:nth-child(4){opacity:1;transform:none;transition-delay:.4s}
+    .stagger.active>*:nth-child(5){opacity:1;transform:none;transition-delay:.5s}
+    .stagger.active>*:nth-child(6){opacity:1;transform:none;transition-delay:.6s}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+    @keyframes gradient-shift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    @keyframes glow{0%,100%{box-shadow:0 0 30px rgba(0,217,255,.2)}50%{box-shadow:0 0 60px rgba(0,217,255,.5)}}
+    .nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 5%;position:sticky;top:0;background:rgba(10,10,15,.8);backdrop-filter:blur(20px);z-index:100;border-bottom:1px solid rgba(255,255,255,.06)}
+    .nav-logo{display:flex;align-items:center;gap:.6rem;font-weight:800;font-size:1.2rem;color:#fff;text-decoration:none;font-family:'Space Grotesk',sans-serif}
+    .nav-links a{color:var(--muted);text-decoration:none;margin-left:2rem;font-size:.92rem;transition:color .3s}
+    .nav-links a:hover{color:var(--primary)}
+    .nav-cta{background:var(--primary);color:#09090B;padding:.6rem 1.5rem;border-radius:100px;font-weight:700;text-decoration:none;font-size:.9rem;transition:all .3s}
+    .nav-cta:hover{transform:scale(1.05);box-shadow:0 0 25px rgba(0,217,255,.4)}
+    .hero{position:relative;min-height:90vh;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden}
+    .hero-bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0}
+    .hero-bg img{width:100%;height:100%;object-fit:cover;animation:float 8s ease-in-out infinite}
+    .hero-bg::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,rgba(10,10,15,.4) 0%,rgba(10,10,15,.85) 100%)}
+    .hero-content{position:relative;z-index:2;max-width:900px;padding:0 5%}
+    .hero h1{font-size:clamp(2.2rem,6vw,4.5rem);font-weight:900;line-height:1.05;letter-spacing:-.02em;margin-bottom:1.2rem}
+    .hero h1 span{background:linear-gradient(135deg,var(--primary),var(--accent));background-size:200% 200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradient-shift 4s ease infinite}
+    .hero p{font-size:1.25rem;color:#CBD5E1;max-width:600px;margin:0 auto 2.5rem}
+    .btn-primary{background:var(--primary);color:#09090B;padding:1rem 2.5rem;border-radius:100px;font-weight:700;text-decoration:none;font-size:1.05rem;transition:all .3s;display:inline-block}
+    .btn-primary:hover{transform:translateY(-3px);box-shadow:0 10px 40px rgba(0,217,255,.4)}
+    .btn-outline{background:rgba(255,255,255,.08);color:#fff;padding:1rem 2.5rem;border-radius:100px;border:1px solid rgba(255,255,255,.2);text-decoration:none;font-weight:600;font-size:1.05rem;backdrop-filter:blur(10px);display:inline-block;margin-left:1rem}
+    section{padding:5rem 5%;max-width:1200px;margin:0 auto}
+    .section-title{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-.02em;margin-bottom:.5rem}
+    .section-title span{background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .section-sub{color:var(--muted);text-align:center;margin-bottom:3.5rem;font-size:1.1rem}
+    .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
+    .about-text p{color:#CBD5E1;margin-bottom:1rem;font-size:1.05rem}
+    .about-img-wrap{border-radius:24px;overflow:hidden;aspect-ratio:4/3;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+    .about-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .8s}
+    .about-img-wrap:hover img{transform:scale(1.08)}
+    .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem}
+    .service-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:2.5rem;transition:all .5s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden}
+    .service-card:hover{border-color:var(--primary);transform:translateY(-8px);box-shadow:0 20px 50px rgba(0,217,255,.15)}
+    .service-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,var(--primary),var(--accent));transform:scaleX(0);transform-origin:left;transition:transform .5s}
+    .service-card:hover::before{transform:scaleX(1)}
+    .service-img{width:100%;height:180px;object-fit:cover;border-radius:12px;margin-bottom:1.5rem;transition:transform .5s}
+    .service-card:hover .service-img{transform:scale(1.05)}
+    .service-card h3{font-size:1.4rem;margin-bottom:.5rem;font-weight:700}
+    .service-card p{color:var(--muted);margin-bottom:1.5rem}
+    .service-price{font-size:1.8rem;font-weight:900;color:var(--accent)}
+    .gallery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+    .gallery-item{border-radius:16px;overflow:hidden;aspect-ratio:1;position:relative;cursor:pointer}
+    .gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.16,1,.3,1)}
+    .gallery-item:hover img{transform:scale(1.15)}
+    .why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem}
+    .why-item{text-align:center;padding:2rem;border-radius:20px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);transition:all .4s}
+    .why-item:hover{border-color:var(--primary);transform:translateY(-4px)}
+    .why-item .icon{font-size:2.5rem;margin-bottom:1rem;animation:float 4s ease-in-out infinite}
+    .why-item h4{margin-bottom:.5rem;font-weight:700;font-size:1.1rem}
+    .why-item p{color:var(--muted);font-size:.95rem}
+    .testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem}
+    .testimonial{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:2.5rem;position:relative}
+    .testimonial::before{content:'"';position:absolute;top:-10px;left:20px;font-size:5rem;color:var(--primary);opacity:.2;font-family:Georgia,serif}
+    .testimonial .stars{color:#FBBF24;margin-bottom:1rem}
+    .testimonial p{color:#CBD5E1;font-style:italic;margin-bottom:1.5rem}
+    .testimonial .author{font-weight:700}
+    .testimonial .location{color:var(--muted);font-size:.9rem}
+    .faq-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:1.8rem;margin-bottom:1rem;cursor:pointer;transition:all .3s}
+    .faq-item:hover{border-color:rgba(255,255,255,.15)}
+    .faq-item h4{color:var(--primary);margin-bottom:.5rem;font-size:1.15rem}
+    .faq-item p{color:var(--muted);max-height:0;overflow:hidden;transition:max-height .4s}
+    .faq-item.open p{max-height:200px}
+    .contact{background:linear-gradient(135deg,rgba(0,217,255,.08),rgba(0,255,157,.04));border-radius:28px;padding:4rem;text-align:center;margin:2rem 5%;border:1px solid rgba(255,255,255,.08)}
+    .contact-info{display:flex;justify-content:center;gap:2.5rem;flex-wrap:wrap;margin-top:2rem}
+    .contact-item{display:flex;align-items:center;gap:.6rem;color:var(--text);text-decoration:none;font-size:1rem;transition:color .3s}
+    .contact-item:hover{color:var(--primary)}
+    .contact-icon{width:44px;height:44px;border-radius:12px;background:rgba(0,217,255,.1);display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+    .footer{text-align:center;padding:3rem 5%;color:#64748B;border-top:1px solid rgba(255,255,255,.06)}
+    .footer a{color:var(--primary);text-decoration:none;font-weight:600}
+    .footer-brand{display:inline-flex;align-items:center;gap:.4rem;margin-bottom:.5rem;font-weight:700;color:#94A3B8}
+    .cookie-banner{position:fixed;bottom:0;left:0;right:0;background:rgba(6,6,8,.95);backdrop-filter:blur(20px);padding:1rem 5%;display:flex;justify-content:space-between;align-items:center;z-index:1000;border-top:1px solid rgba(255,255,255,.1);transform:translateY(100%);transition:transform .4s}
+    .cookie-banner.show{transform:translateY(0)}
+    .cookie-banner p{font-size:.9rem;color:#94A3B8}
+    .cookie-banner a{color:var(--primary);text-decoration:none}
+    .cookie-btn{background:var(--primary);color:#09090B;border:none;padding:.6rem 1.5rem;border-radius:100px;font-weight:700;cursor:pointer;font-size:.9rem}
+    @media(max-width:768px){.about-grid{grid-template-columns:1fr}.nav-links{display:none}.hero{min-height:70vh}section{padding:3rem 5%}.btn-outline{margin-left:0;margin-top:1rem}}
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="#" class="nav-logo">⚡ <span>Pharaoh Kitchen</span></a>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#testimonials">Reviews</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="#contact" class="nav-cta">Book Now</a>
+  </nav>
+  <div class="hero">
+    <div class="hero-bg"><img src="https://pixabay.com/get/g5b0c89785a43d98dbbfcc7dc52327a788c6df0b490f3c134570646ee5aeb7d2dcf3408aa29c4b5a10fa97a70247631ec7c9856a4d619e96e976f992f0df748ff_1280.jpg" alt="Pharaoh Kitchen" loading="eager"></div>
+    <div class="hero-content">
+      <h1 class="reveal active">Experience <span>Savor the Flavors of Nigeria</span></h1>
+      <p class="reveal active">Premium restaurant in Lagos, Nigeria. Where excellence meets every detail.</p>
+      <div class="reveal active">
+        <a href="#contact" class="btn-primary">Book Now</a>
+        <a href="#services" class="btn-outline">View Services</a>
+      </div>
+    </div>
+  </div>
+  <section id="about">
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <h2 class="section-title" style="text-align:left">About <span>Us</span></h2>
+        <p>Pharaoh Kitchen was born from a simple belief — that every person in Lagos deserves world-class restaurant without compromise.</p>
+        <p>Our team combines years of expertise with a deep understanding of what our community needs. We're not just a business — we're your trusted partner.</p>
+      </div>
+      <div class="about-img-wrap reveal">
+        <img src="https://pixabay.com/get/gd0ef301070f63ecdb60a8ade1b33d77b9c7dee13ae4a48158eabce7458f44a8b99c5977a07c2bfea06333faf02d0e72f9a4609d848ea612a9697f4479ac99406_1280.jpg" alt="Pharaoh Kitchen" loading="lazy">
+      </div>
+    </div>
+  </section>
+  <section id="services">
+    <h2 class="section-title reveal">Our <span>Services</span></h2>
+    <p class="section-sub reveal">Professional services tailored to your needs</p>
+    <div class="services-grid stagger">
+      <div class="service-card">
+        <img src="https://pixabay.com/get/g23cb7c635f0b61ba7b1f6bc72af99a26ce80b2b78ad6dce1e5e4a27c0aa6ea42b2ba728121ca21a197ccbf91c2793e851cc14be539eb61a99badfa65b146449a_1280.jpg" alt="Dine-In Experience" class="service-img" loading="lazy">
+        <h3>Dine-In Experience</h3>
+        <p>Full restaurant dining with our signature menu</p>
+        <div class="service-price">₦15,000</div>
+      </div>
+      <div class="service-card">
+        <img src="https://pixabay.com/get/gb521d5e1ca17672fa148c8a275db73365a86959c2892082a9ca70c363eb8d638622960537218185ab9ed1ba4538e31af14e0251008ff93115e04e3bf34d2376e_1280.jpg" alt="Private Events" class="service-img" loading="lazy">
+        <h3>Private Events</h3>
+        <p>Book our space for your special occasions</p>
+        <div class="service-price">₦100,000</div>
+      </div>
+      <div class="service-card">
+        <img src="https://pixabay.com/get/g0b204021cf385c405cf2ed96f1c43d049109f3eb8a1f2dca81b56be95c015385b3da9c6844e5f3aa6ffe0669eed09f0f5a2cbe210abc670fe5ab47930ccea19e_1280.jpg" alt="Catering Service" class="service-img" loading="lazy">
+        <h3>Catering Service</h3>
+        <p>We bring the flavor to your events</p>
+        <div class="service-price">₦50,000</div>
+      </div>
+      <div class="service-card">
+        <img src="https://pixabay.com/get/g00fc4392718715750da4f50b420d47694540d42c62ae4e710a45292f1db8041571199beda832865edbc02dab5a0263c3025d45818724687a9ec7129d3fa42623_1280.jpg" alt="Delivery" class="service-img" loading="lazy">
+        <h3>Delivery</h3>
+        <p>Hot meals delivered to your door</p>
+        <div class="service-price">₦5,000</div>
+      </div>
+      <div class="service-card">
+        <img src="https://pixabay.com/get/g23cb7c635f0b61ba7b1f6bc72af99a26ce80b2b78ad6dce1e5e4a27c0aa6ea42b2ba728121ca21a197ccbf91c2793e851cc14be539eb61a99badfa65b146449a_1280.jpg" alt="Chef's Table" class="service-img" loading="lazy">
+        <h3>Chef's Table</h3>
+        <p>Exclusive tasting menu by our head chef</p>
+        <div class="service-price">₦25,000</div>
+      </div>
+    </div>
+  </section>
+  <section id="gallery">
+    <h2 class="section-title reveal">Our <span>Gallery</span></h2>
+    <p class="section-sub reveal">A glimpse of what we do</p>
+    <div class="gallery-grid stagger">
+      <div class="gallery-item"><img src="https://pixabay.com/get/g23cb7c635f0b61ba7b1f6bc72af99a26ce80b2b78ad6dce1e5e4a27c0aa6ea42b2ba728121ca21a197ccbf91c2793e851cc14be539eb61a99badfa65b146449a_1280.jpg" alt="Gallery" loading="lazy"></div>
+      <div class="gallery-item"><img src="https://pixabay.com/get/gb521d5e1ca17672fa148c8a275db73365a86959c2892082a9ca70c363eb8d638622960537218185ab9ed1ba4538e31af14e0251008ff93115e04e3bf34d2376e_1280.jpg" alt="Gallery" loading="lazy"></div>
+      <div class="gallery-item"><img src="https://pixabay.com/get/g0b204021cf385c405cf2ed96f1c43d049109f3eb8a1f2dca81b56be95c015385b3da9c6844e5f3aa6ffe0669eed09f0f5a2cbe210abc670fe5ab47930ccea19e_1280.jpg" alt="Gallery" loading="lazy"></div>
+      <div class="gallery-item"><img src="https://pixabay.com/get/g00fc4392718715750da4f50b420d47694540d42c62ae4e710a45292f1db8041571199beda832865edbc02dab5a0263c3025d45818724687a9ec7129d3fa42623_1280.jpg" alt="Gallery" loading="lazy"></div>
+      
+    </div>
+  </section>
+  <section id="why">
+    <h2 class="section-title reveal">Why <span>Choose Us</span></h2>
+    <p class="section-sub reveal">What sets us apart</p>
+    <div class="why-grid stagger">
+      <div class="why-item"><div class="icon">⚡</div><h4>Fast Service</h4><p>Quick turnaround without quality compromise</p></div>
+      <div class="why-item"><div class="icon">✨</div><h4>Premium Quality</h4><p>Only the best materials and techniques</p></div>
+      <div class="why-item"><div class="icon">🎯</div><h4>Expert Team</h4><p>Trained professionals with years of experience</p></div>
+      <div class="why-item"><div class="icon">💎</div><h4>Affordable</h4><p>World-class service at local prices</p></div>
+      
+    </div>
+  </section>
+  <section id="testimonials">
+    <h2 class="section-title reveal">Client <span>Reviews</span></h2>
+    <p class="section-sub reveal">Real reviews from happy customers</p>
+    <div class="testimonials stagger">
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p>"Best jollof rice in Lagos, hands down. The ambience is amazing!"</p>
+        <div class="author">Chidi Okafor</div>
+        <div class="location">Lekki, Lagos</div>
+      </div>
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p>"Booked the private event space for my birthday. Everything was perfect!"</p>
+        <div class="author">Amara Nwosu</div>
+        <div class="location">Ikoyi, Lagos</div>
+      </div>
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p>"The chef's table experience was out of this world. Worth every naira."</p>
+        <div class="author">Tunde Bakare</div>
+        <div class="location">Victoria Island, Lagos</div>
+      </div>
+    </div>
+  </section>
+  <section id="faq">
+    <h2 class="section-title reveal">Frequently Asked <span>Questions</span></h2>
+    <p class="section-sub reveal">Everything you need to know</p>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><h4>Do you offer vegetarian options?</h4><p>Yes! We have a dedicated vegetarian menu with traditional Nigerian plant-based dishes.</p></div>
+      <div class="faq-item" onclick="this.classList.toggle('open')"><h4>Can I book for large groups?</h4><p>Absolutely. We accommodate groups of up to 50 people. Contact us for group packages.</p></div>
+      <div class="faq-item" onclick="this.classList.toggle('open')"><h4>Do you deliver?</h4><p>Yes, we deliver within Lagos mainland and island. Delivery fees apply based on location.</p></div>
+      
+  </section>
+  <section id="contact" class="contact reveal">
+    <h2 style="font-size:2.2rem;font-weight:800">Get In Touch</h2>
+    <p style="color:var(--muted);margin-bottom:2.5rem;font-size:1.1rem">Ready to work with us? Book your appointment today.</p>
+    <a href="#" class="btn-primary" onclick="alert('Booking powered by ERGIO');return false;">Book Appointment</a>
+    <div class="contact-info">
+      <a href="tel:+234 803 555 0142" class="contact-item"><span class="contact-icon">📞</span>+234 803 555 0142</a>
+      <a href="mailto:hello@pharaohkitchen.ng" class="contact-item"><span class="contact-icon">✉️</span>hello@pharaohkitchen.ng</a>
+      <a href="https://wa.me/2348035550142" class="contact-item"><span class="contact-icon">💬</span>WhatsApp</a>
+    </div>
+  </section>
+  <div class="footer">
+    <div class="footer-brand">⚡ <span>Pharaoh Kitchen</span></div>
+    <p>© 2026 Pharaoh Kitchen. All rights reserved.</p>
+    <p style="margin-top:.5rem">Powered by <a href="https://ergio.vercel.app" target="_blank">ERGIO</a> — AI Business Operating System for Africa</p>
+  </div>
+  <div class="cookie-banner" id="cookieBanner">
+    <p>We use cookies to improve your experience. By using our site, you agree to our <a href="#">Privacy Policy</a>.</p>
+    <button class="cookie-btn" onclick="document.getElementById('cookieBanner').classList.remove('show');localStorage.setItem('cookies-accepted','true')">Accept</button>
+  </div>
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal, .stagger').forEach(el => observer.observe(el));
+    if (!localStorage.getItem('cookies-accepted')) {
+      setTimeout(() => document.getElementById('cookieBanner').classList.add('show'), 2000);
+    }
+    const heroBg = document.querySelector('.hero-bg img');
+    window.addEventListener('scroll', () => {
+      if (heroBg) heroBg.style.transform = 'translateY(' + window.pageYOffset * 0.3 + 'px)';
+    });
+  </script>
+</body>
+</html>

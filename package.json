@@ -1,5 +1,15 @@
 {
+<<<<<<< HEAD
   "dependencies": {
     "pg": "^8.22.0"
+=======
+  "name": "ergio",
+  "version": "5.0.0",
+  "description": "ERGIO — AI Business Operating System for Africa",
+  "type": "module",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "cheerio": "^1.0.0"
+>>>>>>> 4c9893205a9a3ded0eff561230b34fdcfe30e278
   }
 }

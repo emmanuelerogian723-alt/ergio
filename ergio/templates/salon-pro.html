@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crown Cuts — Where Style Meets Precision</title>
+  <meta name="description" content="Crown Cuts is a premium barber shop & salon in Abuja, Nigeria. Book your appointment today.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Crown Cuts">
+  <meta property="og:description" content="Where Style Meets Precision">
+  <meta property="og:image" content="https://pixabay.com/get/g93c951372f9b227266ec8a8e8a340f2f9fdd7e946b3cb8f8569bd374f67b7c62b12e1c76e18b879dbe80e87ff8fa5e697a0aae52e1c656e2808985bf3059a1d5_1280.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--primary:#6366F1;--accent:#A855F7;--bg:#0A0A14;--text:#F8FAFC;--muted:#94A3B8}
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+    .reveal{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+    .reveal.active{opacity:1;transform:translateY(0)}
+    .stagger>*{opacity:0;transform:translateY(30px);transition:all .6s cubic-bezier(.16,1,.3,1)}
+    .stagger.active>*:nth-child(1){opacity:1;transform:none;transition-delay:.1s}
+    .stagger.active>*:nth-child(2){opacity:1;transform:none;transition-delay:.2s}
+    .stagger.active>*:nth-child(3){opacity:1;transform:none;transition-delay:.3s}
+    .stagger.active>*:nth-child(4){opacity:1;transform:none;transition-delay:.4s}
+    .stagger.active>*:nth-child(5){opacity:1;transform:none;transition-delay:.5s}
+    .stagger.active>*:nth-child(6){opacity:1;transform:none;transition-delay:.6s}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+    @keyframes gradient-shift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    @keyframes glow{0%,100%{box-shadow:0 0 30px rgba(0,217,255,.2)}50%{box-shadow:0 0 60px rgba(0,217,255,.5)}}
+    .nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 5%;position:sticky;top:0;background:rgba(10,10,15,.8);backdrop-filter:blur(20px);z-index:100;border-bottom:1px solid rgba(255,255,255,.06)}
+    .nav-logo{display:flex;align-items:center;gap:.6rem;font-weight:800;font-size:1.2rem;color:#fff;text-decoration:none;font-family:'Space Grotesk',sans-serif}
+    .nav-links a{color:var(--muted);text-decoration:none;margin-left:2rem;font-size:.92rem;transition:color .3s}
+    .nav-links a:hover{color:var(--primary)}
+    .nav-cta{background:var(--primary);color:#09090B;padding:.6rem 1.5rem;border-radius:100px;font-weight:700;text-decoration:none;font-size:.9rem;transition:all .3s}
+    .nav-cta:hover{transform:scale(1.05);box-shadow:0 0 25px rgba(0,217,255,.4)}
+    .hero{position:relative;min-height:90vh;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden}
+    .hero-bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0}
+    .hero-bg img{width:100%;height:100%;object-fit:cover;animation:float 8s ease-in-out infinite}
+    .hero-bg::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,rgba(10,10,15,.4) 0%,rgba(10,10,15,.85) 100%)}
+    .hero-content{position:relative;z-index:2;max-width:900px;padding:0 5%}
+    .hero h1{font-size:clamp(2.2rem,6vw,4.5rem);font-weight:900;line-height:1.05;letter-spacing:-.02em;margin-bottom:1.2rem}
+    .hero h1 span{background:linear-gradient(135deg,var(--primary),var(--accent));background-size:200% 200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradient-shift 4s ease infinite}
+    .hero p{font-size:1.25rem;color:#CBD5E1;max-width:600px;margin:0 auto 2.5rem}
+    .btn-primary{background:var(--primary);color:#09090B;padding:1rem 2.5rem;border-radius:100px;font-weight:700;text-decoration:none;font-size:1.05rem;transition:all .3s;display:inline-block}
+    .btn-primary:hover{transform:translateY(-3px);box-shadow:0 10px 40px rgba(0,217,255,.4)}
+    .btn-outline{background:rgba(255,255,255,.08);color:#fff;padding:1rem 2.5rem;border-radius:100px;border:1px solid rgba(255,255,255,.2);text-decoration:none;font-weight:600;font-size:1.05rem;backdrop-filter:blur(10px);display:inline-block;margin-left:1rem}
+    section{padding:5rem 5%;max-width:1200px;margin:0 auto}
+    .section-title{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-.02em;margin-bottom:.5rem}
+    .section-title span{background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .section-sub{color:var(--muted);text-align:center;margin-bottom:3.5rem;font-size:1.1rem}
+    .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
+    .about-text p{color:#CBD5E1;margin-bottom:1rem;font-size:1.05rem}
+    .about-img-wrap{border-radius:24px;overflow:hidden;aspect-ratio:4/3;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+    .about-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .8s}
+    .about-img-wrap:hover img{transform:scale(1.08)}
+    .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem}
+    .service-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:2.5rem;transition:all .5s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden}
+    .service-card:hover{border-color:var(--primary);transform:translateY(-8px);box-shadow:0 20px 50px rgba(0,217,255,.15)}
+    .service-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,var(--primary),var(--accent));transform:scaleX(0);transform-origin:left;transition:transform .5s}
+    .service-card:hover::before{transform:scaleX(1)}
+    .service-img{width:100%;height:180px;object-fit:cover;border-radius:12px;margin-bottom:1.5rem;transition:transform .5s}
+    .service-card:hover .service-img{transform:scale(1.05)}
+    .service-card h3{font-size:1.4rem;margin-bottom:.5rem;font-weight:700}
+    .service-card p{color:var(--muted);margin-bottom:1.5rem}
+    .service-price{font-size:1.8rem;font-weight:900;color:var(--accent)}
+    .gallery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+    .gallery-item{border-radius:16px;overflow:hidden;aspect-ratio:1;position:relative;cursor:pointer}
+    .gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.16,1,.3,1)}
+    .gallery-item:hover img{transform:scale(1.15)}
+    .why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem}
+    .why-item{text-align:center;padding:2rem;border-radius:20px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);transition:all .4s}
+    .why-item:hover{border-color:var(--primary);transform:translateY(-4px)}
+    .why-item .icon{font-size:2.5rem;margin-bottom:1rem;animation:float 4s ease-in-out infinite}
+    .why-item h4{margin-bottom:.5rem;font-weight:700;font-size:1.1rem}
+    .why-item p{color:var(--muted);font-size:.95rem}
+    .testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem}
+    .testimonial{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:2.5rem;position:relative}
+    .testimonial::before{content:'"';position:absolute;top:-10px;left:20px;font-size:5rem;color:var(--primary);opacity:.2;font-family:Georgia,serif}
+    .testimonial .stars{color:#FBBF24;margin-bottom:1rem}
+    .testimonial p{color:#CBD5E1;font-style:italic;margin-bottom:1.5rem}
+    .testimonial .author{font-weight:700}
+    .testimonial .location{color:var(--muted);font-size:.9rem}
+    .faq-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:1.8rem;margin-bottom:1rem;cursor:pointer;transition:all .3s}
+    .faq-item:hover{border-color:rgba(255,255,255,.15)}
+    .faq-item h4{color:var(--primary);margin-bottom:.5rem;font-size:1.15rem}
+    .faq-item p{color:var(--muted);max-height:0;overflow:hidden;transition:max-height .4s}
+    .faq-item.open p{max-height:200px}
+    .contact{background:linear-gradient(135deg,rgba(0,217,255,.08),rgba(0,255,157,.04));border-radius:28px;padding:4rem;text-align:center;margin:2rem 5%;border:1px solid rgba(255,255,255,.08)}
+    .contact-info{display:flex;justify-content:center;gap:2.5rem;flex-wrap:wrap;margin-top:2rem}
+    .contact-item{display:flex;align-items:center;gap:.6rem;color:var(--text);text-decoration:none;font-size:1rem;transition:color .3s}
+    .contact-item:hover{color:var(--primary)}
+    .contact-icon{width:44px;height:44px;border-radius:12px;background:rgba(0,217,255,.1);display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+    .footer{text-align:center;padding:3rem 5%;color:#64748B;border-top:1px solid rgba(255,255,255,.06)}
+    .footer a{color:var(--primary);text-decoration:none;font-weight:600}
+    .footer-brand{display:inline-flex;align-items:center;gap:.4rem;margin-bottom:.5rem;font-weight:700;color:#94A3B8}
+    .cookie-banner{position:fixed;bottom:0;left:0;right:0;background:rgba(6,6,8,.95);backdrop-filter:blur(20px);padding:1rem 5%;display:flex;justify-content:space-between;align-items:center;z-index:1000;border-top:1px solid rgba(255,255,255,.1);transform:translateY(100%);transition:transform .4s}
+    .cookie-banner.show{transform:translateY(0)}
+    .cookie-banner p{font-size:.9rem;color:#94A3B8}
+    .cookie-banner a{color:var(--primary);text-decoration:none}
+    .cookie-btn{background:var(--primary);color:#09090B;border:none;padding:.6rem 1.5rem;border-radius:100px;font-weight:700;cursor:pointer;font-size:.9rem}
+    @media(max-width:768px){.about-grid{grid-template-columns:1fr}.nav-links{display:none}.hero{min-height:70vh}section{padding:3rem 5%}.btn-outline{margin-left:0;margin-top:1rem}}
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="#" class="nav-logo">⚡ <span>Crown Cuts</span></a>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#testimonials">Reviews</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="#contact" class="nav-cta">Book Now</a>
+  </nav>
+  <div class="hero">
+    <div class="hero-bg"><img src="https://pixabay.com/get/g93c951372f9b227266ec8a8e8a340f2f9fdd7e946b3cb8f8569bd374f67b7c62b12e1c76e18b879dbe80e87ff8fa5e697a0aae52e1c656e2808985bf3059a1d5_1280.jpg" alt="Crown Cuts" loading="eager"></div>
+    <div class="hero-content">
+      <h1 class="reveal active">Experience <span>Where Style Meets Precision</span></h1>
+      <p class="reveal active">Premium barber shop & salon in Abuja, Nigeria. Where excellence meets every detail.</p>
+      <div class="reveal active">
+        <a href="#contact" class="btn-primary">Book Now</a>
+        <a href="#services" class="btn-outline">View Services</a>
+      </div>
+    </div>
+  </div>
+  <section id="about">
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <h2 class="section-title" style="text-align:left">About <span>Us</span></h2>
+        <p>Crown Cuts was born from a simple belief — that every person in Abuja deserves world-class barber shop & salon without compromise.</p>
+        <p>Our team combines years of expertise with a deep understanding of what our community needs. We're not just a business — we're your trusted partner.</p>
+      </div>
+      <div class="about-img-wrap reveal">
+        <img src="https://pixabay.com/get/g045738e5b317305e1cd7e8d5b5c40cda5f6519ad2058a447d49e72af9cca454474447e821323ad3d15b8b6838cb876963b62ece1d7f64bd3786a4e2cb669e581_1280.jpg" alt="Crown Cuts" loading="lazy">
+      </div>
+    </div>
+  </section>
+  <section id="services">
+    <h2 class="section-title reveal">Our <span>Services</span></h2>
+    <p class="section-sub reveal">Professional services tailored to your needs</p>
+    <div class="services-grid stagger">
+      <div class="service-card">
+        <img src="https://pixabay.com/get/g3fb3e1f96352c924a709e7f9d5dc421ff2e204b3ea3f76f9b3df5c116ac0f55e42a2e87c77016d3858ec71f83f4fcc3bf2abc49df2074da37d21b39a33b83b59_1280.jpg" alt="Classic Haircut" class="service-img" loading="lazy">
+        <h3>Classic Haircut</h3>
+        <p>Precision cut tailored to your style</p>
+        <div class="service-price">₦3,000</div>
+      </div>
+      <div class="service-card">
+        <img src="https://pixabay.com/get/g257056dbcd1fd8373c6cd3ccb41771681595cdb6100a3783039bfd42cd2cdfcaab6e5704ebb2bfddddcaa533d01c4eb5579204440d0c769d2e0dbfdc8280a77c_1280.jpg" alt="Beard Sculpting" class="service-img" loading="lazy">
+        <h3>Beard Sculpting</h3>
+        <p>Expert beard grooming and shaping</p>
+        <div class="service-price">₦2,000</div>
+      </div>
+      <div class="service-card">
+        <img src="https://pixabay.com/get/ga0a4f3976afbb670ad32fddb7c42de3336b21a9141533004b888d04748a041356d5b331c6f6061871dfcaef188726fe8812d4c81aa1c2ad325463c8fffc41375_1280.jpg" alt="Hair Coloring" class="service-img" loading="lazy">
+        <h3>Hair Coloring</h3>
+        <p>Professional color treatment</p>
+        <div class="service-price">₦8,000</div>
+      </div>
+      <div class="service-card">
+        <img src="https://pixabay.com/get/g76d74e307dc2504192d2e0254ecba9f483b8ef3347fbc15cce2b52a805d8be5392e613ab5fbe3546373840e2232270f030c57e85c18ba84d6c877ce260d8b8b7_1280.jpg" alt="Hot Towel Shave" class="service-img" loading="lazy">
+        <h3>Hot Towel Shave</h3>
+        <p>Traditional luxury shave experience</p>
+        <div class="service-price">₦5,000</div>
+      </div>
+      <div class="service-card">
+        <img src="https://pixabay.com/get/g3fb3e1f96352c924a709e7f9d5dc421ff2e204b3ea3f76f9b3df5c116ac0f55e42a2e87c77016d3858ec71f83f4fcc3bf2abc49df2074da37d21b39a33b83b59_1280.jpg" alt="Full Grooming Package" class="service-img" loading="lazy">
+        <h3>Full Grooming Package</h3>
+        <p>Cut + beard + facial + massage</p>
+        <div class="service-price">₦15,000</div>
+      </div>
+    </div>
+  </section>
+  <section id="gallery">
+    <h2 class="section-title reveal">Our <span>Gallery</span></h2>
+    <p class="section-sub reveal">A glimpse of what we do</p>
+    <div class="gallery-grid stagger">
+      <div class="gallery-item"><img src="https://pixabay.com/get/g3fb3e1f96352c924a709e7f9d5dc421ff2e204b3ea3f76f9b3df5c116ac0f55e42a2e87c77016d3858ec71f83f4fcc3bf2abc49df2074da37d21b39a33b83b59_1280.jpg" alt="Gallery" loading="lazy"></div>
+      <div class="gallery-item"><img src="https://pixabay.com/get/g257056dbcd1fd8373c6cd3ccb41771681595cdb6100a3783039bfd42cd2cdfcaab6e5704ebb2bfddddcaa533d01c4eb5579204440d0c769d2e0dbfdc8280a77c_1280.jpg" alt="Gallery" loading="lazy"></div>
+      <div class="gallery-item"><img src="https://pixabay.com/get/ga0a4f3976afbb670ad32fddb7c42de3336b21a9141533004b888d04748a041356d5b331c6f6061871dfcaef188726fe8812d4c81aa1c2ad325463c8fffc41375_1280.jpg" alt="Gallery" loading="lazy"></div>
+      <div class="gallery-item"><img src="https://pixabay.com/get/g76d74e307dc2504192d2e0254ecba9f483b8ef3347fbc15cce2b52a805d8be5392e613ab5fbe3546373840e2232270f030c57e85c18ba84d6c877ce260d8b8b7_1280.jpg" alt="Gallery" loading="lazy"></div>
+      
+    </div>
+  </section>
+  <section id="why">
+    <h2 class="section-title reveal">Why <span>Choose Us</span></h2>
+    <p class="section-sub reveal">What sets us apart</p>
+    <div class="why-grid stagger">
+      <div class="why-item"><div class="icon">⚡</div><h4>Fast Service</h4><p>Quick turnaround without quality compromise</p></div>
+      <div class="why-item"><div class="icon">✨</div><h4>Premium Quality</h4><p>Only the best materials and techniques</p></div>
+      <div class="why-item"><div class="icon">🎯</div><h4>Expert Team</h4><p>Trained professionals with years of experience</p></div>
+      <div class="why-item"><div class="icon">💎</div><h4>Affordable</h4><p>World-class service at local prices</p></div>
+      
+    </div>
+  </section>
+  <section id="testimonials">
+    <h2 class="section-title reveal">Client <span>Reviews</span></h2>
+    <p class="section-sub reveal">Real reviews from happy customers</p>
+    <div class="testimonials stagger">
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p>"Best fade in Abuja. I've been coming here for 2 years and never disappointed."</p>
+        <div class="author">Femi Adeyemi</div>
+        <div class="location">Wuse 2, Abuja</div>
+      </div>
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p>"The hot towel shave is pure luxury. Felt like a king."</p>
+        <div class="author">Kunle Ajayi</div>
+        <div class="location">Maitama, Abuja</div>
+      </div>
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p>"Clean cuts, professional service, fair prices. My go-to spot."</p>
+        <div class="author">David Okon</div>
+        <div class="location">Gwarinpa, Abuja</div>
+      </div>
+    </div>
+  </section>
+  <section id="faq">
+    <h2 class="section-title reveal">Frequently Asked <span>Questions</span></h2>
+    <p class="section-sub reveal">Everything you need to know</p>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><h4>Do I need an appointment?</h4><p>Walk-ins welcome, but appointments get priority. Book ahead to avoid waiting.</p></div>
+      <div class="faq-item" onclick="this.classList.toggle('open')"><h4>Do you serve women too?</h4><p>Yes! We have a dedicated section for women's hair services.</p></div>
+      <div class="faq-item" onclick="this.classList.toggle('open')"><h4>What payment methods do you accept?</h4><p>Cash, bank transfer, and card payments all accepted.</p></div>
+      
+  </section>
+  <section id="contact" class="contact reveal">
+    <h2 style="font-size:2.2rem;font-weight:800">Get In Touch</h2>
+    <p style="color:var(--muted);margin-bottom:2.5rem;font-size:1.1rem">Ready to work with us? Book your appointment today.</p>
+    <a href="#" class="btn-primary" onclick="alert('Booking powered by ERGIO');return false;">Book Appointment</a>
+    <div class="contact-info">
+      <a href="tel:+234 805 555 0198" class="contact-item"><span class="contact-icon">📞</span>+234 805 555 0198</a>
+      <a href="mailto:book@crowncuts.ng" class="contact-item"><span class="contact-icon">✉️</span>book@crowncuts.ng</a>
+      <a href="https://wa.me/2348055550198" class="contact-item"><span class="contact-icon">💬</span>WhatsApp</a>
+    </div>
+  </section>
+  <div class="footer">
+    <div class="footer-brand">⚡ <span>Crown Cuts</span></div>
+    <p>© 2026 Crown Cuts. All rights reserved.</p>
+    <p style="margin-top:.5rem">Powered by <a href="https://ergio.vercel.app" target="_blank">ERGIO</a> — AI Business Operating System for Africa</p>
+  </div>
+  <div class="cookie-banner" id="cookieBanner">
+    <p>We use cookies to improve your experience. By using our site, you agree to our <a href="#">Privacy Policy</a>.</p>
+    <button class="cookie-btn" onclick="document.getElementById('cookieBanner').classList.remove('show');localStorage.setItem('cookies-accepted','true')">Accept</button>
+  </div>
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal, .stagger').forEach(el => observer.observe(el));
+    if (!localStorage.getItem('cookies-accepted')) {
+      setTimeout(() => document.getElementById('cookieBanner').classList.add('show'), 2000);
+    }
+    const heroBg = document.querySelector('.hero-bg img');
+    window.addEventListener('scroll', () => {
+      if (heroBg) heroBg.style.transform = 'translateY(' + window.pageYOffset * 0.3 + 'px)';
+    });
+  </script>
+</body>
+</html>

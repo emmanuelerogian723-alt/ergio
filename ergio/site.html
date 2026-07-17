@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ERGIO — Loading Website...</title>
+  <style>
+    body { margin:0; padding:0; background:#0a0a0f; color:#fff; font-family:Inter,sans-serif; display:flex; align-items:center; justify-content:center; min-height:100vh; }
+    .loader { text-align:center; }
+    .spinner { width:50px; height:50px; border:3px solid rgba(0,217,255,.2); border-top-color:#00D9FF; border-radius:50%; animation:spin 1s linear infinite; margin:0 auto 20px; }
+    @keyframes spin { to { transform:rotate(360deg) } }
+    .text { color:#94a3b8; font-size:.9rem; }
+    .error { color:#ef4444; }
+  </style>
+</head>
+<body>
+  <div class="loader">
+    <div class="spinner"></div>
+    <div class="text" id="msg">Loading your website...</div>
+  </div>
+  <script>
+    // Extract slug from URL path: /site/business-name → business-name
+    const path = window.location.pathname;
+    const slug = path.replace(/^\/site\//, '').replace(/\/$/, '');
+    
+    if (!slug || slug === '/site') {
+      document.getElementById('msg').textContent = 'No site slug provided. Go to ergio.vercel.app to create a website.';
+      document.getElementById('msg').classList.add('error');
+    } else {
+      // Fetch the website HTML from the API
+      fetch(`/api/site?slug=${encodeURIComponent(slug)}`, {
+        headers: { 'Accept': 'text/html' }
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Site not found');
+        return res.text();
+      })
+      .then(html => {
+        // Replace entire page with the generated website
+        document.open();
+        document.write(html);
+        document.close();
+      })
+      .catch(err => {
+        document.getElementById('msg').textContent = `Website "${slug}" not found. It may not have been deployed yet.`;
+        document.getElementById('msg').classList.add('error');
+        document.querySelector('.spinner').style.display = 'none';
+      });
+    }
+  </script>
+</body>
+</html>

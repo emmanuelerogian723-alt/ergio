@@ -142,7 +142,7 @@ const reveals = document.querySelectorAll('.reveal');
 const revealObs = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
+      entry.target.classList.add('in');
       revealObs.unobserve(entry.target);
     }
   });
@@ -152,8 +152,8 @@ reveals.forEach(r => revealObs.observe(r));
 // ============ BUILD OVERLAY ============
 const buildOverlay = document.getElementById('buildOverlay');
 const qaPanel = document.getElementById('qaPanel');
-const buildPanel = document.getElementById('buildPanel');
-const launchPanel = document.getElementById('launchPanel');
+const buildPanel = null; // Replaced by cinematic build
+const launchPanel = null; // Replaced by cinematic build
 const previewPane = document.getElementById('previewPane');
 
 let buildAnswers = {};
@@ -161,23 +161,63 @@ let generatedBusiness = null;
 let generatedHtml = '';
 
 const questions = [
-  { id: 'name', label: 'Business Name', text: 'What do you want to call your business?', hint: 'This will be your brand name. Be creative!', type: 'text', placeholder: 'e.g. SparkleClean Pros' },
-  { id: 'services', label: 'Your Services', text: 'What services do you offer?', hint: 'Select all that apply', type: 'checkbox', options: ['Cleaning', 'Design', 'Consulting', 'Photography', 'Catering', 'Tutoring', 'Styling', 'Repairs', 'Marketing', 'Other'] },
-  { id: 'location', label: 'Your Location', text: 'Where are you based?', hint: 'We use this to find local clients for you', type: 'text', placeholder: 'e.g. Lagos, Nigeria' },
-  { id: 'style', label: 'Brand Style', text: 'What vibe do you want?', hint: 'This shapes your website design', type: 'radio', options: ['Modern & Minimal', 'Bold & Colorful', 'Luxury & Premium', 'Friendly & Casual'] }
+  { id: 'name', label: 'Step 1 of 4', text: 'What will you call this business?', hint: 'Your brand name. Make it memorable — this is how clients will remember you.', type: 'text', placeholder: 'e.g. GlowUp Lagos' },
+  { id: 'services', label: 'Step 2 of 4', text: 'What do you offer?', hint: 'Select everything that applies — ERGIO will build pages for each.', type: 'checkbox', options: ['Cleaning', 'Makeup & Beauty', 'Graphic Design', 'Photography', 'Catering & Food', 'Tutoring', 'Fashion & Styling', 'Phone & Laptop Repair', 'Fitness Training', 'Real Estate', 'Web Development', 'Consulting', 'Event Planning', 'Tailoring', 'Transportation', 'Other'] },
+  { id: 'location', label: 'Step 3 of 4', text: 'Where are you based?', hint: 'ERGIO uses this to find paying clients near you.', type: 'text', placeholder: 'e.g. Lekki, Lagos' },
+  { id: 'style', label: 'Step 4 of 4', text: 'Choose your vibe.', hint: 'This shapes your entire website design — colors, fonts, animations.', type: 'radio', options: ['Modern & Minimal — Apple style', 'Bold & Colorful — Nike energy', 'Luxury & Premium — Rolex feel', 'Friendly & Casual — Local favorite'] }
 ];
 
 let currentQ = 0;
 
 function startBuild(prompt) {
+  // If prompt is not a string (e.g., it's a click event), read from the input
+  if (typeof prompt !== 'string' || !prompt.trim()) {
+    prompt = document.getElementById('promptInput')?.value?.trim() || '';
+  }
+  if (!prompt) {
+    alert('Please describe what you do first!');
+    return;
+  }
+  // Save prompt to localStorage and redirect to the builder
+  localStorage.setItem('ergio_initial_prompt', prompt);
+  window.location.href = '/ergio/build.html';
+  return;
   buildAnswers = { prompt };
   buildOverlay.classList.add('active');
+  setTimeout(() => buildOverlay.classList.add('visible'), 50);
   document.body.style.overflow = 'hidden';
 
-  qaPanel.style.display = 'flex';
-  buildPanel.style.display = 'none';
-  launchPanel.style.display = 'none';
-  if (previewPane) previewPane.classList.add('visible');
+  // Build Q&A panel inline (will be replaced by cinematic after Q&A)
+  const overlay = document.getElementById('buildOverlay');
+  overlay.innerHTML = `
+    <div class="cinematic-container" style="max-width:520px;height:auto;min-height:400px">
+      <div class="cinematic-topbar">
+        <div class="cinematic-brand"><div class="cinematic-logo-dot"></div><span>ERGIO AI</span></div>
+        <div class="cinematic-status">Let's build your business</div>
+        <div class="cinematic-meta"><button class="cinematic-close" id="qaCloseBtn">✕</button></div>
+      </div>
+      <div style="padding:32px;display:flex;flex-direction:column;align-items:center">
+        <div class="qa-progress-bar" style="width:100%;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;margin-bottom:24px;overflow:hidden">
+          <div class="qa-progress-fill" id="qaProgressFill" style="height:100%;width:0%;background:linear-gradient(90deg,#00D9FF,#00FF9D);border-radius:2px;transition:width .4s"></div>
+        </div>
+        <div id="qaContent" style="width:100%"></div>
+        <div style="display:flex;justify-content:space-between;width:100%;margin-top:24px">
+          <button id="qaBack" style="padding:10px 20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#94A3B8;border-radius:100px;cursor:pointer;font-size:14px;display:none">← Back</button>
+          <button id="qaNext" style="padding:10px 24px;border:none;background:linear-gradient(135deg,#00D9FF,#00FF9D);color:#09090B;border-radius:100px;font-weight:700;cursor:pointer;font-size:14px;flex:1;margin-left:12px" disabled>Continue →</button>
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('qaCloseBtn')?.addEventListener('click', () => {
+    overlay.classList.remove('visible', 'active');
+    document.body.style.overflow = '';
+  });
+
+  // Re-attach event listeners
+  const qaNextBtn = document.getElementById('qaNext');
+  const qaBackBtn = document.getElementById('qaBack');
+  if (qaNextBtn) qaNextBtn.addEventListener('click', nextQuestion);
+  if (qaBackBtn) qaBackBtn.addEventListener('click', prevQuestion);
 
   currentQ = 0;
   showQuestion(0);
@@ -293,8 +333,15 @@ if (qaBackBtn) qaBackBtn.addEventListener('click', prevQuestion);
 
 // ============ REAL AI GENERATION (Pollinations - free, no key) ============
 async function startRealGeneration() {
-  qaPanel.style.display = 'none';
-  buildPanel.style.display = 'flex';
+  // Redirect to cinematic build experience
+  const overlay = document.getElementById('buildOverlay');
+  if (overlay) overlay.innerHTML = ''; // Clear old Q&A content
+  overlay.classList.remove('visible', 'active');
+  document.body.style.overflow = 'hidden';
+  // Small delay to let overlay clear
+  await new Promise(r => setTimeout(r, 100));
+  startCinematicBuild(buildAnswers.prompt || '', buildAnswers);
+  return;
 
   const buildLog = document.getElementById('buildLog');
   const progressBar = document.getElementById('progressBar');
@@ -321,7 +368,7 @@ async function startRealGeneration() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt: buildAnswers.prompt, answers: buildAnswers }),
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.timeout(60000),
     });
 
     if (!response.ok) throw new Error('API not ready');
@@ -643,6 +690,22 @@ function showLaunchScreen(business) {
     launchBusinessName.style.display = 'block';
   }
 
+  // Save generated website to localStorage so dashboard can show it
+  try {
+    localStorage.setItem('ergio_generated_website', generatedHtml || '');
+    localStorage.setItem('ergio_generated_business', JSON.stringify({
+      name: business.name || 'Your Business',
+      tagline: business.tagline || '',
+      slug: business.slug || 'your-business',
+      type: business.type || 'standard',
+      city: business.city || '',
+      colors: business.brandColors || {},
+      services: business.services || [],
+      description: business.description || ''
+    }));
+    localStorage.setItem('ergio_build_complete', 'true');
+  } catch(e) { console.log('Could not save to localStorage', e); }
+
   showChatRefinement();
 }
 
@@ -699,7 +762,7 @@ async function refineWebsite(message) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message, currentHtml: generatedHtml, businessContext: generatedBusiness }),
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.timeout(60000),
     });
     if (!response.ok) throw new Error('Refine API not ready');
     // ... handle SSE if available
@@ -742,28 +805,39 @@ async function refineWebsite(message) {
 
 // ============ CLOSE OVERLAY ============
 function closeBuild() {
-  buildOverlay.classList.remove('active');
+  const overlay = document.getElementById('buildOverlay');
+  if (overlay) {
+    overlay.classList.remove('active', 'visible');
+    overlay.innerHTML = '';
+  }
   document.body.style.overflow = '';
-  if (previewPane) previewPane.classList.remove('visible');
 }
 
-const buildClose = document.getElementById('buildClose');
-if (buildClose) buildClose.addEventListener('click', closeBuild);
+// Close button is now handled dynamically in Q&A and cinematic build
 
 document.addEventListener('DOMContentLoaded', () => {
   const closeBtns = document.querySelectorAll('[id^="buildClose"]');
   closeBtns.forEach(btn => btn.addEventListener('click', closeBuild));
+
+  // Trigger reveal for elements already in viewport on page load
+  setTimeout(() => {
+    document.querySelectorAll('.reveal').forEach(el => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight) {
+        el.classList.add('in');
+      }
+    });
+  }, 100);
 });
 
 // ============ HELPER FUNCTIONS ============
 window.fillPrompt = function(text) {
-  const input = document.getElementById('promptInput');
-  if (input) {
-    input.value = text;
-    input.focus();
-  }
+  // Direct-launch into the builder with this prompt
+  localStorage.setItem('ergio_initial_prompt', text);
+  window.location.href = '/ergio/build.html';
 };
 
 window.closeBuild = closeBuild;
 window.startBuild = startBuild;
 window.ERGIO = { startBuild, closeBuild };
+

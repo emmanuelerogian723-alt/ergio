@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERGIO — AI Website Critique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--cyan:#00D9FF;--purple:#8B5CF6;--card:#161629;--border:rgba(255,255,255,.08);--bg:#08080F}
+*{font-family:'Space Grotesk',sans-serif;box-sizing:border-box}
+body{background:var(--bg);color:#fff;margin:0}
+.glow{position:fixed;top:-100px;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(0,217,255,.12),transparent 70%);pointer-events:none;z-index:0}
+input{background:#0D0D1A;border:1px solid var(--border);color:#fff;border-radius:10px;padding:14px 18px;font-size:1.1rem;outline:none;transition:.3s;width:100%}
+input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,217,255,.1)}
+.btn{padding:16px 32px;border-radius:12px;border:none;font-weight:700;cursor:pointer;transition:.3s;font-size:1.1rem}
+.btn-primary{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,217,255,.3)}
+.score-circle{width:120px;height:120px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;border:4px solid;margin:0 auto}
+.score-bar{height:8px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden}
+.score-fill{height:100%;border-radius:4px;transition:width 1s}
+.insight-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;transition:.3s}
+.insight-card:hover{border-color:var(--cyan)}
+.rec-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px}
+.rec-badge{padding:4px 12px;border-radius:8px;font-size:.75rem;font-weight:700}
+.rec-high{background:rgba(239,68,68,.15);color:#ef4444}
+.rec-medium{background:rgba(245,158,11,.15);color:#f59e0b}
+.rec-low{background:rgba(34,197,94,.15);color:#22c55e}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div style="position:relative;z-index:1;max-width:900px;margin:0 auto;padding:24px">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:40px">
+<a href="/" style="font-size:1.5rem;font-weight:800;text-decoration:none;color:var(--cyan)">ERGIO</a>
+<a href="/ergio/dashboard/index.html" style="padding:10px 24px;border-radius:12px;border:1px solid var(--border);color:#fff;text-decoration:none;font-weight:600">Dashboard →</a>
+</div>
+
+<div style="text-align:center;margin-bottom:40px">
+<h1 style="font-size:2.5rem;font-weight:700;margin:0 0 12px">AI <span style="background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Website Critique</span></h1>
+<p style="color:rgba(255,255,255,.5);margin:0">Enter your website URL — AI analyzes it and tells you exactly what to fix</p>
+</div>
+
+<div style="background:var(--card);border:1px solid var(--border);border-radius:24px;padding:24px;margin-bottom:24px">
+<div style="display:flex;gap:12px">
+<input id="urlInput" type="text" placeholder="https://your-website.com" onkeypress="if(event.key==='Enter')runCritique()">
+<button class="btn btn-primary" onclick="runCritique()" id="critiqueBtn">🔍 Analyze</button>
+</div>
+</div>
+
+<div id="resultArea" style="display:none">
+<div style="text-align:center;margin-bottom:32px">
+<div id="scoreCircle" class="score-circle" style="border-color:var(--cyan)">
+<span id="scoreValue" style="font-size:2.5rem;font-weight:800;line-height:1">0</span>
+<span style="font-size:.8rem;color:rgba(255,255,255,.5)">/ 100</span>
+</div>
+<p id="summaryText" style="margin-top:16px;color:rgba(255,255,255,.6);font-size:1.05rem"></p>
+<p id="topPriority" style="margin-top:8px;color:var(--cyan);font-weight:600"></p>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px" id="scoresGrid"></div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px">
+<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px">
+<h3 style="color:#22c55e;margin:0 0 16px">✅ Strengths</h3>
+<ul id="strengthsList" style="list-style:none;padding:0;margin:0"></ul>
+</div>
+<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px">
+<h3 style="color:#ef4444;margin:0 0 16px">❌ Weaknesses</h3>
+<ul id="weaknessesList" style="list-style:none;padding:0;margin:0"></ul>
+</div>
+</div>
+
+<h2 style="margin-bottom:16px">🎯 Recommendations</h2>
+<div id="recsList" style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px"></div>
+
+<div style="background:linear-gradient(135deg,rgba(0,217,255,.05),rgba(139,92,246,.05));border:1px solid var(--border);border-radius:16px;padding:24px;text-align:center">
+<h3 style="margin:0 0 8px">Want ERGIO to rebuild this site?</h3>
+<p style="color:rgba(255,255,255,.5);margin:0 0 20px">ERGIO AI will create a modern, fast, mobile-friendly version with all best practices built in.</p>
+<a href="/" class="btn btn-primary" style="text-decoration:none">⚡ Rebuild with ERGIO AI</a>
+</div>
+</div>
+
+<div id="loadingArea" style="display:none;text-align:center;padding:60px">
+<div style="display:inline-block;width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin 1s linear infinite"></div>
+<p style="margin-top:16px;color:rgba(255,255,255,.5)" id="loadingText">Analyzing website...</p>
+<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+</div>
+
+</div>
+<script>
+async function runCritique(){
+const url=document.getElementById('urlInput').value.trim();
+if(!url){alert('Enter a website URL');return;}
+document.getElementById('resultArea').style.display='none';
+document.getElementById('loadingArea').style.display='block';
+const btn=document.getElementById('critiqueBtn');
+btn.disabled=true;btn.textContent='Analyzing...';
+try{
+const res=await fetch('/api/critique?url='+encodeURIComponent(url));
+const data=await res.json();
+if(!data.success){alert('Error: '+data.error);return;}
+displayResults(data);
+}catch(e){alert('Error: '+e.message);}
+document.getElementById('loadingArea').style.display='none';
+btn.disabled=false;btn.textContent='🔍 Analyze';
+}
+
+function displayResults(data){
+document.getElementById('resultArea').style.display='block';
+const circle=document.getElementById('scoreCircle');
+const sv=document.getElementById('scoreValue');
+sv.textContent=data.overallScore;
+const color=data.overallScore>=70?'#22c55e':data.overallScore>=40?'#f59e0b':'#ef4444';
+circle.style.borderColor=color;
+sv.style.color=color;
+document.getElementById('summaryText').textContent=data.summary||'';
+document.getElementById('topPriority').textContent='🎯 Top Priority: '+(data.topPriority||'');
+
+const labels={seo:'SEO',design:'Design',performance:'Performance',mobile:'Mobile',content:'Content',marketing:'Marketing'};
+document.getElementById('scoresGrid').innerHTML=Object.entries(data.scores).map(([k,v])=>{
+const c=v>=70?'#22c55e':v>=40?'#f59e0b':'#ef4444';
+return `<div class="insight-card"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-weight:600">${labels[k]||k}</span><span style="font-weight:700;color:${c}">${v}</span></div><div class="score-bar"><div class="score-fill" style="width:${v}%;background:${c}"></div></div></div>`;
+}).join('');
+
+document.getElementById('strengthsList').innerHTML=(data.strengths||[]).map(s=>`<li style="padding:8px 0;border-bottom:1px solid var(--border)">${s}</li>`).join('')||'<li style="color:rgba(255,255,255,.4)">No strengths detected</li>';
+document.getElementById('weaknessesList').innerHTML=(data.weaknesses||[]).map(w=>`<li style="padding:8px 0;border-bottom:1px solid var(--border)">${w}</li>`).join('')||'<li style="color:rgba(255,255,255,.4)">None</li>';
+document.getElementById('recsList').innerHTML=(data.recommendations||[]).map(r=>`<div class="rec-card"><div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:8px"><strong>${r.title}</strong><span class="rec-badge rec-${r.impact||'medium'}">${r.impact||'medium'}</span></div><p style="color:rgba(255,255,255,.5);margin:0">${r.detail}</p></div>`).join('');
+}
+</script>
+</body>
+</html>

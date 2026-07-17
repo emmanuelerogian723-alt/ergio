@@ -3,250 +3,138 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome back — ERGIO</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>Sign In — ERGIO</title>
+  <meta name="description" content="Sign in to your ERGIO dashboard.">
+  <link rel="icon" href="../favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="../config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--bg:#050508;--surface:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--cyan:#00D9FF;--green:#00FF9D;--blue:#2563FF;--gold:#FFB800;--text:#F8FAFC;--muted:#94A3B8}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
-
-    /* Aurora background */
-    .aurora{position:fixed;inset:0;z-index:0;overflow:hidden}
-    .blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.3;will-change:transform}
-    .blob:nth-child(1){width:400px;height:400px;background:var(--cyan);top:-10%;left:-10%;animation:float1 8s ease-in-out infinite}
-    .blob:nth-child(2){width:500px;height:500px;background:var(--green);bottom:-20%;right:-10%;animation:float2 10s ease-in-out infinite}
-    .blob:nth-child(3){width:300px;height:300px;background:var(--blue);top:40%;left:50%;animation:float3 12s ease-in-out infinite}
-    .blob:nth-child(4){width:200px;height:200px;background:var(--gold);top:20%;right:20%;animation:float4 9s ease-in-out infinite;opacity:.15}
-    @keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,30px)}}
-    @keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,-40px)}}
-    @keyframes float3{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-30%,20px)}}
-    @keyframes float4{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,-30px)}}
-
-    /* Particles */
-    .particles{position:fixed;inset:0;z-index:0;pointer-events:none}
-    .particle{position:absolute;width:2px;height:2px;background:var(--cyan);border-radius:50%;opacity:0;animation:particleRise 15s linear infinite}
-    @keyframes particleRise{0%{opacity:0;transform:translateY(100vh) scale(0)}10%{opacity:.6}90%{opacity:.6}100%{opacity:0;transform:translateY(-10vh) scale(1)}}
-
-    /* Auth card */
-    .auth-container{position:relative;z-index:1;width:100%;max-width:460px;padding:2rem}
-    .auth-card{background:rgba(255,255,255,0.03);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid var(--border);border-radius:28px;padding:2.5rem;box-shadow:0 20px 60px rgba(0,0,0,.5);position:relative;overflow:hidden}
+    :root{--bg:#0A0E14;--surface:#0F141C;--card:#131A23;--border:#1E2730;--text:#E8EEF4;--muted:#8B98A8;--cyan:#00D9FF;--green:#00FF9D;--blue:#2563FF;--red:#FF4757}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+    .particles{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
+    .particle{position:absolute;width:4px;height:4px;border-radius:50%;opacity:.15;animation:float 15s infinite ease-in-out}
+    @keyframes float{0%,100%{transform:translateY(100vh) translateX(0);opacity:0}10%{opacity:.15}90%{opacity:.15}100%{transform:translateY(-10vh) translateX(50px)}}
+    .auth-wrap{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1.5rem}
+    .auth-card{width:100%;max-width:440px;background:rgba(255,255,255,0.02);backdrop-filter:blur(40px);border:1px solid var(--border);border-radius:28px;padding:2.5rem;box-shadow:0 20px 60px rgba(0,0,0,.5);position:relative;overflow:hidden}
     .auth-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),var(--green),transparent);animation:shimmer 3s ease-in-out infinite}
-    @keyframes shimmer{0%,100%{opacity:0.3}50%{opacity:1}}
-
+    @keyframes shimmer{0%,100%{opacity:.5}50%{opacity:1}}
     .auth-logo{display:flex;align-items:center;gap:.6rem;justify-content:center;margin-bottom:.5rem;text-decoration:none}
-    .auth-logo img{width:56px;height:56px;border-radius:14px;object-fit:cover}
-    .auth-logo span{font-size:1.6rem;font-weight:800;color:var(--text)}
-    .auth-tagline{text-align:center;color:var(--muted);font-size:.85rem;margin-bottom:2rem}
-
+    .auth-logo span{font-size:1.7rem;font-weight:800;color:var(--text);letter-spacing:-.02em}
+    .auth-logo .dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}
+    .auth-tagline{text-align:center;color:var(--muted);font-size:.85rem;margin-bottom:1.5rem}
     .auth-title{font-size:1.7rem;font-weight:700;text-align:center;margin-bottom:.5rem}
     .auth-title .gradient{background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
     .auth-sub{color:var(--muted);text-align:center;margin-bottom:2rem;font-size:.95rem}
-
-    /* Input fields */
-    .input-group{margin-bottom:1.1rem;position:relative}
-    .input-label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.4rem;font-weight:500}
+    .input-group{margin-bottom:1.2rem}
+    .input-label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.5rem;font-weight:600}
     .input-wrap{position:relative}
-    .input-field{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:.9rem 1rem .9rem 2.8rem;color:var(--text);font-size:.95rem;outline:none;transition:all .3s;font-family:'Inter',sans-serif}
-    .input-field:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,217,255,.1);background:rgba(0,217,255,.02)}
-    .input-field::placeholder{color:#475569}
-    .input-icon{position:absolute;left:.9rem;top:50%;transform:translateY(-50%);width:20px;height:20px;color:#475569;transition:color .3s}
-    .input-field:focus + .input-icon,.input-wrap:focus-within .input-icon{color:var(--cyan)}
-
-    /* Password toggle */
-    .pwd-toggle{position:absolute;right:.9rem;top:50%;transform:translateY(-50%);background:none;border:none;color:#475569;cursor:pointer;font-size:.8rem;transition:color .3s}
-    .pwd-toggle:hover{color:var(--cyan)}
-
-    /* Buttons */
-    .auth-btn{width:100%;padding:.95rem;border:none;border-radius:14px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .3s;margin-top:.5rem;display:flex;align-items:center;justify-content:center;gap:.5rem;font-family:'Inter',sans-serif}
-    .btn-primary{background:linear-gradient(135deg,var(--cyan),var(--green));color:#09090B;position:relative;overflow:hidden}
-    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,217,255,.3)}
-    .btn-primary:active{transform:translateY(0)}
-    .btn-primary::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,.2),transparent);transform:translateX(-100%);transition:transform .6s}
-    .btn-primary:hover::after{transform:translateX(100%)}
-
-    .btn-google{background:var(--surface);border:1px solid var(--border);color:var(--text);display:flex;align-items:center;justify-content:center;gap:.6rem}
-    .btn-google:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15)}
-
-    /* Divider */
-    .auth-divider{display:flex;align-items:center;gap:1rem;margin:1.5rem 0;color:#475569;font-size:.8rem}
-    .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
-
-    /* Magic link */
-    .magic-link{text-align:center;margin-top:1rem}
-    .magic-link a{color:var(--cyan);text-decoration:none;font-size:.85rem;cursor:pointer;transition:color .3s}
-    .magic-link a:hover{color:var(--green)}
-
-    /* OTP input */
-    .otp-section{display:none;margin-top:1.5rem}
-    .otp-section.show{display:block;animation:fadeUp .4s ease}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-    .otp-inputs{display:flex;gap:.5rem;justify-content:center;margin-bottom:1rem}
-    .otp-input{width:48px;height:56px;text-align:center;font-size:1.5rem;font-weight:700;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--text);outline:none;transition:all .3s}
-    .otp-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,217,255,.1)}
-    .otp-label{text-align:center;color:var(--muted);font-size:.9rem;margin-bottom:.8rem}
-
-    /* Footer */
-    .auth-footer{text-align:center;margin-top:1.5rem;font-size:.9rem;color:var(--muted)}
-    .auth-footer a{color:var(--cyan);text-decoration:none;font-weight:600}
-
-    /* Alerts */
-    .alert{padding:.8rem 1rem;border-radius:12px;margin-bottom:1rem;font-size:.85rem;display:none;animation:fadeUp .3s ease}
+    .input-field{width:100%;padding:.9rem 1rem .9rem 2.8rem;border:1px solid var(--border);border-radius:14px;background:rgba(0,0,0,0.3);color:var(--text);font-size:1rem;transition:all .3s}
+    .input-field:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,217,255,.1)}
+    .input-icon{position:absolute;left:.9rem;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--muted)}
+    .pwd-toggle{position:absolute;right:.9rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:.8rem}
+    .auth-btn{width:100%;padding:.95rem;border:none;border-radius:14px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:.5rem}
+    .btn-primary{background:linear-gradient(135deg,var(--cyan),var(--blue));color:#fff}
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,217,255,.3)}
+    .btn-primary:disabled{opacity:.6;transform:none}
+    .alert{padding:.8rem 1rem;border-radius:12px;margin-bottom:1rem;font-size:.88rem;display:none}
     .alert.show{display:block}
-    .alert-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#f87171}
+    .alert-error{background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.3);color:var(--red)}
     .alert-success{background:rgba(0,255,157,.1);border:1px solid rgba(0,255,157,.3);color:var(--green)}
-
-    /* Loading spinner */
-    .spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(9,9,11,.3);border-top-color:#09090B;border-radius:50%;animation:spin .6s linear infinite}
+    .alert-info{background:rgba(0,217,255,.1);border:1px solid rgba(0,217,255,.3);color:var(--cyan)}
+    .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
     @keyframes spin{to{transform:rotate(360deg)}}
-
-    /* Success animation */
-    .success-check{display:none;width:80px;height:80px;margin:0 auto 1rem}
-    .success-check.show{display:block;animation:popIn .5s ease}
-    @keyframes popIn{0%{transform:scale(0);opacity:0}80%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
-    .success-check circle{fill:none;stroke:var(--green);stroke-width:3;stroke-dasharray:166;stroke-dashoffset:166;animation:drawCircle .6s ease forwards}
-    .success-check path{fill:none;stroke:var(--green);stroke-width:3;stroke-dasharray:48;stroke-dashoffset:48;animation:drawCheck .3s ease .6s forwards}
-    @keyframes drawCircle{to{stroke-dashoffset:0}}
-    @keyframes drawCheck{to{stroke-dashoffset:0}}
-
-    /* Animated stats */
-    .stats-bar{display:flex;justify-content:center;gap:2rem;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border)}
-    .stat{text-align:center}
-    .stat-num{font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    .stat-label{font-size:.7rem;color:#475569;text-transform:uppercase;letter-spacing:.05em}
-
-    @media(max-width:480px){
-      .auth-container{padding:1rem}
-      .auth-card{padding:2rem 1.5rem}
-      .auth-title{font-size:1.4rem}
-    }
+    .auth-footer{text-align:center;margin-top:1.5rem;color:var(--muted);font-size:.88rem}
+    .auth-footer a{color:var(--cyan);text-decoration:none;font-weight:600}
+    .forgot-link{display:block;text-align:right;color:var(--cyan);font-size:.85rem;text-decoration:none;margin-bottom:1.5rem;cursor:pointer}
+    .firebase-badge{display:flex;align-items:center;justify-content:center;gap:.4rem;margin-top:1rem;color:var(--muted);font-size:.72rem;opacity:.6}
+    .metrics{display:flex;justify-content:center;gap:2rem;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+    .metric{text-align:center}
+    .metric .num{font-size:1.5rem;font-weight:800;color:var(--cyan)}
+    .metric .label{font-size:.8rem;color:var(--muted);margin-top:.2rem}
   </style>
 </head>
 <body>
-  <div class="aurora">
-    <div class="blob"></div>
-    <div class="blob"></div>
-    <div class="blob"></div>
-    <div class="blob"></div>
-  </div>
   <div class="particles" id="particles"></div>
-
-  <div class="auth-container">
+  <div class="auth-wrap">
     <div class="auth-card">
-      <a class="auth-logo" href="../index.html">
-        <img src="../assets/ergio-logo.jpg" alt="ERGIO" onerror="this.style.display='none'">
+      <a href="../index.html" class="auth-logo">
+        <div class="dot"></div>
         <span>ERGIO</span>
       </a>
-      <p class="auth-tagline">Business-in-a-box for Africa</p>
+      <p class="auth-tagline">Your AI Business Partner</p>
 
-      <div class="success-check" id="successCheck">
-        <svg viewBox="0 0 52 52">
-          <circle cx="26" cy="26" r="25" />
-          <path d="M14 27l8 8 16-16" />
-        </svg>
-      </div>
+      <h1 class="auth-title">Welcome <span class="gradient">Back</span></h1>
+      <p class="auth-sub">Sign in to your ERGIO dashboard</p>
 
-      <div id="loginView">
-        <h1 class="auth-title">Welcome <span class="gradient">back</span></h1>
-        <p class="auth-sub">Sign in to your business dashboard</p>
+      <div class="alert" id="alert"></div>
 
-        <div class="alert" id="alert"></div>
-
-        <button class="auth-btn btn-google" onclick="signInWithGoogle()">
-          <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
-          Continue with Google
-        </button>
-
-        <div class="auth-divider">or</div>
-
-        <form id="loginForm" onsubmit="return handleLogin(event)">
-          <div class="input-group">
-            <label class="input-label">Email</label>
-            <div class="input-wrap">
-              <input type="email" class="input-field" id="email" placeholder="you@example.com" required autocomplete="email">
-              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            </div>
-          </div>
-
-          <div class="input-group">
-            <label class="input-label">Password</label>
-            <div class="input-wrap">
-              <input type="password" class="input-field" id="password" placeholder="Your password" required autocomplete="current-password">
-              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              <button type="button" class="pwd-toggle" onclick="togglePwd()">Show</button>
-            </div>
-          </div>
-
-          <button type="submit" class="auth-btn btn-primary" id="loginBtn">
-            <span id="loginBtnText">Sign in to ERGIO</span>
-          </button>
-        </form>
-
-        <div class="magic-link">
-          <a onclick="sendMagicLink()">Send me a magic link instead</a>
-        </div>
-
-        <div class="auth-footer">
-          New to ERGIO? <a href="signup.html">Create your business</a>
+      <div class="input-group">
+        <label class="input-label">Email address</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>
+          <input type="email" class="input-field" id="email" placeholder="you@example.com" autocomplete="email">
         </div>
       </div>
 
-      <div class="stats-bar">
-        <div class="stat">
-          <div class="stat-num" id="stat1">0</div>
-          <div class="stat-label">Businesses</div>
+      <div class="input-group">
+        <label class="input-label">Password</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" class="input-field" id="password" placeholder="Your password" autocomplete="current-password">
+          <button class="pwd-toggle" onclick="togglePwd()">Show</button>
         </div>
-        <div class="stat">
-          <div class="stat-num" id="stat2">0</div>
-          <div class="stat-label">Clients Found</div>
-        </div>
-        <div class="stat">
-          <div class="stat-num" id="stat3">100%</div>
-          <div class="stat-label">Free to Start</div>
-        </div>
+      </div>
+
+      <span class="forgot-link" onclick="resetPassword()">Forgot password?</span>
+
+      <button class="auth-btn btn-primary" id="loginBtn" onclick="doLogin(event)">
+        <span id="loginBtnText">Sign in to ERGIO</span>
+      </button>
+
+      <div class="auth-footer">
+        New to ERGIO? <a href="signup.html">Create your account →</a>
+      </div>
+
+      <div class="metrics">
+        <div class="metric"><div class="num">12,847</div><div class="label">Businesses</div></div>
+        <div class="metric"><div class="num">48,291</div><div class="label">Leads Found</div></div>
+      </div>
+
+      <div class="firebase-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="#FFA000"><path d="M3.89 15.673L6.255.461A.542.542 0 0 1 7.27.289L9.813 5.06 3.89 15.673zm16.795 3.691L18.433 5.365a.54.54 0 0 0-.949-.15L3.89 15.673l7.229 4.067a1.59 1.59 0 0 0 1.524 0l8.042-4.376zm-8.908-6.218l-2.448-4.858a.64.64 0 0 0-1.155.063L4.184 15l7.593-1.854z"/></svg>
+        Secured by Firebase Authentication
       </div>
     </div>
   </div>
 
   <script>
-    // Load config
-    const SUPABASE_URL = window.ERGIO_CONFIG?.supabaseUrl || 'YOUR_SUPABASE_URL';
-    const SUPABASE_KEY = window.ERGIO_CONFIG?.supabaseAnonKey || 'YOUR_ANON_KEY';
+    // ── Firebase Init ──
+    const FB_CFG = window.ERGIO_CONFIG.firebase;
+    firebase.initializeApp(FB_CFG);
+    const auth = firebase.auth();
 
-    let supabase;
-    if (SUPABASE_URL && SUPABASE_KEY && SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
-      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    }
-
-    // Create particles
-    const particlesContainer = document.getElementById('particles');
-    for (let i = 0; i < 30; i++) {
+    // ── Particles ──
+    const pc = document.getElementById('particles');
+    for (let i = 0; i < 25; i++) {
       const p = document.createElement('div');
       p.className = 'particle';
-      p.style.left = Math.random() * 100 + '%';
-      p.style.animationDelay = Math.random() * 15 + 's';
-      p.style.animationDuration = (10 + Math.random() * 10) + 's';
-      const colors = ['#00D9FF', '#00FF9D', '#2563FF'];
-      p.style.background = colors[Math.floor(Math.random() * 3)];
-      particlesContainer.appendChild(p);
+      p.style.left = Math.random()*100+'%';
+      p.style.animationDelay = Math.random()*15+'s';
+      p.style.animationDuration = (10+Math.random()*10)+'s';
+      p.style.background = ['#00D9FF','#00FF9D','#2563FF'][Math.floor(Math.random()*3)];
+      pc.appendChild(p);
     }
 
-    // Animate stats
-    function animateStats() {
-      const targets = [1247, 3892];
-      targets.forEach((target, i) => {
-        let current = 0;
-        const step = target / 60;
-        const timer = setInterval(() => {
-          current += step;
-          if (current >= target) { current = target; clearInterval(timer); }
-          document.getElementById(`stat${i+1}`).textContent = Math.floor(current).toLocaleString();
-        }, 25);
-      });
+    function showAlert(type, msg) {
+      const a = document.getElementById('alert');
+      a.className = 'alert show alert-' + type;
+      a.textContent = msg;
+      if (type !== 'info') setTimeout(() => a.classList.remove('show'), 6000);
     }
-    animateStats();
 
-    // Password toggle
     function togglePwd() {
       const pwd = document.getElementById('password');
       const btn = pwd.parentElement.querySelector('.pwd-toggle');
@@ -254,87 +142,82 @@
       else { pwd.type = 'password'; btn.textContent = 'Show'; }
     }
 
-    // Alert helper
-    function showAlert(type, msg) {
-      const alert = document.getElementById('alert');
-      alert.className = `alert show alert-${type}`;
-      alert.textContent = msg;
-      setTimeout(() => alert.classList.remove('show'), 5000);
+    // ── Check existing Firebase session ──
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        // Already logged in — redirect to dashboard
+        localStorage.setItem('ergio_user', JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          fullName: user.displayName || user.email.split('@')[0]
+        }));
+        window.location.href = '../dashboard/index.html';
+      }
+    });
+
+    // Pre-fill email if passed from signup
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('email')) {
+      document.getElementById('email').value = params.get('email');
     }
 
-    // Login with email/password
-    async function handleLogin(e) {
-      e.preventDefault();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
+    // ── FIREBASE LOGIN ──
+    async function doLogin(e) {
+      if (e) e.preventDefault();
       const btn = document.getElementById('loginBtn');
       const btnText = document.getElementById('loginBtnText');
-
       btn.disabled = true;
-      btnText.innerHTML = '<span class="spinner"></span>';
+      btnText.innerHTML = '<span class="spinner"></span> Signing in...';
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!email || !password) {
+        showAlert('error', 'Please enter your email and password.');
+        btn.disabled = false;
+        btnText.textContent = 'Sign in to ERGIO';
+        return;
+      }
 
       try {
-        if (!supabase) throw new Error('Supabase not configured. Please set your credentials in config.js');
+        const cred = await auth.signInWithEmailAndPassword(email, password);
 
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        // Store user info
+        localStorage.setItem('ergio_user', JSON.stringify({
+          uid: cred.user.uid,
+          email: cred.user.email,
+          fullName: cred.user.displayName || cred.user.email.split('@')[0]
+        }));
 
-        // Show success animation
-        document.getElementById('loginView').style.display = 'none';
-        document.getElementById('successCheck').classList.add('show');
-        
-        showAlert('success', 'Welcome back! Redirecting to your dashboard...');
-        
-        setTimeout(() => {
-          window.location.href = '../dashboard/index.html';
-        }, 1500);
-
+        showAlert('success', 'Welcome back! Redirecting...');
+        setTimeout(() => { window.location.href = '../dashboard/index.html'; }, 800);
       } catch (err) {
         btn.disabled = false;
         btnText.textContent = 'Sign in to ERGIO';
-        showAlert('error', err.message || 'Login failed. Check your credentials.');
+        let msg = err.message || 'Login failed.';
+        if (msg.includes('wrong-password') || msg.includes('invalid-credential')) msg = 'Incorrect email or password.';
+        if (msg.includes('user-not-found')) msg = 'No account found with this email. Try signing up.';
+        if (msg.includes('too-many-requests')) msg = 'Too many attempts. Try again in a few minutes.';
+        if (msg.includes('invalid-email')) msg = 'Please enter a valid email address.';
+        showAlert('error', msg);
       }
     }
 
-    // Google sign-in
-    async function signInWithGoogle() {
-      if (!supabase) {
-        showAlert('error', 'Supabase not configured yet. Add your credentials to config.js');
+    // ── Password Reset ──
+    async function resetPassword() {
+      const email = document.getElementById('email').value.trim();
+      if (!email) {
+        showAlert('info', 'Enter your email first, then click "Forgot password?"');
         return;
       }
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: window.location.origin + '/dashboard/index.html' }
-      });
-      if (error) showAlert('error', error.message);
-    }
-
-    // Magic link
-    async function sendMagicLink() {
-      const email = document.getElementById('email').value.trim();
-      if (!email) { showAlert('error', 'Enter your email first'); return; }
-      if (!supabase) { showAlert('error', 'Supabase not configured yet'); return; }
-
       try {
-        const { error } = await supabase.auth.signInWithOtp({
-          email,
-          options: { emailRedirectTo: window.location.origin + '/dashboard/index.html' }
-        });
-        if (error) throw error;
-        showAlert('success', 'Magic link sent! Check your email.');
+        await auth.sendPasswordResetEmail(email);
+        showAlert('success', 'Password reset email sent! Check your inbox.');
       } catch (err) {
-        showAlert('error', err.message);
+        showAlert('error', 'Could not send reset email. ' + err.message);
       }
     }
-
-    // Check for existing session
-    if (supabase) {
-      supabase.auth.getSession().then(({ data }) => {
-        if (data.session) {
-          window.location.href = '../dashboard/index.html';
-        }
-      });
-    }
   </script>
-</body>
+<script src="/guide-widget.js"></script>
+  </body>
 </html>

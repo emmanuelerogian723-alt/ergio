@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ERGIO — Preview</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#0a0a0f; font-family:Inter,sans-serif; }
+    .toolbar { display:flex; align-items:center; gap:1rem; padding:12px 20px; background:rgba(10,10,15,.95); border-bottom:1px solid rgba(0,217,255,.2); position:sticky; top:0; z-index:100; }
+    .logo { font-weight:800; color:#00D9FF; font-size:1.1rem; }
+    .url-bar { flex:1; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:8px 14px; color:#94a3b8; font-size:.85rem; }
+    .btn { background:#00D9FF; color:#000; border:none; padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer; text-decoration:none; font-size:.85rem; }
+    .btn:hover { opacity:.9; }
+    iframe { width:100%; height:calc(100vh - 53px); border:none; background:#fff; }
+    .loading { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; color:#94a3b8; }
+    .spinner { width:40px; height:40px; border:3px solid rgba(0,217,255,.2); border-top-color:#00D9FF; border-radius:50%; animation:spin 1s linear infinite; margin:0 auto 12px; }
+    @keyframes spin { to { transform:rotate(360deg) } }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <div class="logo">⚡ ERGIO</div>
+    <div class="url-bar" id="urlBar">Loading...</div>
+    <a class="btn" id="shareBtn" href="#">Share</a>
+    <a class="btn" id="editBtn" href="/" style="background:rgba(255,255,255,.08);color:#fff">New Site</a>
+  </div>
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div>Loading preview...</div>
+  </div>
+  <iframe id="frame" style="display:none"></iframe>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('site');
+    if (slug) {
+      document.getElementById('urlBar').textContent = `ergio.vercel.app/site/${slug}`;
+      document.getElementById('shareBtn').href = `/site/${slug}`;
+      // Load the website HTML into the iframe
+      fetch(`/api/site?slug=${encodeURIComponent(slug)}`, { headers: { 'Accept': 'text/html' } })
+        .then(res => {
+          if (!res.ok) throw new Error('Not found');
+          return res.text();
+        })
+        .then(html => {
+          const frame = document.getElementById('frame');
+          frame.srcdoc = html;
+          frame.style.display = 'block';
+          document.getElementById('loading').style.display = 'none';
+        })
+        .catch(() => {
+          document.getElementById('loading').innerHTML = '<div style="color:#ef4444">Website not found. Generate one at <a href="/" style="color:#00D9FF">ergio.vercel.app</a></div>';
+        });
+    } else {
+      document.getElementById('loading').innerHTML = '<div>No site specified. Go to <a href="/" style="color:#00D9FF">ergio.vercel.app</a> to create one.</div>';
+    }
+  </script>
+</body>
+</html>

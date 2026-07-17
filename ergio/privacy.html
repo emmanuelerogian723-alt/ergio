@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy & Terms of Use — ERGIO</title>
+  <meta name="description" content="ERGIO Privacy Policy and Terms of Use. How we collect, use and protect your data.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .legal-page {
+      position: relative; z-index: 1;
+      max-width: 800px; margin: 0 auto;
+      padding: 140px 24px 80px;
+    }
+    .legal-header { margin-bottom: 64px; }
+    .legal-badge {
+      display: inline-block;
+      font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--cyan); border: 1px solid rgba(0,217,255,0.25);
+      background: rgba(0,217,255,0.06); border-radius: 100px;
+      padding: 6px 16px; margin-bottom: 24px;
+    }
+    .legal-title {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 900; letter-spacing: -1.5px;
+      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.6) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 16px;
+    }
+    .legal-updated {
+      font-size: 13px; color: var(--muted);
+    }
+    .legal-tabs {
+      display: flex; gap: 4px; margin-bottom: 48px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 4px;
+      width: fit-content;
+    }
+    .legal-tab {
+      padding: 10px 24px; border-radius: 9px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s; border: none; background: transparent;
+      color: var(--muted);
+    }
+    .legal-tab.active {
+      background: rgba(0,217,255,0.1);
+      color: var(--cyan);
+      border: 1px solid rgba(0,217,255,0.2);
+    }
+    .legal-panel { display: none; }
+    .legal-panel.active { display: block; }
+    .legal-section {
+      margin-bottom: 48px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .legal-section:last-child { border-bottom: none; }
+    .legal-section h2 {
+      font-size: 1.25rem; font-weight: 700;
+      color: #fff; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .legal-section h2 .icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: rgba(0,217,255,0.1); border: 1px solid rgba(0,217,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+    .legal-section p {
+      font-size: 15px; color: rgba(255,255,255,0.65);
+      line-height: 1.8; margin-bottom: 14px;
+    }
+    .legal-section ul {
+      padding-left: 0; list-style: none; margin-bottom: 14px;
+    }
+    .legal-section ul li {
+      font-size: 15px; color: rgba(255,255,255,0.65);
+      line-height: 1.8; padding: 6px 0 6px 20px;
+      position: relative;
+    }
+    .legal-section ul li::before {
+      content: ''; position: absolute; left: 0; top: 16px;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--cyan);
+    }
+    .legal-highlight {
+      background: rgba(0,217,255,0.06);
+      border: 1px solid rgba(0,217,255,0.15);
+      border-radius: 12px; padding: 20px 24px;
+      margin: 16px 0;
+    }
+    .legal-highlight p { margin: 0; color: rgba(255,255,255,0.8); }
+    .legal-contact {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px;
+      text-align: center; margin-top: 48px;
+    }
+    .legal-contact h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+    .legal-contact p { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
+    .legal-contact a {
+      display: inline-block;
+      padding: 12px 28px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--cyan), var(--green));
+      color: #050508; font-weight: 700; font-size: 14px;
+      text-decoration: none; transition: opacity 0.2s;
+    }
+    .legal-contact a:hover { opacity: 0.85; }
+  </style>
+</head>
+<body>
+  <div class="aurora-bg">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="grain"></div>
+  </div>
+
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <img src="assets/ergio-logo.jpg" alt="ERGIO" class="logo-img" />
+        <span class="logo-text">ERGIO</span>
+      </a>
+      <div class="nav-actions">
+        <a href="auth/login.html" class="nav-signin">Sign in</a>
+        <a href="auth/signup.html" class="nav-cta">Get started free</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="legal-page">
+    <div class="legal-header">
+      <div class="legal-badge">Legal</div>
+      <h1 class="legal-title">Privacy &amp; Terms</h1>
+      <p class="legal-updated">Last updated: July 17, 2026</p>
+    </div>
+
+    <div class="legal-tabs">
+      <button class="legal-tab active" onclick="showTab('privacy')">Privacy Policy</button>
+      <button class="legal-tab" onclick="showTab('terms')" id="terms">Terms of Use</button>
+    </div>
+
+    <!-- PRIVACY POLICY -->
+    <div class="legal-panel active" id="panel-privacy">
+
+      <div class="legal-highlight">
+        <p><strong style="color:#fff">The short version:</strong> ERGIO collects only what it needs to run your business. We never sell your data. We use industry-standard security. You own everything you create on ERGIO.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="icon">👤</span>Who we are</h2>
+        <p>ERGIO is an AI-powered business management platform built for African entrepreneurs. We are operated by ERGIO Technologies Ltd., registered in Nigeria. When you use ERGIO, we act as the data controller for your personal information.</p>
+        <p>If you have any questions about this policy, contact us at <strong style="color:var(--cyan)">privacy@ergio.ng</strong></p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="icon">📦</span>What data we collect</h2>
+        <p>We collect information you provide directly to us:</p>
+        <ul>
+          <li><strong style="color:#fff">Account information</strong> — your name, email address, phone number, and business name when you sign up</li>
+          <li><strong style="color:#fff">Business data</strong> — your service descriptions, pricing, images, and content you add to your business profile</li>
+          <li><strong style="color:#fff">Booking & transaction data</strong> — client bookings, payment records, and invoice history (processed securely via Paystack)</li>
+          <li><strong style="color:#fff">Usage data</strong> — pages you visit, features you use, and actions you take within ERGIO (to improve the product)</li>
+          <li><strong style="color:#fff">Communication data</strong> — messages sent through the platform, WhatsApp bot interactions, and AI outreach emails</li>
+        </ul>
+        <p>We also automatically collect:</p>
+        <ul>
+          <li>Your IP address, browser type, and device information</li>
+          <li>Referring URLs and how you found ERGIO</li>
+          <li>Timestamps and session data</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="icon">🎯</span>How we use your data</h2>
+        <p>We use your data to:</p>
+        <ul>
+          <li>Create and manage your ERGIO account and business profile</li>
+          <li>Power the AI engines that find and connect you with real clients</li>
+          <li>Process payments and send you transaction records via Paystack</li>
+          <li>Send you booking notifications via WhatsApp and email</li>
+          <li>Improve ERGIO's features, AI models, and user experience</li>
+          <li>Send product updates and important account notices (you can unsubscribe from marketing emails at any time)</li>
+          <li>Comply with legal obligations and resolve disputes</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="icon">🤝</span>Who we share it with</h2>
+        <p>We <strong style="color:#fff">never sell your personal data</strong>. We share data only in these limited cases:</p>
+        <ul>
+          <li><strong style="color:#fff">Service providers</strong> — Paystack (payments), Twilio (WhatsApp), Groq (AI), Supabase (database), and Google (email). All are bound by data processing agreements.</li>
+          <li><strong style="color:#fff">Your clients</strong> — your name, business name, and contact details are shared with clients you connect with through ERGIO</li>
+          <li><strong style="color:#fff">Legal requirements</strong> — if required by Nigerian law, court order, or to protect the rights and safety of users</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="icon">🔐</span>How we protect your data</h2>
+        <p>We take security seriously:</p>
+        <ul>
+          <li>All data is encrypted in transit (TLS 1.3) and at rest (AES-256)</li>
+          <li>Passwords are hashed using bcrypt — we never store plaintext passwords</li>
+          <li>Payment data is handled entirely by Paystack (PCI DSS compliant) — we never see or store card numbers</li>
+          <li>Access to production data is restricted to essential personnel only</li>
+          <li>Regular security audits and penetration testing</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="icon">⚙️</span>Your rights</h2>
+        <p>You have the right to:</p>
+        <ul>
+          <li><strong style="color:#fff">Access</strong> — request a copy of all data we hold about you</li>
+          <li><strong style="color:#fff">Correction</strong> — fix inaccurate information in your account</li>
+          <li><strong style="color:#fff">Deletion</strong> — request deletion of your account and data (subject to legal retention requirements)</li>
+          <li><strong style="color:#fff">Portability</strong> — export your business data in a standard format</li>
+          <li><strong style="color:#fff">Objection</strong> — opt out of marketing communications at any time</li>
+        </ul>
+        <p>To exercise any of these rights, email <strong style="color:var(--cyan)">privacy@ergio.ng</strong> and we will respond within 30 days.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="icon">🍪</span>Cookies</h2>
+        <p>ERGIO uses cookies and similar technologies to keep you logged in, remember your preferences, and understand how you use the platform. We use:</p>
+        <ul>
+          <li><strong style="color:#fff">Essential cookies</strong> — required for authentication and security (cannot be disabled)</li>
+          <li><strong style="color:#fff">Analytics cookies</strong> — help us understand platform usage (can be declined)</li>
+        </ul>
+        <p>You can manage cookies through your browser settings at any time.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="icon">🌍</span>Data location</h2>
+        <p>ERGIO stores data primarily in the European Union (via Supabase) and United States (via Groq and other providers). By using ERGIO, you consent to your data being processed in these locations under appropriate data protection safeguards.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="icon">📅</span>Data retention</h2>
+        <p>We keep your data for as long as your account is active. After you delete your account, we will delete or anonymize your personal data within 90 days, except where we are required to retain it for legal or financial compliance (e.g., transaction records for 7 years under Nigerian tax law).</p>
+      </div>
+    </div>
+
+    <!-- TERMS OF USE -->
+    <div class="legal-panel" id="panel-terms">
+
+      <div class="legal-highlight">
+        <p><strong style="color:#fff">The short version:</strong> Use ERGIO for legitimate business. Don't abuse the platform. You own what you create. We can suspend accounts that violate these terms.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="icon">✅</span>Acceptance of Terms</h2>
+        <p>By creating an account or using ERGIO, you agree to these Terms of Use. If you do not agree, please do not use the platform. These terms apply to all users — free and paid.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="icon">🏢</span>Using ERGIO</h2>
+        <p>You may use ERGIO to:</p>
+        <ul>
+          <li>Create and manage a legitimate business profile</li>
+          <li>Connect with potential clients and manage bookings</li>
+          <li>Receive payments for services you actually provide</li>
+          <li>Use AI tools to generate content for your business</li>
+        </ul>
+        <p>You may <strong style="color:#fff">not</strong> use ERGIO to:</p>
+        <ul>
+          <li>Create fake businesses or impersonate others</li>
+          <li>Conduct fraudulent transactions or scam clients</li>
+          <li>Send spam, unsolicited messages, or harassing communications</li>
+          <li>Reverse-engineer, scrape, or copy ERGIO's platform or AI</li>
+          <li>Violate any Nigerian or international laws</li>
+          <li>Post illegal, harmful, or offensive content</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="icon">©️</span>Intellectual property</h2>
+        <p><strong style="color:#fff">You own your content.</strong> Any website, brand, content, or data you create using ERGIO belongs to you. You grant ERGIO a limited license to host and display your content to provide the service.</p>
+        <p><strong style="color:#fff">ERGIO owns its platform.</strong> The ERGIO software, AI models, design, and branding are owned by ERGIO Technologies Ltd. You may not copy, reproduce, or create derivative works from our platform.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="icon">💳</span>Payments & Subscriptions</h2>
+        <p>Paid plans are billed monthly or annually. Payments are processed securely by Paystack. By subscribing, you authorize us to charge your chosen payment method on each renewal date.</p>
+        <ul>
+          <li><strong style="color:#fff">Refunds</strong> — We offer a 7-day refund on first-time Pro subscriptions if you are not satisfied. Contact support within 7 days of your first charge.</li>
+          <li><strong style="color:#fff">Cancellation</strong> — You may cancel anytime. Your access continues until the end of the paid period.</li>
+          <li><strong style="color:#fff">Price changes</strong> — We will give 30 days' notice before changing subscription prices.</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="icon">⚠️</span>Disclaimers & Limitations</h2>
+        <p>ERGIO is provided "as is." While we work hard to keep the platform reliable, we do not guarantee:</p>
+        <ul>
+          <li>That AI-generated content is always accurate or suitable for your use — review it before publishing</li>
+          <li>A specific number of client leads or business outcomes</li>
+          <li>100% uptime (we target 99.9% but maintenance windows may occur)</li>
+        </ul>
+        <p>ERGIO's liability to you is limited to the amount you have paid us in the 3 months preceding any claim.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="icon">🚫</span>Account suspension</h2>
+        <p>We may suspend or terminate your account if you violate these terms, engage in fraudulent activity, or cause harm to other users. We will make reasonable efforts to notify you before suspension unless the violation is severe or immediate action is required to protect other users.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="icon">📜</span>Governing law</h2>
+        <p>These terms are governed by the laws of the Federal Republic of Nigeria. Any disputes shall be resolved in the courts of Lagos State, Nigeria. For international users, Nigerian law applies to the extent permitted by your local jurisdiction.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2><span class="icon">🔄</span>Changes to these terms</h2>
+        <p>We may update these terms from time to time. We will notify you by email and in-app notice at least 14 days before material changes take effect. Your continued use of ERGIO after the effective date constitutes acceptance of the updated terms.</p>
+      </div>
+    </div>
+
+    <div class="legal-contact">
+      <h3>Questions about our policies?</h3>
+      <p>Our team is happy to help clarify anything. Reach us directly.</p>
+      <a href="mailto:privacy@ergio.ng">Contact privacy@ergio.ng →</a>
+    </div>
+
+    <div style="text-align:center;margin-top:32px">
+      <a href="index.html" style="color:var(--muted);font-size:14px;text-decoration:none">← Back to ERGIO</a>
+    </div>
+  </div>
+
+  <script>
+    // Tab switching
+    function showTab(tab) {
+      document.querySelectorAll('.legal-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.legal-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-' + tab).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // Nav scroll effect
+    window.addEventListener('scroll', () => {
+      document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 20);
+    });
+
+    // Handle #terms anchor to auto-switch tab
+    if (window.location.hash === '#terms') {
+      showTab('terms');
+      document.querySelectorAll('.legal-tab')[1].classList.add('active');
+      document.querySelectorAll('.legal-tab')[0].classList.remove('active');
+    }
+  </script>
+</body>
+</html>
