@@ -3,5 +3,11 @@
     "api/[endpoint].js": {
       "maxDuration": 30
     }
-  }
+  },
+  "rewrites": [
+    { "source": "/auth/:path*", "destination": "/ergio/auth/:path*" },
+    { "source": "/dashboard/:path*", "destination": "/ergio/dashboard/:path*" },
+    { "source": "/widget/:path*", "destination": "/ergio/widget/:path*" },
+    { "source": "/templates/:path*", "destination": "/ergio/templates/:path*" }
+  ]
 }
