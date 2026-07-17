@@ -12,6 +12,223 @@
   <link rel="manifest" href="manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <style>
+    /* ── SHOWCASE SECTION ── */
+    .showcase-section {
+      position: relative; z-index: 1;
+      padding: 120px 24px;
+      overflow: hidden;
+    }
+    .showcase-label {
+      display: inline-block;
+      font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--cyan); border: 1px solid rgba(0,217,255,0.25);
+      background: rgba(0,217,255,0.06); border-radius: 100px;
+      padding: 6px 16px; margin-bottom: 24px;
+    }
+    .showcase-title {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900; line-height: 1.1; letter-spacing: -1.5px;
+      color: var(--text); max-width: 700px; margin-bottom: 16px;
+    }
+    .showcase-sub {
+      font-size: 1.1rem; color: var(--muted); max-width: 560px; margin-bottom: 60px; line-height: 1.7;
+    }
+
+    /* ── HERO VISUAL (Higgsfield-style big image) ── */
+    .hero-visual {
+      position: relative; z-index: 1;
+      max-width: 1200px; margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+    .hero-visual-inner {
+      position: relative; border-radius: 24px; overflow: hidden;
+      border: 1px solid rgba(0,217,255,0.15);
+      box-shadow: 0 0 80px rgba(0,217,255,0.1), 0 40px 120px rgba(0,0,0,0.6);
+    }
+    .hero-visual-img {
+      width: 100%; height: auto; display: block;
+      border-radius: 24px;
+    }
+    .hero-visual-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(5,5,8,0.7) 0%, transparent 50%);
+      border-radius: 24px;
+    }
+    .hero-visual-badge {
+      position: absolute; bottom: 28px; left: 28px;
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(5,5,8,0.85); backdrop-filter: blur(20px);
+      border: 1px solid rgba(0,217,255,0.2); border-radius: 100px;
+      padding: 10px 20px; font-size: 13px; font-weight: 600; color: var(--text);
+    }
+    .hero-visual-badge .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ── FEATURE SHOWCASE GRID (Higgsfield-style) ── */
+    .feature-showcase {
+      max-width: 1200px; margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 20px;
+    }
+    .feature-showcase-card {
+      position: relative; border-radius: 20px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.02);
+      transition: transform 0.4s cubic-bezier(.2,.8,.2,1), box-shadow 0.4s;
+      cursor: pointer;
+    }
+    .feature-showcase-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(0,217,255,0.08);
+    }
+    .feature-showcase-card.card-wide {
+      grid-column: 1 / -1;
+    }
+    .feature-showcase-card img {
+      width: 100%; height: 100%; object-fit: cover;
+      display: block;
+      transition: transform 0.6s cubic-bezier(.2,.8,.2,1);
+    }
+    .feature-showcase-card:hover img {
+      transform: scale(1.03);
+    }
+    .feature-showcase-card .card-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(5,5,8,0.9) 0%, rgba(5,5,8,0.3) 50%, transparent 100%);
+    }
+    .feature-showcase-card .card-content {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 28px;
+    }
+    .card-tag {
+      display: inline-block;
+      font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--cyan); border: 1px solid rgba(0,217,255,0.3);
+      background: rgba(0,217,255,0.08); border-radius: 100px;
+      padding: 4px 12px; margin-bottom: 12px;
+    }
+    .card-tag.green { color: var(--green); border-color: rgba(0,255,157,0.3); background: rgba(0,255,157,0.08); }
+    .card-tag.amber { color: #F59E0B; border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.08); }
+    .card-title-sm {
+      font-size: 1.2rem; font-weight: 800; color: #fff;
+      letter-spacing: -0.5px; margin-bottom: 6px;
+    }
+    .card-desc-sm {
+      font-size: 0.875rem; color: rgba(255,255,255,0.6); line-height: 1.5;
+    }
+    .feature-showcase-card .card-img-wrap {
+      height: 320px; overflow: hidden;
+    }
+    .feature-showcase-card.card-wide .card-img-wrap {
+      height: 420px;
+    }
+
+    /* ── RESULTS SECTION ── */
+    .results-section {
+      position: relative; z-index: 1;
+      padding: 120px 24px;
+    }
+    .results-inner { max-width: 1200px; margin: 0 auto; }
+    .results-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 24px; margin-top: 60px;
+    }
+    .result-card {
+      border-radius: 20px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.02);
+      transition: transform 0.4s, box-shadow 0.4s;
+    }
+    .result-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .result-card .rc-img-wrap { height: 280px; overflow: hidden; }
+    .result-card img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.6s; }
+    .result-card:hover img { transform: scale(1.04); }
+    .result-card .rc-body { padding: 24px; }
+    .rc-tag {
+      font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--green); margin-bottom: 8px; display: block;
+    }
+    .rc-title { font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .rc-sub { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── SOCIAL PROOF MARQUEE ── */
+    .marquee-section {
+      position: relative; z-index: 1;
+      padding: 40px 0; overflow: hidden;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.01);
+    }
+    .marquee-track {
+      display: flex; gap: 32px;
+      animation: marquee 28s linear infinite;
+      width: max-content;
+    }
+    .marquee-track:hover { animation-play-state: paused; }
+    @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    .marquee-item {
+      display: flex; align-items: center; gap: 10px;
+      white-space: nowrap; padding: 0 16px;
+      font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.5);
+    }
+    .marquee-item .mi-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); }
+
+    /* ── PROCESS SECTION ── */
+    .process-section {
+      position: relative; z-index: 1;
+      padding: 120px 24px;
+    }
+    .process-inner { max-width: 1200px; margin: 0 auto; }
+    .process-steps {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 2px; margin-top: 60px;
+      border: 1px solid var(--border); border-radius: 20px; overflow: hidden;
+    }
+    .process-step {
+      padding: 40px 32px;
+      background: rgba(255,255,255,0.015);
+      border-right: 1px solid var(--border);
+      transition: background 0.3s;
+    }
+    .process-step:last-child { border-right: none; }
+    .process-step:hover { background: rgba(0,217,255,0.04); }
+    .process-num {
+      font-size: 48px; font-weight: 900;
+      background: linear-gradient(135deg, rgba(0,217,255,0.3), rgba(0,255,157,0.1));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 20px; letter-spacing: -2px;
+    }
+    .process-step h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 10px; }
+    .process-step p { font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── PRIVACY PAGE LINK ── */
+    .privacy-link { color: rgba(255,255,255,0.45); text-decoration: none; }
+    .privacy-link:hover { color: var(--cyan); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .feature-showcase { grid-template-columns: 1fr; }
+      .feature-showcase-card.card-wide { grid-column: 1; }
+      .results-grid { grid-template-columns: 1fr; }
+      .process-steps { grid-template-columns: 1fr; }
+      .process-step { border-right: none; border-bottom: 1px solid var(--border); }
+      .process-step:last-child { border-bottom: none; }
+      .feature-showcase-card .card-img-wrap,
+      .feature-showcase-card.card-wide .card-img-wrap { height: 220px; }
+      .result-card .rc-img-wrap { height: 200px; }
+    }
+  </style>
 </head>
 <body>
 
@@ -37,7 +254,7 @@
         <a href="#features">Features</a>
         <a href="#engines">Engines</a>
         <a href="templates.html">Templates</a>
-      <a href="directory.html">Directory</a>
+        <a href="directory.html">Directory</a>
         <a href="match.html">Find a Pro</a>
         <a href="#pricing">Pricing</a>
       </div>
@@ -49,11 +266,11 @@
         <span></span><span></span><span></span>
       </button>
     </div>
-  <a href="/ergio/logo.html" style="color:#fff;text-decoration:none;font-weight:600;padding:8px 16px;border-radius:8px;transition:.3s" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='#fff'">Logo AI</a>
-<a href="/ergio/critique.html" style="color:#fff;text-decoration:none;font-weight:600;padding:8px 16px;border-radius:8px;transition:.3s" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='#fff'">Website Critique</a>
-    </nav>
+    <a href="/ergio/logo.html" style="color:#fff;text-decoration:none;font-weight:600;padding:8px 16px;border-radius:8px;transition:.3s" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='#fff'">Logo AI</a>
+    <a href="/ergio/critique.html" style="color:#fff;text-decoration:none;font-weight:600;padding:8px 16px;border-radius:8px;transition:.3s" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='#fff'">Website Critique</a>
+  </nav>
 
-  <!-- HERO — Lovable-style: just the prompt -->
+  <!-- HERO -->
   <section class="hero" id="hero">
     <div class="hero-content">
       <div class="badge reveal">
@@ -112,49 +329,189 @@
     </div>
   </section>
 
-  <!-- FEATURES -->
-  <section class="features-section" id="features">
-    <div class="section-inner">
-      <div class="section-label">What ERGIO does</div>
-      <h2 class="section-title">Not a website builder.<br>A <span class="gradient-text">business launcher.</span></h2>
-      <p class="section-desc">Lovable builds apps. ERGIO builds businesses — and then runs them for you, 24/7.</p>
+  <!-- HERO VISUAL — Full-width showcase image -->
+  <div class="hero-visual reveal">
+    <div class="hero-visual-inner">
+      <img
+        src="https://media.base44.com/images/public/6a59247734dcc018a1316fcb/f7c7ceac1_generated_image.png"
+        alt="ERGIO business dashboard in action — Nigerian entrepreneur managing clients, revenue and bookings"
+        class="hero-visual-img"
+        loading="eager"
+      />
+      <div class="hero-visual-overlay"></div>
+      <div class="hero-visual-badge">
+        <span class="dot"></span>
+        Live ERGIO Dashboard — Real Results
+      </div>
+    </div>
+  </div>
 
-      <div class="features-grid">
-        <div class="feature-card reveal">
-          <div class="feature-icon">🌐</div>
-          <h3>Website + Brand</h3>
-          <p>AI generates your website, logo, brand colors, and copy in seconds. Custom domain included on Pro.</p>
+  <!-- MARQUEE — Social proof scrolling ticker -->
+  <div class="marquee-section">
+    <div class="marquee-track">
+      <div class="marquee-item"><span class="mi-dot"></span>₦147,500 earned this month · Chioma, Lagos</div>
+      <div class="marquee-item"><span class="mi-dot"></span>12 new clients found this week · David, Abuja</div>
+      <div class="marquee-item"><span class="mi-dot"></span>Website live in 47 seconds · Fatima, Kano</div>
+      <div class="marquee-item"><span class="mi-dot"></span>WhatsApp bot replied 340 enquiries · Emeka, PH</div>
+      <div class="marquee-item"><span class="mi-dot"></span>₦50,000 first payment received · Adaobi, Enugu</div>
+      <div class="marquee-item"><span class="mi-dot"></span>Booked 8 appointments while sleeping · Tunde, Lagos</div>
+      <div class="marquee-item"><span class="mi-dot"></span>First client found in 6 minutes · Ngozi, Ibadan</div>
+      <div class="marquee-item"><span class="mi-dot"></span>₦147,500 earned this month · Chioma, Lagos</div>
+      <div class="marquee-item"><span class="mi-dot"></span>12 new clients found this week · David, Abuja</div>
+      <div class="marquee-item"><span class="mi-dot"></span>Website live in 47 seconds · Fatima, Kano</div>
+      <div class="marquee-item"><span class="mi-dot"></span>WhatsApp bot replied 340 enquiries · Emeka, PH</div>
+      <div class="marquee-item"><span class="mi-dot"></span>₦50,000 first payment received · Adaobi, Enugu</div>
+      <div class="marquee-item"><span class="mi-dot"></span>Booked 8 appointments while sleeping · Tunde, Lagos</div>
+      <div class="marquee-item"><span class="mi-dot"></span>First client found in 6 minutes · Ngozi, Ibadan</div>
+    </div>
+  </div>
+
+  <!-- FEATURE SHOWCASE — Higgsfield-style image grid -->
+  <section class="showcase-section" id="features">
+    <div style="max-width:1200px;margin:0 auto;text-align:center">
+      <div class="showcase-label">See ERGIO in action</div>
+      <h2 class="showcase-title" style="margin:0 auto 16px;text-align:center">
+        Everything your business needs.<br>
+        <span class="gradient-text">Built and running in minutes.</span>
+      </h2>
+      <p class="showcase-sub" style="margin:0 auto 60px;text-align:center">
+        Not mockups. Not demos. This is what real ERGIO businesses look like — 
+        dashboards, bookings, payments and clients, all handled automatically.
+      </p>
+    </div>
+
+    <div class="feature-showcase">
+      <!-- Card 1 — Wide: AI Website Builder -->
+      <div class="feature-showcase-card card-wide reveal">
+        <div class="card-img-wrap">
+          <img
+            src="https://media.base44.com/images/public/6a59247734dcc018a1316fcb/60ecf223d_generated_image.png"
+            alt="ERGIO AI Website Builder — From text to full business website in seconds"
+            loading="lazy"
+          />
         </div>
-        <div class="feature-card reveal" style="transition-delay:.05s">
-          <div class="feature-icon">📅</div>
-          <h3>Smart Bookings</h3>
-          <p>Clients book online. You get WhatsApp alerts. Calendar syncs automatically. No double bookings.</p>
+        <div class="card-overlay"></div>
+        <div class="card-content">
+          <span class="card-tag">AI Website Builder</span>
+          <div class="card-title-sm">From your idea to a live website — in 60 seconds</div>
+          <div class="card-desc-sm">Type what you do. ERGIO designs, writes, and deploys your full business website. No coding. No designers. No waiting.</div>
         </div>
-        <div class="feature-card reveal" style="transition-delay:.1s">
-          <div class="feature-icon">💳</div>
-          <h3>Get Paid Instantly</h3>
-          <p>Paystack built in. Clients pay before the appointment. Card, transfer, USSD — all supported.</p>
+      </div>
+
+      <!-- Card 2 — Dashboard -->
+      <div class="feature-showcase-card reveal" style="transition-delay:.08s">
+        <div class="card-img-wrap">
+          <img
+            src="https://media.base44.com/images/public/6a59247734dcc018a1316fcb/e54679ddc_generated_image.png"
+            alt="ERGIO business dashboard — bookings, revenue, AI engine status"
+            loading="lazy"
+          />
         </div>
-        <div class="feature-card reveal" style="transition-delay:.15s">
-          <div class="feature-icon">🤖</div>
-          <h3>WhatsApp Bot</h3>
-          <p>Auto-replies to enquiries at 3am. Sends your pricing. Collects bookings. You just confirm.</p>
+        <div class="card-overlay"></div>
+        <div class="card-content">
+          <span class="card-tag green">Live Dashboard</span>
+          <div class="card-title-sm">Your entire business, at a glance</div>
+          <div class="card-desc-sm">Bookings, revenue, client activity and your 4 AI engines — all in one clean dashboard.</div>
         </div>
-        <div class="feature-card reveal" style="transition-delay:.2s">
-          <div class="feature-icon">📊</div>
-          <h3>Income Tracker</h3>
-          <p>See every naira earned, every booking, every client. Set income goals and watch ERGIO hit them.</p>
+      </div>
+
+      <!-- Card 3 — Client Matching -->
+      <div class="feature-showcase-card reveal" style="transition-delay:.12s">
+        <div class="card-img-wrap">
+          <img
+            src="https://media.base44.com/images/public/6a59247734dcc018a1316fcb/73cebc33b_generated_image.png"
+            alt="ERGIO AI client matching — finds real local clients automatically"
+            loading="lazy"
+          />
         </div>
-        <div class="feature-card reveal" style="transition-delay:.25s">
-          <div class="feature-icon">🪪</div>
-          <h3>Digital Business Card</h3>
-          <p>One link to share everywhere. Your services, prices, booking, and payment — all in one page.</p>
+        <div class="card-overlay"></div>
+        <div class="card-content">
+          <span class="card-tag amber">AI Client Matching</span>
+          <div class="card-title-sm">Wake up to new clients every morning</div>
+          <div class="card-desc-sm">ERGIO scans your city for people who need exactly what you offer, then connects them to you automatically.</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ENGINES -->
+  <!-- HOW IT WORKS — 3-step process -->
+  <section class="process-section">
+    <div class="process-inner">
+      <div style="text-align:center;margin-bottom:16px">
+        <div class="showcase-label">How it works</div>
+      </div>
+      <h2 class="showcase-title" style="text-align:center;margin:0 auto 12px">Three steps.<br><span class="gradient-text">One business.</span></h2>
+      <p class="showcase-sub" style="text-align:center;margin:0 auto">From idea to income — faster than you think.</p>
+
+      <div class="process-steps">
+        <div class="process-step">
+          <div class="process-num">01</div>
+          <h3>Describe your business</h3>
+          <p>Type what you do — "I'm a hairdresser in Lagos" or "I do graphic design". That's all ERGIO needs to get started.</p>
+        </div>
+        <div class="process-step">
+          <div class="process-num">02</div>
+          <h3>ERGIO builds everything</h3>
+          <p>AI generates your website, brand identity, booking system, payment setup, WhatsApp bot, and business card — in minutes.</p>
+        </div>
+        <div class="process-step">
+          <div class="process-num">03</div>
+          <h3>Clients find you. You get paid.</h3>
+          <p>4 AI engines run 24/7 to find and bring real paying clients to your business. You just show up and deliver.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS SECTION — Income & Payment showcase -->
+  <section class="results-section">
+    <div class="results-inner">
+      <div style="text-align:center">
+        <div class="showcase-label">Real results</div>
+        <h2 class="showcase-title" style="text-align:center;margin:0 auto 16px">
+          More than a platform.<br>
+          <span class="gradient-text">A business machine.</span>
+        </h2>
+        <p class="showcase-sub" style="text-align:center;margin:0 auto">
+          ERGIO users don't just get websites — they get income, clients, and systems that work while they sleep.
+        </p>
+      </div>
+
+      <div class="results-grid">
+        <div class="result-card reveal">
+          <div class="rc-img-wrap">
+            <img
+              src="https://media.base44.com/images/public/6a59247734dcc018a1316fcb/a012cfd95_generated_image.png"
+              alt="ERGIO income tracking — Nigerian businesswoman earning with Paystack payments"
+              loading="lazy"
+            />
+          </div>
+          <div class="rc-body">
+            <span class="rc-tag">💳 Payments & Income</span>
+            <div class="rc-title">Get paid. Track everything. Hit your goals.</div>
+            <div class="rc-sub">Paystack integration means clients pay before they arrive. Income tracker shows every naira, every booking, every client — beautifully.</div>
+          </div>
+        </div>
+
+        <div class="result-card reveal" style="transition-delay:.08s">
+          <div class="rc-img-wrap">
+            <img
+              src="https://media.base44.com/images/public/6a59247734dcc018a1316fcb/291a1c332_generated_image.png"
+              alt="ERGIO features — WhatsApp bot, digital business card, AI outreach, smart bookings"
+              loading="lazy"
+            />
+          </div>
+          <div class="rc-body">
+            <span class="rc-tag">🤖 AI-Powered Features</span>
+            <div class="rc-title">4 engines. 1 platform. Running 24/7.</div>
+            <div class="rc-sub">WhatsApp bot replies at 3am. Smart booking handles your calendar. AI Outreach finds new clients. Repeat engine brings old ones back.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ENGINES SECTION -->
   <section class="engines-section" id="engines">
     <div class="section-inner">
       <div class="section-label">The ERGIO difference</div>
@@ -288,7 +645,7 @@
             <li>✓ White-glove onboarding + migration</li>
             <li>✓ Dedicated engineering team access</li>
             <li>✓ Custom AI agents for any workflow</li>
-            <li>✓ 99.99% uptime SLA + ¥2M liability cover</li>
+            <li>✓ 99.99% uptime SLA + ₦2M liability cover</li>
           </ul>
           <a href="auth/signup.html" class="plan-btn" style="background:linear-gradient(135deg,#A855F7,#7C3AED);color:#fff">Build your empire →</a>
         </div>
@@ -300,7 +657,7 @@
   <section class="cta-section">
     <div class="section-inner">
       <h2 class="cta-title">You have the skill.<br><span class="gradient-text">Let ERGIO do the rest.</span></h2>
-      <p class="cta-sub">Join thousands of Nigerian students already building real businesses with ERGIO.</p>
+      <p class="cta-sub">Join thousands of Nigerian entrepreneurs already building real businesses with ERGIO.</p>
       <button class="cta-btn" onclick="document.getElementById('promptInput').focus(); window.scrollTo({top:0,behavior:'smooth'})">Start building for free →</button>
     </div>
   </section>
@@ -316,97 +673,25 @@
         <a href="#features">Features</a>
         <a href="#engines">Engines</a>
         <a href="templates.html">Templates</a>
-      <a href="directory.html">Directory</a>
+        <a href="directory.html">Directory</a>
         <a href="match.html">Find a Pro</a>
         <a href="#pricing">Pricing</a>
-        <a href="refer.html">Refer & Earn</a>
+        <a href="refer.html">Refer &amp; Earn</a>
         <a href="auth/login.html">Sign in</a>
         <a href="auth/signup.html">Get started</a>
+        <a href="privacy.html" class="privacy-link">Privacy Policy</a>
+        <a href="privacy.html#terms" class="privacy-link">Terms of Use</a>
       </div>
       <div class="footer-copy">© 2026 ERGIO. Built for Africa. 🌍</div>
     </div>
   </footer>
 
   <!-- BUILD OVERLAY -->
-  <!-- Cinematic Build Overlay -->
   <div class="build-overlay" id="buildOverlay"></div>
 
   <script src="config.js"></script>
   <script src="script.js"></script>
   <script src="cinematic-build.js"></script>
-
-  
-    <!-- Website Transformer -->
-    <div id="transformSection" style="max-width:700px;margin:2rem auto;padding:2rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;display:none">
-      <h3 style="font-size:1.3rem;margin-bottom:.5rem;color:#F8FAFC">🔄 Transform Your Existing Website</h3>
-      <p style="color:#94A3B8;font-size:.9rem;margin-bottom:1.5rem">Drop your old website link and ERGIO AI will rebuild it into something better.</p>
-      <div style="display:flex;gap:.5rem">
-        <input type="url" id="transformUrl" placeholder="https://your-old-website.com" style="flex:1;padding:1rem;border-radius:12px;background:#151A20;border:1px solid #2D353C;color:#fff;font-size:1rem">
-        <button onclick="startTransform()" style="padding:0 2rem;border:none;border-radius:12px;background:linear-gradient(135deg,#A78BFA,#7C3AED);color:#fff;font-weight:700;cursor:pointer;font-size:1rem">Transform →</button>
-      </div>
-      <div id="transformProgress" style="margin-top:1.5rem;display:none"></div>
-    </div>
-    
-    <script>
-    function showTransform() {
-      document.getElementById('qaOverlay').style.display = 'none';
-      document.getElementById('transformSection').style.display = 'block';
-    }
-    
-    async function startTransform() {
-      const url = document.getElementById('transformUrl').value.trim();
-      if (!url) return alert('Please enter your website URL');
-      
-      const progress = document.getElementById('transformProgress');
-      progress.style.display = 'block';
-      progress.innerHTML = '<p style="color:#94A3B8">🔄 Transforming your website...</p>';
-      
-      const response = await fetch('/api/transform', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url })
-      });
-      
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let websiteHtml = '';
-      let improvements = [];
-      
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        
-        const text = decoder.decode(value);
-        const lines = text.split('\n');
-        
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          const event = JSON.parse(line.slice(6));
-          
-          if (event.type === 'status') {
-            progress.innerHTML = '<p style="color:#00D9FF">' + event.data.task + '</p>';
-          } else if (event.type === 'scraped') {
-            progress.innerHTML += '<p style="color:#94A3B8">📄 Found: ' + event.data.title + '</p>';
-          } else if (event.type === 'plan') {
-            progress.innerHTML += '<p style="color:#94A3B8">🎯 Plan: ' + event.data.plan.businessName + '</p>';
-          } else if (event.type === 'website') {
-            websiteHtml = event.data.html;
-            improvements = event.data.improvements || [];
-          } else if (event.type === 'complete') {
-            progress.innerHTML += '<p style="color:#10F981">✅ ' + event.data.message + '</p>';
-          }
-        }
-      }
-      
-      if (websiteHtml) {
-        // Show the transformed website in a new tab
-        const blob = new Blob([websiteHtml], { type: 'text/html' });
-        const blobUrl = URL.createObjectURL(blob);
-        window.open(blobUrl, '_blank');
-        progress.innerHTML += '<p style="margin-top:1rem"><a href="' + blobUrl + '" target="_blank" style="color:#00D9FF">🔗 View your new website →</a></p>';
-      }
-    }
-    </script>
-<script src="/guide-widget.js"></script>
-  </body>
+  <script src="/guide-widget.js"></script>
+</body>
 </html>
