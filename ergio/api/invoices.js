@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     const { SUPABASE_URL, SUPABASE_SERVICE_KEY, GROQ_API_KEY } = process.env;
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     const url = new URL(req.url, `http://${req.headers.host}`);
-    const action = url.searchParams.get('action') || 'create';
+    const action = url.searchParams.get('action') || (req.method === 'GET' ? 'list' : 'create');
 
     // ---- LIST INVOICES ----
     if (req.method === 'GET' && action === 'list') {

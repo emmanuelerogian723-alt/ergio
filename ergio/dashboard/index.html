@@ -5,10 +5,582 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard — ERGIO</title>
   <link rel="icon" href="../favicon.ico">
-  <script src="../config.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../config.js">
+    // ── Advisor Engine ──
+    async function runAdvisorAnalysis() {
+      const btn = document.getElementById('advisorRunBtn');
+      btn.textContent = '⏳ Analyzing...';
+      btn.disabled = true;
+
+      try {
+        const userId = currentUser?.uid || 'demo';
+        const r = await fetch(`${API_BASE}/api/advisor?action=analyze&userId=${userId}`);
+        const data = await r.json();
+
+        if (data.success) {
+          renderAdvisorAnalysis(data);
+        } else {
+          btn.textContent = '❌ Error';
+          setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
+        }
+      } catch (e) {
+        console.error('Advisor error:', e);
+        btn.textContent = '❌ Error';
+        setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
+      }
+    }
+
+    function renderAdvisorAnalysis(data) {
+      document.getElementById('advisorRunBtn').textContent = '🔄 Refresh Analysis';
+      document.getElementById('advisorRunBtn').disabled = false;
+
+      // Show health card
+      document.getElementById('advisorHealthCard').style.display = 'block';
+      document.getElementById('advisorScoreValue').textContent = data.healthScore;
+      document.getElementById('advisorHealthStatus').textContent = data.healthStatus;
+      document.getElementById('advisorBusinessName').textContent = `${data.business.name} • ${data.business.industry} • ${data.business.location}`;
+
+      // Animate score circle
+      const offset = 440 - (440 * data.healthScore / 100);
+      setTimeout(() => {
+        document.getElementById('advisorScoreCircle').style.strokeDashoffset = offset;
+      }, 100);
+
+      // Metrics row
+      const m = data.metrics;
+      const metricsHtml = [
+        { label: 'Revenue', value: '₦' + (m.totalRevenue || 0).toLocaleString(), icon: '💰', color: '#10b981' },
+        { label: 'Leads', value: m.totalLeads, icon: '🎯', color: '#3b82f6' },
+        { label: 'Conversion', value: m.leadConversionRate + '%', icon: '🔄', color: '#f59e0b' },
+        { label: 'Bookings', value: m.totalBookings, icon: '📅', color: '#8b5cf6' },
+        { label: 'Rating', value: m.avgRating + '★', icon: '⭐', color: '#ef4444' },
+      ].map(x => `<div style="text-align:center;"><div style="font-size:20px;">${x.icon}</div><div style="font-size:18px; font-weight:700; color:${x.color};">${x.value}</div><div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">${x.label}</div></div>`).join('');
+      document.getElementById('advisorMetricsRow').innerHTML = metricsHtml;
+
+      // Breakdown bars
+      document.getElementById('advisorBreakdown').style.display = 'grid';
+      const breakdownHtml = Object.entries(data.breakdown).map(([key, val]) => {
+        const pct = (val.score / val.max) * 100;
+        const color = pct >= 75 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444';
+        return `<div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:16px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span style="color:#cbd5e1; font-size:13px; font-weight:500;">${val.label}</span>
+            <span style="color:${color}; font-weight:700; font-size:14px;">${val.score}/${val.max}</span>
+          </div>
+          <div style="height:8px; background:#0f172a; border-radius:4px; overflow:hidden;">
+            <div style="height:100%; width:${pct}%; background:${color}; border-radius:4px; transition:width 1s ease;"></div>
+          </div>
+        </div>`;
+      }).join('');
+      document.getElementById('advisorBreakdown').innerHTML = breakdownHtml;
+
+      // Insights
+      if (data.insights && data.insights.length > 0) {
+        document.getElementById('advisorInsights').style.display = 'block';
+        const insightsHtml = data.insights.map(ins => {
+          const bg = ins.type === 'warning' ? 'rgba(239,68,68,0.1)' : ins.type === 'success' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)';
+          const border = ins.type === 'warning' ? '#ef4444' : ins.type === 'success' ? '#10b981' : '#3b82f6';
+          return `<div style="background:${bg}; border-left:3px solid ${border}; padding:14px 16px; border-radius:8px; color:#e2e8f0; font-size:14px;">
+            ${ins.icon} ${ins.text}
+          </div>`;
+        }).join('');
+        document.getElementById('advisorInsightsList').innerHTML = insightsHtml;
+      }
+
+      // Recommendations
+      if (data.recommendations && data.recommendations.length > 0) {
+        document.getElementById('advisorRecs').style.display = 'block';
+        const recsHtml = data.recommendations.map((rec, i) => {
+          const priorityColor = rec.priority === 'high' ? '#ef4444' : rec.priority === 'medium' ? '#f59e0b' : '#10b981';
+          return `<div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:20px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+              <span style="background:${priorityColor}; color:white; font-size:10px; padding:3px 8px; border-radius:6px; text-transform:uppercase; font-weight:600;">${rec.priority}</span>
+              <h4 style="color:white; margin:0; font-size:15px;">${i+1}. ${rec.title}</h4>
+            </div>
+            <p style="color:#94a3b8; font-size:13px; margin:4px 0 8px;">${rec.description}</p>
+            <div style="display:flex; gap:16px; margin-top:8px;">
+              <div style="font-size:12px; color:#10b981;">✅ ${rec.action}</div>
+            </div>
+            <div style="font-size:12px; color:#3b82f6; margin-top:4px;">📈 ${rec.expectedImpact}</div>
+          </div>`;
+        }).join('');
+        document.getElementById('advisorRecsList').innerHTML = recsHtml;
+      }
+    }
+
+    async function askAdvisor(question) {
+      const chat = document.getElementById('advisorChat');
+      
+      // Add user message
+      chat.innerHTML += `<div class="advisor-msg-user">${question}</div>`;
+      
+      // Typing indicator
+      chat.innerHTML += `<div class="advisor-msg-ai" id="typingMsg">🤔 Thinking...</div>`;
+      chat.scrollTop = chat.scrollHeight;
+
+      try {
+        const r = await fetch(`${API_BASE}/api/advisor`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question,
+            businessName: currentUser?.displayName || 'My Business',
+            industry: 'General',
+            location: 'Nigeria'
+          })
+        });
+        const data = await r.json();
+        
+        document.getElementById('typingMsg').remove();
+        chat.innerHTML += `<div class="advisor-msg-ai">${(data.answer || data.error || 'No response').replace(/\n/g, '<br>')}</div>`;
+        chat.scrollTop = chat.scrollHeight;
+      } catch (e) {
+        document.getElementById('typingMsg').remove();
+        chat.innerHTML += `<div class="advisor-msg-ai">Sorry, I couldn't process that right now.</div>`;
+      }
+    }
+
+    function askAdvisorFromInput() {
+      const input = document.getElementById('advisorInput');
+      const q = input.value.trim();
+      if (!q) return;
+      askAdvisor(q);
+      input.value = '';
+    }
+
+</script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
+    // ── Advisor Engine ──
+    async function runAdvisorAnalysis() {
+      const btn = document.getElementById('advisorRunBtn');
+      btn.textContent = '⏳ Analyzing...';
+      btn.disabled = true;
+
+      try {
+        const userId = currentUser?.uid || 'demo';
+        const r = await fetch(`${API_BASE}/api/advisor?action=analyze&userId=${userId}`);
+        const data = await r.json();
+
+        if (data.success) {
+          renderAdvisorAnalysis(data);
+        } else {
+          btn.textContent = '❌ Error';
+          setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
+        }
+      } catch (e) {
+        console.error('Advisor error:', e);
+        btn.textContent = '❌ Error';
+        setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
+      }
+    }
+
+    function renderAdvisorAnalysis(data) {
+      document.getElementById('advisorRunBtn').textContent = '🔄 Refresh Analysis';
+      document.getElementById('advisorRunBtn').disabled = false;
+
+      // Show health card
+      document.getElementById('advisorHealthCard').style.display = 'block';
+      document.getElementById('advisorScoreValue').textContent = data.healthScore;
+      document.getElementById('advisorHealthStatus').textContent = data.healthStatus;
+      document.getElementById('advisorBusinessName').textContent = `${data.business.name} • ${data.business.industry} • ${data.business.location}`;
+
+      // Animate score circle
+      const offset = 440 - (440 * data.healthScore / 100);
+      setTimeout(() => {
+        document.getElementById('advisorScoreCircle').style.strokeDashoffset = offset;
+      }, 100);
+
+      // Metrics row
+      const m = data.metrics;
+      const metricsHtml = [
+        { label: 'Revenue', value: '₦' + (m.totalRevenue || 0).toLocaleString(), icon: '💰', color: '#10b981' },
+        { label: 'Leads', value: m.totalLeads, icon: '🎯', color: '#3b82f6' },
+        { label: 'Conversion', value: m.leadConversionRate + '%', icon: '🔄', color: '#f59e0b' },
+        { label: 'Bookings', value: m.totalBookings, icon: '📅', color: '#8b5cf6' },
+        { label: 'Rating', value: m.avgRating + '★', icon: '⭐', color: '#ef4444' },
+      ].map(x => `<div style="text-align:center;"><div style="font-size:20px;">${x.icon}</div><div style="font-size:18px; font-weight:700; color:${x.color};">${x.value}</div><div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">${x.label}</div></div>`).join('');
+      document.getElementById('advisorMetricsRow').innerHTML = metricsHtml;
+
+      // Breakdown bars
+      document.getElementById('advisorBreakdown').style.display = 'grid';
+      const breakdownHtml = Object.entries(data.breakdown).map(([key, val]) => {
+        const pct = (val.score / val.max) * 100;
+        const color = pct >= 75 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444';
+        return `<div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:16px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span style="color:#cbd5e1; font-size:13px; font-weight:500;">${val.label}</span>
+            <span style="color:${color}; font-weight:700; font-size:14px;">${val.score}/${val.max}</span>
+          </div>
+          <div style="height:8px; background:#0f172a; border-radius:4px; overflow:hidden;">
+            <div style="height:100%; width:${pct}%; background:${color}; border-radius:4px; transition:width 1s ease;"></div>
+          </div>
+        </div>`;
+      }).join('');
+      document.getElementById('advisorBreakdown').innerHTML = breakdownHtml;
+
+      // Insights
+      if (data.insights && data.insights.length > 0) {
+        document.getElementById('advisorInsights').style.display = 'block';
+        const insightsHtml = data.insights.map(ins => {
+          const bg = ins.type === 'warning' ? 'rgba(239,68,68,0.1)' : ins.type === 'success' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)';
+          const border = ins.type === 'warning' ? '#ef4444' : ins.type === 'success' ? '#10b981' : '#3b82f6';
+          return `<div style="background:${bg}; border-left:3px solid ${border}; padding:14px 16px; border-radius:8px; color:#e2e8f0; font-size:14px;">
+            ${ins.icon} ${ins.text}
+          </div>`;
+        }).join('');
+        document.getElementById('advisorInsightsList').innerHTML = insightsHtml;
+      }
+
+      // Recommendations
+      if (data.recommendations && data.recommendations.length > 0) {
+        document.getElementById('advisorRecs').style.display = 'block';
+        const recsHtml = data.recommendations.map((rec, i) => {
+          const priorityColor = rec.priority === 'high' ? '#ef4444' : rec.priority === 'medium' ? '#f59e0b' : '#10b981';
+          return `<div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:20px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+              <span style="background:${priorityColor}; color:white; font-size:10px; padding:3px 8px; border-radius:6px; text-transform:uppercase; font-weight:600;">${rec.priority}</span>
+              <h4 style="color:white; margin:0; font-size:15px;">${i+1}. ${rec.title}</h4>
+            </div>
+            <p style="color:#94a3b8; font-size:13px; margin:4px 0 8px;">${rec.description}</p>
+            <div style="display:flex; gap:16px; margin-top:8px;">
+              <div style="font-size:12px; color:#10b981;">✅ ${rec.action}</div>
+            </div>
+            <div style="font-size:12px; color:#3b82f6; margin-top:4px;">📈 ${rec.expectedImpact}</div>
+          </div>`;
+        }).join('');
+        document.getElementById('advisorRecsList').innerHTML = recsHtml;
+      }
+    }
+
+    async function askAdvisor(question) {
+      const chat = document.getElementById('advisorChat');
+      
+      // Add user message
+      chat.innerHTML += `<div class="advisor-msg-user">${question}</div>`;
+      
+      // Typing indicator
+      chat.innerHTML += `<div class="advisor-msg-ai" id="typingMsg">🤔 Thinking...</div>`;
+      chat.scrollTop = chat.scrollHeight;
+
+      try {
+        const r = await fetch(`${API_BASE}/api/advisor`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question,
+            businessName: currentUser?.displayName || 'My Business',
+            industry: 'General',
+            location: 'Nigeria'
+          })
+        });
+        const data = await r.json();
+        
+        document.getElementById('typingMsg').remove();
+        chat.innerHTML += `<div class="advisor-msg-ai">${(data.answer || data.error || 'No response').replace(/\n/g, '<br>')}</div>`;
+        chat.scrollTop = chat.scrollHeight;
+      } catch (e) {
+        document.getElementById('typingMsg').remove();
+        chat.innerHTML += `<div class="advisor-msg-ai">Sorry, I couldn't process that right now.</div>`;
+      }
+    }
+
+    function askAdvisorFromInput() {
+      const input = document.getElementById('advisorInput');
+      const q = input.value.trim();
+      if (!q) return;
+      askAdvisor(q);
+      input.value = '';
+    }
+
+</script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js">
+    // ── Advisor Engine ──
+    async function runAdvisorAnalysis() {
+      const btn = document.getElementById('advisorRunBtn');
+      btn.textContent = '⏳ Analyzing...';
+      btn.disabled = true;
+
+      try {
+        const userId = currentUser?.uid || 'demo';
+        const r = await fetch(`${API_BASE}/api/advisor?action=analyze&userId=${userId}`);
+        const data = await r.json();
+
+        if (data.success) {
+          renderAdvisorAnalysis(data);
+        } else {
+          btn.textContent = '❌ Error';
+          setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
+        }
+      } catch (e) {
+        console.error('Advisor error:', e);
+        btn.textContent = '❌ Error';
+        setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
+      }
+    }
+
+    function renderAdvisorAnalysis(data) {
+      document.getElementById('advisorRunBtn').textContent = '🔄 Refresh Analysis';
+      document.getElementById('advisorRunBtn').disabled = false;
+
+      // Show health card
+      document.getElementById('advisorHealthCard').style.display = 'block';
+      document.getElementById('advisorScoreValue').textContent = data.healthScore;
+      document.getElementById('advisorHealthStatus').textContent = data.healthStatus;
+      document.getElementById('advisorBusinessName').textContent = `${data.business.name} • ${data.business.industry} • ${data.business.location}`;
+
+      // Animate score circle
+      const offset = 440 - (440 * data.healthScore / 100);
+      setTimeout(() => {
+        document.getElementById('advisorScoreCircle').style.strokeDashoffset = offset;
+      }, 100);
+
+      // Metrics row
+      const m = data.metrics;
+      const metricsHtml = [
+        { label: 'Revenue', value: '₦' + (m.totalRevenue || 0).toLocaleString(), icon: '💰', color: '#10b981' },
+        { label: 'Leads', value: m.totalLeads, icon: '🎯', color: '#3b82f6' },
+        { label: 'Conversion', value: m.leadConversionRate + '%', icon: '🔄', color: '#f59e0b' },
+        { label: 'Bookings', value: m.totalBookings, icon: '📅', color: '#8b5cf6' },
+        { label: 'Rating', value: m.avgRating + '★', icon: '⭐', color: '#ef4444' },
+      ].map(x => `<div style="text-align:center;"><div style="font-size:20px;">${x.icon}</div><div style="font-size:18px; font-weight:700; color:${x.color};">${x.value}</div><div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">${x.label}</div></div>`).join('');
+      document.getElementById('advisorMetricsRow').innerHTML = metricsHtml;
+
+      // Breakdown bars
+      document.getElementById('advisorBreakdown').style.display = 'grid';
+      const breakdownHtml = Object.entries(data.breakdown).map(([key, val]) => {
+        const pct = (val.score / val.max) * 100;
+        const color = pct >= 75 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444';
+        return `<div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:16px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span style="color:#cbd5e1; font-size:13px; font-weight:500;">${val.label}</span>
+            <span style="color:${color}; font-weight:700; font-size:14px;">${val.score}/${val.max}</span>
+          </div>
+          <div style="height:8px; background:#0f172a; border-radius:4px; overflow:hidden;">
+            <div style="height:100%; width:${pct}%; background:${color}; border-radius:4px; transition:width 1s ease;"></div>
+          </div>
+        </div>`;
+      }).join('');
+      document.getElementById('advisorBreakdown').innerHTML = breakdownHtml;
+
+      // Insights
+      if (data.insights && data.insights.length > 0) {
+        document.getElementById('advisorInsights').style.display = 'block';
+        const insightsHtml = data.insights.map(ins => {
+          const bg = ins.type === 'warning' ? 'rgba(239,68,68,0.1)' : ins.type === 'success' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)';
+          const border = ins.type === 'warning' ? '#ef4444' : ins.type === 'success' ? '#10b981' : '#3b82f6';
+          return `<div style="background:${bg}; border-left:3px solid ${border}; padding:14px 16px; border-radius:8px; color:#e2e8f0; font-size:14px;">
+            ${ins.icon} ${ins.text}
+          </div>`;
+        }).join('');
+        document.getElementById('advisorInsightsList').innerHTML = insightsHtml;
+      }
+
+      // Recommendations
+      if (data.recommendations && data.recommendations.length > 0) {
+        document.getElementById('advisorRecs').style.display = 'block';
+        const recsHtml = data.recommendations.map((rec, i) => {
+          const priorityColor = rec.priority === 'high' ? '#ef4444' : rec.priority === 'medium' ? '#f59e0b' : '#10b981';
+          return `<div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:20px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+              <span style="background:${priorityColor}; color:white; font-size:10px; padding:3px 8px; border-radius:6px; text-transform:uppercase; font-weight:600;">${rec.priority}</span>
+              <h4 style="color:white; margin:0; font-size:15px;">${i+1}. ${rec.title}</h4>
+            </div>
+            <p style="color:#94a3b8; font-size:13px; margin:4px 0 8px;">${rec.description}</p>
+            <div style="display:flex; gap:16px; margin-top:8px;">
+              <div style="font-size:12px; color:#10b981;">✅ ${rec.action}</div>
+            </div>
+            <div style="font-size:12px; color:#3b82f6; margin-top:4px;">📈 ${rec.expectedImpact}</div>
+          </div>`;
+        }).join('');
+        document.getElementById('advisorRecsList').innerHTML = recsHtml;
+      }
+    }
+
+    async function askAdvisor(question) {
+      const chat = document.getElementById('advisorChat');
+      
+      // Add user message
+      chat.innerHTML += `<div class="advisor-msg-user">${question}</div>`;
+      
+      // Typing indicator
+      chat.innerHTML += `<div class="advisor-msg-ai" id="typingMsg">🤔 Thinking...</div>`;
+      chat.scrollTop = chat.scrollHeight;
+
+      try {
+        const r = await fetch(`${API_BASE}/api/advisor`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question,
+            businessName: currentUser?.displayName || 'My Business',
+            industry: 'General',
+            location: 'Nigeria'
+          })
+        });
+        const data = await r.json();
+        
+        document.getElementById('typingMsg').remove();
+        chat.innerHTML += `<div class="advisor-msg-ai">${(data.answer || data.error || 'No response').replace(/\n/g, '<br>')}</div>`;
+        chat.scrollTop = chat.scrollHeight;
+      } catch (e) {
+        document.getElementById('typingMsg').remove();
+        chat.innerHTML += `<div class="advisor-msg-ai">Sorry, I couldn't process that right now.</div>`;
+      }
+    }
+
+    function askAdvisorFromInput() {
+      const input = document.getElementById('advisorInput');
+      const q = input.value.trim();
+      if (!q) return;
+      askAdvisor(q);
+      input.value = '';
+    }
+
+</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+    // ── Advisor Engine ──
+    async function runAdvisorAnalysis() {
+      const btn = document.getElementById('advisorRunBtn');
+      btn.textContent = '⏳ Analyzing...';
+      btn.disabled = true;
+
+      try {
+        const userId = currentUser?.uid || 'demo';
+        const r = await fetch(`${API_BASE}/api/advisor?action=analyze&userId=${userId}`);
+        const data = await r.json();
+
+        if (data.success) {
+          renderAdvisorAnalysis(data);
+        } else {
+          btn.textContent = '❌ Error';
+          setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
+        }
+      } catch (e) {
+        console.error('Advisor error:', e);
+        btn.textContent = '❌ Error';
+        setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
+      }
+    }
+
+    function renderAdvisorAnalysis(data) {
+      document.getElementById('advisorRunBtn').textContent = '🔄 Refresh Analysis';
+      document.getElementById('advisorRunBtn').disabled = false;
+
+      // Show health card
+      document.getElementById('advisorHealthCard').style.display = 'block';
+      document.getElementById('advisorScoreValue').textContent = data.healthScore;
+      document.getElementById('advisorHealthStatus').textContent = data.healthStatus;
+      document.getElementById('advisorBusinessName').textContent = `${data.business.name} • ${data.business.industry} • ${data.business.location}`;
+
+      // Animate score circle
+      const offset = 440 - (440 * data.healthScore / 100);
+      setTimeout(() => {
+        document.getElementById('advisorScoreCircle').style.strokeDashoffset = offset;
+      }, 100);
+
+      // Metrics row
+      const m = data.metrics;
+      const metricsHtml = [
+        { label: 'Revenue', value: '₦' + (m.totalRevenue || 0).toLocaleString(), icon: '💰', color: '#10b981' },
+        { label: 'Leads', value: m.totalLeads, icon: '🎯', color: '#3b82f6' },
+        { label: 'Conversion', value: m.leadConversionRate + '%', icon: '🔄', color: '#f59e0b' },
+        { label: 'Bookings', value: m.totalBookings, icon: '📅', color: '#8b5cf6' },
+        { label: 'Rating', value: m.avgRating + '★', icon: '⭐', color: '#ef4444' },
+      ].map(x => `<div style="text-align:center;"><div style="font-size:20px;">${x.icon}</div><div style="font-size:18px; font-weight:700; color:${x.color};">${x.value}</div><div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">${x.label}</div></div>`).join('');
+      document.getElementById('advisorMetricsRow').innerHTML = metricsHtml;
+
+      // Breakdown bars
+      document.getElementById('advisorBreakdown').style.display = 'grid';
+      const breakdownHtml = Object.entries(data.breakdown).map(([key, val]) => {
+        const pct = (val.score / val.max) * 100;
+        const color = pct >= 75 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444';
+        return `<div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:16px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span style="color:#cbd5e1; font-size:13px; font-weight:500;">${val.label}</span>
+            <span style="color:${color}; font-weight:700; font-size:14px;">${val.score}/${val.max}</span>
+          </div>
+          <div style="height:8px; background:#0f172a; border-radius:4px; overflow:hidden;">
+            <div style="height:100%; width:${pct}%; background:${color}; border-radius:4px; transition:width 1s ease;"></div>
+          </div>
+        </div>`;
+      }).join('');
+      document.getElementById('advisorBreakdown').innerHTML = breakdownHtml;
+
+      // Insights
+      if (data.insights && data.insights.length > 0) {
+        document.getElementById('advisorInsights').style.display = 'block';
+        const insightsHtml = data.insights.map(ins => {
+          const bg = ins.type === 'warning' ? 'rgba(239,68,68,0.1)' : ins.type === 'success' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)';
+          const border = ins.type === 'warning' ? '#ef4444' : ins.type === 'success' ? '#10b981' : '#3b82f6';
+          return `<div style="background:${bg}; border-left:3px solid ${border}; padding:14px 16px; border-radius:8px; color:#e2e8f0; font-size:14px;">
+            ${ins.icon} ${ins.text}
+          </div>`;
+        }).join('');
+        document.getElementById('advisorInsightsList').innerHTML = insightsHtml;
+      }
+
+      // Recommendations
+      if (data.recommendations && data.recommendations.length > 0) {
+        document.getElementById('advisorRecs').style.display = 'block';
+        const recsHtml = data.recommendations.map((rec, i) => {
+          const priorityColor = rec.priority === 'high' ? '#ef4444' : rec.priority === 'medium' ? '#f59e0b' : '#10b981';
+          return `<div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:20px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+              <span style="background:${priorityColor}; color:white; font-size:10px; padding:3px 8px; border-radius:6px; text-transform:uppercase; font-weight:600;">${rec.priority}</span>
+              <h4 style="color:white; margin:0; font-size:15px;">${i+1}. ${rec.title}</h4>
+            </div>
+            <p style="color:#94a3b8; font-size:13px; margin:4px 0 8px;">${rec.description}</p>
+            <div style="display:flex; gap:16px; margin-top:8px;">
+              <div style="font-size:12px; color:#10b981;">✅ ${rec.action}</div>
+            </div>
+            <div style="font-size:12px; color:#3b82f6; margin-top:4px;">📈 ${rec.expectedImpact}</div>
+          </div>`;
+        }).join('');
+        document.getElementById('advisorRecsList').innerHTML = recsHtml;
+      }
+    }
+
+    async function askAdvisor(question) {
+      const chat = document.getElementById('advisorChat');
+      
+      // Add user message
+      chat.innerHTML += `<div class="advisor-msg-user">${question}</div>`;
+      
+      // Typing indicator
+      chat.innerHTML += `<div class="advisor-msg-ai" id="typingMsg">🤔 Thinking...</div>`;
+      chat.scrollTop = chat.scrollHeight;
+
+      try {
+        const r = await fetch(`${API_BASE}/api/advisor`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question,
+            businessName: currentUser?.displayName || 'My Business',
+            industry: 'General',
+            location: 'Nigeria'
+          })
+        });
+        const data = await r.json();
+        
+        document.getElementById('typingMsg').remove();
+        chat.innerHTML += `<div class="advisor-msg-ai">${(data.answer || data.error || 'No response').replace(/\n/g, '<br>')}</div>`;
+        chat.scrollTop = chat.scrollHeight;
+      } catch (e) {
+        document.getElementById('typingMsg').remove();
+        chat.innerHTML += `<div class="advisor-msg-ai">Sorry, I couldn't process that right now.</div>`;
+      }
+    }
+
+    function askAdvisorFromInput() {
+      const input = document.getElementById('advisorInput');
+      const q = input.value.trim();
+      if (!q) return;
+      askAdvisor(q);
+      input.value = '';
+    }
+
+</script>
   <style>
     :root{--bg:#0A0E14;--surface:#0F141C;--card:#131A23;--border:#1E2730;--text:#E8EEF4;--muted:#8B98A8;--cyan:#00D9FF;--green:#00FF9D;--blue:#2563FF;--red:#FF4757;--yellow:#FFB800;--purple:#8B5CF6}
     *{margin:0;padding:0;box-sizing:border-box}
@@ -98,7 +670,15 @@
       .main{margin-left:0;padding:1rem}
       .kpi-grid{grid-template-columns:1fr 1fr}
     }
-  </style>
+  
+.advisor-quick {
+  background: #1e293b; border: 1px solid #334155; color: #cbd5e1;
+  padding: 8px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.2s;
+}
+.advisor-quick:hover { border-color: #10b981; color: #10b981; }
+.advisor-msg-user { background: #1e40af; color: white; padding: 12px 16px; border-radius: 16px 16px 4px 16px; max-width: 80%; align-self: flex-end; }
+.advisor-msg-ai { background: #1e293b; border: 1px solid #334155; color: #e2e8f0; padding: 12px 16px; border-radius: 16px 16px 16px 4px; max-width: 80%; align-self: flex-start; }
+</style>
 </head>
 <body>
   <!-- SIDEBAR -->
@@ -143,6 +723,11 @@
       <div class="nav-item" onclick="switchTab('plugins')" data-tab="plugins">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6m0 8v6M2 12h6m8 0h6M5 5l4 4m6 6l4 4M19 5l-4 4M5 19l4-4"/></svg>
         🔌 MCP & Plugins
+      </div>
+      <div class="nav-item" data-tab="advisor" onclick="showTab('advisor')">
+        <span style="font-size: 20px;">🧠</span>
+        <span class="nav-label">Advisor</span>
+        <span class="nav-badge" style="background: #10b981; color: white; font-size: 9px; padding: 2px 6px; border-radius: 8px;">NEW</span>
       </div>
     </div>
     <div class="sidebar-footer">
@@ -1180,6 +1765,149 @@
 
     // Start
     checkAuth();
-  </script>
+  
+    // ── Advisor Engine ──
+    async function runAdvisorAnalysis() {
+      const btn = document.getElementById('advisorRunBtn');
+      btn.textContent = '⏳ Analyzing...';
+      btn.disabled = true;
+
+      try {
+        const userId = currentUser?.uid || 'demo';
+        const r = await fetch(`${API_BASE}/api/advisor?action=analyze&userId=${userId}`);
+        const data = await r.json();
+
+        if (data.success) {
+          renderAdvisorAnalysis(data);
+        } else {
+          btn.textContent = '❌ Error';
+          setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
+        }
+      } catch (e) {
+        console.error('Advisor error:', e);
+        btn.textContent = '❌ Error';
+        setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
+      }
+    }
+
+    function renderAdvisorAnalysis(data) {
+      document.getElementById('advisorRunBtn').textContent = '🔄 Refresh Analysis';
+      document.getElementById('advisorRunBtn').disabled = false;
+
+      // Show health card
+      document.getElementById('advisorHealthCard').style.display = 'block';
+      document.getElementById('advisorScoreValue').textContent = data.healthScore;
+      document.getElementById('advisorHealthStatus').textContent = data.healthStatus;
+      document.getElementById('advisorBusinessName').textContent = `${data.business.name} • ${data.business.industry} • ${data.business.location}`;
+
+      // Animate score circle
+      const offset = 440 - (440 * data.healthScore / 100);
+      setTimeout(() => {
+        document.getElementById('advisorScoreCircle').style.strokeDashoffset = offset;
+      }, 100);
+
+      // Metrics row
+      const m = data.metrics;
+      const metricsHtml = [
+        { label: 'Revenue', value: '₦' + (m.totalRevenue || 0).toLocaleString(), icon: '💰', color: '#10b981' },
+        { label: 'Leads', value: m.totalLeads, icon: '🎯', color: '#3b82f6' },
+        { label: 'Conversion', value: m.leadConversionRate + '%', icon: '🔄', color: '#f59e0b' },
+        { label: 'Bookings', value: m.totalBookings, icon: '📅', color: '#8b5cf6' },
+        { label: 'Rating', value: m.avgRating + '★', icon: '⭐', color: '#ef4444' },
+      ].map(x => `<div style="text-align:center;"><div style="font-size:20px;">${x.icon}</div><div style="font-size:18px; font-weight:700; color:${x.color};">${x.value}</div><div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">${x.label}</div></div>`).join('');
+      document.getElementById('advisorMetricsRow').innerHTML = metricsHtml;
+
+      // Breakdown bars
+      document.getElementById('advisorBreakdown').style.display = 'grid';
+      const breakdownHtml = Object.entries(data.breakdown).map(([key, val]) => {
+        const pct = (val.score / val.max) * 100;
+        const color = pct >= 75 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444';
+        return `<div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:16px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span style="color:#cbd5e1; font-size:13px; font-weight:500;">${val.label}</span>
+            <span style="color:${color}; font-weight:700; font-size:14px;">${val.score}/${val.max}</span>
+          </div>
+          <div style="height:8px; background:#0f172a; border-radius:4px; overflow:hidden;">
+            <div style="height:100%; width:${pct}%; background:${color}; border-radius:4px; transition:width 1s ease;"></div>
+          </div>
+        </div>`;
+      }).join('');
+      document.getElementById('advisorBreakdown').innerHTML = breakdownHtml;
+
+      // Insights
+      if (data.insights && data.insights.length > 0) {
+        document.getElementById('advisorInsights').style.display = 'block';
+        const insightsHtml = data.insights.map(ins => {
+          const bg = ins.type === 'warning' ? 'rgba(239,68,68,0.1)' : ins.type === 'success' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)';
+          const border = ins.type === 'warning' ? '#ef4444' : ins.type === 'success' ? '#10b981' : '#3b82f6';
+          return `<div style="background:${bg}; border-left:3px solid ${border}; padding:14px 16px; border-radius:8px; color:#e2e8f0; font-size:14px;">
+            ${ins.icon} ${ins.text}
+          </div>`;
+        }).join('');
+        document.getElementById('advisorInsightsList').innerHTML = insightsHtml;
+      }
+
+      // Recommendations
+      if (data.recommendations && data.recommendations.length > 0) {
+        document.getElementById('advisorRecs').style.display = 'block';
+        const recsHtml = data.recommendations.map((rec, i) => {
+          const priorityColor = rec.priority === 'high' ? '#ef4444' : rec.priority === 'medium' ? '#f59e0b' : '#10b981';
+          return `<div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:20px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+              <span style="background:${priorityColor}; color:white; font-size:10px; padding:3px 8px; border-radius:6px; text-transform:uppercase; font-weight:600;">${rec.priority}</span>
+              <h4 style="color:white; margin:0; font-size:15px;">${i+1}. ${rec.title}</h4>
+            </div>
+            <p style="color:#94a3b8; font-size:13px; margin:4px 0 8px;">${rec.description}</p>
+            <div style="display:flex; gap:16px; margin-top:8px;">
+              <div style="font-size:12px; color:#10b981;">✅ ${rec.action}</div>
+            </div>
+            <div style="font-size:12px; color:#3b82f6; margin-top:4px;">📈 ${rec.expectedImpact}</div>
+          </div>`;
+        }).join('');
+        document.getElementById('advisorRecsList').innerHTML = recsHtml;
+      }
+    }
+
+    async function askAdvisor(question) {
+      const chat = document.getElementById('advisorChat');
+      
+      // Add user message
+      chat.innerHTML += `<div class="advisor-msg-user">${question}</div>`;
+      
+      // Typing indicator
+      chat.innerHTML += `<div class="advisor-msg-ai" id="typingMsg">🤔 Thinking...</div>`;
+      chat.scrollTop = chat.scrollHeight;
+
+      try {
+        const r = await fetch(`${API_BASE}/api/advisor`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question,
+            businessName: currentUser?.displayName || 'My Business',
+            industry: 'General',
+            location: 'Nigeria'
+          })
+        });
+        const data = await r.json();
+        
+        document.getElementById('typingMsg').remove();
+        chat.innerHTML += `<div class="advisor-msg-ai">${(data.answer || data.error || 'No response').replace(/\n/g, '<br>')}</div>`;
+        chat.scrollTop = chat.scrollHeight;
+      } catch (e) {
+        document.getElementById('typingMsg').remove();
+        chat.innerHTML += `<div class="advisor-msg-ai">Sorry, I couldn't process that right now.</div>`;
+      }
+    }
+
+    function askAdvisorFromInput() {
+      const input = document.getElementById('advisorInput');
+      const q = input.value.trim();
+      if (!q) return;
+      askAdvisor(q);
+      input.value = '';
+    }
+
+</script>
 </body>
 </html>

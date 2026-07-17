@@ -27,13 +27,14 @@ import refine from '../ergio/api/refine.js';
 import transform from '../ergio/api/transform.js';
 import agents from '../ergio/api/agents.js';
 import mcp from '../ergio/api/mcp.js';
+import advisor from '../ergio/api/advisor.js';
 
 const handlers = {
   auth, engines, business, bookings, payments, generate,
   leads, outreach, reviews, referrals, seo, analytics,
   notifications, card, expenses, invoices,
   'smart-pricing': smartPricing, social, upload, whatsapp, refine,
-  transform, agents, mcp
+  transform, agents, mcp, advisor
 };
 
 export default async function handler(req, res) {
