@@ -403,13 +403,13 @@
     const fbAuth = firebase.auth();
 
     // ── Supabase (database only) ──
-    let supabase = null;
+    let sbClient = null;
     let currentUser = null;
 
     function initSupabase() {
       const cfg = window.ERGIO_CONFIG;
       if (!cfg || !cfg.supabaseUrl) return false;
-      supabase = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+      sbClient = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
       return true;
     }
 
@@ -486,18 +486,18 @@
     }
 
     async function loadBusinessData() {
-      if (!supabase || !currentUser) return;
+      if (!sbClient || !currentUser) return;
 
       try {
         // Get user's business
-        const { data: businesses } = await supabase.from('businesses')
+        const { data: businesses } = await sbClient.from('businesses')
           .select('*').eq('user_id', currentUser.id || currentUser.uid).limit(1);
 
         // Get real counts
-        const { count: leadsCount } = await supabase.from('leads')
+        const { count: leadsCount } = await sbClient.from('leads')
           .select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id || currentUser.uid);
 
-        const { count: bookingsCount } = await supabase.from('bookings')
+        const { count: bookingsCount } = await sbClient.from('bookings')
           .select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id || currentUser.uid);
 
         // Render KPIs with real data
@@ -505,7 +505,7 @@
 
         // Load recent leads
         if (leadsCount > 0) {
-          const { data: recentLeads } = await supabase.from('leads')
+          const { data: recentLeads } = await sbClient.from('leads')
             .select('*').eq('user_id', currentUser.id || currentUser.uid).order('created_date', { ascending: false }).limit(5);
           renderRecentLeads(recentLeads || []);
         } else {
@@ -519,7 +519,7 @@
 
         // Load bookings
         if (bookingsCount > 0) {
-          const { data: bookings } = await supabase.from('bookings')
+          const { data: bookings } = await sbClient.from('bookings')
             .select('*').eq('user_id', currentUser.id || currentUser.uid).order('created_date', { ascending: false }).limit(10);
           renderBookings(bookings || []);
         }
