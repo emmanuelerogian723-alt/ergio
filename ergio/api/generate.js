@@ -210,10 +210,19 @@ Return ONLY JSON:
   "contactInfo": {"phone": "+234...", "email": "info@...", "address": "address in ${plan.city}", "whatsapp": "+234..."}
 }`;
 
-    const contentResult = await callGroq([
-      { role: 'system', content: 'You are ERGIO, expert copywriter for Nigerian businesses. Return only valid JSON.' },
-      { role: 'user', content: contentPrompt }
-    ], { temperature: 0.75, maxTokens: 3000, response_format: { type: 'json_object' } });
+    let contentResult;
+    try {
+      contentResult = await Promise.race([
+        callGroq([
+          { role: 'system', content: 'You are ERGIO, expert copywriter for Nigerian businesses. Return only valid JSON.' },
+          { role: 'user', content: contentPrompt }
+        ], { temperature: 0.75, maxTokens: 3000, response_format: { type: 'json_object' } }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Content AI timeout')), 20000))
+      ]);
+    } catch (contentErr) {
+      console.error('Content AI failed, using fallback:', contentErr.message);
+      contentResult = '{}';  // Will trigger the fallback content
+    }
 
     let content;
     try {
