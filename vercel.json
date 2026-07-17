@@ -1,7 +1,28 @@
 {
   "functions": {
     "api/[endpoint].js": {
+      "maxDuration": 60
+    },
+    "api/generate.js": {
+      "maxDuration": 60
+    },
+    "api/site.js": {
       "maxDuration": 30
+    },
+    "api/mcp.js": {
+      "maxDuration": 30
+    },
+    "api/logo.js": {
+      "maxDuration": 30
+    },
+    "api/critique.js": {
+      "maxDuration": 30
+    },
+    "api/advisor.js": {
+      "maxDuration": 30
+    },
+    "api/firebase-config.js": {
+      "maxDuration": 10
     }
   },
   "rewrites": [
