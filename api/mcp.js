@@ -306,7 +306,8 @@ export default async function handler(req, res) {
 
   const action = req.query.action || '';
   let body = {};
-  try { body = JSON.parse(req.body || '{}'); } catch { body = {}; }
+  if (typeof req.body === 'object' && req.body !== null) { body = req.body; }
+  else { try { body = JSON.parse(req.body || '{}'); } catch { body = {}; } }
   const userId = body.userId || req.query.userId || '';
 
   // ── GET: List tools & marketplace ──
