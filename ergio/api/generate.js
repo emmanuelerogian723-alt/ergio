@@ -35,13 +35,28 @@ export default async function handler(req, res) {
 User's input: "${prompt}"
 Additional answers: ${JSON.stringify(answers || {})}
 
-If the user mentions "3D", "interactive", "animated", "immersive", "motion", or wants something unique, set websiteType to "3d". Otherwise use "standard".
+Detect the website category from the user's prompt:
+- "restaurant" → restaurant (menu, reservations, gallery)
+- "shop" or "store" or "product" or "buy" or "sell" → ecommerce (product grid, cart, checkout)
+- "portfolio" or "showcase" or "creative" → portfolio (project showcase)
+- "saas" or "software" or "app" or "platform" or "api" → saas (features, pricing tiers)
+- "blog" or "news" or "articles" or "magazine" → blog (article grid, categories)
+- "property" or "real estate" or "housing" or "rent" → realestate (listings, search)
+- "gym" or "fitness" or "yoga" or "workout" → fitness (class schedule, membership)
+- "clinic" or "doctor" or "hospital" or "health" or "medical" → clinic (appointments, doctors)
+- "agency" or "studio" or "firm" or "consultancy" → agency (services, team, process)
+- "school" or "course" or "academy" or "tutor" → education (courses, enrollment)
+- "event" or "conference" or "wedding" → events (schedule, tickets, speakers)
+- everything else → landing (general business landing page)
+
+If the user mentions "3D", "interactive", "animated", "immersive", "motion", set websiteType to "3d".
 
 Create a business plan. Return ONLY valid JSON with this structure:
 {
   "businessName": "A catchy, professional name",
   "tagline": "Short memorable tagline",
   "type": "business type (e.g. restaurant, salon, design studio)",
+  "websiteCategory": "restaurant|ecommerce|portfolio|saas|blog|realestate|fitness|clinic|agency|education|events|landing",
   "websiteType": "standard" or "3d" (use 3d for interactive/immersive requests),
   "designStyle": "modern|minimal|luxury|bold|playful",
   "description": "2-3 sentence business description",
@@ -148,6 +163,21 @@ Design style: ${plan.designStyle || 'modern'}
 IMPORTANT: Write like Apple and Nike — bold, concise, powerful. No generic phrases like "We are committed to" or "Quality service you can trust."
 Use active voice. Make every sentence punch. Include Nigerian cultural references where natural.
 
+Based on the website category "${plan.websiteCategory || 'landing'}", include the appropriate type-specific fields:
+
+- restaurant: Include "menu" array with items [{name, description, price, category}]
+- ecommerce: Include "products" array [{name, description, price, image (search query), category}]
+- portfolio: Include "projects" array [{title, description, tags, image (search query)}]
+- saas: Include "pricingPlans" array [{name, price, period, features[], popular}]
+- blog: Include "articles" array [{title, excerpt, category, date, readTime}]
+- realestate: Include "properties" array [{title, price, location, beds, baths, type, image}]
+- fitness: Include "classList" array [{name, description, schedule, duration, trainer}]
+- clinic: Include "doctors" array [{name, specialty, available, image}] and "services" list
+- agency: Include "team" array [{name, role, bio, image}] and "process" array [{step, title, description}]
+- education: Include "courses" array [{title, description, duration, price, level}]
+- events: Include "eventSchedule" array [{time, title, speaker, description}] and "speakers" array
+- landing: Standard services + testimonials
+
 Return JSON with:
 {
   "hero": {
@@ -164,6 +194,18 @@ Return JSON with:
   "faq": [
     {"q": "question", "a": "answer"}
   ],
+  "menu": [{"name": "item", "description": "desc", "price": 2500, "category": "starters|mains|desserts|drinks"}],
+  "products": [{"name": "product", "description": "desc", "price": 5000, "category": "category", "image": "search query"}],
+  "projects": [{"title": "project", "description": "desc", "tags": ["tag1"], "image": "search query"}],
+  "pricingPlans": [{"name": "plan", "price": 10000, "period": "month", "features": ["feat1"], "popular": false}],
+  "articles": [{"title": "article", "excerpt": "summary", "category": "category", "date": "2026-01-01", "readTime": "5 min"}],
+  "properties": [{"title": "property", "price": 5000000, "location": "Lagos", "beds": 3, "baths": 2, "type": "rent|sale", "image": "search query"}],
+  "classList": [{"name": "class", "description": "desc", "schedule": "Mon 6am", "duration": "60 min", "trainer": "name"}],
+  "doctors": [{"name": "Dr. Name", "specialty": "specialty", "available": "Mon-Fri", "image": "search query"}],
+  "courses": [{"title": "course", "description": "desc", "duration": "12 weeks", "price": 50000, "level": "beginner"}],
+  "team": [{"name": "person", "role": "role", "bio": "short bio", "image": "search query"}],
+  "process": [{"step": 1, "title": "title", "description": "desc"}],
+  "eventSchedule": [{"time": "9:00", "title": "title", "speaker": "name", "description": "desc"}],
   "seoTitle": "SEO optimized title tag",
   "seoDescription": "SEO meta description",
   "contactInfo": {
@@ -273,6 +315,306 @@ Return JSON with:
     res.end();
   }
 }
+
+
+
+// ============ TYPE-SPECIFIC SECTION GENERATORS ============
+function generateTypeSections(plan, content, colors, images = {}) {
+  const cat = plan.websiteCategory || 'landing';
+  const sections = [];
+  
+  // ── RESTAURANT: Menu Section ──
+  if (cat === 'restaurant' && content.menu && content.menu.length) {
+    const categories = {};
+    content.menu.forEach(item => {
+      const c = item.category || 'Mains';
+      if (!categories[c]) categories[c] = [];
+      categories[c].push(item);
+    });
+    sections.push(`
+    <section id="menu">
+      <div class="section-header reveal">
+        <h2>Our Menu</h2>
+        <p>Crafted with love, served with pride</p>
+      </div>
+      <div class="menu-categories stagger">
+        ${Object.entries(categories).map(([cat, items]) => `
+        <div class="menu-category">
+          <h3 class="menu-cat-title">${cat.charAt(0).toUpperCase() + cat.slice(1)}</h3>
+          ${items.map(item => `
+          <div class="menu-item">
+            <div class="menu-item-info">
+              <h4>${item.name}</h4>
+              <p>${item.description || ''}</p>
+            </div>
+            <div class="menu-item-price">₦${(item.price || 0).toLocaleString()}</div>
+          </div>`).join('')}
+        </div>`).join('')}
+      </div>
+    </section>`);
+  }
+  
+  // ── ECOMMERCE: Product Grid ──
+  if (cat === 'ecommerce' && content.products && content.products.length) {
+    const cats = {};
+    content.products.forEach(p => {
+      const c = p.category || 'All';
+      if (!cats[c]) cats[c] = [];
+      cats[c].push(p);
+    });
+    sections.push(`
+    <section id="products">
+      <div class="section-header reveal">
+        <h2>Our Products</h2>
+        <p>Shop our collection</p>
+      </div>
+      <div class="product-grid stagger">
+        ${content.products.map(p => `
+        <div class="product-card">
+          <div class="product-image" style="background:linear-gradient(135deg,${colors.primary}22,${colors.accent}22);display:flex;align-items:center;justify-content:center;min-height:200px">
+            <span style="font-size:3rem">${(p.category || '📦').charAt(0) === '📦' ? '📦' : '🛍️'}</span>
+          </div>
+          <div class="product-info">
+            <span class="product-cat">${p.category || 'General'}</span>
+            <h3>${p.name}</h3>
+            <p>${p.description || ''}</p>
+            <div class="product-bottom">
+              <span class="product-price">₦${(p.price || 0).toLocaleString()}</span>
+              <button class="btn-add-cart" onclick="alert('Added: ${p.name}')">Add to Cart</button>
+            </div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </section>`);
+  }
+  
+  // ── PORTFOLIO: Projects Showcase ──
+  if (cat === 'portfolio' && content.projects && content.projects.length) {
+    sections.push(`
+    <section id="projects">
+      <div class="section-header reveal">
+        <h2>Featured Work</h2>
+        <p>Selected projects we're proud of</p>
+      </div>
+      <div class="project-grid stagger">
+        ${content.projects.map((p, i) => `
+        <div class="project-card reveal-scale" style="background:linear-gradient(135deg,${colors.primary}11,${colors.accent}11);border:1px solid rgba(255,255,255,.06);border-radius:20px;overflow:hidden">
+          <div style="aspect-ratio:16/10;background:linear-gradient(135deg,${colors.primary}33,${colors.accent}22);display:flex;align-items:center;justify-content:center">
+            <span style="font-size:3rem;opacity:.5">${['🎨','💼','🚀','💡','⚡'][i % 5]}</span>
+          </div>
+          <div style="padding:24px">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+              ${(p.tags || []).map(t => `<span style="padding:4px 12px;border-radius:8px;background:${colors.primary}15;color:${colors.primary};font-size:.75rem">${t}</span>`).join('')}
+            </div>
+            <h3 style="font-size:1.2rem;margin:0 0 8px">${p.title}</h3>
+            <p style="color:var(--muted);font-size:.9rem;margin:0">${p.description || ''}</p>
+          </div>
+        </div>`).join('')}
+      </div>
+    </section>`);
+  }
+  
+  // ── SAAS: Pricing Plans ──
+  if (cat === 'saas' && content.pricingPlans && content.pricingPlans.length) {
+    sections.push(`
+    <section id="pricing">
+      <div class="section-header reveal">
+        <h2>Pricing</h2>
+        <p>Simple, transparent pricing for everyone</p>
+      </div>
+      <div class="pricing-grid stagger">
+        ${content.pricingPlans.map(plan => `
+        <div class="pricing-card ${plan.popular ? 'popular' : ''}" style="${plan.popular ? `border:2px solid ${colors.primary}` : ''}">
+          ${plan.popular ? '<div class="popular-badge">Most Popular</div>' : ''}
+          <h3>${plan.name}</h3>
+          <div class="price">₦${(plan.price || 0).toLocaleString()}<span>/${plan.period || 'month'}</span></div>
+          <ul class="price-features">
+            ${(plan.features || []).map(f => `<li>✓ ${f}</li>`).join('')}
+          </ul>
+          <button class="btn-primary" style="width:100%">Get Started</button>
+        </div>`).join('')}
+      </div>
+    </section>`);
+  }
+  
+  // ── BLOG: Article Grid ──
+  if (cat === 'blog' && content.articles && content.articles.length) {
+    sections.push(`
+    <section id="articles">
+      <div class="section-header reveal">
+        <h2>Latest Articles</h2>
+        <p>Insights, stories, and ideas worth reading</p>
+      </div>
+      <div class="blog-grid stagger">
+        ${content.articles.map((a, i) => `
+        <article class="blog-card" onclick="window.location.hash='#article-${i}'">
+          <div style="aspect-ratio:16/9;background:linear-gradient(135deg,${colors.primary}22,${colors.accent}22);display:flex;align-items:center;justify-content:center;border-radius:16px">
+            <span style="font-size:3rem;opacity:.4">📝</span>
+          </div>
+          <div style="padding:20px 0">
+            <span style="color:${colors.primary};font-size:.8rem;font-weight:600">${a.category || 'General'}</span>
+            <h3 style="margin:8px 0;font-size:1.15rem">${a.title}</h3>
+            <p style="color:var(--muted);font-size:.9rem;margin:0 0 12px">${a.excerpt || ''}</p>
+            <div style="display:flex;gap:16px;color:var(--muted);font-size:.8rem">
+              <span>${a.date || ''}</span>
+              <span>${a.readTime || '5 min read'}</span>
+            </div>
+          </div>
+        </article>`).join('')}
+      </div>
+    </section>`);
+  }
+  
+  // ── REAL ESTATE: Property Listings ──
+  if (cat === 'realestate' && content.properties && content.properties.length) {
+    sections.push(`
+    <section id="properties">
+      <div class="section-header reveal">
+        <h2>Available Properties</h2>
+        <p>Find your perfect space</p>
+      </div>
+      <div class="property-grid stagger">
+        ${content.properties.map(p => `
+        <div class="property-card">
+          <div style="aspect-ratio:16/10;background:linear-gradient(135deg,${colors.primary}22,${colors.accent}22);display:flex;align-items:center;justify-content:center;border-radius:16px 16px 0 0">
+            <span style="font-size:3rem;opacity:.5">🏠</span>
+          </div>
+          <div style="padding:20px">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
+              <h3 style="margin:0;font-size:1.1rem">${p.title}</h3>
+              <span style="padding:4px 10px;border-radius:8px;background:${p.type==='sale'?'#22c55e15':'#f59e0b15'};color:${p.type==='sale'?'#22c55e':'#f59e0b'};font-size:.7rem;font-weight:700;text-transform:uppercase">${p.type || 'sale'}</span>
+            </div>
+            <p style="color:var(--muted);font-size:.85rem;margin:0 0 12px">📍 ${p.location || 'Lagos'}</p>
+            <div style="display:flex;gap:16px;margin-bottom:16px;font-size:.85rem;color:var(--muted)">
+              ${p.beds ? `<span>🛏️ ${p.beds} beds</span>` : ''}
+              ${p.baths ? `<span>🚿 ${p.baths} baths</span>` : ''}
+            </div>
+            <div style="font-size:1.3rem;font-weight:800;color:${colors.primary}">₦${(p.price || 0).toLocaleString()}<span style="font-size:.8rem;color:var(--muted);font-weight:400">/${p.type === 'rent' ? 'year' : 'one-time'}</span></div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </section>`);
+  }
+  
+  // ── FITNESS: Class Schedule ──
+  if (cat === 'fitness' && content.classList && content.classList.length) {
+    sections.push(`
+    <section id="classes">
+      <div class="section-header reveal">
+        <h2>Class Schedule</h2>
+        <p>Find your perfect workout</p>
+      </div>
+      <div class="class-grid stagger">
+        ${content.classList.map(c => `
+        <div class="class-card">
+          <div style="font-size:2rem;margin-bottom:12px">${['💪','🧘','🏃','🥊','🚴','🏋️'][Math.floor(Math.random()*6)]}</div>
+          <h3>${c.name}</h3>
+          <p style="color:var(--muted);font-size:.9rem">${c.description || ''}</p>
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:.8rem;color:var(--muted)">${c.schedule || ''}</div>
+              <div style="font-size:.8rem;color:var(--muted)">${c.duration || ''} · ${c.trainer || ''}</div>
+            </div>
+            <button class="btn-primary" style="padding:8px 16px;font-size:.85rem">Book</button>
+          </div>
+        </div>`).join('')}
+      </div>
+    </section>`);
+  }
+  
+  // ── CLINIC: Doctors ──
+  if (cat === 'clinic' && content.doctors && content.doctors.length) {
+    sections.push(`
+    <section id="doctors">
+      <div class="section-header reveal">
+        <h2>Meet Our Doctors</h2>
+        <p>Experienced professionals you can trust</p>
+      </div>
+      <div class="doctors-grid stagger">
+        ${content.doctors.map(d => `
+        <div class="doctor-card">
+          <div style="aspect-ratio:1;background:linear-gradient(135deg,${colors.primary}22,${colors.accent}22);border-radius:50%;max-width:120px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center">
+            <span style="font-size:3rem">👨‍⚕️</span>
+          </div>
+          <h3 style="text-align:center">${d.name}</h3>
+          <p style="text-align:center;color:${colors.primary};font-size:.85rem">${d.specialty || ''}</p>
+          <p style="text-align:center;color:var(--muted);font-size:.8rem;margin-top:8px">${d.available || ''}</p>
+          <button class="btn-primary" style="width:100%;margin-top:16px">Book Appointment</button>
+        </div>`).join('')}
+      </div>
+    </section>`);
+  }
+  
+  // ── EDUCATION: Courses ──
+  if (cat === 'education' && content.courses && content.courses.length) {
+    sections.push(`
+    <section id="courses">
+      <div class="section-header reveal">
+        <h2>Our Courses</h2>
+        <p>Learn from the best, at your own pace</p>
+      </div>
+      <div class="course-grid stagger">
+        ${content.courses.map(c => `
+        <div class="course-card">
+          <div style="padding:4px 12px;border-radius:8px;background:${colors.primary}15;color:${colors.primary};font-size:.7rem;font-weight:700;display:inline-block;margin-bottom:12px;text-transform:uppercase">${c.level || 'beginner'}</div>
+          <h3>${c.title}</h3>
+          <p style="color:var(--muted);font-size:.9rem">${c.description || ''}</p>
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <span style="font-size:.8rem;color:var(--muted)">⏱️ ${c.duration || ''}</span>
+            </div>
+            <span style="font-size:1.2rem;font-weight:800;color:${colors.primary}">₦${(c.price || 0).toLocaleString()}</span>
+          </div>
+          <button class="btn-primary" style="width:100%;margin-top:12px">Enroll Now</button>
+        </div>`).join('')}
+      </div>
+    </section>`);
+  }
+  
+  // ── AGENCY: Team + Process ──
+  if (cat === 'agency') {
+    if (content.team && content.team.length) {
+      sections.push(`
+      <section id="team">
+        <div class="section-header reveal">
+          <h2>Our Team</h2>
+          <p>The minds behind the magic</p>
+        </div>
+        <div class="team-grid stagger">
+          ${content.team.map((m, i) => `
+          <div class="team-card">
+            <div style="aspect-ratio:1;background:linear-gradient(135deg,${colors.primary}22,${colors.accent}22);border-radius:50%;max-width:100px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center">
+              <span style="font-size:2.5rem">${['👨','👩','🧑','👨‍💼','👩‍💼'][i % 5]}</span>
+            </div>
+            <h3 style="text-align:center">${m.name}</h3>
+            <p style="text-align:center;color:${colors.primary};font-size:.85rem">${m.role || ''}</p>
+            <p style="text-align:center;color:var(--muted);font-size:.8rem;margin-top:8px">${m.bio || ''}</p>
+          </div>`).join('')}
+        </div>
+      </section>`);
+    }
+    if (content.process && content.process.length) {
+      sections.push(`
+      <section id="process">
+        <div class="section-header reveal">
+          <h2>How We Work</h2>
+          <p>Our proven process for delivering results</p>
+        </div>
+        <div class="process-grid stagger">
+          ${content.process.map((p, i) => `
+          <div class="process-step">
+            <div style="width:50px;height:50px;border-radius:50%;background:${colors.primary};color:#000;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem;margin:0 auto 16px">${p.step || i+1}</div>
+            <h3 style="text-align:center">${p.title}</h3>
+            <p style="text-align:center;color:var(--muted);font-size:.9rem">${p.description || ''}</p>
+          </div>`).join('')}
+        </div>
+      </section>`);
+    }
+  }
+  
+  return sections.join('\n');
+}
+
 
 // ============ WEBSITE HTML GENERATOR (STANDARD + MOTION GRAPHICS) ============
 function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {}) {
@@ -461,6 +803,52 @@ function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {})
     ::-webkit-scrollbar{width:8px}
     ::-webkit-scrollbar-track{background:var(--bg)}
     ::-webkit-scrollbar-thumb{background:var(--primary);border-radius:4px}
+
+    /* === TYPE-SPECIFIC STYLES === */
+    .menu-categories{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem}
+    .menu-category{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:16px;padding:24px}
+    .menu-cat-title{font-size:1.1rem;font-weight:700;color:var(--primary);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .menu-item{display:flex;justify-content:space-between;align-items:start;padding:12px 0;border-bottom:1px dashed rgba(255,255,255,.04)}
+    .menu-item-info h4{font-size:.95rem;margin:0 0 4px}
+    .menu-item-info p{font-size:.85rem;color:var(--muted);margin:0}
+    .menu-item-price{font-weight:700;color:var(--primary);white-space:nowrap;padding-left:16px}
+    .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.5rem}
+    .product-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden;transition:all .3s}
+    .product-card:hover{transform:translateY(-4px);border-color:var(--primary)}
+    .product-info{padding:20px}
+    .product-cat{font-size:.75rem;color:var(--primary);font-weight:600;text-transform:uppercase}
+    .product-info h3{font-size:1.1rem;margin:8px 0 4px}
+    .product-info p{font-size:.85rem;color:var(--muted);margin:0 0 16px}
+    .product-bottom{display:flex;justify-content:space-between;align-items:center}
+    .product-price{font-size:1.2rem;font-weight:800;color:var(--primary)}
+    .btn-add-cart{background:var(--primary);color:#09090B;border:none;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;transition:.3s}
+    .btn-add-cart:hover{transform:scale(1.05)}
+    .project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.5rem}
+    .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;max-width:1000px;margin:0 auto}
+    .pricing-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:32px;position:relative;transition:all .3s}
+    .pricing-card.popular{transform:scale(1.05)}
+    .pricing-card:hover{border-color:var(--primary)}
+    .popular-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--primary);color:#000;padding:4px 16px;border-radius:100px;font-size:.75rem;font-weight:700}
+    .pricing-card h3{font-size:1.2rem;margin:0 0 8px}
+    .price{font-size:2.5rem;font-weight:900;margin:16px 0}
+    .price span{font-size:.9rem;font-weight:400;color:var(--muted)}
+    .price-features{list-style:none;padding:0;margin:0 0 24px}
+    .price-features li{padding:8px 0;color:var(--muted);font-size:.9rem}
+    .blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:2rem}
+    .blog-card{cursor:pointer;transition:all .3s}
+    .blog-card:hover{transform:translateY(-4px)}
+    .property-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.5rem}
+    .property-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden;transition:all .3s}
+    .property-card:hover{transform:translateY(-4px);border-color:var(--primary)}
+    .class-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem}
+    .class-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:24px;transition:all .3s}
+    .class-card:hover{border-color:var(--primary);transform:translateY(-2px)}
+    .doctors-grid,.team-grid,.course-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem}
+    .doctor-card,.team-card,.course-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:24px;transition:all .3s}
+    .doctor-card:hover,.team-card:hover,.course-card:hover{border-color:var(--primary)}
+    .process-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem}
+    .process-step{text-align:center}
+
   </style>
 </head>
 <body>
@@ -554,6 +942,7 @@ function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {})
   </section>` : ''}
 
   <!-- TESTIMONIALS -->
+  ${generateTypeSections(plan, content, colors, images)}
   ${testimonials.length ? `
   <section id="testimonials">
     <h2 class="section-title reveal">Client <span>Reviews</span></h2>
