@@ -180,6 +180,7 @@ function startBuild(prompt) {
   }
   buildAnswers = { prompt };
   buildOverlay.classList.add('active');
+  setTimeout(() => buildOverlay.classList.add('visible'), 50);
   document.body.style.overflow = 'hidden';
 
   qaPanel.style.display = 'flex';

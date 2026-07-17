@@ -1,605 +1,652 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ERGIO Dashboard — Your Business OS</title>
-<meta name="robots" content="noindex">
-<link rel="icon" href="../assets/ergio-logo.jpg">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="../config.js"></script>
-<style>
-:root{--bg:#0a0a0a;--bg2:#111;--card:#161616;--border:#222;--cyan:#00D9FF;--green:#10F981;--amber:#FFB020;--red:#FF6B6B;--muted:#888;--text:#fff}
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,sans-serif;overflow-x:hidden}
-.sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:var(--bg2);border-right:1px solid var(--border);padding:1.5rem 1rem;z-index:100}
-.sidebar-logo{display:flex;align-items:center;gap:.6rem;margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
-.sidebar-logo img{width:32px;height:32px;border-radius:8px}
-.sidebar-logo span{font-weight:800;font-size:1.1rem}
-.nav-item{display:flex;align-items:center;gap:.7rem;padding:.7rem 1rem;border-radius:10px;color:var(--muted);text-decoration:none;font-size:.9rem;cursor:pointer;transition:all .2s;margin-bottom:.3rem}
-.nav-item:hover{background:var(--card);color:var(--text)}
-.nav-item.active{background:var(--card);color:var(--cyan)}
-.main{margin-left:240px;padding:2rem;min-height:100vh}
-.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}
-.topbar h1{font-size:1.5rem;font-weight:700}
-.topbar-sub{color:var(--muted);font-size:.85rem;margin-top:.2rem}
-.user-badge{display:flex;align-items:center;gap:.6rem;padding:.5rem 1rem;background:var(--card);border:1px solid var(--border);border-radius:100px}
-.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--green))}
-/* KPI cards */
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
-.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.2rem}
-.kpi-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05rem}
-.kpi-value{font-size:1.8rem;font-weight:700;margin-top:.4rem}
-.kpi-change{font-size:.75rem;margin-top:.3rem}
-.kpi-change.up{color:var(--green)}
-.kpi-change.down{color:var(--red)}
-/* Content grid */
-.content-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:1rem;margin-bottom:1.5rem}
-.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.2rem;overflow:hidden}
-.card h3{font-size:1rem;font-weight:600;margin-bottom:1rem}
-/* Revenue chart */
-.chart-container{height:180px;display:flex;align-items:flex-end;gap:.5rem;padding-top:1rem}
-.bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:.3rem;min-height:20px}
-.bar-fill{width:100%;background:linear-gradient(180deg,var(--cyan),rgba(0,217,255,.2));border-radius:6px 6px 0 0;transition:height .5s ease}
-.bar-value{font-size:.7rem;color:var(--muted)}
-.bar-label{font-size:.7rem;color:var(--muted)}
-/* Website preview */
-.website-preview{border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-top:1rem}
-.website-preview iframe{width:100%;height:400px;border:none}
-.website-preview-bar{background:var(--bg2);padding:.5rem 1rem;display:flex;align-items:center;gap:.5rem;border-bottom:1px solid var(--border)}
-.website-preview-bar .dots{display:flex;gap:.3rem}
-.website-preview-bar .dots span{width:10px;height:10px;border-radius:50%}
-/* Activity feed */
-.activity-item{display:flex;align-items:flex-start;gap:.8rem;padding:.7rem 0;border-bottom:1px solid var(--border)}
-.activity-item:last-child{border-bottom:none}
-.activity-dot{width:8px;height:8px;border-radius:50%;margin-top:.4rem;flex-shrink:0}
-.activity-dot.green{background:var(--green)}.activity-dot.cyan{background:var(--cyan)}.activity-dot.blue{background:#3B82F6}.activity-dot.amber{background:var(--amber)}
-/* Engine cards */
-.engine-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem}
-.engine-item{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1rem}
-.engine-name{font-weight:600;font-size:.9rem;margin-bottom:.3rem}
-.engine-status{font-size:.8rem;color:var(--muted)}
-.engine-status.active{color:var(--green)}
-/* Empty states */
-.empty-state{text-align:center;padding:2rem 1rem;color:var(--muted)}
-.empty-state-icon{font-size:2.5rem;margin-bottom:.5rem;opacity:.5}
-.empty-state-text{font-size:.9rem}
-.empty-state-action{margin-top:1rem}
-.empty-state-action a{display:inline-block;padding:.6rem 1.5rem;background:linear-gradient(135deg,var(--cyan),var(--green));color:#000;border-radius:100px;text-decoration:none;font-weight:600;font-size:.85rem}
-/* Build button */
-.build-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1.5rem;background:linear-gradient(135deg,var(--cyan),var(--green));color:#000;border-radius:100px;text-decoration:none;font-weight:700;font-size:.9rem;border:none;cursor:pointer;transition:all .2s}
-.build-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,217,255,.3)}
-/* Loading */
-.loading{text-align:center;padding:3rem;color:var(--muted)}
-.spinner-lg{display:inline-block;width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-/* Login prompt */
-.login-prompt{text-align:center;padding:4rem 2rem}
-.login-prompt a{display:inline-block;margin-top:1rem;padding:.8rem 2rem;background:linear-gradient(135deg,var(--cyan),var(--green));color:#09090B;border-radius:100px;text-decoration:none;font-weight:700}
-/* Quick actions */
-.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1.5rem}
-.quick-action{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center;cursor:pointer;transition:all .2s;text-decoration:none;color:var(--text);display:block}
-.quick-action:hover{border-color:var(--cyan);transform:translateY(-2px)}
-.quick-action-icon{font-size:1.5rem;margin-bottom:.4rem}
-.quick-action-label{font-size:.8rem;color:var(--muted)}
-/* Leads list */
-.lead-item{padding:1rem;border-bottom:1px solid var(--border)}
-.lead-item:last-child{border-bottom:none}
-.lead-score{padding:.2rem .5rem;border-radius:6px;font-size:.7rem;font-weight:600}
-.lead-score.high{background:rgba(16,249,129,.15);color:var(--green)}
-.lead-score.medium{background:rgba(255,176,32,.15);color:var(--amber)}
-.lead-score.low{background:rgba(136,136,136,.15);color:var(--muted)}
-@media(max-width:768px){.sidebar{display:none}.main{margin-left:0;padding:1rem}.kpi-grid{grid-template-columns:repeat(2,1fr)}.content-grid{grid-template-columns:1fr}.quick-actions{grid-template-columns:repeat(2,1fr)}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — ERGIO</title>
+  <link rel="icon" href="../favicon.ico">
+  <script src="../config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--bg:#0A0E14;--surface:#0F141C;--card:#131A23;--border:#1E2730;--text:#E8EEF4;--muted:#8B98A8;--cyan:#00D9FF;--green:#00FF9D;--blue:#2563FF;--red:#FF4757;--yellow:#FFB800;--purple:#8B5CF6}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+    .sidebar{width:240px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);min-height:100vh;display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100}
+    .sidebar-logo{padding:1.5rem;display:flex;align-items:center;gap:.6rem;border-bottom:1px solid var(--border)}
+    .sidebar-logo .dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}
+    .sidebar-logo span{font-size:1.4rem;font-weight:800}
+    .nav-items{flex:1;padding:1rem 0;overflow-y:auto}
+    .nav-item{display:flex;align-items:center;gap:.8rem;padding:.8rem 1.5rem;color:var(--muted);cursor:pointer;transition:all .2s;font-size:.92rem;font-weight:500;border-left:3px solid transparent}
+    .nav-item:hover{color:var(--text);background:rgba(255,255,255,.02)}
+    .nav-item.active{color:var(--cyan);border-left-color:var(--cyan);background:rgba(0,217,255,.05)}
+    .nav-item svg{width:18px;height:18px;flex-shrink:0}
+    .sidebar-footer{padding:1rem 1.5rem;border-top:1px solid var(--border)}
+    .user-badge{display:flex;align-items:center;gap:.6rem}
+    .user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--blue));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:#fff}
+    .user-info{flex:1;min-width:0}
+    .user-name{font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .user-email{font-size:.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .logout-btn{background:none;border:none;color:var(--muted);cursor:pointer;padding:.3rem;font-size:.85rem}
+    .logout-btn:hover{color:var(--red)}
+    .main{flex:1;margin-left:240px;padding:2rem;min-height:100vh}
+    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}
+    .topbar h1{font-size:1.6rem;font-weight:700}
+    .topbar .actions{display:flex;gap:.8rem}
+    .btn{padding:.7rem 1.2rem;border:none;border-radius:10px;font-size:.88rem;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.5rem}
+    .btn-primary{background:linear-gradient(135deg,var(--cyan),var(--blue));color:#fff}
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,217,255,.3)}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}
+    .btn-ghost:hover{border-color:var(--cyan);color:var(--cyan)}
+    .loading{text-align:center;padding:4rem 2rem;color:var(--muted)}
+    .spinner-lg{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .login-prompt{text-align:center;padding:4rem 2rem}
+    .login-prompt h2{font-size:1.5rem;margin-bottom:.5rem}
+    .login-prompt p{color:var(--muted);margin-bottom:1.5rem}
+    .login-prompt .btn{margin:0 auto}
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem}
+    .kpi-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem;transition:all .2s}
+    .kpi-card:hover{border-color:var(--cyan);transform:translateY(-2px)}
+    .kpi-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:.8rem;font-size:1.2rem}
+    .kpi-value{font-size:1.8rem;font-weight:800;margin-bottom:.2rem}
+    .kpi-label{font-size:.8rem;color:var(--muted)}
+    .kpi-trend{font-size:.75rem;margin-top:.3rem}
+    .kpi-trend.up{color:var(--green)}
+    .kpi-trend.down{color:var(--red)}
+    .panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem}
+    .panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem}
+    .panel-title{font-size:1.1rem;font-weight:700}
+    .panel-action{font-size:.85rem;color:var(--cyan);cursor:pointer;text-decoration:none}
+    .empty-state{text-align:center;padding:2.5rem 1rem;color:var(--muted)}
+    .empty-state .icon{font-size:2.5rem;margin-bottom:.8rem;opacity:.5}
+    .empty-state h3{font-size:1.05rem;color:var(--text);margin-bottom:.3rem}
+    .empty-state p{font-size:.85rem;margin-bottom:1rem;max-width:300px;margin-left:auto;margin-right:auto}
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+    .website-preview{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:1.5rem}
+    .website-preview-header{padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+    .website-url{font-size:.85rem;color:var(--cyan);font-family:monospace}
+    .website-frame{width:100%;height:400px;border:none;background:#fff}
+    .lead-item{display:flex;align-items:center;gap:1rem;padding:1rem;border:1px solid var(--border);border-radius:12px;margin-bottom:.8rem;transition:all .2s}
+    .lead-item:hover{border-color:var(--cyan)}
+    .lead-score{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;flex-shrink:0}
+    .lead-info{flex:1;min-width:0}
+    .lead-name{font-weight:600;font-size:.92rem}
+    .lead-detail{font-size:.8rem;color:var(--muted)}
+    .lead-action{padding:.5rem 1rem;border-radius:8px;background:rgba(0,217,255,.1);color:var(--cyan);border:none;cursor:pointer;font-size:.82rem;font-weight:600}
+    .booking-item{display:flex;align-items:center;gap:1rem;padding:1rem;border:1px solid var(--border);border-radius:12px;margin-bottom:.8rem}
+    .booking-date{width:50px;text-align:center;flex-shrink:0}
+    .booking-date .day{font-size:1.3rem;font-weight:800}
+    .booking-date .month{font-size:.7rem;color:var(--muted);text-transform:uppercase}
+    .booking-info{flex:1}
+    .booking-name{font-weight:600;font-size:.92rem}
+    .booking-service{font-size:.8rem;color:var(--muted)}
+    .booking-status{padding:.3rem .8rem;border-radius:8px;font-size:.75rem;font-weight:600}
+    .status-pending{background:rgba(255,184,0,.15);color:var(--yellow)}
+    .status-confirmed{background:rgba(0,255,157,.15);color:var(--green)}
+    .status-completed{background:rgba(0,217,255,.15);color:var(--cyan)}
+    .quick-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:2rem}
+    .quick-action{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.2rem;cursor:pointer;transition:all .2s;text-align:center}
+    .quick-action:hover{border-color:var(--cyan);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+    .quick-action .icon{font-size:1.5rem;margin-bottom:.5rem}
+    .quick-action .label{font-size:.85rem;font-weight:600}
+    .quick-action .desc{font-size:.72rem;color:var(--muted);margin-top:.2rem}
+    @media(max-width:768px){
+      .sidebar{display:none}
+      .main{margin-left:0;padding:1rem}
+      .kpi-grid{grid-template-columns:1fr 1fr}
+    }
+  </style>
 </head>
 <body>
+  <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-logo">
-      <img src="../assets/ergio-logo.jpg" alt="ERGIO">
+      <div class="dot"></div>
       <span>ERGIO</span>
     </div>
-    <a class="nav-item active" onclick="showSection('overview')">📊 Overview</a>
-    <a class="nav-item" onclick="showSection('website')">🌐 My Website</a>
-    <a class="nav-item" onclick="showSection('leads')">🎯 Leads</a>
-    <a class="nav-item" onclick="showSection('bookings')">📅 Bookings</a>
-    <a class="nav-item" onclick="showSection('outreach')">📧 Outreach</a>
-    <a class="nav-item" onclick="showSection('engines')">⚙️ Engines</a>
-    <a class="nav-item" onclick="showSection('clients')">👥 Clients</a>
-    <a class="nav-item" href="analytics.html">📊 Analytics</a>
-    <a class="nav-item" onclick="logout()">🚪 Sign out</a>
+    <div class="nav-items">
+      <div class="nav-item active" onclick="switchTab('overview')" data-tab="overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Overview
+      </div>
+      <div class="nav-item" onclick="switchTab('website')" data-tab="website">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        My Website
+      </div>
+      <div class="nav-item" onclick="switchTab('leads')" data-tab="leads">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Leads
+      </div>
+      <div class="nav-item" onclick="switchTab('bookings')" data-tab="bookings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Bookings
+      </div>
+      <div class="nav-item" onclick="switchTab('outreach')" data-tab="outreach">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Outreach
+      </div>
+      <div class="nav-item" onclick="switchTab('engines')" data-tab="engines">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        Engines
+      </div>
+      <div class="nav-item" onclick="switchTab('analytics')" data-tab="analytics">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Analytics
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-badge">
+        <div class="user-avatar" id="userAvatar">E</div>
+        <div class="user-info">
+          <div class="user-name" id="userName">Loading...</div>
+          <div class="user-email" id="userEmail">—</div>
+        </div>
+        <button class="logout-btn" onclick="handleLogout()" title="Sign out">⏻</button>
+      </div>
+    </div>
   </div>
 
+  <!-- MAIN -->
   <div class="main">
-    <div class="topbar">
-      <div>
-        <h1 id="pageTitle">Dashboard</h1>
-        <div class="topbar-sub" id="pageSub">Welcome back to your business command center</div>
-      </div>
-      <div style="display:flex;gap:1rem;align-items:center">
-        <a href="../index.html" class="build-btn">+ Build new website</a>
-        <div class="user-badge">
-          <div class="avatar"></div>
-          <span id="userName">User</span>
-        </div>
-      </div>
-    </div>
-
-    <div id="loginPrompt" style="display:none">
-      <div class="login-prompt">
-        <div style="font-size:3rem;margin-bottom:1rem">🔐</div>
-        <h2>Welcome to ERGIO</h2>
-        <p style="color:var(--muted);margin:1rem 0">Sign in to access your business dashboard.</p>
-        <a href="../auth/login.html">Sign in →</a>
-      </div>
-    </div>
-
-    <div id="dashboardContent" style="display:none">
-      <!-- QUICK ACTIONS -->
-      <div class="quick-actions">
-        <a href="../index.html" class="quick-action">
-          <div class="quick-action-icon">🏗️</div>
-          <div class="quick-action-label">Build Website</div>
-        </a>
-        <a href="javascript:void(0)" onclick="runLeadScanner()" class="quick-action">
-          <div class="quick-action-icon">🎯</div>
-          <div class="quick-action-label">Find Clients</div>
-        </a>
-        <a href="javascript:void(0)" onclick="showSection('bookings')" class="quick-action">
-          <div class="quick-action-icon">📅</div>
-          <div class="quick-action-label">Bookings</div>
-        </a>
-        <a href="javascript:void(0)" onclick="showSection('outreach')" class="quick-action">
-          <div class="quick-action-icon">📧</div>
-          <div class="quick-action-label">Outreach</div>
-        </a>
-      </div>
-
-      <!-- OVERVIEW SECTION -->
-      <div id="overviewSection">
-        <div class="kpi-grid">
-          <div class="kpi-card">
-            <div class="kpi-label">Total Revenue</div>
-            <div class="kpi-value" id="kpiRevenue">₦0</div>
-            <div class="kpi-change up" id="kpiRevenueChange">—</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Bookings</div>
-            <div class="kpi-value" id="kpiBookings">0</div>
-            <div class="kpi-change" id="kpiBookingsChange" style="color:var(--muted)">—</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Leads Found</div>
-            <div class="kpi-value" id="kpiLeads">0</div>
-            <div class="kpi-change" id="kpiLeadsChange" style="color:var(--muted)">—</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Page Views</div>
-            <div class="kpi-value" id="kpiViews">0</div>
-            <div class="kpi-change up" id="kpiViewsChange">—</div>
-          </div>
-        </div>
-
-        <div class="content-grid">
-          <div class="card">
-            <h3>Revenue This Week</h3>
-            <div class="chart-container" id="revenueChart">
-              <div class="empty-state" style="padding:2rem 0">
-                <div class="empty-state-text">No revenue data yet</div>
-              </div>
-            </div>
-          </div>
-          <div class="card">
-            <h3>Recent Activity</h3>
-            <div id="activityList">
-              <div class="empty-state">
-                <div class="empty-state-icon">📋</div>
-                <div class="empty-state-text">No activity yet. Start by building your website.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="content-grid">
-          <div class="card">
-            <h3>Client Acquisition Engines</h3>
-            <div class="engine-grid" id="engineGrid">
-              <div class="engine-item"><div class="engine-name">Local Discovery</div><div class="engine-status">Not started</div></div>
-              <div class="engine-item"><div class="engine-name">Demand Matching</div><div class="engine-status">Not started</div></div>
-              <div class="engine-item"><div class="engine-name">AI Outreach</div><div class="engine-status">Not started</div></div>
-              <div class="engine-item"><div class="engine-name">Repeat Clients</div><div class="engine-status">Not started</div></div>
-            </div>
-          </div>
-          <div class="card">
-            <h3>Recent Bookings</h3>
-            <div id="bookingsList">
-              <div class="empty-state">
-                <div class="empty-state-icon">📅</div>
-                <div class="empty-state-text">No bookings yet</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- WEBSITE SECTION -->
-      <div id="websiteSection" style="display:none">
-        <div class="card">
-          <h3>Your Website</h3>
-          <div id="websitePreviewContainer">
-            <div class="empty-state" id="noWebsiteState">
-              <div class="empty-state-icon">🌐</div>
-              <div class="empty-state-text">You haven't built a website yet.</div>
-              <div class="empty-state-action">
-                <a href="../index.html">Build your website →</a>
-              </div>
-            </div>
-            <div id="websiteFrame" style="display:none">
-              <div class="website-preview-bar">
-                <div class="dots"><span style="background:#FF5F57"></span><span style="background:#FEBC2E"></span><span style="background:#28C840"></span></div>
-                <span style="color:var(--muted);font-size:.8rem" id="websiteUrl">ergio.app/your-business</span>
-              </div>
-              <div class="website-preview">
-                <iframe id="myWebsiteFrame" title="Your Website"></iframe>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- LEADS SECTION -->
-      <div id="leadsSection" style="display:none">
-        <div class="card">
-          <h3>Lead Scanner Results</h3>
-          <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem">ERGIO scans 70+ search engines to find people who need your services.</p>
-          <div id="leadsList">
-            <div class="empty-state">
-              <div class="empty-state-icon">🎯</div>
-              <div class="empty-state-text">No leads yet. Run the lead scanner to find clients.</div>
-              <div class="empty-state-action">
-                <a href="javascript:void(0)" onclick="runLeadScanner()">Find clients now →</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- BOOKINGS SECTION -->
-      <div id="bookingsSection" style="display:none">
-        <div class="card">
-          <h3>Bookings</h3>
-          <div id="bookingsListFull">
-            <div class="empty-state">
-              <div class="empty-state-icon">📅</div>
-              <div class="empty-state-text">No bookings yet. When clients book through your website, they'll appear here.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- OUTREACH SECTION -->
-      <div id="outreachSection" style="display:none">
-        <div class="card">
-          <h3>AI Outreach Campaigns</h3>
-          <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem">ERGIO writes personalized cold emails to your leads and sends them automatically.</p>
-          <div id="outreachList">
-            <div class="empty-state">
-              <div class="empty-state-icon">📧</div>
-              <div class="empty-state-text">No outreach campaigns yet. Find leads first, then start reaching out.</div>
-              <div class="empty-state-action">
-                <a href="javascript:void(0)" onclick="showSection('leads')">Find leads first →</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ENGINES SECTION -->
-      <div id="enginesSection" style="display:none">
-        <div class="card">
-          <h3>Client Acquisition Engines</h3>
-          <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem">Four automated engines that work 24/7 to find you paying clients.</p>
-          <div class="engine-grid" id="enginesFullGrid">
-            <div class="engine-item"><div class="engine-name">🔍 Local Discovery</div><div class="engine-status">SEO pages + directory submissions + Google Business Profile</div></div>
-            <div class="engine-item"><div class="engine-name">🎯 Demand Matching</div><div class="engine-status">Scans 70+ search engines for people needing your service</div></div>
-            <div class="engine-item"><div class="engine-name">📧 AI Outreach</div><div class="engine-status">AI writes personalized cold emails, sends via Resend</div></div>
-            <div class="engine-item"><div class="engine-name">💬 Repeat Clients</div><div class="engine-status">Automated WhatsApp follow-ups to past clients</div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- CLIENTS SECTION -->
-      <div id="clientsSection" style="display:none">
-        <div class="card">
-          <h3>Your Clients</h3>
-          <div id="clientsList">
-            <div class="empty-state">
-              <div class="empty-state-icon">👥</div>
-              <div class="empty-state-text">No clients yet. As you get bookings and leads, your client list will grow here.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
+    <!-- LOADING -->
     <div class="loading" id="loadingState">
       <div class="spinner-lg"></div>
-      <p style="margin-top:1rem">Loading your dashboard...</p>
+      <p>Loading your dashboard...</p>
+    </div>
+
+    <!-- LOGIN PROMPT -->
+    <div class="login-prompt" id="loginPrompt" style="display:none">
+      <h2>Sign in to access your dashboard</h2>
+      <p>You need to be logged in to manage your business.</p>
+      <a href="../auth/login.html" class="btn btn-primary" style="display:inline-flex">Sign in →</a>
+      <p style="margin-top:1rem;font-size:.85rem">Don't have an account? <a href="../auth/signup.html" style="color:var(--cyan)">Create one free →</a></p>
+    </div>
+
+    <!-- DASHBOARD CONTENT -->
+    <div id="dashboardContent" style="display:none">
+      <!-- TOPBAR -->
+      <div class="topbar">
+        <h1 id="pageTitle">Overview</h1>
+        <div class="actions">
+          <button class="btn btn-ghost" onclick="window.open('../index.html','_blank')">← Back to site</button>
+          <button class="btn btn-primary" onclick="window.location.href='../index.html'">+ New Website</button>
+        </div>
+      </div>
+
+      <!-- OVERVIEW TAB -->
+      <div class="tab-content active" id="tab-overview">
+        <div class="kpi-grid" id="kpiGrid"></div>
+
+        <div class="quick-actions">
+          <div class="quick-action" onclick="window.location.href='../index.html'">
+            <div class="icon">🌐</div>
+            <div class="label">Build Website</div>
+            <div class="desc">AI builds your site</div>
+          </div>
+          <div class="quick-action" onclick="switchTab('leads'); scanLeads()">
+            <div class="icon">🎯</div>
+            <div class="label">Scan Leads</div>
+            <div class="desc">Find paying clients</div>
+          </div>
+          <div class="quick-action" onclick="switchTab('bookings')">
+            <div class="icon">📅</div>
+            <div class="label">Bookings</div>
+            <div class="desc">Manage calendar</div>
+          </div>
+          <div class="quick-action" onclick="switchTab('outreach')">
+            <div class="icon">📧</div>
+            <div class="label">Outreach</div>
+            <div class="desc">Send cold emails</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Recent Leads</div>
+            <a class="panel-action" onclick="switchTab('leads')">View all →</a>
+          </div>
+          <div id="recentLeads"></div>
+        </div>
+      </div>
+
+      <!-- WEBSITE TAB -->
+      <div class="tab-content" id="tab-website">
+        <div class="website-preview" id="websitePreview" style="display:none">
+          <div class="website-preview-header">
+            <div>
+              <div class="panel-title" id="websiteName">My Business</div>
+              <div class="website-url" id="websiteUrl">ergio.app/your-business</div>
+            </div>
+            <div style="display:flex;gap:.5rem">
+              <button class="btn btn-ghost" onclick="openWebsiteFull()">Open ↗</button>
+              <button class="btn btn-ghost" onclick="window.location.href='../index.html'">Edit ✏️</button>
+            </div>
+          </div>
+          <iframe class="website-frame" id="myWebsiteFrame"></iframe>
+        </div>
+        <div class="empty-state" id="noWebsiteState">
+          <div class="icon">🌐</div>
+          <h3>No website yet</h3>
+          <p>Go to the homepage, describe your business, and ERGIO will build your website instantly.</p>
+          <a href="../index.html" class="btn btn-primary" style="display:inline-flex">Build My Website →</a>
+        </div>
+      </div>
+
+      <!-- LEADS TAB -->
+      <div class="tab-content" id="tab-leads">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Lead Scanner</div>
+            <button class="btn btn-primary" onclick="scanLeads()" id="scanBtn">🎯 Scan for Clients</button>
+          </div>
+          <div id="leadsList">
+            <div class="empty-state">
+              <div class="icon">🎯</div>
+              <h3>No leads yet</h3>
+              <p>Click "Scan for Clients" and ERGIO will search the internet for people who need your services.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOOKINGS TAB -->
+      <div class="tab-content" id="tab-bookings">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Your Bookings</div>
+          </div>
+          <div id="bookingsList">
+            <div class="empty-state">
+              <div class="icon">📅</div>
+              <h3>No bookings yet</h3>
+              <p>When clients book through your website, they'll appear here. Share your website link to get bookings.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OUTREACH TAB -->
+      <div class="tab-content" id="tab-outreach">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">AI Outreach</div>
+          </div>
+          <div class="empty-state">
+            <div class="icon">📧</div>
+            <h3>No outreach campaigns yet</h3>
+            <p>Scan for leads first, then use ERGIO's AI to write personalized cold emails that get responses.</p>
+            <button class="btn btn-primary" onclick="switchTab('leads')" style="display:inline-flex">Find Leads First →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ENGINES TAB -->
+      <div class="tab-content" id="tab-engines">
+        <div class="quick-actions" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+          <div class="quick-action" onclick="window.open(window.ERGIO_CONFIG.apiBase + '/api/engines', '_blank')">
+            <div class="icon">🔧</div>
+            <div class="label">AI Engine Hub</div>
+            <div class="desc">Groq, Gemma, OpenRouter</div>
+          </div>
+          <div class="quick-action" onclick="window.open(window.ERGIO_CONFIG.apiBase + '/api/seo', '_blank')">
+            <div class="icon">📊</div>
+            <div class="label">SEO Engine</div>
+            <div class="desc">Keywords, meta tags, sitemaps</div>
+          </div>
+          <div class="quick-action" onclick="window.open(window.ERGIO_CONFIG.apiBase + '/api/smart-pricing', '_blank')">
+            <div class="icon">💰</div>
+            <div class="label">Smart Pricing</div>
+            <div class="desc">AI competitor analysis</div>
+          </div>
+          <div class="quick-action" onclick="window.open(window.ERGIO_CONFIG.apiBase + '/api/social', '_blank')">
+            <div class="icon">📱</div>
+            <div class="label">Social Kit</div>
+            <div class="desc">AI social media posts</div>
+          </div>
+          <div class="quick-action" onclick="window.open(window.ERGIO_CONFIG.apiBase + '/api/card', '_blank')">
+            <div class="icon">💳</div>
+            <div class="label">Digital Card</div>
+            <div class="desc">QR business card</div>
+          </div>
+          <div class="quick-action" onclick="window.open(window.ERGIO_CONFIG.apiBase + '/api/whatsapp', '_blank')">
+            <div class="icon">💬</div>
+            <div class="label">WhatsApp Bot</div>
+            <div class="desc">AI auto-reply</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANALYTICS TAB -->
+      <div class="tab-content" id="tab-analytics">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:rgba(0,217,255,.15)">👁️</div>
+            <div class="kpi-value" id="analyticsViews">0</div>
+            <div class="kpi-label">Website Views</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:rgba(0,255,157,.15)">👆</div>
+            <div class="kpi-value" id="analyticsClicks">0</div>
+            <div class="kpi-label">CTA Clicks</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:rgba(255,184,0,.15)">📈</div>
+            <div class="kpi-value" id="analyticsConvRate">0%</div>
+            <div class="kpi-label">Conversion Rate</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:rgba(139,92,246,.15)">🔍</div>
+            <div class="kpi-value" id="analyticsSources">0</div>
+            <div class="kpi-label">Traffic Sources</div>
+          </div>
+        </div>
+        <div class="empty-state">
+          <div class="icon">📊</div>
+          <h3>Analytics coming soon</h3>
+          <p>Once your website is live and getting traffic, you'll see detailed analytics here — views, clicks, conversions, and traffic sources.</p>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
     let supabase = null;
     let currentUser = null;
-    let currentBusinessId = null;
-    let userBusiness = null;
 
-    // ── Init Supabase (database only) ──
     function initSupabase() {
       const cfg = window.ERGIO_CONFIG;
-      if (!cfg || !cfg.supabaseUrl || cfg.supabaseUrl.includes('YOUR_')) return false;
-      supabase = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+      if (!cfg || !cfg.supabaseUrl) return false;
+      supabase = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
       return true;
     }
 
-    // ── Init Firebase Auth ──
-    function initFirebase() {
-      const fb = window.ERGIO_CONFIG?.firebase;
-      if (!fb || !fb.apiKey || fb.apiKey.includes('PLACEHOLDER')) return null;
-      try {
-        if (!firebase.apps.length) firebase.initializeApp(fb);
-        return firebase.auth();
-      } catch(e) { console.warn('Firebase init error:', e); return null; }
-    }
-
-    // ── Check Auth via Firebase ──
     async function checkAuth() {
-      initSupabase();
-      const fbAuth = initFirebase();
-
-      if (!fbAuth) {
-        // Firebase not configured — show login prompt
-        document.getElementById('loginPrompt').style.display = 'block';
-        document.getElementById('dashboardContent').style.display = 'none';
-        document.getElementById('loadingState').style.display = 'none';
+      if (!initSupabase()) {
+        showLoginPrompt();
         return;
       }
 
-      // Listen for Firebase auth state
-      fbAuth.onAuthStateChanged(async user => {
-        if (!user) {
-          document.getElementById('loginPrompt').style.display = 'block';
-          document.getElementById('dashboardContent').style.display = 'none';
-          document.getElementById('loadingState').style.display = 'none';
-        } else {
-          currentUser = {
-            id: user.uid,
-            email: user.email,
-            user_metadata: { full_name: user.displayName || user.email },
-            firebase: user
-          };
-          initDashboard();
-        }
-      });
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        showLoginPrompt();
+        return;
+      }
+
+      currentUser = session.user;
+      initDashboard();
+    }
+
+    function showLoginPrompt() {
+      document.getElementById('loginPrompt').style.display = 'block';
+      document.getElementById('dashboardContent').style.display = 'none';
+      document.getElementById('loadingState').style.display = 'none';
     }
 
     function initDashboard() {
       document.getElementById('loadingState').style.display = 'none';
       document.getElementById('dashboardContent').style.display = 'block';
-      document.getElementById('userName').textContent = currentUser.user_metadata?.full_name || currentUser.email;
 
-      // Load user's website from localStorage (if they just built one)
+      const name = currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || 'User';
+      document.getElementById('userName').textContent = name;
+      document.getElementById('userEmail').textContent = currentUser.email || '';
+      document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+
       loadWebsitePreview();
-
-      // Load business data from Supabase
       loadBusinessData();
-
-      // Load analytics
-      loadAnalytics();
     }
 
     function loadWebsitePreview() {
       const savedWebsite = localStorage.getItem('ergio_generated_website');
       const savedBusiness = localStorage.getItem('ergio_generated_business');
-      
+
       if (savedWebsite && savedWebsite.length > 100) {
         const biz = savedBusiness ? JSON.parse(savedBusiness) : {};
         document.getElementById('noWebsiteState').style.display = 'none';
-        document.getElementById('websiteFrame').style.display = 'block';
+        document.getElementById('websitePreview').style.display = 'block';
         document.getElementById('myWebsiteFrame').srcdoc = savedWebsite;
+        if (biz.name) document.getElementById('websiteName').textContent = biz.name;
         if (biz.slug) document.getElementById('websiteUrl').textContent = 'ergio.app/' + biz.slug;
-        userBusiness = biz;
       }
     }
 
     async function loadBusinessData() {
       if (!supabase || !currentUser) return;
-      
+
       try {
+        // Get user's business
         const { data: businesses } = await supabase.from('businesses')
           .select('*').eq('user_id', currentUser.id).limit(1);
 
-        if (businesses && businesses.length > 0) {
-          currentBusinessId = businesses[0].id;
-          userBusiness = businesses[0];
+        // Get real counts
+        const { count: leadsCount } = await supabase.from('leads')
+          .select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
+
+        const { count: bookingsCount } = await supabase.from('bookings')
+          .select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
+
+        // Render KPIs with real data
+        renderKPIs(businesses?.length || 0, leadsCount || 0, bookingsCount || 0, 0);
+
+        // Load recent leads
+        if (leadsCount > 0) {
+          const { data: recentLeads } = await supabase.from('leads')
+            .select('*').eq('user_id', currentUser.id).order('created_date', { ascending: false }).limit(5);
+          renderRecentLeads(recentLeads || []);
+        } else {
+          document.getElementById('recentLeads').innerHTML = `
+            <div class="empty-state">
+              <div class="icon">🎯</div>
+              <h3>No leads yet</h3>
+              <p>ERGIO will scan the internet to find people who need your services. Click "Scan for Clients" to start.</p>
+            </div>`;
         }
+
+        // Load bookings
+        if (bookingsCount > 0) {
+          const { data: bookings } = await supabase.from('bookings')
+            .select('*').eq('user_id', currentUser.id).order('created_date', { ascending: false }).limit(10);
+          renderBookings(bookings || []);
+        }
+
       } catch(e) {
-        console.log('No business data yet');
+        console.log('Data load error:', e.message);
+        renderKPIs(0, 0, 0, 0);
+        document.getElementById('recentLeads').innerHTML = `
+          <div class="empty-state">
+            <div class="icon">🎯</div>
+            <h3>No leads yet</h3>
+            <p>ERGIO will scan the internet to find people who need your services.</p>
+          </div>`;
       }
     }
 
-    async function loadAnalytics() {
-      if (!currentBusinessId) {
-        // No business yet — show empty states (real, not demo)
-        document.getElementById('kpiRevenue').textContent = '₦0';
-        document.getElementById('kpiBookings').textContent = '0';
-        document.getElementById('kpiLeads').textContent = '0';
-        document.getElementById('kpiViews').textContent = '0';
+    function renderKPIs(businessCount, leadsCount, bookingsCount, revenue) {
+      document.getElementById('kpiGrid').innerHTML = `
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:rgba(0,217,255,.15)">🌐</div>
+          <div class="kpi-value">${businessCount}</div>
+          <div class="kpi-label">Websites Built</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:rgba(0,255,157,.15)">🎯</div>
+          <div class="kpi-value">${leadsCount}</div>
+          <div class="kpi-label">Leads Found</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:rgba(255,184,0,.15)">📅</div>
+          <div class="kpi-value">${bookingsCount}</div>
+          <div class="kpi-label">Bookings</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:rgba(139,92,246,.15)">💰</div>
+          <div class="kpi-value">₦${revenue.toLocaleString()}</div>
+          <div class="kpi-label">Revenue</div>
+        </div>`;
+    }
+
+    function renderRecentLeads(leads) {
+      if (!leads || leads.length === 0) {
+        document.getElementById('recentLeads').innerHTML = `
+          <div class="empty-state">
+            <div class="icon">🎯</div>
+            <h3>No leads yet</h3>
+            <p>ERGIO will scan the internet to find people who need your services.</p>
+          </div>`;
         return;
       }
 
-      try {
-        const API_BASE = window.ERGIO_CONFIG.apiBase;
-        const response = await fetch(`${API_BASE}/api/analytics?businessId=${currentBusinessId}`);
-        
-        if (!response.ok) throw new Error('API error');
-        
-        const result = await response.json();
-
-        if (result.success && result.data) {
-          const d = result.data;
-          document.getElementById('kpiRevenue').textContent = '₦' + (d.stats?.totalRevenue || 0).toLocaleString();
-          document.getElementById('kpiBookings').textContent = (d.stats?.confirmedBookings || 0) + (d.stats?.pendingBookings || 0);
-          document.getElementById('kpiLeads').textContent = d.stats?.totalLeads || 0;
-          document.getElementById('kpiViews').textContent = d.stats?.pageViews || 0;
-
-          // Revenue chart
-          if (d.revenueByDay && d.revenueByDay.length > 0) {
-            const maxRev = Math.max(...d.revenueByDay.map(r => r.revenue), 1);
-            document.getElementById('revenueChart').innerHTML = d.revenueByDay.map(r => {
-              const h = (r.revenue / maxRev) * 100;
-              const day = new Date(r.date).toLocaleDateString('en', { weekday: 'short' });
-              return `<div class="bar"><div class="bar-fill" style="height:${h}%"></div><span class="bar-value">₦${(r.revenue/1000).toFixed(0)}k</span><span class="bar-label">${day}</span></div>`;
-            }).join('');
-          }
-
-          // Activity
-          if (d.recentActivity && d.recentActivity.length > 0) {
-            const colors = { booking_created: 'green', business_created: 'cyan', whatsapp_message: 'blue', page_view: 'amber' };
-            document.getElementById('activityList').innerHTML = d.recentActivity.map(a => {
-              const color = colors[a.type] || 'cyan';
-              const time = new Date(a.time).toLocaleString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-              return `<div class="activity-item"><div class="activity-dot ${color}"></div><div><strong>${a.type.replace(/_/g, ' ')}</strong><div style="color:var(--muted);font-size:.8rem">${time}</div></div></div>`;
-            }).join('');
-          }
-
-          // Engines
-          if (d.engines && d.engines.length > 0) {
-            const names = { local_discovery: '🔍 Local Discovery', demand_matching: '🎯 Demand Matching', ai_outreach: '📧 AI Outreach', repeat_clients: '💬 Repeat Clients' };
-            document.getElementById('engineGrid').innerHTML = d.engines.map(e => {
-              const isActive = e.status === 'active';
-              return `<div class="engine-item"><div class="engine-name">${names[e.engine_name] || e.engine_name}</div><div class="engine-status ${isActive ? 'active' : ''}">${e.status} · ${e.total_results || 0} results</div></div>`;
-            }).join('');
-          }
-
-          // Leads
-          if (d.recentLeads && d.recentLeads.length > 0) {
-            document.getElementById('leadsList').innerHTML = d.recentLeads.map(l => `
-              <div class="lead-item">
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <strong>${l.name || 'Unknown'}</strong>
-                  <span class="lead-score ${l.score > 70 ? 'high' : l.score > 50 ? 'medium' : 'low'}">Score: ${l.score}</span>
-                </div>
-                <div style="color:var(--muted);font-size:.8rem;margin-top:.3rem">${(l.message || '').substring(0,100)}...</div>
-                <div style="font-size:.75rem;color:var(--cyan);margin-top:.3rem">${l.source} · ${l.intent || 'unknown'}</div>
-              </div>
-            `).join('');
-          }
-
-          // Bookings
-          if (d.recentBookings && d.recentBookings.length > 0) {
-            const bookingsHtml = d.recentBookings.map(b => `
-              <div class="lead-item">
-                <div style="display:flex;justify-content:space-between">
-                  <strong>${b.client_name}</strong>
-                  <span style="color:${b.status === 'confirmed' ? 'var(--green)' : 'var(--amber)'}">${b.status}</span>
-                </div>
-                <div style="color:var(--muted);font-size:.8rem;margin-top:.3rem">${b.date} at ${b.time} · ${b.payment_status}</div>
-              </div>
-            `).join('');
-            document.getElementById('bookingsList').innerHTML = bookingsHtml;
-            document.getElementById('bookingsListFull').innerHTML = bookingsHtml;
-          }
-        }
-      } catch (err) {
-        console.error('Analytics error:', err);
-        // Show real empty state — not demo data
-      }
+      document.getElementById('recentLeads').innerHTML = leads.map(lead => {
+        const score = lead.score || lead.lead_score || 0;
+        const scoreColor = score >= 80 ? 'var(--green)' : score >= 50 ? 'var(--yellow)' : 'var(--red)';
+        return `
+          <div class="lead-item">
+            <div class="lead-score" style="background:${scoreColor}20;color:${scoreColor}">${score}</div>
+            <div class="lead-info">
+              <div class="lead-name">${lead.name || lead.business_name || 'Unknown'}</div>
+              <div class="lead-detail">${lead.service_needed || lead.service || 'Service inquiry'} · ${lead.phone || lead.email || 'No contact'}</div>
+            </div>
+            <button class="lead-action" onclick="contactLead('${lead.id || ''}')">Contact →</button>
+          </div>`;
+      }).join('');
     }
 
-    function showSection(section) {
-      // Hide all sections
-      ['overviewSection', 'websiteSection', 'leadsSection', 'bookingsSection', 'outreachSection', 'enginesSection', 'clientsSection'].forEach(id => {
-        document.getElementById(id).style.display = 'none';
-      });
-      
-      // Show selected
-      const sectionEl = document.getElementById(section + 'Section');
-      if (sectionEl) sectionEl.style.display = 'block';
-      
-      // Update nav
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      event?.target?.classList?.add('active');
-      
-      // Update title
-      const titles = {
-        overview: 'Dashboard',
-        website: 'My Website',
-        leads: 'Lead Scanner',
-        bookings: 'Bookings',
-        outreach: 'Outreach',
-        engines: 'Engines',
-        clients: 'Clients'
-      };
-      document.getElementById('pageTitle').textContent = titles[section] || 'Dashboard';
+    function renderBookings(bookings) {
+      const list = document.getElementById('bookingsList');
+      if (!bookings || bookings.length === 0) return;
+      list.innerHTML = bookings.map(b => {
+        const date = new Date(b.booking_date || b.created_date || Date.now());
+        return `
+          <div class="booking-item">
+            <div class="booking-date">
+              <div class="day">${date.getDate()}</div>
+              <div class="month">${date.toLocaleString('default',{month:'short'})}</div>
+            </div>
+            <div class="booking-info">
+              <div class="booking-name">${b.client_name || 'Client'}</div>
+              <div class="booking-service">${b.service || b.service_name || 'Service'}</div>
+            </div>
+            <div class="booking-status ${b.status || 'pending'}">${(b.status || 'pending').charAt(0).toUpperCase() + (b.status || 'pending').slice(1)}</div>
+          </div>`;
+      }).join('');
     }
 
-    async function runLeadScanner() {
-      const leadsList = document.getElementById('leadsList');
-      leadsList.innerHTML = '<div class="loading"><div class="spinner-lg"></div><p style="margin-top:1rem">Scanning 70+ search engines for clients...</p></div>';
-      
+    let isScanning = false;
+    async function scanLeads() {
+      if (isScanning) return;
+      isScanning = true;
+      const btn = document.getElementById('scanBtn');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-lg" style="width:16px;height:16px;border-width:2px"></span> Scanning...'; }
+
+      const list = document.getElementById('leadsList');
+      list.innerHTML = '<div class="loading"><div class="spinner-lg"></div><p>Scanning the internet for clients who need your services...</p></div>';
+
       try {
-        const API_BASE = window.ERGIO_CONFIG.apiBase;
-        const response = await fetch(`${API_BASE}/api/leads`, {
+        const response = await fetch(`${window.ERGIO_CONFIG.apiBase}/api/leads`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            query: userBusiness?.type || 'service',
-            location: userBusiness?.city || 'Nigeria',
-            maxResults: 10
+            service: currentUser?.user_metadata?.biz_type || 'general business',
+            location: currentUser?.user_metadata?.city || 'Nigeria'
           })
         });
 
-        if (!response.ok) throw new Error('Lead scanner failed');
-        
-        const result = await response.json();
-        
-        if (result.leads && result.leads.length > 0) {
-          leadsList.innerHTML = result.leads.map(l => `
-            <div class="lead-item">
-              <div style="display:flex;justify-content:space-between;align-items:center">
-                <strong>${l.name || l.business_name || 'Unknown'}</strong>
-                <span class="lead-score ${l.score > 70 ? 'high' : l.score > 50 ? 'medium' : 'low'}">Score: ${l.score}</span>
-              </div>
-              <div style="color:var(--muted);font-size:.8rem;margin-top:.3rem">${l.message || l.description || ''}</div>
-              <div style="font-size:.75rem;color:var(--cyan);margin-top:.3rem">${l.source || 'search'} · ${l.intent || 'looking for service'}</div>
-              ${l.phone || l.email ? `<div style="font-size:.75rem;color:var(--green);margin-top:.3rem">📞 ${l.phone || ''} ✉️ ${l.email || ''}</div>` : ''}
-            </div>
-          `).join('');
-        } else {
-          leadsList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🎯</div><div class="empty-state-text">No leads found. Try a different search query.</div></div>';
+        if (!response.ok) throw new Error('Scan failed');
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let leads = [];
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const text = decoder.decode(value);
+          const lines = text.split('\n');
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            try {
+              const event = JSON.parse(line.slice(6));
+              if (event.type === 'lead' && event.lead) {
+                leads.push(event.lead);
+                renderLeadsList(leads, false);
+              }
+              if (event.type === 'done') {
+                renderLeadsList(leads, true);
+              }
+            } catch(e) {}
+          }
         }
-      } catch (err) {
-        leadsList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-text">Lead scanner is processing. Please try again in a moment.</div></div>';
+
+        if (leads.length === 0) {
+          list.innerHTML = `
+            <div class="empty-state">
+              <div class="icon">🎯</div>
+              <h3>No leads found this time</h3>
+              <p>Try again later or refine your business type. ERGIO scans 70+ search engines for potential clients.</p>
+            </div>`;
+        }
+      } catch(e) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">⚠️</div>
+            <h3>Scan temporarily unavailable</h3>
+            <p>The lead scanner is working but hit a rate limit. Try again in a few minutes.</p>
+          </div>`;
+      }
+
+      isScanning = false;
+      if (btn) { btn.disabled = false; btn.innerHTML = '🎯 Scan for Clients'; }
+    }
+
+    function renderLeadsList(leads, done) {
+      const list = document.getElementById('leadsList');
+      let html = done ? '' : '<div style="color:var(--cyan);font-size:.85rem;margin-bottom:1rem">🔍 Found ' + leads.length + ' leads...</div>';
+      html += leads.map(lead => {
+        const score = lead.score || 0;
+        const scoreColor = score >= 80 ? 'var(--green)' : score >= 50 ? 'var(--yellow)' : 'var(--red)';
+        return `
+          <div class="lead-item">
+            <div class="lead-score" style="background:${scoreColor}20;color:${scoreColor}">${score}</div>
+            <div class="lead-info">
+              <div class="lead-name">${lead.name || lead.business_name || 'Potential Client'}</div>
+              <div class="lead-detail">${lead.service_needed || lead.service || 'Service inquiry'} · ${lead.phone || lead.email || 'No contact'}</div>
+            </div>
+            <button class="lead-action">Contact →</button>
+          </div>`;
+      }).join('');
+      list.innerHTML = html;
+    }
+
+    function openWebsiteFull() {
+      const html = localStorage.getItem('ergio_generated_website');
+      if (html) {
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
       }
     }
 
-    function async function logout() {
-      try {
-        const fb = window.ERGIO_CONFIG?.firebase;
-        if (fb && fb.apiKey && !fb.apiKey.includes('PLACEHOLDER')) {
-          await firebase.auth().signOut();
-        }
-      } catch(e) { console.warn('Logout error:', e); }
-      localStorage.removeItem('ergio_generated_website');
-      localStorage.removeItem('ergio_generated_business');
-      localStorage.removeItem('ergio_just_logged_in');
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.querySelector(`[data-tab="${tab}"]`)?.classList.add('active');
+      document.getElementById('pageTitle').textContent = tab.charAt(0).toUpperCase() + tab.slice(1);
+    }
+
+    async function handleLogout() {
+      if (supabase) await supabase.auth.signOut();
       window.location.href = '../auth/login.html';
     }
 
-    // Initialize
+    // Add a 5-second timeout to prevent infinite loading
+    setTimeout(() => {
+      if (document.getElementById('loadingState').style.display !== 'none') {
+        showLoginPrompt();
+      }
+    }, 5000);
+
+    // Start
     checkAuth();
   </script>
 </body>
