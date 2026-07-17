@@ -149,7 +149,6 @@
     }
 
 </script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
     // ── Advisor Engine ──
     async function runAdvisorAnalysis() {
       const btn = document.getElementById('advisorRunBtn');
@@ -293,7 +292,6 @@
     }
 
 </script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js">
     // ── Advisor Engine ──
     async function runAdvisorAnalysis() {
       const btn = document.getElementById('advisorRunBtn');
@@ -1128,59 +1126,59 @@
   </div>
 
   <script>
-    // ── Firebase Auth Init ──
-    const FB_CFG = window.ERGIO_CONFIG.firebase;
-    firebase.initializeApp(FB_CFG);
-    const fbAuth = firebase.auth();
-
-    // ── Supabase (database only) ──
+    // ── Supabase Init (Auth + Database) ──
+    const ERGIO_CFG = window.ERGIO_CONFIG;
     let sbClient = null;
     let currentUser = null;
 
     function initSupabase() {
-      const cfg = window.ERGIO_CONFIG;
-      if (!cfg || !cfg.supabaseUrl) return false;
-      sbClient = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+      if (!ERGIO_CFG || !ERGIO_CFG.supabaseUrl) return false;
+      sbClient = supabase.createClient(ERGIO_CFG.supabaseUrl, ERGIO_CFG.supabaseAnonKey);
       return true;
     }
 
-    function checkAuth() {
+    async function checkAuth() {
       initSupabase();
       
-      // Check localStorage first for quick auth
+      // Check localStorage first for quick display
       const savedUser = localStorage.getItem('ergio_user');
       if (savedUser) {
         try { currentUser = JSON.parse(savedUser); } catch(e) {}
       }
 
-      // Listen for Firebase auth state
-      fbAuth.onAuthStateChanged((user) => {
-        if (user) {
+      // Check Supabase session
+      try {
+        const { data: { session } } = await sbClient.auth.getSession();
+        if (session) {
           currentUser = {
-            id: user.uid,
-            email: user.email,
+            id: session.user.id,
+            uid: session.user.id,
+            email: session.user.email,
             user_metadata: {
-              full_name: user.displayName || user.email?.split('@')[0] || 'User',
+              full_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
               biz_type: currentUser?.bizType || localStorage.getItem('ergio_biz_type') || 'general business',
               city: currentUser?.city || localStorage.getItem('ergio_city') || 'Nigeria'
             }
           };
-          // Save user info
           localStorage.setItem('ergio_user', JSON.stringify({
-            uid: user.uid,
-            email: user.email,
-            fullName: user.displayName || user.email?.split('@')[0]
+            id: session.user.id,
+            uid: session.user.id,
+            email: session.user.email,
+            fullName: session.user.user_metadata?.full_name || session.user.email?.split('@')[0]
           }));
           initDashboard();
-        } else {
-          // Check if we have a saved session in localStorage (fallback)
-          if (currentUser && currentUser.id) {
-            initDashboard();
-          } else {
-            showLoginPrompt();
-          }
+          return;
         }
-      });
+      } catch(e) {
+        console.log('Session check error:', e.message);
+      }
+
+      // Fallback: check localStorage
+      if (currentUser && currentUser.id) {
+        initDashboard();
+      } else {
+        showLoginPrompt();
+      }
     }
 
     function showLoginPrompt() {
@@ -1441,15 +1439,14 @@
     }
 
     async function handleLogout() {
-      try { await fbAuth.signOut(); } catch(e) {}
+      try { if (sbClient) await sbClient.auth.signOut(); } catch(e) {}
       localStorage.removeItem('ergio_user');
       window.location.href = '../auth/login.html';
     }
 
-    // Add a 5-second timeout to prevent infinite loading
+    // 8-second timeout: if Supabase session check is slow, fall back to localStorage
     setTimeout(() => {
-      if (document.getElementById('loadingState').style.display !== 'none') {
-        // Check localStorage fallback
+      if (document.getElementById('loadingState') && document.getElementById('loadingState').style.display !== 'none') {
         const savedUser = localStorage.getItem('ergio_user');
         if (savedUser) {
           try {
@@ -1462,7 +1459,7 @@
           showLoginPrompt();
         }
       }
-    }, 5000);
+    }, 8000);
 
     // ════════════════════════════════════════════
     // AGENTIC MODE — AI Agents
