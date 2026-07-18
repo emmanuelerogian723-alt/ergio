@@ -83,18 +83,56 @@ Rules:
 - Business name should be memorable and work in the Nigerian market
 - imageSearchQueries: 3-5 specific search terms for finding real photos (e.g. "African restaurant interior", "barber cutting hair", "lagos skyline")`;
 
-    const planResult = await callGroq([
-      { role: 'system', content: 'You are ERGIO, an expert business strategist. Return only valid JSON, no markdown.' },
-      { role: 'user', content: planPrompt }
-    ], { temperature: 0.8, response_format: { type: 'json_object' } });
+    // Plan AI call — use fast model, 12s timeout
+    let planResult;
+    try {
+      planResult = await Promise.race([
+        callGroqFast([
+          { role: 'system', content: 'You are ERGIO, an expert business strategist. Return only valid JSON, no markdown.' },
+          { role: 'user', content: planPrompt }
+        ], { temperature: 0.8, response_format: { type: 'json_object' } }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Plan timeout')), 12000))
+      ]);
+    } catch(planErr) {
+      console.log('Plan AI fallback:', planErr.message);
+      // Derive plan directly from prompt keywords
+      planResult = null;
+    }
 
     let plan;
-    try {
-      plan = JSON.parse(planResult);
-    } catch (e) {
-      const match = planResult.match(/\{[\s\S]*\}/);
-      if (match) plan = JSON.parse(match[0]);
-      else throw new Error('Failed to parse business plan');
+    if (planResult) {
+      try {
+        plan = JSON.parse(planResult);
+      } catch (e) {
+        const match = planResult.match(/\{[\s\S]*\}/);
+        plan = match ? JSON.parse(match[0]) : null;
+      }
+    }
+    if (!plan) {
+      // Smart instant plan from prompt keywords
+      const p = (prompt || '').toLowerCase();
+      const words = prompt.split(' ');
+      const capitalized = words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      plan = {
+        businessName: answers?.name || capitalized.substring(0, 40) || 'My Business',
+        tagline: 'Excellence delivered, every time',
+        type: 'business',
+        websiteCategory: 'landing',
+        websiteType: 'standard',
+        designStyle: 'modern',
+        description: \`\${capitalized} is a forward-thinking business delivering exceptional value to clients across Nigeria.\`,
+        brandColors: { primary: '#00D9FF', secondary: '#09090B', accent: '#00FF9D', bg: '#09090B' },
+        city: /abuja/.test(p) ? 'Abuja' : /port.harcourt|ph/.test(p) ? 'Port Harcourt' : /kano/.test(p) ? 'Kano' : 'Lagos',
+        services: [
+          { name: 'Standard Service', description: 'Our core offering', price: 15000, duration: 60 },
+          { name: 'Premium Service', description: 'Enhanced experience', price: 35000, duration: 90 },
+          { name: 'Enterprise Package', description: 'Full-scale solution', price: 75000, duration: 120 }
+        ],
+        seoKeywords: ['business Nigeria', 'professional service'],
+        targetMarket: 'Nigerian professionals and businesses',
+        tone: 'professional',
+        imageSearchQueries: ['professional business Nigeria', 'modern office Lagos', 'team meeting Africa']
+      };
     }
 
     // Fallback: detect websiteCategory from business type if AI didn't provide it
