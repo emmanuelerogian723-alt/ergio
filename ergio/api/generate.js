@@ -353,9 +353,16 @@ Return ONLY JSON:
     const is3D = plan.websiteType === '3d' || 
       /3d|interactive|animated|immersive|motion|3dimentional/i.test(prompt + JSON.stringify(answers || {}));
     
-    const websiteHtml = is3D 
-      ? generate3DWebsiteHTML(plan, brand, content, colors, logoUrl, images)
-      : generateWebsiteHTML(plan, brand, content, colors, logoUrl, images);
+    let websiteHtml;
+    try {
+      websiteHtml = is3D 
+        ? generate3DWebsiteHTML(plan, brand, content, colors, logoUrl, images)
+        : generateWebsiteHTML(plan, brand, content, colors, logoUrl, images);
+    } catch(genErr) {
+      console.error('HTML generation error:', genErr.message, genErr.stack);
+      // Fallback minimal HTML
+      websiteHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${plan.businessName}</title><style>body{background:#09090B;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:1rem} h1{color:#00D9FF;font-size:3rem} p{color:#888}</style></head><body><h1>${plan.businessName}</h1><p>${plan.description || plan.type + ' in ' + plan.city}</p><p style="color:#00FF9D">Your website is being prepared...</p></body></html>`;
+    }
 
     send('website', { html: websiteHtml, logoUrl, imageCount: totalImages });
     send('status', { task: '🔧 Setting up booking & payments...', step: 6, total: 8 });

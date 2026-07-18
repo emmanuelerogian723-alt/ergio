@@ -127,7 +127,7 @@ img{display:block;max-width:100%}
 .bubble.b5{bottom:15%;left:12%;animation-delay:-4s}
 .bubble.b6{bottom:10%;right:15%;animation-delay:-5s}
 @keyframes bubbleFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
-@media(max-width:768px){.bubble{display:none}}
+@media(max-width:768px){.bubble{display:none}.bubbles-section{padding:3rem 1.5rem}}
 
 /* ===== FEATURE CARDS WITH IMAGES ===== */
 .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.5rem}
@@ -394,8 +394,9 @@ img{display:block;max-width:100%}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
 @keyframes bounceIn{0%{opacity:0;transform:scale(0.3)}50%{opacity:1;transform:scale(1.1)}100%{transform:scale(1)}}
-.reveal{opacity:0;transform:translateY(30px);transition:all 0.6s}
+.reveal{opacity:0;transform:translateY(20px);transition:opacity 0.5s ease,transform 0.5s ease}
 .reveal.visible{opacity:1;transform:translateY(0)}
+@media(max-width:768px){.reveal{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -952,10 +953,15 @@ window.addEventListener('scroll',()=>{
 function scrollToSection(id){document.getElementById(id).scrollIntoView({behavior:'smooth'})}
 
 // ===== SCROLL REVEAL =====
-const observer = new IntersectionObserver(entries=>{
-  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')});
-},{threshold:0.1});
-document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+// Make all reveals visible immediately on mobile
+if (window.innerWidth <= 768) {
+  document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+} else {
+  const observer = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')});
+  },{threshold:0.05, rootMargin:'0px 0px -30px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+}
 
 // ===== PROMPT =====
 const promptEl = document.getElementById('prompt');
