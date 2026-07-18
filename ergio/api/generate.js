@@ -7,6 +7,21 @@
 // ========================================
 
 import { callGroq, callGroqFast, success, error, corsHeaders, generateSlug, generateLogoUrl, getSupabase } from '../lib/ergio.js';
+
+// Safe JSON parse — handles control characters, markdown wrappers, etc.
+function safeJSONParse(str) {
+  if (!str || typeof str !== 'string') return null;
+  let clean = str.replace(/\`\`\`json\s*/gi, '').replace(/\`\`\`\s*/g, '').trim();
+  try { return JSON.parse(clean); } catch {}
+  const m = clean.match(/\{[\s\S]*\}/);
+  if (m) {
+    try { return JSON.parse(m[0]); } catch {
+      try { return JSON.parse(m[0].replace(/[\x00-\x1f\x7f]/g, '')); } catch {}
+      try { return JSON.parse(m[0].replace(/\n/g, '\\\\n')); } catch {}
+    }
+  }
+  return null;
+}
 import { searchImages, planImages, fetchWebsiteImages, generateAIImage, getFallbackImage } from '../lib/images.js';
 import { DESIGN_STYLES, autoDetectStyle } from '../lib/design-system.js';
 
@@ -103,10 +118,10 @@ Rules:
     let plan;
     if (planResult) {
       try {
-        plan = JSON.parse(planResult);
+        plan = safeJSONParse(planResult);
       } catch (e) {
         const match = planResult.match(/\{[\s\S]*\}/);
-        plan = match ? JSON.parse(match[0]) : null;
+        plan = match ? safeJSONParse(match[0]) : null;
       }
     }
     if (!plan) {
@@ -198,10 +213,10 @@ Return JSON:
 
     let brand;
     try {
-      brand = JSON.parse(brandResult);
+      brand = safeJSONParse(brandResult);
     } catch {
       const match = brandResult.match(/\{[\s\S]*\}/);
-      brand = match ? JSON.parse(match[0]) : { logoDescription: `logo for ${plan.businessName}` };
+      brand = match ? safeJSONParse(match[0]) : { logoDescription: `logo for ${plan.businessName}` };
     }
 
     const logoUrl = generateLogoUrl(brand.logoDescription || plan.businessName, plan.tone || 'modern');
