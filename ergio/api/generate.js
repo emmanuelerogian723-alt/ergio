@@ -8,6 +8,7 @@
 
 import { callGroq, callGroqFast, success, error, corsHeaders, generateSlug, generateLogoUrl, getSupabase } from '../lib/ergio.js';
 import { searchImages, planImages, fetchWebsiteImages, generateAIImage, getFallbackImage } from '../lib/images.js';
+import { DESIGN_STYLES, autoDetectStyle } from '../lib/design-system.js';
 
 export default async function handler(req, res) {
   corsHeaders(res);
@@ -154,7 +155,13 @@ Rules:
       else plan.websiteCategory = 'landing';
     }
 
-    send('plan', { plan });
+    // Auto-detect best design style
+    const detectedStyle = autoDetectStyle(plan.type || '', plan.websiteCategory || '', plan.description || '', plan.tone || 'professional');
+    plan.designStyle = plan.designStyle || detectedStyle;
+    const designConfig = DESIGN_STYLES[plan.designStyle] || DESIGN_STYLES.nova;
+    plan._design = designConfig;
+    
+    send('plan', { plan, designStyle: plan.designStyle, designConfig: { name: designConfig.name, emoji: designConfig.emoji, desc: designConfig.desc } });
     send('status', { task: '🎨 Creating brand identity...', step: 2, total: 8 });
 
     // ============ STEP 2: BRAND IDENTITY ============
@@ -749,6 +756,33 @@ function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {})
   const testimonials = content.testimonials || [];
   const faq = content.faq || [];
   const contact = content.contactInfo || {};
+
+  // ── Design System Integration ──────────────────────────────
+  const styleKey = plan.designStyle || plan._design?.name?.toLowerCase() || 'nova';
+  const ds = DESIGN_STYLES[styleKey] || DESIGN_STYLES.nova;
+  const dp = ds.palette;
+  const df = ds.fonts;
+  
+  // Merge design-system colors with plan brandColors
+  const bg = dp.bg || colors.bg || '#09090B';
+  const surface = dp.surface || '#111827';
+  const borderClr = dp.border || 'rgba(255,255,255,0.08)';
+  const textClr = dp.text || '#F8FAFC';
+  const mutedClr = dp.muted || '#94A3B8';
+  const primaryClr = dp.primary || colors.primary || '#00D9FF';
+  const accentClr = dp.accent || colors.accent || '#00FF9D';
+  const ctaClr = dp.cta || primaryClr;
+  const headingFont = df.heading || 'Inter';
+  const bodyFont = df.body || 'Inter';
+  
+  // Determine if light or dark theme
+  const isLight = bg.startsWith('#f') || bg.startsWith('#e') || bg.startsWith('#fa') || bg.startsWith('#fe');
+  const navBg = isLight ? 'rgba(255,255,255,0.85)' : 'rgba(10,10,15,0.85)';
+  const cardBg = isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.03)';
+  const heroBgOverlay = isLight 
+    ? 'linear-gradient(180deg,rgba(255,255,255,.1) 0%,rgba(255,255,255,.7) 100%)'
+    : 'linear-gradient(180deg,rgba(10,10,15,.3) 0%,rgba(10,10,15,.8) 100%)';
+  const buttonTextColor = isLight ? '#ffffff' : (ctaClr === '#ffffff' ? '#111' : '#09090B');
   
   // Get real images or fallback to AI-generated
   const heroImg = images.hero?.[0]?.url || getFallbackImage(`${plan.type} ${plan.city} business`, 1200, 800);
@@ -771,19 +805,25 @@ function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {})
   <meta property="og:image" content="${heroImg}">
   <meta name="robots" content="index, follow">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(headingFont).replace(/%2B/g,'+')}:wght@400;600;700;800;900&family=${encodeURIComponent(bodyFont).replace(/%2B/g,'+')}:wght@400;500;600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     :root{
-      --primary:${colors.primary || '#00D9FF'};
-      --secondary:${colors.secondary || '#09090B'};
-      --accent:${colors.accent || '#00FF9D'};
-      --bg:${colors.bg || '#0A0A0F'};
-      --text:#F8FAFC;
-      --muted:#94A3B8;
+      --primary:${primaryClr};
+      --secondary:${surface};
+      --accent:${accentClr};
+      --bg:${bg};
+      --surface:${surface};
+      --border:${borderClr};
+      --text:${textClr};
+      --muted:${mutedClr};
+      --cta:${ctaClr};
+      --card:${cardBg};
+      --nav:${navBg};
     }
     html{scroll-behavior:smooth}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+    body{font-family:'${bodyFont}',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+    h1,h2,h3,h4,h5{font-family:'${headingFont}',sans-serif}
     
     /* === SCROLL ANIMATIONS === */
     .reveal{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
@@ -813,7 +853,7 @@ function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {})
     @keyframes glow{0%,100%{box-shadow:0 0 20px rgba(0,217,255,.3)}50%{box-shadow:0 0 40px rgba(0,217,255,.6)}}
     
     /* === NAVIGATION === */
-    .nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 5%;position:sticky;top:0;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:100;border-bottom:1px solid rgba(255,255,255,.06);transition:padding .3s}
+    .nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 5%;position:sticky;top:0;background:var(--nav);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:100;border-bottom:1px solid var(--border);transition:padding .3s}
     .nav.scrolled{padding:.8rem 5%}
     .nav-logo{display:flex;align-items:center;gap:.6rem;font-weight:800;font-size:1.2rem;color:#fff;text-decoration:none;font-family:'Space Grotesk',sans-serif}
     .nav-logo img{width:36px;height:36px;border-radius:8px}
@@ -858,7 +898,7 @@ function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {})
     
     /* === SERVICES === */
     .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem}
-    .service-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:2.5rem;transition:all .5s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden}
+    .service-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;transition:all .5s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden}
     .service-card:hover{border-color:var(--primary);transform:translateY(-8px);box-shadow:0 20px 50px rgba(0,217,255,.15)}
     .service-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,var(--primary),var(--accent));transform:scaleX(0);transform-origin:left;transition:transform .5s}
     .service-card:hover::before{transform:scaleX(1)}
@@ -878,7 +918,7 @@ function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {})
     
     /* === WHY CHOOSE US === */
     .why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem}
-    .why-item{text-align:center;padding:2rem;border-radius:20px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);transition:all .4s}
+    .why-item{text-align:center;padding:2rem;border-radius:20px;background:var(--card);border:1px solid var(--border);transition:all .4s}
     .why-item:hover{border-color:var(--primary);transform:translateY(-4px)}
     .why-item .icon{font-size:2.5rem;margin-bottom:1rem;display:inline-block;animation:float 4s ease-in-out infinite}
     .why-item h4{margin-bottom:.5rem;font-weight:700;font-size:1.1rem}
@@ -886,7 +926,7 @@ function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {})
     
     /* === TESTIMONIALS === */
     .testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem}
-    .testimonial{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:2.5rem;position:relative}
+    .testimonial{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;position:relative}
     .testimonial::before{content:'"';position:absolute;top:-10px;left:20px;font-size:5rem;color:var(--primary);opacity:.2;font-family:Georgia,serif}
     .testimonial p{color:#CBD5E1;font-style:italic;margin-bottom:1.5rem;position:relative;z-index:1}
     .testimonial .author{font-weight:700;font-size:1.1rem}
@@ -894,7 +934,7 @@ function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {})
     .testimonial .stars{color:#FBBF24;margin-bottom:1rem}
     
     /* === FAQ === */
-    .faq-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:1.8rem;margin-bottom:1rem;cursor:pointer;transition:all .3s}
+    .faq-item{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.8rem;margin-bottom:1rem;cursor:pointer;transition:all .3s}
     .faq-item:hover{border-color:rgba(255,255,255,.15)}
     .faq-item h4{margin-bottom:.5rem;color:var(--primary);font-size:1.15rem}
     .faq-item p{color:var(--muted);max-height:0;overflow:hidden;transition:max-height .4s ease}
@@ -1247,7 +1287,7 @@ function generate3DWebsiteHTML(plan, brand, content, colors, logoUrl, images = {
     .about-img-wrap::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--primary),var(--accent));opacity:.2;mix-blend-mode:overlay}
     
     .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem}
-    .service-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:2.5rem;transition:all .5s cubic-bezier(.16,1,.3,1);perspective:1000px}
+    .service-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;transition:all .5s cubic-bezier(.16,1,.3,1);perspective:1000px}
     .service-card:hover{border-color:var(--primary);transform:translateY(-10px) rotateX(5deg);box-shadow:0 30px 60px rgba(0,217,255,.15)}
     .service-img{width:100%;height:180px;object-fit:cover;border-radius:12px;margin-bottom:1.5rem}
     .service-card h3{font-size:1.4rem;margin-bottom:.5rem}
@@ -1260,19 +1300,19 @@ function generate3DWebsiteHTML(plan, brand, content, colors, logoUrl, images = {
     .gallery-item:hover img{transform:scale(1.2)}
     
     .why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem}
-    .why-item{text-align:center;padding:2rem;border-radius:20px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);transition:all .4s}
+    .why-item{text-align:center;padding:2rem;border-radius:20px;background:var(--card);border:1px solid var(--border);transition:all .4s}
     .why-item:hover{border-color:var(--primary);transform:translateY(-5px)}
     .why-item .icon{font-size:2.5rem;margin-bottom:1rem;animation:float 4s ease-in-out infinite}
     .why-item h4{margin-bottom:.5rem;font-weight:700}
     
     .testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem}
-    .testimonial{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:2.5rem}
+    .testimonial{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem}
     .testimonial .stars{color:#FBBF24;margin-bottom:1rem}
     .testimonial p{color:#CBD5E1;font-style:italic;margin-bottom:1.5rem}
     .testimonial .author{font-weight:700}
     .testimonial .location{color:#94A3B8;font-size:.9rem}
     
-    .faq-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:1.8rem;margin-bottom:1rem;cursor:pointer}
+    .faq-item{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.8rem;margin-bottom:1rem;cursor:pointer}
     .faq-item h4{color:var(--primary);margin-bottom:.5rem}
     .faq-item p{color:#94A3B8;max-height:0;overflow:hidden;transition:max-height .4s}
     .faq-item.open p{max-height:200px}

@@ -1003,9 +1003,59 @@ const stageLabels = [
 function startBuild(){
   const val = promptEl.value.trim();
   if(!val){promptEl.focus();return}
-  // Go to the Lovable-style split-screen builder
+  // Auth gate — check if user is logged in via Supabase session
+  const session = localStorage.getItem('sb-owcxfzlanlrulflsyvlr-auth-token');
+  let isLoggedIn = false;
+  try {
+    const parsed = session ? JSON.parse(session) : null;
+    isLoggedIn = !!(parsed && parsed.access_token && parsed.expires_at > Date.now()/1000);
+  } catch(e) {}
+  
+  if (!isLoggedIn) {
+    // Show sign-up modal instead of builder
+    showAuthGate(val);
+    return;
+  }
   localStorage.setItem('ergio_initial_prompt', val);
   window.location.href = 'build.html';
+}
+
+function showAuthGate(prompt) {
+  // Create auth gate modal
+  const existing = document.getElementById('authGateModal');
+  if (existing) existing.remove();
+  
+  const modal = document.createElement('div');
+  modal.id = 'authGateModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px';
+  modal.innerHTML = `
+    <div style="background:linear-gradient(135deg,#0f0f1a,#1a1a2e);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:40px;max-width:420px;width:100%;text-align:center;position:relative">
+      <button onclick="document.getElementById('authGateModal').remove()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:#888;font-size:20px;cursor:pointer">✕</button>
+      <div style="font-size:40px;margin-bottom:16px">🚀</div>
+      <h2 style="color:#fff;font-size:1.5rem;font-weight:800;margin:0 0 8px">Create Your Free Account</h2>
+      <p style="color:#888;font-size:0.9rem;margin:0 0 24px;line-height:1.5">Join 10,000+ Nigerian businesses already using ERGIO to build, grow, and win</p>
+      
+      <div style="background:rgba(0,217,255,0.08);border:1px solid rgba(0,217,255,0.2);border-radius:12px;padding:16px;margin-bottom:24px;text-align:left">
+        <div style="color:#00D9FF;font-size:0.8rem;font-weight:700;margin-bottom:8px">✨ YOUR PROMPT IS SAVED</div>
+        <div style="color:#ccc;font-size:0.85rem;font-style:italic">"${prompt.substring(0,80)}${prompt.length>80?'...':''}"</div>
+      </div>
+      
+      <a href="auth/signup.html?prompt=${encodeURIComponent(prompt)}" style="display:block;padding:14px;background:linear-gradient(135deg,#00D9FF,#0088ff);border-radius:12px;color:#000;font-weight:800;font-size:1rem;text-decoration:none;margin-bottom:12px;transition:all 0.2s" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+        🎉 Sign Up Free — Build Now
+      </a>
+      <a href="auth/login.html?prompt=${encodeURIComponent(prompt)}" style="display:block;padding:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:#fff;font-weight:600;font-size:0.9rem;text-decoration:none">
+        Already have an account? Log in →
+      </a>
+      
+      <div style="display:flex;justify-content:center;gap:24px;margin-top:20px">
+        <div style="text-align:center"><div style="color:#00D9FF;font-weight:800;font-size:1.1rem">Free</div><div style="color:#666;font-size:0.7rem">Forever plan</div></div>
+        <div style="text-align:center"><div style="color:#00D9FF;font-weight:800;font-size:1.1rem">60s</div><div style="color:#666;font-size:0.7rem">Build time</div></div>
+        <div style="text-align:center"><div style="color:#00D9FF;font-weight:800;font-size:1.1rem">100%</div><div style="color:#666;font-size:0.7rem">AI-powered</div></div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', (e) => { if(e.target === modal) modal.remove(); });
 }
 
 function closeBuild(){

@@ -716,10 +716,17 @@
         <textarea id="promptInput" placeholder="Describe your business idea... e.g. A modern salon in Lagos with online bookings" rows="2" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
         <div class="input-footer">
           <div class="input-tools">
-            <button class="tool-btn" title="Attach file">📎</button>
+            <button class="tool-btn" title="Attach file" onclick="document.getElementById('fileUploadInput').click()">📎</button>
             <button class="tool-btn" title="Voice input" onclick="startVoice()">🎤</button>
             <button class="tool-btn" title="Examples" onclick="cycleExample()">💡</button>
+            <button class="tool-btn plugin-trigger" title="Built-in Tools & Plugins" onclick="openPluginPicker()" style="background:rgba(0,217,255,0.08);border-color:rgba(0,217,255,0.2);color:#00D9FF;font-size:10px;padding:4px 8px;width:auto;gap:3px;display:flex;align-items:center">
+              🔌 <span>Plugins</span>
+            </button>
+            <button class="tool-btn mcp-trigger" title="MCP Servers" onclick="openMcpPicker()" style="background:rgba(124,58,237,0.08);border-color:rgba(124,58,237,0.2);color:#a78bfa;font-size:10px;padding:4px 8px;width:auto;gap:3px;display:flex;align-items:center">
+              ⚡ <span>MCP</span>
+            </button>
           </div>
+          <input type="file" id="fileUploadInput" style="display:none" accept="image/*,.pdf,.doc,.docx" onchange="handleFileAttach(this)">
           <button class="send-btn" id="sendBtn" onclick="sendPrompt()" title="Build">→</button>
         </div>
       </div>
@@ -1161,6 +1168,20 @@ function handleSSE(event, stepMap, prevStep) {
     document.getElementById('ergioDomain').textContent = 'ergio.vercel.app/s/' + (data.plan?.slug || 'mybiz');
     document.title = name + ' — ERGIO Builder';
     document.getElementById('urlBarText').textContent = 'ergio.vercel.app/s/' + (data.plan?.slug || 'mybiz');
+    
+    // Show detected design style
+    if (data.designConfig) {
+      const dc = data.designConfig;
+      document.getElementById('currentStyleName').textContent = dc.emoji + ' ' + dc.name;
+      document.getElementById('currentStyleDesc').textContent = dc.desc;
+      addMessage('system', \`🎨 Design style detected: <b>\${dc.emoji} \${dc.name}</b> — \${dc.desc}\`);
+    }
+    
+    // Show business category chip
+    const cat = data.plan?.websiteCategory || 'landing';
+    const catEmoji = {restaurant:'🍽️',salon:'💇',fitness:'💪',clinic:'🏥',ecommerce:'🛍️',realestate:'🏠',saas:'🚀',portfolio:'🎨',agency:'🏢',education:'🎓',events:'🎉',landing:'✨'}[cat] || '🌐';
+    addMessage('system', \`\${catEmoji} Building a <b>\${cat}</b> website for \${name} in \${data.plan?.city || 'Nigeria'}\`);
+    
     updateStep('plan', 'done');
     updateScanStep('plan', 'done');
   }

@@ -354,7 +354,15 @@
         document.getElementById('launchSuccess').classList.add('show');
         document.getElementById('authFooter').style.display = 'none';
 
-        setTimeout(() => { window.location.href = '../dashboard/index.html'; }, 1500);
+        // Check if there's a saved prompt from landing page
+        const params = new URLSearchParams(window.location.search);
+        const savedPrompt = params.get('prompt') || localStorage.getItem('ergio_initial_prompt');
+        if (savedPrompt) {
+          localStorage.setItem('ergio_initial_prompt', savedPrompt);
+          setTimeout(() => { window.location.href = '../build.html'; }, 1500);
+        } else {
+          setTimeout(() => { window.location.href = '../dashboard/index.html'; }, 1500);
+        }
       } catch (err) {
         btn.disabled = false;
         btn.textContent = '🚀 Launch My Business';
