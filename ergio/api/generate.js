@@ -354,10 +354,12 @@ Return ONLY JSON:
       /3d|interactive|animated|immersive|motion|3dimentional/i.test(prompt + JSON.stringify(answers || {}));
     
     let websiteHtml;
+    console.log('DEBUG step5: content keys:', Object.keys(content || {}), 'about:', !!content?.about, 'is3D:', is3D);
     try {
       websiteHtml = is3D 
         ? generate3DWebsiteHTML(plan, brand, content, colors, logoUrl, images)
         : generateWebsiteHTML(plan, brand, content, colors, logoUrl, images);
+      console.log('DEBUG step5: HTML generated OK, length:', websiteHtml?.length);
     } catch(genErr) {
       console.error('HTML generation error:', genErr.message, genErr.stack);
       // Fallback minimal HTML
