@@ -80,11 +80,26 @@ async function handleGenerate(req, res) {
     send('brand', { brand, logoUrl });
     send('status', { task: 'Writing website copy...', step: 3, total: 7 });
 
-    const contentResult = await callGroq([
-      { role: 'system', content: 'You are ERGIO, expert copywriter for Nigerian businesses. Return only valid JSON.' },
-      { role: 'user', content: `Website copy for "${plan.businessName}" in ${plan.city}. Services: ${JSON.stringify(plan.services)}. Return JSON: {hero:{headline,subheadline,cta},about,servicesHtml:"<div>HTML for services</div>",whyChooseUs:[],testimonials:[{name,text,location}],faq:[{q,a}],seoTitle,seoDescription,contactInfo:{phone,email,address,whatsapp}}` }
-    ], { temperature: 0.75, maxTokens: 4096, response_format: { type: 'json_object' } });
-    let content; try { content = JSON.parse(contentResult); } catch { const m = contentResult.match(/\{[\s\S]*\}/); content = m ? JSON.parse(m[0]) : {}; }
+    let content;
+    try {
+      const contentResult = await callGroq([
+        { role: 'system', content: 'You are ERGIO, expert copywriter for Nigerian businesses. Return only valid JSON. No markdown, no backticks, no code blocks.' },
+        { role: 'user', content: `Website copy for "${plan.businessName}" in ${plan.city}. Services: ${JSON.stringify(plan.services)}. Return JSON: {hero:{headline,subheadline,cta},about,servicesHtml:"<div>HTML for services</div>",whyChooseUs:[],testimonials:[{name,text,location}],faq:[{q,a}],seoTitle,seoDescription,contactInfo:{phone,email,address,whatsapp}}` }
+      ], { temperature: 0.75, maxTokens: 4096, response_format: { type: 'json_object' } });
+      try { content = JSON.parse(contentResult); } catch { const m = contentResult.match(/\{[\s\S]*\}/); content = m ? JSON.parse(m[0]) : {}; }
+    } catch(e) { content = {}; }
+    
+    // Robust fallback content if AI failed or returned incomplete data
+    const bSlug = (plan.businessName||'business').toLowerCase().replace(/[^a-z0-9]/g,'');
+    if (!content.hero) content.hero = { headline: plan.businessName || 'Business', subheadline: plan.tagline || plan.description?.split('.')[0] || `Premium ${plan.type} in ${plan.city}`, cta: 'Get Started' };
+    if (!content.about) content.about = `${plan.businessName} is ${plan.city}'s premier ${plan.type}, built on a foundation of excellence and deep roots in the Nigerian community. We combine world-class standards with an authentic local touch.\\n\\n${plan.description || 'Our team of dedicated professionals is passionate about delivering results that exceed expectations.'}`;
+    if (!content.servicesHtml) content.servicesHtml = (plan.services||[]).map(s => `<div class="card"><h3>${s.name||''}</h3><p style="color:#94A3B8;margin:.5rem 0">${s.description||''}</p><div class="price">₦${(s.price||0).toLocaleString()}</div></div>`).join('');
+    if (!content.whyChooseUs || !content.whyChooseUs.length) content.whyChooseUs = ['Expert Team', 'Trusted by 500+', 'Affordable Pricing', 'Quality Guaranteed'];
+    if (!content.testimonials || !content.testimonials.length) content.testimonials = [{name:'Adebayo Okonkwo',text:`${plan.businessName} is absolutely outstanding!`,location:plan.city||'Lagos'},{name:'Chioma Eze',text:'Professional, reliable, and truly world-class.',location:'Lekki, Lagos'},{name:'Kunle Adeyemi',text:`Best in ${plan.city||'Nigeria'}. I refer everyone I know.`,location:'Victoria Island, Lagos'}];
+    if (!content.faq || !content.faq.length) content.faq = [{q:`How do I get started with ${plan.businessName}?`,a:'Simply call us, WhatsApp us, or book online.'},{q:'What are your operating hours?',a:'We are open Monday to Saturday, 8:00 AM – 8:00 PM.'},{q:`Where are you located in ${plan.city}?`,a:`We are centrally located in ${plan.city}, Nigeria.`},{q:'Do you offer payment plans?',a:'Yes! We accept bank transfers, Paystack card payments, USSD, and cash.'}];
+    if (!content.contactInfo) content.contactInfo = {phone:'+234 800 000 0000',email:`info@${bSlug}.com`,address:`${plan.city}, Nigeria`,whatsapp:'+234 800 000 0000'};
+    if (!content.seoTitle) content.seoTitle = `${plan.businessName} | Best ${plan.type} in ${plan.city} Nigeria`;
+    if (!content.seoDescription) content.seoDescription = `${plan.businessName} - Premium ${plan.type} in ${plan.city}, Nigeria. Book online today.`;
     send('content', { content });
     send('status', { task: 'Building your website...', step: 4, total: 7 });
 
