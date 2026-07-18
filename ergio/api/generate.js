@@ -1523,3 +1523,4 @@ function generate3DWebsiteHTML(plan, brand, content, colors, logoUrl, images = {
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+// cache-bust Sat Jul 18 06:43:50 UTC 2026
