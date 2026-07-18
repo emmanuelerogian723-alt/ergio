@@ -10,6 +10,7 @@
       "maxDuration": 120
     }
   },
+  "buildCommand": "echo 'build ok'",
   "rewrites": [
     {
       "source": "/api/setup",
