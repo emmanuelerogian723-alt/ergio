@@ -210,51 +210,55 @@ Return ONLY JSON:
   "contactInfo": {"phone": "+234...", "email": "info@...", "address": "address in ${plan.city}", "whatsapp": "+234..."}
 }`;
 
-    let contentResult;
-    try {
-      contentResult = await Promise.race([
-        callGroq([
-          { role: 'system', content: 'You are ERGIO, expert copywriter for Nigerian businesses. Return only valid JSON.' },
-          { role: 'user', content: contentPrompt }
-        ], { temperature: 0.75, maxTokens: 3000, response_format: { type: 'json_object' } }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Content AI timeout')), 20000))
-      ]);
-    } catch (contentErr) {
-      console.error('Content AI failed, using fallback:', contentErr.message);
-      contentResult = '{}';  // Will trigger the fallback content
-    }
-
-    let content;
-    try {
-      content = JSON.parse(contentResult);
-    } catch {
-      const match = contentResult.match(/\{[\s\S]*\}/);
-      try { content = match ? JSON.parse(match[0]) : {}; } catch { content = {}; }
-    }
-    
-    // Fallback content if AI failed
-    if (!content.hero) {
-      content = {
-        hero: { headline: plan.businessName, subheadline: plan.tagline || plan.description || '', cta: 'Get Started' },
-        about: `${plan.businessName} is a ${plan.type} located in ${plan.city}, Nigeria. ${plan.description || 'We provide exceptional service to our clients.'}`,
-        servicesHtml: (plan.services || []).map(s => `<div class="service-card"><h3>${s.name}</h3><p>${s.description || ''}</p><div class="price">₦${(s.price||0).toLocaleString()}</div></div>`).join(''),
-        whyChooseUs: ['Expert team', 'Fast delivery', 'Affordable pricing', 'Quality guaranteed'],
-        testimonials: [
-          {name: 'Adebayo O.', text: 'Excellent service, highly recommend!', location: 'Lagos'},
-          {name: 'Chioma N.', text: 'Professional and reliable.', location: 'Abuja'},
-          {name: 'Kunle A.', text: 'Best in the business.', location: 'Port Harcourt'}
-        ],
-        faq: [
-          {q: 'How can I contact you?', a: `Call us or visit our office in ${plan.city}.`},
-          {q: 'What are your hours?', a: 'We are open Monday to Saturday, 8am to 6pm.'},
-          {q: 'Do you offer delivery?', a: 'Yes, we offer delivery within ' + plan.city + ' and surrounding areas.'},
-          {q: 'How do I book?', a: 'You can book online or call us directly.'}
-        ],
-        contactInfo: {phone: '+234 800 000 0000', email: `info@${(plan.businessName||'business').toLowerCase().replace(/[^a-z0-9]/g,'')}.com`, address: `${plan.city}, Nigeria`, whatsapp: '+234 800 000 0000'},
-        seoTitle: `${plan.businessName} | ${plan.type} in ${plan.city}`,
-        seoDescription: plan.description || `${plan.businessName} - ${plan.type} in ${plan.city}, Nigeria`
-      };
-    }
+    // ============ SMART INSTANT CONTENT (derived from plan — zero extra AI calls) ============
+    const bSlug = (plan.businessName||'business').toLowerCase().replace(/[^a-z0-9]/g,'');
+    const ctaByType = {restaurant:'Reserve a Table',salon:'Book Appointment',fitness:'Join Now',clinic:'Book Consultation',ecommerce:'Shop Now',realestate:'View Properties',saas:'Start Free Trial',portfolio:'See My Work',agency:'Get a Quote',events:'Get Tickets',education:'Enroll Now',landing:'Get Started'};
+    const whyByType = {
+      restaurant:['Authentic Flavors','Farm-Fresh Ingredients','Expert Chefs','Cozy Ambiance'],
+      salon:['Certified Stylists','Premium Products','Online Booking','Luxury Experience'],
+      fitness:['Expert Trainers','Modern Equipment','Flexible Schedules','Results Guaranteed'],
+      clinic:['Licensed Doctors','Modern Facilities','Compassionate Care','Quick Appointments'],
+      ecommerce:['Fast Delivery','Secure Checkout','Quality Products','Easy Returns'],
+      realestate:['Verified Listings','Expert Agents','Best Prices','Legal Support'],
+      saas:['Easy Integration','99.9% Uptime','24/7 Support','Scalable Plans'],
+      agency:['Creative Experts','On-Time Delivery','Transparent Pricing','Proven Results'],
+    };
+    const testimonialsByCity = (city) => [
+      {name:'Adebayo Okonkwo', text:`${plan.businessName} is absolutely outstanding! The quality and service exceeded all my expectations.`, location: city || 'Lagos'},
+      {name:'Chioma Eze', text:`I've been a loyal client for over a year. Professional, reliable, and truly world-class.`, location: city === 'Abuja' ? 'Abuja' : 'Lekki, Lagos'},
+      {name:'Kunle Adeyemi', text:`Best in ${city || 'Nigeria'}. I refer everyone I know here.`, location: 'Victoria Island, Lagos'}
+    ];
+    const cat = plan.websiteCategory || 'landing';
+    const content = {
+      hero: { 
+        headline: plan.businessName, 
+        subheadline: plan.tagline || plan.description?.split('.')[0] || `Premium ${plan.type} in ${plan.city}, Nigeria`, 
+        cta: ctaByType[cat] || 'Get Started' 
+      },
+      about: `${plan.businessName} is ${plan.city}'s premier ${plan.type}, built on a foundation of excellence and deep roots in the Nigerian community. We combine world-class standards with an authentic local touch — ensuring every client receives an experience that truly stands out.\n\n${plan.description || `Our team of dedicated professionals is passionate about delivering results that exceed expectations. From ${plan.city} to the world, we are setting the standard for what great ${plan.type} looks like.`}`,
+      servicesHtml: (plan.services || []).map(s => `<div class="service-card"><h3>${s.name}</h3><p>${s.description || ''}</p><div class="price">₦${(s.price||0).toLocaleString()}</div></div>`).join(''),
+      whyChooseUs: whyByType[cat] || ['Expert Team', 'Trusted by 500+', 'Affordable Pricing', 'Quality Guaranteed'],
+      testimonials: testimonialsByCity(plan.city),
+      faq: [
+        {q: `How do I get started with ${plan.businessName}?`, a: `Simply call us, WhatsApp us, or book online at our website. Our team responds within minutes.`},
+        {q: 'What are your operating hours?', a: 'We are open Monday to Saturday, 8:00 AM – 8:00 PM, and Sundays 10:00 AM – 4:00 PM.'},
+        {q: `Where are you located in ${plan.city}?`, a: `We are centrally located in ${plan.city}, Nigeria. Contact us for the exact address or directions.`},
+        {q: 'Do you offer payment plans?', a: 'Yes! We accept bank transfers, Paystack card payments, USSD, and cash. Flexible installments available.'}
+      ],
+      contactInfo: {
+        phone: '+234 800 000 0000', 
+        email: `info@${bSlug}.com`, 
+        address: `${plan.city}, Nigeria`, 
+        whatsapp: '+234 800 000 0000'
+      },
+      seoTitle: `${plan.businessName} | Best ${plan.type} in ${plan.city} Nigeria`,
+      seoDescription: `${plan.businessName} - ${plan.description?.substring(0,120) || `Premium ${plan.type} in ${plan.city}, Nigeria`}. Book online today.`,
+      // Type-specific extras
+      ...(cat === 'restaurant' ? { menu: (plan.services||[]).map(s=>({name:s.name,description:s.description||'',price:s.price||0,category:'Signature'})) } : {}),
+      ...(cat === 'ecommerce' ? { products: (plan.services||[]).map(s=>({name:s.name,description:s.description||'',price:s.price||0,category:'Featured'})) } : {}),
+      ...(cat === 'realestate' ? { properties: (plan.services||[]).map(s=>({title:s.name,price:s.price||0,location:plan.city,beds:3,baths:2,type:'sale'})) } : {}),
+      ...(cat === 'fitness' ? { classList: (plan.services||[]).map(s=>({name:s.name,description:s.description||'',schedule:'Mon/Wed/Fri 6am',duration:'60 min',trainer:'Coach Emmanuel'})) } : {}),
+    };
 
     send('content', { content });
     send('status', { task: '🏗️ Building with motion graphics...', step: 5, total: 8 });
