@@ -121,7 +121,7 @@ Rules:
         websiteCategory: 'landing',
         websiteType: 'standard',
         designStyle: 'modern',
-        description: \`\${capitalized} is a forward-thinking business delivering exceptional value to clients across Nigeria.\`,
+        description: `${capitalized} is a forward-thinking business delivering exceptional value to clients across Nigeria.`,
         brandColors: { primary: '#00D9FF', secondary: '#09090B', accent: '#00FF9D', bg: '#09090B' },
         city: /abuja/.test(p) ? 'Abuja' : /port.harcourt|ph/.test(p) ? 'Port Harcourt' : /kano/.test(p) ? 'Kano' : 'Lagos',
         services: [
@@ -313,7 +313,6 @@ Return ONLY JSON:
       {name:'Chioma Eze', text:`I've been a loyal client for over a year. Professional, reliable, and truly world-class.`, location: city === 'Abuja' ? 'Abuja' : 'Lekki, Lagos'},
       {name:'Kunle Adeyemi', text:`Best in ${city || 'Nigeria'}. I refer everyone I know here.`, location: 'Victoria Island, Lagos'}
     ];
-    const cat = plan.websiteCategory || 'landing';
     const content = {
       hero: { 
         headline: plan.businessName, 

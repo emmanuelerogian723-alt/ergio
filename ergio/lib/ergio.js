@@ -30,74 +30,98 @@ export async function getUser(req) {
   return user;
 }
 
-// ============ AI CLIENT (OpenRouter) =====
+// ============ AI CLIENT (Multi-provider) =====
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
+
+export async function callGroq(messages, options = {}) {
   const model = options.model || 'meta-llama/llama-3.3-70b-instruct';
   const temperature = options.temperature ?? 0.7;
   const maxTokens = options.maxTokens || 4096;
-
+  
+  const groqKey = process.env.GROQ_API_KEY || process.env.OPENROUTER_API_KEY;
+  const openrouterKey = process.env.OPENROUTER_API_KEY;
+  
   const body = {
     model,
     messages,
     temperature,
     max_tokens: maxTokens,
   };
-
-
-  // Provider chain: Groq (Llama 3.3 70B) → Groq (Gemma 2 9B) → OpenRouter (Llama 3.3 70B)
+  if (options.response_format) body.response_format = options.response_format;
+  if (options.stream) body.stream = true;
+  
+  // Build provider chain
   const providers = [];
   
-  // 1. Groq with Llama 3.3 70B (primary — best quality)
   if (groqKey) {
-    providers.push({ 
-      url: GROQ_URL, key: groqKey, model: 'llama-3.3-70b-versatile',
-      label: 'Groq/Llama-3.3-70B'
-    });
-    // 2. Groq with Gemma 2 9B (fast fallback — good for code generation)
-    providers.push({ 
-      url: GROQ_URL, key: groqKey, model: 'gemma2-9b-it',
-      label: 'Groq/Gemma-2-9B'
+    providers.push({
+      url: GROQ_URL, key: groqKey,
+      model: model.includes('/') ? model.split('/').pop() : model,
+      label: 'Groq', headers: {}
     });
   }
-  
-  // 3. OpenRouter with Llama 3.3 70B (external fallback)
   if (openrouterKey) {
-    providers.push({ 
-      url: OPENROUTER_URL, key: openrouterKey, model: 'meta-llama/llama-3.3-70b-instruct',
-      label: 'OpenRouter/Llama-3.3-70B',
-      extraHeaders: { 'HTTP-Referer': 'https://ergio.vercel.app', 'X-Title': 'ERGIO' }
-    });
-    // 4. OpenRouter with Gemma 2 (free fallback)
-    providers.push({ 
-      url: OPENROUTER_URL, key: openrouterKey, model: 'google/gemma-2-9b-it:free',
-      label: 'OpenRouter/Gemma-2-9B',
-      extraHeaders: { 'HTTP-Referer': 'https://ergio.vercel.app', 'X-Title': 'ERGIO' }
+    providers.push({
+      url: OPENROUTER_URL, key: openrouterKey,
+      model: model.includes('/') ? model : 'meta-llama/' + model,
+      label: 'OpenRouter',
+      headers: { 'HTTP-Referer': 'https://ergio.vercel.app', 'X-Title': 'ERGIO' }
     });
   }
-
-  const response = await fetch(OPENROUTER_URL, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': 'https://ergio.vercel.app',
-      'X-Title': 'ERGIO'
-    },
-    body: JSON.stringify(body)
+  // Pollinations fallback (free, no key)
+  providers.push({
+    url: 'https://text.pollinations.ai/openai',
+    key: '', model: model.includes('/') ? model.split('/').pop() : model,
+    label: 'Pollinations', headers: {}
   });
-
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`AI API error: ${response.status} ${err.substring(0, 200)}`);
+  
+  let lastErr;
+  for (const prov of providers) {
+    try {
+      const fetchBody = { ...body, model: prov.model };
+      const response = await fetch(prov.url, {
+        method: 'POST',
+        headers: {
+          'Authorization': prov.key ? `Bearer ${prov.key}` : '',
+          'Content-Type': 'application/json',
+          ...prov.headers
+        },
+        body: JSON.stringify(fetchBody),
+        signal: AbortSignal.timeout(options.timeout || 15000)
+      });
+      
+      if (!response.ok) {
+        const errText = await response.text().catch(() => '');
+        lastErr = `${prov.label} ${response.status}: ${errText.substring(0, 100)}`;
+        continue;
+      }
+      
+      // Handle streaming
+      if (options.stream && response.body) {
+        return response.body;
+      }
+      
+      const data = await response.json();
+      const text = data.choices?.[0]?.message?.content || '';
+      if (!text) {
+        lastErr = `${prov.label}: empty response`;
+        continue;
+      }
+      return text;
+    } catch(e) {
+      lastErr = `${prov.label}: ${e.message}`;
+    }
   }
   
-  throw new Error('All AI providers failed. Set GROQ_API_KEY or OPENROUTER_API_KEY.');
+  throw new Error('All AI providers failed. Last error: ' + (lastErr || 'Unknown'));
 }
 
 export async function callGroqFast(messages, options = {}) {
   return callGroq(messages, { ...options, model: 'meta-llama/llama-3.1-8b-instruct' });
 }
 
-// ============ SEARXNG SEARCH ENGINE =====];
+// ============ SEARXNG SEARCH ENGINE =====
 
 let currentInstance = 0;
 
@@ -273,7 +297,8 @@ export function generateSlug(text) {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').substring(0, 50);
 }
 
-// ============ LOGO GENERATION (Pollinations - Free) =====export function generateLogoUrl(prompt, style = 'modern') {
+// ============ LOGO GENERATION (Pollinations - Free) =====
+export function generateLogoUrl(prompt, style = 'modern') {
   const enhanced = `professional ${style} logo for ${prompt}, minimalist, clean, vector style, centered, white background`;
   return `https://image.pollinations.ai/prompt/${encodeURIComponent(enhanced)}?width=512&height=512&nologo=true&seed=${Date.now()}`;
 }
