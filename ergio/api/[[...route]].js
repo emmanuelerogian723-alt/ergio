@@ -4,6 +4,22 @@ import mcpHandler from './mcp.js';
 import crmHandler from './crm.js';
 import assistantHandler from './ai-assistant.js';
 
+// Safe JSON parse — handles control characters, markdown wrappers, etc.
+function safeJSONParse(str) {
+  if (!str || typeof str !== 'string') return null;
+  let clean = str.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+  try { return JSON.parse(clean); } catch {}
+  const m = clean.match(/\{[\s\S]*\}/);
+  if (m) {
+    try { return JSON.parse(m[0]); } catch {
+      try { return JSON.parse(m[0].replace(/[\x00-\x1f\x7f]/g, '')); } catch {}
+      try { return JSON.parse(m[0].replace(/\n/g, '\\\\n')); } catch {}
+    }
+  }
+  return null;
+}
+
+
 export default async function handler(req, res) {
   corsHeaders(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -67,7 +83,7 @@ async function handleGenerate(req, res) {
       { role: 'user', content: `Create a business plan for: "${prompt}". Context: ${JSON.stringify(answers||{})}. Return JSON: {businessName,tagline,type,description,brandColors:{primary,secondary,accent,bg},city:"Lagos",services:[{name,description,price,duration}],seoKeywords:[],targetMarket,tone}. Prices in NGN, 3-5 services.` }
     ], { temperature: 0.8, response_format: { type: 'json_object' } });
 
-    let plan; try { plan = JSON.parse(planResult); } catch { const m = planResult.match(/\{[\s\S]*\}/); plan = m ? JSON.parse(m[0]) : {}; }
+    let plan = safeJSONParse(planResult) || {};
     send('plan', { plan });
     send('status', { task: 'Generating brand identity...', step: 2, total: 7 });
 
@@ -75,7 +91,7 @@ async function handleGenerate(req, res) {
       { role: 'system', content: 'Return only valid JSON.' },
       { role: 'user', content: `Brand identity for "${plan.businessName}", a ${plan.type} in ${plan.city}. Return JSON: {logoDescription,brandVoice,uniqueSellingPoint,elevatorPitch}` }
     ], { temperature: 0.7, response_format: { type: 'json_object' } });
-    let brand; try { brand = JSON.parse(brandResult); } catch { const m = brandResult.match(/\{[\s\S]*\}/); brand = m ? JSON.parse(m[0]) : {}; }
+    let brand = safeJSONParse(brandResult) || {};
     const logoUrl = generateLogoUrl(brand.logoDescription || plan.businessName, plan.tone);
     send('brand', { brand, logoUrl });
     send('status', { task: 'Writing website copy...', step: 3, total: 7 });
@@ -86,7 +102,7 @@ async function handleGenerate(req, res) {
         { role: 'system', content: 'You are ERGIO, expert copywriter for Nigerian businesses. Return only valid JSON. No markdown, no backticks, no code blocks.' },
         { role: 'user', content: `Website copy for "${plan.businessName}" in ${plan.city}. Services: ${JSON.stringify(plan.services)}. Return JSON: {hero:{headline,subheadline,cta},about,servicesHtml:"<div>HTML for services</div>",whyChooseUs:[],testimonials:[{name,text,location}],faq:[{q,a}],seoTitle,seoDescription,contactInfo:{phone,email,address,whatsapp}}` }
       ], { temperature: 0.75, maxTokens: 4096, response_format: { type: 'json_object' } });
-      try { content = JSON.parse(contentResult); } catch { const m = contentResult.match(/\{[\s\S]*\}/); content = m ? JSON.parse(m[0]) : {}; }
+      content = safeJSONParse(contentResult) || {};
     } catch(e) { content = {}; }
     
     // Robust fallback content if AI failed or returned incomplete data
@@ -426,7 +442,7 @@ async function handleSocial(req, res) {
   const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body||{});
   const { businessName, businessType, tagline, city } = body;
   const r = await callGroqFast([{role:'system',content:'Return JSON.'},{role:'user',content:`Social kit for "${businessName}" (${businessType}) in ${city}. Return JSON: {twitter,instagram,facebook,whatsapp}`}],{temperature:0.7,response_format:{type:'json_object'}});
-  try { return success(res, JSON.parse(r)); } catch { const m=r.match(/\{[\s\S]*\}/); return success(res, m?JSON.parse(m[0]):{}); }
+  return success(res, safeJSONParse(r) || {});
 }
 
 // ============ SEO ============
@@ -435,7 +451,7 @@ async function handleSeo(req, res) {
   const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body||{});
   const { businessName, type, city, services } = body;
   const r = await callGroq([{role:'system',content:'SEO expert. Return JSON.'},{role:'user',content:`SEO for "${businessName}" (${type}) in ${city}. Services: ${JSON.stringify(services)}. Return JSON: {titleTag,metaDescription,keywords:[],landingPageCopy,googleBusinessDescription}`}],{temperature:0.5,response_format:{type:'json_object'}});
-  try { return success(res, JSON.parse(r)); } catch { const m=r.match(/\{[\s\S]*\}/); return success(res, m?JSON.parse(m[0]):{}); }
+  return success(res, safeJSONParse(r) || {});
 }
 
 // ============ SMART PRICING ============
@@ -445,7 +461,7 @@ async function handleSmartPricing(req, res) {
   const { service, location } = body;
   const results = await searxngSearch(`${service} price in ${location||'Nigeria'}`,{count:10});
   const r = await callGroqFast([{role:'system',content:'Return JSON.'},{role:'user',content:`Suggest pricing for ${service} in ${location||'Nigeria'}. Results: ${JSON.stringify(results.slice(0,5))}. Return JSON: {suggestedPrice,priceRange,reasoning,competitorPrices:[]}`}],{temperature:0.3,response_format:{type:'json_object'}});
-  try { return success(res, JSON.parse(r)); } catch { const m=r.match(/\{[\s\S]*\}/); return success(res, m?JSON.parse(m[0]):{}); }
+  return success(res, safeJSONParse(r) || {});
 }
 
 // ============ CARD ============
