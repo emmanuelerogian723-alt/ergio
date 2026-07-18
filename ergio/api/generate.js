@@ -359,7 +359,7 @@ Return ONLY JSON:
       ...(cat === 'fitness' ? { classList: (plan.services||[]).map(s=>({name:s.name,description:s.description||'',schedule:'Mon/Wed/Fri 6am',duration:'60 min',trainer:'Coach Emmanuel'})) } : {}),
     };
 
-    send('content', { content });
+    try { send('content', { content }); } catch(e) { console.error('content send error:', e.message); }
     send('status', { task: '🏗️ Building with motion graphics...', step: 5, total: 8 });
 
     // ============ STEP 5: GENERATE WEBSITE HTML WITH REAL IMAGES ============
