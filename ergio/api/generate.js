@@ -132,10 +132,24 @@ Return JSON:
   "elevatorPitch": "1 sentence pitch"
 }`;
 
-    const brandResult = await callGroq([
-      { role: 'system', content: 'Return only valid JSON.' },
-      { role: 'user', content: brandPrompt }
-    ], { temperature: 0.7, response_format: { type: 'json_object' } });
+    let brandResult;
+    try {
+      brandResult = await Promise.race([
+        callGroq([
+          { role: 'system', content: 'Return only valid JSON.' },
+          { role: 'user', content: brandPrompt }
+        ], { temperature: 0.7, response_format: { type: 'json_object' } }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Brand timeout')), 8000))
+      ]);
+    } catch(e) {
+      console.log('Brand AI fallback:', e.message);
+      brandResult = JSON.stringify({
+        logoDescription: `professional modern logo for ${plan.businessName}, ${plan.type}`,
+        brandVoice: `${plan.tone || 'professional'} innovative Nigerian`,
+        uniqueSellingPoint: `Premier ${plan.type} experience in ${plan.city}`,
+        elevatorPitch: `${plan.businessName} is ${plan.city}'s leading ${plan.type}, delivering excellence every day.`
+      });
+    }
 
     let brand;
     try {
@@ -151,7 +165,19 @@ Return JSON:
 
     // ============ STEP 3: IMAGE INTELLIGENCE (NEW) ============
     // Agentic image search — uses AI-planned queries + Pixabay + Unsplash
-    const imagePlan = await planImages(plan.businessName, plan.type, plan.services, plan.city);
+    let imagePlan;
+    try {
+      imagePlan = await Promise.race([
+        planImages(plan.businessName, plan.type, plan.services, plan.city),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('planImages timeout')), 5000))
+      ]);
+    } catch(e) {
+      imagePlan = [
+        { placement: 'hero', query: plan.type + ' business ' + plan.city },
+        { placement: 'about', query: 'professional team Nigeria' },
+        { placement: 'services', query: plan.type + ' service' }
+      ];
+    }
     
     // Add AI-generated queries from the plan
     if (plan.imageSearchQueries && plan.imageSearchQueries.length) {
@@ -162,7 +188,21 @@ Return JSON:
       });
     }
 
-    const images = await fetchWebsiteImages(imagePlan);
+    let images = {};
+    try {
+      images = await Promise.race([
+        fetchWebsiteImages(imagePlan),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Images timeout')), 6000))
+      ]);
+    } catch(e) {
+      console.log('Images timeout, using placeholders:', e.message);
+      // Use Pollinations placeholder images
+      images = {
+        hero: [`https://image.pollinations.ai/prompt/${encodeURIComponent(plan.type + ' business in Lagos Nigeria professional')}&width=1200&height=600&nologo=true`],
+        about: [`https://image.pollinations.ai/prompt/${encodeURIComponent('professional team ' + plan.city + ' Nigeria')}&width=800&height=600&nologo=true`],
+        gallery: []
+      };
+    }
     
     // Count found images
     const totalImages = Object.values(images).reduce((sum, arr) => sum + arr.length, 0);
