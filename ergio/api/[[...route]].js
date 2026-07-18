@@ -286,13 +286,100 @@ async function handleLeads(req, res) {
 async function handleOutreach(req, res) {
   if (req.method!=='POST') return error(res,'Use POST',405);
   const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body||{});
-  const { leads, businessName, serviceName, price } = body;
-  const messages = [];
-  for (const lead of (Array.isArray(leads)?leads:[leads]).slice(0,10)) {
-    const r = await callGroqFast([{role:'system',content:'Return JSON.'},{role:'user',content:`Cold outreach from "${businessName}" to a client needing ${serviceName}. Price: ₦${price||'negotiable'}. Return JSON: {subject,body,whatsapp}`}],{temperature:0.7,response_format:{type:'json_object'}});
-    try { messages.push({lead:lead.name||lead.email,...JSON.parse(r)}); } catch { messages.push({lead:lead.name||lead.email,body:r}); }
+  const action = body.action || 'generate_outreach';
+  const { businessName, businessType, location, leads, serviceName, price } = body;
+  const city = location || 'Lagos, Nigeria';
+  const bizName = businessName || 'My Business';
+  const bizType = businessType || serviceName || 'business';
+
+  // ACTION: generate_outreach - write a cold email/message for a business
+  if (action === 'generate_outreach') {
+    try {
+      const r = await callGroqFast([
+        {role:'system',content:'You are ERGIO's AI outreach writer. Write concise, high-converting Nigerian business outreach messages. Return JSON only.'},
+        {role:'user',content:`Write a cold outreach email AND WhatsApp message for "${bizName}", a ${bizType} in ${city}, Nigeria looking for new clients. Be specific, warm, and professional.
+Return JSON: {
+  "subject": "email subject line",
+  "emailBody": "full email body (3-4 paragraphs)",
+  "whatsappMessage": "WhatsApp message (max 200 chars)",
+  "instagramCaption": "instagram caption with hashtags",
+  "followUp": "follow-up message for non-responders after 3 days"
+}`}
+      ], {temperature:0.75, response_format:{type:'json_object'}});
+      try {
+        const parsed = JSON.parse(r);
+        return success(res, { success: true, action: 'generate_outreach', ...parsed, outreach: parsed.emailBody });
+      } catch {
+        return success(res, { success: true, action: 'generate_outreach', outreach: r, emailBody: r });
+      }
+    } catch(e) {
+      return error(res, e.message, 500);
+    }
   }
-  return success(res,{messages});
+
+  // ACTION: social_content - generate social media posts
+  if (action === 'social_content') {
+    try {
+      const r = await callGroqFast([
+        {role:'system',content:'You are ERGIO's social media AI. Return JSON only.'},
+        {role:'user',content:`Create a 7-day social media content calendar for "${bizName}" (${bizType}) in ${city}, Nigeria.
+Return JSON: {
+  "instagram": ["post1", "post2", "post3"],
+  "twitter": ["tweet1", "tweet2", "tweet3"],
+  "facebook": "long facebook post",
+  "whatsappStatus": "short status",
+  "hashtags": ["#tag1", "#tag2", "#tag3"]
+}`}
+      ], {temperature:0.8, response_format:{type:'json_object'}});
+      try {
+        const parsed = JSON.parse(r);
+        const content = `📱 INSTAGRAM:\n${(parsed.instagram||[]).join('\n---\n')}\n\n🐦 TWITTER:\n${(parsed.twitter||[]).join('\n')}\n\n📘 FACEBOOK:\n${parsed.facebook||''}\n\n💬 WHATSAPP STATUS:\n${parsed.whatsappStatus||''}\n\n#️⃣ HASHTAGS:\n${(parsed.hashtags||[]).join(' ')}`;
+        return success(res, { success: true, action: 'social_content', content, ...parsed });
+      } catch {
+        return success(res, { success: true, action: 'social_content', content: r });
+      }
+    } catch(e) {
+      return error(res, e.message, 500);
+    }
+  }
+
+  // ACTION: repeat_client - re-engagement campaign
+  if (action === 'repeat_client') {
+    try {
+      const r = await callGroqFast([
+        {role:'system',content:'You are ERGIO's retention AI. Write Nigerian-style warm follow-up messages. Return JSON only.'},
+        {role:'user',content:`Write a client re-engagement campaign for "${bizName}" (${bizType}) in ${city}, Nigeria. These are past clients who haven't returned in 60+ days.
+Return JSON: {
+  "whatsappMessage": "warm WhatsApp message",
+  "emailSubject": "email subject",
+  "emailBody": "email body",
+  "smsMessage": "SMS message (max 160 chars)",
+  "loyaltyOffer": "special offer to win them back"
+}`}
+      ], {temperature:0.75, response_format:{type:'json_object'}});
+      try {
+        const parsed = JSON.parse(r);
+        const message = parsed.whatsappMessage || parsed.emailBody || r;
+        return success(res, { success: true, action: 'repeat_client', message, followUp: parsed.emailBody, ...parsed });
+      } catch {
+        return success(res, { success: true, action: 'repeat_client', message: r });
+      }
+    } catch(e) {
+      return error(res, e.message, 500);
+    }
+  }
+
+  // Legacy: leads array outreach
+  if (leads) {
+    const messages = [];
+    for (const lead of (Array.isArray(leads)?leads:[leads]).slice(0,10)) {
+      const r = await callGroqFast([{role:'system',content:'Return JSON.'},{role:'user',content:`Cold outreach from "${bizName}" to client needing ${bizType}. Price: ₦${price||'negotiable'}. Return JSON: {subject,body,whatsapp}`}],{temperature:0.7,response_format:{type:'json_object'}});
+      try { messages.push({lead:lead.name||lead.email,...JSON.parse(r)}); } catch { messages.push({lead:lead.name||lead.email,body:r}); }
+    }
+    return success(res,{success:true, messages});
+  }
+
+  return error(res, 'Unknown action. Use: generate_outreach, repeat_client, social_content', 400);
 }
 
 // ============ ENGINES ============
