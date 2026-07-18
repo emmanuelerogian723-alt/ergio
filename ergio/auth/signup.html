@@ -378,7 +378,10 @@
     // Check if already logged in
     auth.onAuthStateChanged((user) => {
       if (user && window.location.search.includes('auto')) {
-        window.location.href = '../dashboard/index.html';
+        const params = new URLSearchParams(window.location.search);
+        const p = params.get('prompt');
+        if (p) { localStorage.setItem('ergio_initial_prompt', p); window.location.href = '../build.html'; }
+        else { window.location.href = '../dashboard/index.html'; }
       }
     });
   </script>

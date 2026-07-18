@@ -143,15 +143,25 @@
     }
 
     // ── Check existing Firebase session ──
+    const redirectAfterAuth = () => {
+      const params = new URLSearchParams(window.location.search);
+      const promptVal = params.get('prompt');
+      if (promptVal) {
+        localStorage.setItem('ergio_initial_prompt', promptVal);
+        window.location.href = '../build.html';
+      } else {
+        window.location.href = '../dashboard/index.html';
+      }
+    };
     auth.onAuthStateChanged((user) => {
       if (user) {
-        // Already logged in — redirect to dashboard
+        // Already logged in — redirect
         localStorage.setItem('ergio_user', JSON.stringify({
           uid: user.uid,
           email: user.email,
           fullName: user.displayName || user.email.split('@')[0]
         }));
-        window.location.href = '../dashboard/index.html';
+        redirectAfterAuth();
       }
     });
 
@@ -190,7 +200,7 @@
         }));
 
         showAlert('success', 'Welcome back! Redirecting...');
-        setTimeout(() => { window.location.href = '../dashboard/index.html'; }, 800);
+        setTimeout(() => { redirectAfterAuth(); }, 800);
       } catch (err) {
         btn.disabled = false;
         btnText.textContent = 'Sign in to ERGIO';

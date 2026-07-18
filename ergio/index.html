@@ -422,8 +422,9 @@ img{display:block;max-width:100%}
 </div>
 <div style="display:flex;align-items:center;gap:0.75rem">
 <a href="guide.html" style="color:var(--text2);font-size:0.85rem;font-weight:600;text-decoration:none;padding:0.5rem 1rem;border-radius:100px;border:1px solid rgba(255,255,255,0.12);transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">📖 Guide</a>
-      <a href="auth/login.html" style="color:var(--text2);font-size:0.85rem;font-weight:600;text-decoration:none;padding:0.5rem 1rem;border-radius:100px;border:1px solid rgba(255,255,255,0.12);transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">Log in</a>
-<a href="auth/signup.html" class="nav-cta" style="text-decoration:none;display:inline-block">Sign up free</a>
+      <a href="dashboard/index.html" id="navDashboard" style="color:var(--text2);font-size:0.85rem;font-weight:600;text-decoration:none;padding:0.5rem 1rem;border-radius:100px;border:1px solid rgba(255,255,255,0.12);transition:all 0.2s;display:none" onmouseover="this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">Dashboard</a>
+      <a href="auth/login.html" id="navLogin" style="color:var(--text2);font-size:0.85rem;font-weight:600;text-decoration:none;padding:0.5rem 1rem;border-radius:100px;border:1px solid rgba(255,255,255,0.12);transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">Log in</a>
+<a href="auth/signup.html" id="navSignup" class="nav-cta" style="text-decoration:none;display:inline-block">Sign up free</a>
 </div>
 </nav>
 
@@ -1087,13 +1088,18 @@ const stageLabels = [
 function startBuild(){
   const val = promptEl.value.trim();
   if(!val){promptEl.focus();return}
-  // Auth gate — check if user is logged in via Supabase session
+  // Auth gate — check if user is logged in (Supabase OR Firebase/localStorage)
   const session = localStorage.getItem('sb-owcxfzlanlrulflsyvlr-auth-token');
+  const ergioUser = localStorage.getItem('ergio_user');
   let isLoggedIn = false;
   try {
     const parsed = session ? JSON.parse(session) : null;
     isLoggedIn = !!(parsed && parsed.access_token && parsed.expires_at > Date.now()/1000);
   } catch(e) {}
+  // Also check Firebase/localStorage auth (used by dashboard)
+  if (!isLoggedIn && ergioUser) {
+    try { const u = JSON.parse(ergioUser); isLoggedIn = !!(u && (u.uid || u.id || u.email)); } catch(e) {}
+  }
   
   if (!isLoggedIn) {
     // Show sign-up modal instead of builder
