@@ -420,7 +420,8 @@ img{display:block;max-width:100%}
 <a href="#pricing" onclick="scrollToSection('pricing')">Pricing</a>
 </div>
 <div style="display:flex;align-items:center;gap:0.75rem">
-<a href="auth/login.html" style="color:var(--text2);font-size:0.85rem;font-weight:600;text-decoration:none;padding:0.5rem 1rem;border-radius:100px;border:1px solid rgba(255,255,255,0.12);transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">Log in</a>
+<a href="guide.html" style="color:var(--text2);font-size:0.85rem;font-weight:600;text-decoration:none;padding:0.5rem 1rem;border-radius:100px;border:1px solid rgba(255,255,255,0.12);transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">📖 Guide</a>
+      <a href="auth/login.html" style="color:var(--text2);font-size:0.85rem;font-weight:600;text-decoration:none;padding:0.5rem 1rem;border-radius:100px;border:1px solid rgba(255,255,255,0.12);transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">Log in</a>
 <a href="auth/signup.html" class="nav-cta" style="text-decoration:none;display:inline-block">Sign up free</a>
 </div>
 </nav>
@@ -1265,6 +1266,7 @@ body{background:#0a0a0f;color:#f0f0f0}
 <div class="card"><h3>Affordable</h3><p>Competitive pricing for every budget.</p></div>
 </div>
 <div class="contact"><h2>Get in Touch</h2><p>Ready to start? Contact us today.</p><button class="btn">Contact ${bizName}</button></div>
+  <script src="guide-widget.js"></script>
 </body></html>`;
 }
 
@@ -1417,5 +1419,6 @@ function viewWebsite(){
 function openDashboard(){window.location.href = '/dashboard';}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
 </script>
+  <script src="guide-widget.js"></script>
 </body>
 </html>

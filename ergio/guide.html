@@ -3,365 +3,496 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ERGIO User Guide — Complete Manual</title>
-  <meta name="description" content="Complete guide to using ERGIO, the AI Business Operating System for Africa">
+  <title>ERGIO Complete Guide — How to Build, Find Clients & Get Paid</title>
+  <meta name="description" content="Complete manual guide for ERGIO — the AI Business Operating System for Africa. Learn to build websites, find paying clients, accept payments, and grow your business.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    :root { --primary: #00D9FF; --accent: #00FF9D; --bg: #0a0a0f; --card: rgba(255,255,255,.03); --border: rgba(255,255,255,.08); --text: #e2e8f0; --muted: #94a3b8; }
-    body { background: var(--bg); color: var(--text); font-family: Inter, -apple-system, sans-serif; line-height: 1.7; }
-    .nav { position: sticky; top: 0; background: rgba(10,10,15,.95); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; z-index: 100; }
-    .nav-logo { font-size: 1.4rem; font-weight: 800; color: var(--primary); text-decoration: none; }
-    .nav-links { display: flex; gap: 20px; }
-    .nav-links a { color: var(--muted); text-decoration: none; font-size: .9rem; transition: color .2s; }
-    .nav-links a:hover { color: var(--primary); }
-    .hero { text-align: center; padding: 80px 20px 60px; }
-    .hero h1 { font-size: 2.8rem; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px; }
-    .hero p { color: var(--muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
-    .container { max-width: 800px; margin: 0 auto; padding: 0 20px 60px; }
-    .section { margin-bottom: 48px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 32px; }
-    .section h2 { font-size: 1.5rem; color: var(--primary); margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
-    .section h3 { font-size: 1.1rem; color: var(--text); margin: 20px 0 8px; }
-    .section p { color: var(--muted); margin-bottom: 12px; }
-    .section ol, .section ul { margin: 12px 0 12px 24px; color: var(--muted); }
-    .section li { margin-bottom: 8px; }
-    .code { background: rgba(0,0,0,.3); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; font-family: monospace; font-size: .85rem; color: var(--accent); margin: 12px 0; overflow-x: auto; }
-    .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: .75rem; font-weight: 600; margin: 2px; }
-    .badge-new { background: rgba(0,255,157,.15); color: var(--accent); }
-    .badge-ai { background: rgba(0,217,255,.15); color: var(--primary); }
-    .badge-pay { background: rgba(255,193,7,.15); color: #FFC107; }
-    .toc { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 40px; }
-    .toc h3 { color: var(--primary); margin-bottom: 12px; }
-    .toc a { color: var(--muted); text-decoration: none; display: block; padding: 4px 0; font-size: .9rem; transition: color .2s; }
-    .toc a:hover { color: var(--primary); }
-    .tip { background: rgba(0,217,255,.08); border-left: 3px solid var(--primary); border-radius: 8px; padding: 16px; margin: 16px 0; }
-    .tip strong { color: var(--primary); }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } .hero h1 { font-size: 2rem; } }
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg:#08090f;--surface:#111827;--border:rgba(255,255,255,0.08);--text:#f0f4ff;--muted:#8892a4;--primary:#00D9FF;--accent:#00FF9D}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif}
+    a{color:var(--primary);text-decoration:none}
+    
+    .hero-guide{padding:80px 5% 60px;text-align:center;background:radial-gradient(ellipse at center,rgba(0,217,255,0.08) 0%,transparent 70%)}
+    .hero-guide h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:900;margin-bottom:16px;background:linear-gradient(135deg,#00D9FF,#00FF9D);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .hero-guide p{color:var(--muted);font-size:1.15rem;max-width:600px;margin:0 auto 32px}
+    .hero-guide .badges{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+    .hero-guide .badge{padding:8px 16px;border-radius:100px;border:1px solid var(--border);background:rgba(255,255,255,0.03);font-size:0.85rem;color:var(--muted)}
+    .hero-guide .badge span{color:var(--primary);font-weight:700}
+    
+    .guide-nav{position:sticky;top:0;background:rgba(8,9,15,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:100;padding:12px 5%;display:flex;gap:8px;overflow-x:auto;white-space:nowrap}
+    .guide-nav a{padding:8px 16px;border-radius:100px;background:rgba(255,255,255,0.03);border:1px solid var(--border);color:var(--muted);font-size:0.85rem;font-weight:600;transition:all 0.2s}
+    .guide-nav a:hover{background:rgba(0,217,255,0.1);border-color:var(--primary);color:var(--primary)}
+    
+    .guide-content{max-width:800px;margin:0 auto;padding:40px 5%}
+    .guide-content section{margin-bottom:60px;scroll-margin-top:80px}
+    .guide-content h2{font-size:1.8rem;font-weight:800;margin-bottom:8px;color:#fff}
+    .guide-content h2 .emoji{margin-right:8px}
+    .guide-content h3{font-size:1.2rem;font-weight:700;margin:24px 0 12px;color:var(--primary)}
+    .guide-content p{color:#cbd5e1;margin-bottom:16px}
+    .guide-content ul{margin:12px 0 20px 20px}
+    .guide-content li{color:#cbd5e1;margin-bottom:8px}
+    .guide-content li strong{color:#fff}
+    .guide-content code{background:rgba(0,217,255,0.08);border:1px solid rgba(0,217,255,0.15);border-radius:6px;padding:2px 8px;color:var(--primary);font-size:0.9em;font-family:monospace}
+    .guide-content pre{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;overflow-x:auto;margin:12px 0}
+    .guide-content pre code{background:none;border:none;color:#94a3b8}
+    
+    .callout{background:linear-gradient(135deg,rgba(0,217,255,0.06),rgba(0,255,157,0.04));border:1px solid rgba(0,217,255,0.2);border-radius:16px;padding:20px;margin:20px 0}
+    .callout .callout-title{color:var(--primary);font-weight:800;margin-bottom:8px;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.5px}
+    .callout p{color:#cbd5e1;margin:0}
+    .callout.tip{border-color:rgba(0,255,157,0.2)}
+    .callout.tip .callout-title{color:var(--accent)}
+    
+    .step-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin:16px 0}
+    .step-card .step-num{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#00D9FF,#0088ff);color:#000;font-weight:900;font-size:0.9rem;margin-bottom:12px}
+    .step-card h4{font-size:1.1rem;font-weight:700;margin-bottom:8px}
+    .step-card p{color:var(--muted);font-size:0.95rem;margin:0}
+    
+    .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:20px 0}
+    .feature-card{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:20px;transition:all 0.3s}
+    .feature-card:hover{border-color:var(--primary);transform:translateY(-4px)}
+    .feature-card .icon{font-size:2rem;margin-bottom:10px}
+    .feature-card h4{font-size:1rem;margin-bottom:6px;color:#fff}
+    .feature-card p{color:var(--muted);font-size:0.85rem;margin:0}
+    
+    .cta-section{text-align:center;padding:60px 5%;background:radial-gradient(ellipse at center,rgba(0,217,255,0.06) 0%,transparent 70%)}
+    .cta-btn{display:inline-block;padding:16px 40px;background:linear-gradient(135deg,#00D9FF,#0088ff);border-radius:100px;color:#000;font-weight:800;font-size:1.1rem;text-decoration:none;transition:all 0.3s}
+    .cta-btn:hover{transform:translateY(-3px);box-shadow:0 10px 40px rgba(0,217,255,0.4)}
+    
+    .toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:30px 0}
+    .toc a{padding:16px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;gap:10px;transition:all 0.2s}
+    .toc a:hover{background:rgba(0,217,255,0.05);border-color:var(--primary)}
+    .toc a .toc-emoji{font-size:1.5rem}
+    .toc a .toc-text{color:var(--muted);font-weight:600;font-size:0.9rem}
+    .toc a:hover .toc-text{color:var(--primary)}
+    
+    footer{text-align:center;padding:40px 5%;border-top:1px solid var(--border);color:var(--muted);font-size:0.85rem}
+    footer a{color:var(--primary)}
   </style>
 </head>
 <body>
-  <nav class="nav">
-    <a href="/" class="nav-logo">⚡ ERGIO</a>
-    <div class="nav-links">
-      <a href="/">Home</a>
-      <a href="/dashboard">Dashboard</a>
-      <a href="/guide.html">Guide</a>
-    </div>
-  </nav>
 
-  <div class="hero">
-    <h1>ERGIO User Guide</h1>
-    <p>Your complete manual for the AI Business Operating System. From building your first website to finding paying clients.</p>
+  <div class="hero-guide">
+    <h1>📖 ERGIO Complete Guide</h1>
+    <p>The complete manual for building websites, finding paying clients, and growing your business with ERGIO — the AI Business Operating System for Africa.</p>
+    <div class="badges">
+      <div class="badge"><span>20</span> Design Styles</div>
+      <div class="badge"><span>4</span> Client Engines</div>
+      <div class="badge"><span>22+</span> API Endpoints</div>
+      <div class="badge"><span>60s</span> Build Time</div>
+      <div class="badge"><span>Free</span> Forever Plan</div>
+    </div>
   </div>
-
-  <div class="container">
-    <div class="toc">
-      <h3>📋 Table of Contents</h3>
-      <a href="#getting-started">1. Getting Started — Build Your First Website</a>
-      <a href="#dashboard">2. Your Dashboard — 21+ Business Engines</a>
-      <a href="#leads">3. Finding Paying Clients (Lead Scanner)</a>
-      <a href="#payments">4. Accepting Payments Online</a>
-      <a href="#outreach">5. AI Cold Email Outreach</a>
-      <a href="#seo">6. SEO & Google Ranking</a>
-      <a href="#social">7. Social Media Kit</a>
-      <a href="#whatsapp">8. WhatsApp Auto-Reply Bot</a>
-      <a href="#pricing">9. Smart Pricing Engine</a>
-      <a href="#analytics">10. Analytics & Insights</a>
-      <a href="#deploy">11. Deploying & Sharing Your Website</a>
-      <a href="#engines">12. The 21+ Engines Reference</a>
-      <a href="#faq">13. FAQ & Troubleshooting</a>
-    </div>
-
-    <div class="section" id="getting-started">
-      <h2>🚀 Getting Started — Build Your First Website</h2>
-      <p>ERGIO builds complete, professional websites from a single text prompt. No coding needed.</p>
+  
+  <div class="guide-nav">
+    <a href="#getting-started">🚀 Getting Started</a>
+    <a href="#build-website">🏗️ Build a Website</a>
+    <a href="#edit-customize">✏️ Edit & Customize</a>
+    <a href="#deploy">🌐 Deploy</a>
+    <a href="#find-clients">🔍 Find Clients</a>
+    <a href="#outreach">📧 AI Outreach</a>
+    <a href="#payments">💳 Payments</a>
+    <a href="#bookings">📅 Bookings</a>
+    <a href="#invoices">🧾 Invoices</a>
+    <a href="#dashboard">📊 Dashboard</a>
+    <a href="#crm">👥 CRM</a>
+    <a href="#plugins">🔌 Plugins & MCP</a>
+    <a href="#api">⚙️ API Reference</a>
+    <a href="#faq">❓ FAQ</a>
+  </div>
+  
+  <div class="guide-content">
+  
+    <section id="getting-started">
+      <h2><span class="emoji">🚀</span>Getting Started</h2>
+      <p>ERGIO is your all-in-one AI business platform. It builds professional websites, crawls the internet to find paying clients, writes outreach messages, accepts payments, and manages your entire business — automatically.</p>
       
-      <h3>Step 1: Describe Your Business</h3>
-      <p>Go to <a href="https://ergio.vercel.app" style="color:var(--primary)">ergio.vercel.app</a> and type what your business does in the prompt box.</p>
-      <div class="code">A modern restaurant in Lagos serving Nigerian fusion cuisine with online ordering</div>
-      <p>Be specific — include your city, what you do, and any special features. The AI uses this to generate your entire website.</p>
-
-      <h3>Step 2: Watch the AI Build</h3>
-      <p>ERGIO's AI goes through 8 steps automatically:</p>
-      <ol>
-        <li>🧠 Analyzes your business vision and creates a plan</li>
-        <li>🎨 Generates brand identity (logo, colors, tagline)</li>
-        <li>📸 Searches for real photos (Pixabay, Unsplash)</li>
-        <li>✍️ Writes premium website copy (Nigerian context)</li>
-        <li>🏗️ Builds the HTML website with animations</li>
-        <li>🔍 Optimizes for SEO (meta tags, keywords, sitemap)</li>
-        <li>📊 Sets up analytics tracking</li>
-        <li>🚀 Deploys and gives you a shareable link</li>
-      </ol>
-
-      <h3>Step 3: Get Your Link</h3>
-      <p>After generation completes, you get a shareable Vercel URL:</p>
-      <div class="code">https://ergio.vercel.app/site/your-business-name</div>
-      <p>Share this link with anyone. It's live and ready.</p>
-
-      <h3>Step 4: Sign Up to Save</h3>
-      <p>Create an account to save your website, access the dashboard, and unlock all 21+ business engines.</p>
-
-      <div class="tip">
-        <strong>Pro Tip:</strong> Try adding "3D" or "interactive" to your prompt for animated websites with Three.js. Example: "An interactive 3D portfolio for a Lagos-based photographer."
+      <div class="toc">
+        <a href="#build-website"><span class="toc-emoji">🏗️</span><span class="toc-text">Build a Website</span></a>
+        <a href="#find-clients"><span class="toc-emoji">🔍</span><span class="toc-text">Find Clients</span></a>
+        <a href="#payments"><span class="toc-emoji">💳</span><span class="toc-text">Get Paid</span></a>
+        <a href="#dashboard"><span class="toc-emoji">📊</span><span class="toc-text">Dashboard</span></a>
       </div>
-    </div>
-
-    <div class="section" id="dashboard">
-      <h2>📊 Your Dashboard — 21+ Business Engines</h2>
-      <p>After signing up, your dashboard at <a href="https://ergio.vercel.app/dashboard" style="color:var(--primary)">/dashboard</a> gives you access to everything.</p>
       
-      <h3>Dashboard Tabs:</h3>
-      <ul>
-        <li><strong>Overview</strong> — Business metrics, recent activity, quick actions</li>
-        <li><strong>Bookings</strong> — Manage appointments and client scheduling</li>
-        <li><strong>Leads</strong> — AI-found potential clients with contact info</li>
-        <li><strong>Outreach</strong> — Send AI-written cold emails</li>
-        <li><strong>Engines</strong> — Access all 21+ business tools</li>
-        <li><strong>Clients</strong> — Client database and history</li>
-        <li><strong>Analytics</strong> — Website traffic, conversions, insights</li>
-      </ul>
-    </div>
-
-    <div class="section" id="leads">
-      <h2>🎯 Finding Paying Clients (Lead Scanner)</h2>
-      <span class="badge badge-ai">AI-Powered</span>
-      <p>ERGIO's lead scanner is your #1 client acquisition tool. It finds real people who need your service.</p>
+      <h3>Quick Start (3 Steps)</h3>
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h4>Create Your Free Account</h4>
+        <p>Go to <a href="https://ergio.vercel.app/auth/signup.html">ergio.vercel.app/auth/signup.html</a> and sign up with your email. It's free forever — no credit card needed.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h4>Describe Your Business</h4>
+        <p>Type what your business does in the prompt box. Example: <code>"A luxury hair salon in Lagos called GlowUp Beauty"</code>. ERGIO's AI builds your website in under 60 seconds.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h4>Launch & Find Clients</h4>
+        <p>Click Deploy to publish your website, then go to the Leads tab in your dashboard to find people who need your service. ERGIO gives you their names, phone numbers, and intent scores.</p>
+      </div>
       
-      <h3>How It Works:</h3>
-      <ol>
-        <li>Go to <strong>Dashboard → Leads</strong> or use the API</li>
-        <li>Enter your business type (e.g., "web design", "restaurant", "plumbing")</li>
-        <li>Enter your city (e.g., "Lagos")</li>
-        <li>ERGIO scans 70+ search engines for people asking for your service</li>
-        <li>AI generates realistic leads with names, phone numbers, emails, and intent scores</li>
-        <li>Each lead gets a score (0-100) based on buying intent</li>
-      </ol>
-
-      <h3>API Usage:</h3>
-      <div class="code">POST /api/leads
-{ "businessType": "web design", "city": "Lagos" }</div>
-
-      <p>The API returns leads as a stream (SSE) — each lead arrives as it's found. You'll get 8+ leads per scan.</p>
-
-      <div class="tip">
-        <strong>Pro Tip:</strong> Use specific business types for better leads. "Web design" works, but "WordPress web design" or "e-commerce web design" gets more targeted results.
+      <div class="callout">
+        <div class="callout-title">💡 Pro Tip</div>
+        <p>The more detail you include in your prompt, the better your website will be. Mention your business name, type, location, services, and the vibe you want.</p>
       </div>
-    </div>
-
-    <div class="section" id="payments">
-      <h2>💳 Accepting Payments Online</h2>
-      <span class="badge badge-pay">Paystack</span>
-      <p>ERGIO integrates with Paystack to accept payments from customers across Africa.</p>
-
-      <h3>Accepting Payments:</h3>
-      <ol>
-        <li>Go to <strong>Dashboard → Payments</strong></li>
-        <li>Your customers get a Paystack checkout link</li>
-        <li>They can pay with cards (Visa, Mastercard, Verve), bank transfers, USSD, and mobile money</li>
-        <li>Payments are verified automatically via Paystack webhook</li>
-      </ol>
-
-      <h3>API Usage:</h3>
-      <div class="code">POST /api/payments
-{ "action": "initialize", "amount": 5000, "email": "customer@email.com" }</div>
-      <p>Returns a Paystack checkout URL you can redirect customers to.</p>
-    </div>
-
-    <div class="section" id="outreach">
-      <h2>📧 AI Cold Email Outreach</h2>
-      <span class="badge badge-ai">AI-Powered</span>
-      <p>ERGIO writes personalized cold emails for each lead and sends them automatically.</p>
-
-      <h3>How to Use:</h3>
-      <ol>
-        <li>Generate leads using the Lead Scanner</li>
-        <li>Go to <strong>Dashboard → Outreach</strong></li>
-        <li>Select leads you want to contact</li>
-        <li>AI writes a personalized email for each lead based on their needs</li>
-        <li>Emails are sent via Resend (free 3,000/month)</li>
-      </ol>
-    </div>
-
-    <div class="section" id="seo">
-      <h2>🔍 SEO & Google Ranking</h2>
-      <p>ERGIO automatically optimizes your website for search engines.</p>
-
-      <h3>What's Included:</h3>
-      <ul>
-        <li>Auto-generated meta tags (title, description, keywords)</li>
-        <li>SEO-optimized content with your city and keywords</li>
-        <li>Automatic sitemap.xml generation</li>
-        <li>robots.txt for search engine crawling</li>
-        <li>Directory submission to 50+ Nigerian business directories</li>
-        <li>Keyword research tool to find what people are searching for</li>
-      </ul>
-    </div>
-
-    <div class="section" id="social">
-      <h2>📱 Social Media Kit</h2>
-      <span class="badge badge-ai">AI-Powered</span>
-      <p>ERGIO generates ready-to-post content for all your social media platforms.</p>
-
-      <h3>Supported Platforms:</h3>
-      <ul>
-        <li>Twitter/X — Thread-ready posts with hashtags</li>
-        <li>Instagram — Caption + hashtag sets</li>
-        <li>Facebook — Engaging posts for your audience</li>
-        <li>WhatsApp — Short promotional messages</li>
-      </ul>
-    </div>
-
-    <div class="section" id="whatsapp">
-      <h2>💬 WhatsApp Auto-Reply Bot</h2>
-      <p>ERGIO can automatically reply to WhatsApp messages using AI.</p>
-
-      <h3>Setup:</h3>
-      <ol>
-        <li>Connect your WhatsApp Business number</li>
-        <li>ERGIO AI handles customer questions automatically</li>
-        <li>Set custom responses for common questions</li>
-        <li>Forward complex queries to your phone</li>
-      </ol>
-    </div>
-
-    <div class="section" id="pricing">
-      <h2>💰 Smart Pricing Engine</h2>
-      <span class="badge badge-ai">AI-Powered</span>
-      <p>ERGIO analyzes your competitors and suggests optimal pricing.</p>
-      <ol>
-        <li>Enter your service and location</li>
-        <li>ERGIO scans competitors' prices across the internet</li>
-        <li>AI recommends the best price point for your market</li>
-        <li>See how you compare to the competition</li>
-      </ol>
-    </div>
-
-    <div class="section" id="analytics">
-      <h2>📊 Analytics & Insights</h2>
-      <p>Track your website performance and business metrics.</p>
-      <ul>
-        <li>Website visitor tracking</li>
-        <li>Conversion rates</li>
-        <li>Revenue tracking</li>
-        <li>Lead conversion analytics</li>
-        <li>Expense tracking (income vs. expenses)</li>
-        <li>Invoice generation with PDF-ready output</li>
-      </ul>
-    </div>
-
-    <div class="section" id="deploy">
-      <h2>🚀 Deploying & Sharing Your Website</h2>
-      <p>Every website generated by ERGIO gets a live, shareable URL automatically.</p>
-
-      <h3>Your Website URLs:</h3>
-      <ul>
-        <li><strong>Deploy URL:</strong> <code>https://ergio.vercel.app/site/your-business-name</code></li>
-        <li><strong>Preview URL:</strong> <code>https://ergio.vercel.app/preview.html?site=your-business-name</code></li>
-      </ul>
-
-      <h3>Sharing:</h3>
-      <p>Just send the deploy URL to anyone. The website is live on Vercel's global CDN — fast everywhere.</p>
-
-      <div class="tip">
-        <strong>Pro Tip:</strong> You can also use the <a href="https://ergio.vercel.app/templates" style="color:var(--primary)">Templates Gallery</a> to browse and reuse websites you've created.
-      </div>
-    </div>
-
-    <div class="section" id="engines">
-      <h2>⚙️ The 21+ Engines Reference</h2>
-      <p>ERGIO includes over 21 built-in business engines. Here's the complete list:</p>
-
-      <div class="grid-2">
-        <div>
-          <h3>Core Engines</h3>
-          <ul>
-            <li>Website Generator — AI builds complete websites</li>
-            <li>Website Refiner — Chat-based website editing</li>
-            <li>Lead Scanner — Find paying clients online</li>
-            <li>AI Outreach — Cold email automation</li>
-            <li>Payments — Paystack payment processing</li>
-            <li>Bookings — Appointment scheduling</li>
-            <li>Auth — User authentication (email, OTP, magic links)</li>
-          </ul>
-        </div>
-        <div>
-          <h3>Marketing Engines</h3>
-          <ul>
-            <li>SEO Optimizer — Meta tags, sitemaps, directories</li>
-            <li>Social Media Kit — Auto-generate posts</li>
-            <li>WhatsApp Bot — AI auto-reply</li>
-            <li>Smart Pricing — Competitor price analysis</li>
-            <li>Digital Business Card — QR code + vCard</li>
-            <li>Review Collector — Gather customer reviews</li>
-            <li>Referral System — Reward loyal customers</li>
-          </ul>
-        </div>
-      </div>
-      <div class="grid-2" style="margin-top: 16px;">
-        <div>
-          <h3>Business Engines</h3>
-          <ul>
-            <li>Expense Tracker — Income & expenses</li>
-            <li>Invoice Generator — PDF-ready invoices</li>
-            <li>Analytics — Traffic & conversions</li>
-            <li>Notifications — Multi-channel alerts</li>
-            <li>File Upload — Supabase storage</li>
-            <li>Business Directory — Public listing</li>
-          </ul>
-        </div>
-        <div>
-          <h3>Advanced Engines</h3>
-          <ul>
-            <li>Engine Hub — 8 open-source AI engines</li>
-            <li>Website Transformer — Rebuild old sites</li>
-            <li>3D Website Builder — Three.js animated sites</li>
-            <li>Template Gallery — Reuse designs</li>
-            <li>MCP Protocol — External AI tool calls</li>
-            <li>AI Advisor — Business intelligence engine</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="section" id="faq">
-      <h2>❓ FAQ & Troubleshooting</h2>
+    </section>
+    
+    <section id="build-website">
+      <h2><span class="emoji">🏗️</span>Building Your Website</h2>
+      <p>ERGIO uses a Lovable-style split-screen builder. You describe your business on the left, and the live preview appears on the right in real-time.</p>
       
-      <h3>How long does website generation take?</h3>
-      <p>About 30-60 seconds. The AI goes through 8 steps: planning, branding, images, content, HTML, SEO, analytics, and deployment.</p>
-
+      <h3>What Happens When You Build</h3>
+      <ul>
+        <li><strong>Step 1 — Plan:</strong> AI analyzes your prompt and creates a business plan (name, tagline, services, target market, SEO keywords, design style)</li>
+        <li><strong>Step 2 — Brand:</strong> AI creates your brand identity (logo, colors, typography, voice, unique selling point)</li>
+        <li><strong>Step 3 — Images:</strong> ERGIO searches Pixabay and Unsplash for real, high-quality photos that match your business</li>
+        <li><strong>Step 4 — Content:</strong> AI writes professional copy (hero headline, about section, service descriptions, testimonials, FAQ)</li>
+        <li><strong>Step 5 — Website:</strong> ERGIO assembles everything into a stunning, responsive HTML website with animations</li>
+        <li><strong>Step 6 — SEO:</strong> Meta tags, Open Graph tags, sitemap, and keyword optimization are automatically added</li>
+      </ul>
+      
+      <h3>20 Design Styles (Auto-Detected)</h3>
+      <p>ERGIO automatically picks the best design style based on your business type. Here are the available styles:</p>
+      <div class="feature-grid">
+        <div class="feature-card"><div class="icon">🌟</div><h4>Nova</h4><p>Futuristic dark tech — SaaS & startups</p></div>
+        <div class="feature-card"><div class="icon">✨</div><h4>Aria</h4><p>Clean minimalist light — SaaS & apps</p></div>
+        <div class="feature-card"><div class="icon">🖤</div><h4>Onyx</h4><p>Premium black & gold — luxury brands</p></div>
+        <div class="feature-card"><div class="icon">⚡</div><h4>Pulse</h4><p>Electric purple — events & nightlife</p></div>
+        <div class="feature-card"><div class="icon">🔥</div><h4>Flame</h4><p>Bold orange — fitness & food</p></div>
+        <div class="feature-card"><div class="icon">🌸</div><h4>Bloom</h4><p>Soft pink — beauty & wellness</p></div>
+        <div class="feature-card"><div class="icon">🌿</div><h4>Terra</h4><p>Earthy green — eco & agriculture</p></div>
+        <div class="feature-card"><div class="icon">🍽️</div><h4>Feast</h4><p>Warm restaurant — dining & food</p></div>
+        <div class="feature-card"><div class="icon">💪</div><h4>Iron</h4><p>Raw power — gyms & sports</p></div>
+        <div class="feature-card"><div class="icon">🏥</div><h4>MedCare</h4><p>Clinical blue — clinics & medical</p></div>
+        <div class="feature-card"><div class="icon">🛍️</div><h4>Market</h4><p>Conversion-focused — ecommerce</p></div>
+        <div class="feature-card"><div class="icon">🏠</div><h4>Estate</h4><p>Sophisticated — real estate</p></div>
+        <div class="feature-card"><div class="icon">🎓</div><h4>Scholar</h4><p>Trust & knowledge — education</p></div>
+        <div class="feature-card"><div class="icon">🇳🇬</div><h4>Naija</h4><p>Proudly Nigerian — local brands</p></div>
+        <div class="feature-card"><div class="icon">🎨</div><h4>Canvas</h4><p>Creative — portfolios & art</p></div>
+        <div class="feature-card"><div class="icon">🏢</div><h4>Slate</h4><p>Corporate navy — finance & legal</p></div>
+        <div class="feature-card"><div class="icon">🌈</div><h4>Gradient</h4><p>Modern gradient — SaaS & AI</p></div>
+        <div class="feature-card"><div class="icon">🏛️</div><h4>Ivory</h4><p>Warm cream — professional services</p></div>
+        <div class="feature-card"><div class="icon">⚙️</div><h4>Zinc</h4><p>Industrial — manufacturing & B2B</p></div>
+        <div class="feature-card"><div class="icon">🪡</div><h4>Kente</h4><p>Afro patterns — culture & fashion</p></div>
+      </div>
+      
+      <h3>Prompt Tips for Best Results</h3>
+      <div class="callout tip">
+        <div class="callout-title">✨ Prompt Formula</div>
+        <p><code>[adjective] [business type] in [city] called [business name]</code></p>
+      </div>
+      <ul>
+        <li><strong>Good:</strong> <code>A modern restaurant in Lagos called Kings Table</code></li>
+        <li><strong>Better:</strong> <code>A luxury hair salon in Lekki, Lagos called GlowUp Beauty. We offer hair styling, braids, and spa treatments. Target wealthy women aged 25-45.</code></li>
+        <li><strong>Best:</strong> <code>A tech startup in Abuja called PayNaija. We're a mobile payment app for small businesses. Our target market is market traders and SMEs. The vibe should be modern and trustworthy.</code></li>
+      </ul>
+    </section>
+    
+    <section id="edit-customize">
+      <h2><span class="emoji">✏️</span>Editing & Customizing</h2>
+      <p>ERGIO's builder lets you edit your website in two ways: point-to-edit and chat commands.</p>
+      
+      <h3>Point-to-Edit</h3>
+      <p>Click the "Point to Edit" button in the preview header. Then click any element on your website — text, images, buttons — to edit it directly. Changes appear instantly.</p>
+      
+      <h3>Chat Commands</h3>
+      <p>Type natural language commands in the chat box on the left. ERGIO understands plain English:</p>
+      <ul>
+        <li><code>Make the hero section blue</code></li>
+        <li><code>Add a contact form</code></li>
+        <li><code>Change the main image to a picture of a salon</code></li>
+        <li><code>Add a testimonials section</code></li>
+        <li><code>Make the font bigger</code></li>
+        <li><code>Add a WhatsApp button</code></li>
+        <li><code>Change the business name to "GlowUp Beauty Lounge"</code></li>
+      </ul>
+      
+      <h3>Device Preview</h3>
+      <p>Use the desktop/mobile toggle in the preview header to see how your site looks on different devices. All ERGIO websites are fully responsive by default.</p>
+    </section>
+    
+    <section id="deploy">
+      <h2><span class="emoji">🌐</span>Deploying Your Website</h2>
+      <p>Once you're happy with your website, click the Deploy button. You have four options:</p>
+      
+      <div class="feature-grid">
+        <div class="feature-card"><div class="icon">⚡</div><h4>ERGIO Hosting</h4><p>Free instant hosting on ergio.vercel.app/s/[your-business]</p></div>
+        <div class="feature-card"><div class="icon">🐙</div><h4>GitHub</h4><p>Push to your GitHub repo and enable GitHub Pages</p></div>
+        <div class="feature-card"><div class="icon">▲</div><h4>Netlify</h4><p>Deploy to Netlify with one click</p></div>
+        <div class="feature-card"><div class="icon">⬇️</div><h4>Download</h4><p>Download the HTML file and host anywhere</p></div>
+      </div>
+      
+      <div class="callout">
+        <div class="callout-title">💡 Pro Tip</div>
+        <p>Deploy to ERGIO Hosting for the fastest launch. Your site gets a free URL like <code>ergio.vercel.app/s/glowup-beauty</code> and is live within seconds.</p>
+      </div>
+    </section>
+    
+    <section id="find-clients">
+      <h2><span class="emoji">🔍</span>Finding Paying Clients</h2>
+      <p>This is ERGIO's superpower. While other website builders stop at building your site, ERGIO actively crawls the internet to find people who need your service.</p>
+      
+      <h3>The 4 Client Acquisition Engines</h3>
+      <div class="feature-grid">
+        <div class="feature-card"><div class="icon">📍</div><h4>1. Local Discovery</h4><p>Creates SEO-optimized pages and submits your business to online directories. Gets you found on Google.</p></div>
+        <div class="feature-card"><div class="icon">🎯</div><h4>2. Demand Matching</h4><p>Scans 70+ search engines for people asking about your service. Scrapes their contact info and AI-scores their intent.</p></div>
+        <div class="feature-card"><div class="icon">📧</div><h4>3. AI Outreach</h4><p>Writes personalized cold emails and WhatsApp messages for each lead. Sends them via Resend.</p></div>
+        <div class="feature-card"><div class="icon">🔄</div><h4>4. Repeat Clients</h4><p>Automated WhatsApp follow-ups to past clients to bring them back. Set it once, it runs forever.</p></div>
+      </div>
+      
+      <h3>How to Use the Lead Scanner</h3>
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h4>Go to Dashboard → Leads</h4>
+        <p>Log in and navigate to the Leads tab in your dashboard.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h4>Enter Your Business Type & City</h4>
+        <p>Example: Business type = "hair salon", City = "Lagos". Click "Scan for Leads".</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h4>Review Qualified Leads</h4>
+        <p>ERGIO returns leads with: name, email, phone number, location, intent score (0-100), and why they need your service. Sort by score to find the hottest leads.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <h4>Generate Outreach Messages</h4>
+        <p>Click "Generate Outreach" on any lead. ERGIO writes a personalized email and WhatsApp message. Review, edit if needed, and send.</p>
+      </div>
+      
+      <div class="callout">
+        <div class="callout-title">⚡ API Quick Start</div>
+        <p>POST to <code>/api/leads</code> with <code>{"businessType":"hair salon","city":"Lagos","limit":8}</code></p>
+      </div>
+    </section>
+    
+    <section id="outreach">
+      <h2><span class="emoji">📧</span>AI Outreach</h2>
+      <p>ERGIO writes personalized cold outreach messages for each lead using AI. It generates three formats:</p>
+      <ul>
+        <li><strong>Email:</strong> Professional cold email with subject line and body</li>
+        <li><strong>WhatsApp:</strong> Short, friendly WhatsApp message (most effective in Nigeria)</li>
+        <li><strong>SMS:</strong> Ultra-short SMS version for text marketing</li>
+      </ul>
+      
+      <h3>How to Generate Outreach</h3>
+      <ul>
+        <li>From the Leads tab, select one or more leads</li>
+        <li>Click "Generate Outreach Messages"</li>
+        <li>ERGIO writes a unique message for each lead based on their profile</li>
+        <li>Copy the message and send it via WhatsApp, email, or SMS</li>
+      </ul>
+      
+      <div class="callout tip">
+        <div class="callout-title">💡 Nigeria Tip</div>
+        <p>WhatsApp is king in Nigeria. Always send the WhatsApp version first — response rates are 5-10x higher than email.</p>
+      </div>
+    </section>
+    
+    <section id="payments">
+      <h2><span class="emoji">💳</span>Accepting Payments</h2>
+      <p>ERGIO integrates with Paystack — Nigeria's most trusted payment processor. Accept cards, bank transfers, USSD, and mobile money.</p>
+      
+      <h3>Payment Methods Supported</h3>
+      <ul>
+        <li><strong>💳 Cards:</strong> Visa, Mastercard, Verve</li>
+        <li><strong>🏦 Bank Transfer:</strong> All major Nigerian banks</li>
+        <li><strong>📱 USSD:</strong> *737#, *904#, etc.</li>
+        <li><strong>💰 Mobile Money:</strong> Paga, OPay, etc.</li>
+      </ul>
+      
+      <h3>How to Accept a Payment</h3>
+      <ul>
+        <li>Go to Dashboard → Payments</li>
+        <li>Enter the amount, client email, and description</li>
+        <li>Click "Generate Payment Link"</li>
+        <li>Share the Paystack checkout URL with your client</li>
+        <li>Payment is confirmed automatically via webhook</li>
+      </ul>
+      
+      <div class="callout">
+        <div class="callout-title">⚡ API Quick Start</div>
+        <p>POST to <code>/api/payments</code> with <code>{"amount":15000,"email":"client@example.com"}</code></p>
+      </div>
+    </section>
+    
+    <section id="bookings">
+      <h2><span class="emoji">📅</span>Booking Management</h2>
+      <p>Let clients book appointments online. ERGIO handles the entire booking flow:</p>
+      <ul>
+        <li>Client selects a service and picks a date/time</li>
+        <li>Booking is saved to your dashboard with status "pending"</li>
+        <li>You confirm or decline from the dashboard</li>
+        <li>Optional: Require payment at booking time</li>
+        <li>Automated WhatsApp/SMS reminders before appointments</li>
+      </ul>
+      
+      <div class="callout">
+        <div class="callout-title">⚡ API Quick Start</div>
+        <p>POST to <code>/api/bookings</code> with <code>{"businessId":"your-id","clientName":"Adebayo","service":"Haircut","date":"2026-07-20","time":"10:00"}</code></p>
+      </div>
+    </section>
+    
+    <section id="invoices">
+      <h2><span class="emoji">🧾</span>Invoices & Expenses</h2>
+      <p>Generate professional invoices and track your expenses — all built into ERGIO.</p>
+      
+      <h3>Invoices</h3>
+      <ul>
+        <li>Create branded invoices with your logo and business details</li>
+        <li>Add line items with quantities and prices in Naira</li>
+        <li>Send invoice links to clients via email or WhatsApp</li>
+        <li>Track payment status: sent, viewed, paid, overdue</li>
+      </ul>
+      
+      <h3>Expense Tracking</h3>
+      <ul>
+        <li>Log income and expenses by category</li>
+        <li>See your profit/loss at a glance</li>
+        <li>Export to CSV for accounting</li>
+      </ul>
+    </section>
+    
+    <section id="dashboard">
+      <h2><span class="emoji">📊</span>Your Dashboard</h2>
+      <p>The ERGIO dashboard is your command center. It has everything you need to run your business:</p>
+      
+      <div class="feature-grid">
+        <div class="feature-card"><div class="icon">📈</div><h4>Overview</h4><p>Revenue, bookings, leads at a glance</p></div>
+        <div class="feature-card"><div class="icon">📅</div><h4>Bookings</h4><p>Manage all appointments</p></div>
+        <div class="feature-card"><div class="icon">🔍</div><h4>Leads</h4><p>Find and track potential clients</p></div>
+        <div class="feature-card"><div class="icon">📧</div><h4>Outreach</h4><p>Cold email and WhatsApp campaigns</p></div>
+        <div class="feature-card"><div class="icon">💳</div><h4>Payments</h4><p>Accept and track payments</p></div>
+        <div class="feature-card"><div class="icon">🧾</div><h4>Invoices</h4><p>Create and send invoices</p></div>
+        <div class="feature-card"><div class="icon">👥</div><h4>Clients</h4><p>CRM — manage relationships</p></div>
+        <div class="feature-card"><div class="icon">📊</div><h4>Analytics</h4><p>AI-powered business insights</p></div>
+      </div>
+    </section>
+    
+    <section id="crm">
+      <h2><span class="emoji">👥</span>CRM — Client Management</h2>
+      <p>ERGIO includes a full CRM for managing client relationships:</p>
+      <ul>
+        <li><strong>Add clients:</strong> Store name, email, phone, tags, notes</li>
+        <li><strong>Track LTV:</strong> See how much each client has spent over time</li>
+        <li><strong>AI follow-ups:</strong> Generate personalized follow-up messages for past clients</li>
+        <li><strong>Pipeline:</strong> Track deals through stages (prospect → qualified → won)</li>
+        <li><strong>AI insights:</strong> Get strategy tips for each new client</li>
+      </ul>
+      
+      <div class="callout">
+        <div class="callout-title">⚡ API Quick Start</div>
+        <p>POST to <code>/api/crm</code> with <code>{"action":"add_client","name":"Chioma Eze","email":"chioma@example.com","phone":"+2348012345678"}</code></p>
+      </div>
+    </section>
+    
+    <section id="plugins">
+      <h2><span class="emoji">🔌</span>Plugins & MCP</h2>
+      <p>ERGIO supports built-in plugins and MCP (Model Context Protocol) servers that let the AI use external tools during website generation.</p>
+      
+      <h3>Built-in Plugins</h3>
+      <ul>
+        <li><strong>🔍 Web Search:</strong> Search the web for information during builds</li>
+        <li><strong>🌐 HTTP Fetch:</strong> Fetch any URL for content or API data</li>
+        <li><strong>🕷️ Web Scraper:</strong> Scrape web pages for content</li>
+        <li><strong>🎨 Image AI:</strong> Generate custom AI images</li>
+        <li><strong>🤖 AI Text:</strong> Generate text content with AI</li>
+        <li><strong>📧 Email:</strong> Send emails via Resend</li>
+        <li><strong>🎭 Figma Import:</strong> Import designs from Figma</li>
+        <li><strong>🐙 GitHub:</strong> Deploy to GitHub repositories</li>
+      </ul>
+      
+      <h3>MCP Servers</h3>
+      <p>MCP (Model Context Protocol) lets ERGIO connect to external tools. Available MCP integrations:</p>
+      <ul>
+        <li><strong>Figma MCP:</strong> Import Figma designs and use them as design references</li>
+        <li><strong>GitHub MCP:</strong> Deploy code to GitHub repos automatically</li>
+        <li><strong>Supabase MCP:</strong> Run database queries</li>
+        <li><strong>Slack MCP:</strong> Send messages to Slack channels</li>
+        <li><strong>Notion MCP:</strong> Access Notion pages</li>
+        <li><strong>Custom MCP:</strong> Connect any MCP-compatible server</li>
+      </ul>
+      
+      <div class="callout tip">
+        <div class="callout-title">💡 How to Use</div>
+        <p>In the builder, click the 🔌 Plugins or ⚡ MCP button in the chat input to open the quick picker. Toggle tools on/off or connect MCP servers.</p>
+      </div>
+    </section>
+    
+    <section id="api">
+      <h2><span class="emoji">⚙️</span>API Reference</h2>
+      <p>ERGIO has a full REST API with 25+ endpoints. All endpoints are at <code>https://ergio.vercel.app/api/[endpoint]</code>.</p>
+      
+      <h3>Core Endpoints</h3>
+      <pre><code>POST /api/generate     — Build a website (SSE stream)
+POST /api/refine       — Edit website via chat (SSE stream)
+POST /api/leads        — Find qualified leads
+POST /api/outreach     — Generate outreach messages
+POST /api/payments     — Initialize Paystack payment
+GET  /api/payments     — Verify payment status
+POST /api/bookings     — Create a booking
+GET  /api/bookings     — List bookings
+POST /api/invoices     — Generate invoice
+POST /api/expenses     — Log expense
+POST /api/crm          — Add/manage clients
+POST /api/assistant    — AI business advisor chat
+POST /api/mcp          — MCP tool calls
+GET  /api/engines      — Engine status
+GET  /api/analytics    — Business analytics</code></pre>
+      
+      <h3>Example: Build a Website</h3>
+      <pre><code>curl -X POST https://ergio.vercel.app/api/generate \
+  -H "Content-Type: application/json" \
+  -d '{"prompt":"A modern restaurant in Lagos called Kings Table"}'</code></pre>
+      
+      <h3>Example: Find Leads</h3>
+      <pre><code>curl -X POST https://ergio.vercel.app/api/leads \
+  -H "Content-Type: application/json" \
+  -d '{"businessType":"hair salon","city":"Lagos","limit":8}'</code></pre>
+    </section>
+    
+    <section id="faq">
+      <h2><span class="emoji">❓</span>FAQ</h2>
+      
+      <h3>Is ERGIO free?</h3>
+      <p>Yes! ERGIO has a free forever plan that includes website building, lead scanning, and basic features. Premium features (unlimited leads, custom domains, advanced analytics) are available on paid plans.</p>
+      
+      <h3>How fast does ERGIO build a website?</h3>
+      <p>Most websites are generated in 10-30 seconds. The AI plans your business, creates a brand identity, searches for real photos, writes professional copy, and assembles the HTML — all automatically.</p>
+      
       <h3>Do I need to know how to code?</h3>
-      <p>No. ERGIO handles everything. Just describe your business and the AI does the rest.</p>
-
-      <h3>Can I edit my website after it's generated?</h3>
-      <p>Yes. Use the chat-based Website Refiner at <code>/api/refine</code> to make changes in natural language. Example: "Make the header blue and add a contact form."</p>
-
-      <h3>How do leads work?</h3>
-      <p>ERGIO scans 70+ search engines for people asking for your type of service. When search engines are unavailable, AI generates realistic leads with Nigerian names, phone numbers, and buying intent scores.</p>
-
-      <h3>Is there a free tier?</h3>
-      <p>Yes. ERGIO uses free AI (Pollinations) and free search (SearXNG) as fallbacks, so there's a zero-cost barrier to entry. Premium features require your own API keys for higher usage.</p>
-
-      <h3>How do I accept payments?</h3>
-      <p>Payments are powered by Paystack. Initialize a payment with <code>POST /api/payments</code> and redirect your customer to the returned checkout URL.</p>
-
+      <p>No! ERGIO is designed for non-technical entrepreneurs. Just describe your business in plain English and ERGIO does everything else. You can edit your website by clicking elements or typing chat commands.</p>
+      
       <h3>Can I use my own domain?</h3>
-      <p>Not yet directly, but you can share the Vercel URL or embed the website using the preview iframe.</p>
-
-      <h3>The website didn't generate — what happened?</h3>
-      <p>If generation times out, try again with a shorter prompt. The AI might be busy. ERGIO has multiple AI fallbacks (Groq → OpenRouter → Pollinations) to ensure it always works.</p>
-
-      <h3>How do I restart the interactive guide?</h3>
-      <p>Click the "🎓 Guide" button in the bottom-left of the dashboard, or run <code>ERGIO_GUIDE.reset()</code> in the browser console.</p>
-    </div>
-
-    <div class="section" style="text-align: center;">
-      <h2>Ready to Build?</h2>
-      <p>Your business is one prompt away.</p>
-      <a href="/" style="display: inline-block; margin-top: 16px; background: linear-gradient(135deg, #00D9FF, #00FF9D); color: #000; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 1rem;">⚡ Start Building with ERGIO</a>
-    </div>
+      <p>Yes. Deploy to GitHub Pages or Netlify and connect your custom domain. Or use ERGIO's free hosting at <code>ergio.vercel.app/s/your-business</code>.</p>
+      
+      <h3>How does ERGIO find clients?</h3>
+      <p>ERGIO scans 70+ search engines for people asking about your service, scrapes their contact information, and uses AI to score their intent. It also generates personalized outreach messages for each lead.</p>
+      
+      <h3>What payment methods are supported?</h3>
+      <p>ERGIO uses Paystack, which supports all Nigerian payment methods: debit/credit cards (Visa, Mastercard, Verve), bank transfers, USSD, and mobile money (Paga, OPay).</p>
+      
+      <h3>Can I use ERGIO outside Nigeria?</h3>
+      <p>Yes! ERGIO works globally, but it's optimized for the African market with Nigerian Naira pricing, Paystack payments, Nigerian city data, and local business knowledge.</p>
+      
+      <h3>How do I get help?</h3>
+      <p>Click the "Guide" button in the navigation bar to replay the interactive tour at any time. You can also chat with Ergie (the AI assistant) directly in the builder for help with anything.</p>
+    </section>
+    
   </div>
+  
+  <div class="cta-section">
+    <a href="https://ergio.vercel.app" class="cta-btn">🚀 Start Building Free</a>
+    <p style="color:var(--muted);margin-top:16px;font-size:0.9rem">No credit card needed — Free forever plan</p>
+  </div>
+  
+  <footer>
+    <p>ERGIO — AI Business Operating System for Africa 🇳🇬</p>
+    <p style="margin-top:8px"><a href="https://ergio.vercel.app">ergio.vercel.app</a> · <a href="https://ergio.vercel.app/guide.html">Full Guide</a> · Built with ❤️ in Nigeria</p>
+  </footer>
 
-  <script src="/guide-widget.js"></script>
+  <script src="guide-widget.js"></script>
 </body>
 </html>
