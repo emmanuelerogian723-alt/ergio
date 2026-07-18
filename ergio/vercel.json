@@ -5,12 +5,8 @@
     },
     "api/setup.js": {
       "maxDuration": 30
-    },
-    "api/generate.js": {
-      "maxDuration": 120
     }
   },
-  "buildCommand": "echo 'build ok'",
   "rewrites": [
     {
       "source": "/api/setup",
