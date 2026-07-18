@@ -612,3 +612,4 @@ ${faq.length?`<section class="section"><h2>FAQ</h2>${faq.map(f=>`<div class="car
 <footer>© ${new Date().getFullYear()} ${plan.businessName||'Business'}. Powered by ERGIO.</footer>
 </body></html>`;
 }
+// Cache bust Sat Jul 18 18:29:03 UTC 2026
