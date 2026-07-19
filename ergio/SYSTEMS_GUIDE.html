@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>ERGIO Systems Guide — How Everything Works</title>
+<link rel="icon" type="image/jpeg" href="/ergio/assets/ergio-logo.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0b10;--text:#f0f2f5;--text2:#a0a8b8;--text3:#5a6275;--border:rgba(255,255,255,0.08);--cyan:#00d9ff;--green:#00ff9d;--blue:#3b82f6;--amber:#f59e0b;--purple:#8b5cf6;--pink:#ec4899}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.8}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(20px);background:rgba(10,11,16,0.8);border-bottom:1px solid var(--border)}
+.nav img{width:32px;height:32px;border-radius:8px}
+.nav span{font-weight:900;font-size:1.1rem;margin-left:8px}
+.container{max-width:880px;margin:0 auto;padding:6rem 2rem 4rem}
+h1{font-size:2.4rem;font-weight:900;margin-bottom:.5rem;background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.meta{color:var(--text3);font-size:.85rem;margin-bottom:3rem}
+h2{font-size:1.5rem;font-weight:800;margin:2.5rem 0 .8rem;color:var(--text);scroll-margin-top:80px}
+h3{font-size:1.1rem;font-weight:700;margin:1.8rem 0 .6rem;color:var(--cyan)}
+h4{font-size:0.95rem;font-weight:600;margin:1.2rem 0 .4rem;color:var(--text2)}
+p{color:var(--text2);font-size:.92rem;margin-bottom:.8rem}
+ul,ol{color:var(--text2);font-size:.92rem;padding-left:1.3rem;margin-bottom:.8rem}
+li{margin-bottom:.4rem}
+code{background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--cyan)}
+pre{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:16px;overflow-x:auto;margin:1rem 0}
+pre code{background:none;color:var(--green);font-size:.82rem}
+.flow{background:linear-gradient(135deg,rgba(0,217,255,0.05),rgba(0,255,157,0.05));border:1px solid rgba(0,217,255,0.15);border-radius:16px;padding:20px;margin:1.5rem 0}
+.flow-step{display:flex;align-items:start;gap:12px;padding:10px 0}
+.flow-step .num{background:linear-gradient(135deg,var(--cyan),var(--green));color:#000;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem;flex-shrink:0}
+.toc{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:3rem}
+.toc a{color:var(--text2);text-decoration:none;font-size:.88rem;display:block;padding:4px 0;transition:color .2s}
+.toc a:hover{color:var(--cyan)}
+.highlight{background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:12px;padding:16px;margin:1rem 0}
+.highlight p{margin:0}
+.tag{display:inline-block;padding:2px 10px;border-radius:100px;font-size:.72rem;font-weight:600;margin:2px}
+.tag-green{background:rgba(0,255,157,0.1);color:var(--green)}
+.tag-cyan{background:rgba(0,217,255,0.1);color:var(--cyan)}
+.tag-purple{background:rgba(139,92,246,0.1);color:var(--purple)}
+.tag-amber{background:rgba(245,158,11,0.1);color:var(--amber)}
+.tag-pink{background:rgba(236,72,153,0.1);color:var(--pink)}
+.tag-blue{background:rgba(59,130,246,0.1);color:var(--blue)}
+footer{text-align:center;padding:2rem;color:var(--text3);font-size:.8rem;border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div style="display:flex;align-items:center">
+    <img src="/ergio/assets/ergio-logo.jpg" alt="ERGIO">
+    <span>ERGIO Systems Guide</span>
+  </div>
+  <a href="/" style="color:var(--text2);font-size:.85rem">← Back to ERGIO</a>
+</nav>
+<div class="container">
+  <h1>ERGIO Systems Guide</h1>
+  <p class="meta">How ERGIO works from beginning to end — the complete technical guide<br>Updated: July 19, 2026 · Version 5.2 · By the ERGIO Team</p>
+
+  <div class="toc">
+    <strong style="color:var(--text);font-size:.9rem">Table of Contents</strong>
+    <a href="#what">1. What ERGIO Actually Is</a>
+    <a href="#architecture">2. System Architecture (4 Layers)</a>
+    <a href="#flow">3. The Complete User Flow — Start to Finish</a>
+    <a href="#engines">4. The 10 Engines — How Each One Works</a>
+    <a href="#conductor">5. The Conductor (AI Agent Runtime)</a>
+    <a href="#mcp">6. MCP System (36 Protocol Servers)</a>
+    <a href="#plugins">7. Plugin System (30 Plugins)</a>
+    <a href="#skills">8. Skills Marketplace</a>
+    <a href="#agents">9. External Agent Frameworks (Hermes, OpenClaw)</a>
+    <a href="#security">10. Security System (10 Layers)</a>
+    <a href="#databases">11. Database Architecture (4 Databases)</a>
+    <a href="#ai">12. AI Provider Router</a>
+    <a href="#payments">13. Payment Flow</a>
+    <a href="#voice">14. AI Voice & Caller System</a>
+    <a href="#infra">15. Infrastructure & Hosting</a>
+  </div>
+
+  <h2 id="what">1. What ERGIO Actually Is</h2>
+  <p>ERGIO is an <strong>AI Business Operating System</strong>. It does two things no other platform does together:</p>
+  <ol>
+    <li><strong>BUILD</strong> — Generates a complete business from a text prompt (website, brand, CRM, lead forms, booking, invoices)</li>
+    <li><strong>OPERATE</strong> — Runs the business after launch (finding leads, booking appointments, sending invoices, collecting payments, creating content, answering calls)</li>
+  </ol>
+  <p>Think of it as: <code>Lovable (website builder) + GoHighLevel (marketing ops) + Clay (lead gen) + Cal.com (booking) + Paystack (payments)</code> — all from one prompt, all connected, all automated.</p>
+
+  <div class="highlight">
+    <p><strong>The one-liner:</strong> "Everyone else builds apps. ERGIO builds businesses that run themselves."</p>
+  </div>
+
+  <h2 id="architecture">2. System Architecture — 4 Layers</h2>
+  <p>ERGIO is built in 4 distinct layers, each with a specific job:</p>
+
+  <h3>Layer 1: Frontend (Vercel)</h3>
+  <p>Static HTML/CSS/JS — no framework, no build step. Serves the landing page, dashboard, website builder, admin panel, and all user-facing pages. Vercel handles CDN, SSL, and edge deployment globally.</p>
+  <ul>
+    <li><span class="tag tag-cyan">Vercel</span> Edge deployment + CDN</li>
+    <li><span class="tag tag-green">Supabase Auth</span> Login/signup via Firebase-compatible auth</li>
+    <li><span class="tag tag-purple">engines-api.js</span> JavaScript client that talks to the Render backend</li>
+  </ul>
+
+  <h3>Layer 2: AI Engine Backend (Render)</h3>
+  <p>Python FastAPI server — the "brain" of ERGIO. No timeout limit (unlike Vercel's 10s). Handles all AI generation, lead scraping, conductor chat, MCP calls, plugin execution, and skill management.</p>
+  <ul>
+    <li><span class="tag tag-amber">FastAPI</span> Async Python web framework</li>
+    <li><span class="tag tag-green">Groq</span> Primary LLM (Llama 3.3 70B)</li>
+    <li><span class="tag tag-blue">OpenRouter</span> Backup LLM (multi-model)</li>
+    <li><span class="tag tag-cyan">Pollinations</span> Image generation fallback</li>
+  </ul>
+
+  <h3>Layer 3: Data Layer (4 Databases)</h3>
+  <ul>
+    <li><span class="tag tag-green">Supabase (PostgreSQL)</span> — Structured data: users, businesses, leads, bookings, invoices, payments</li>
+    <li><span class="tag tag-purple">MongoDB</span> — Unstructured AI content: generated websites, marketing content, brand assets</li>
+    <li><span class="tag tag-blue">Firebase</span> — Real-time features: live chat, notifications, booking status</li>
+    <li><span class="tag tag-amber">Redis</span> — Task queue (Celery), event bus (Pub/Sub), caching, rate limiting</li>
+  </ul>
+
+  <h3>Layer 4: Integration Layer (MCP + Plugins + Agent Frameworks)</h3>
+  <ul>
+    <li><span class="tag tag-cyan">36 MCP Servers</span> — External tool connections via Model Context Protocol</li>
+    <li><span class="tag tag-pink">30 Plugins</span> — App-specific integrations (WhatsApp CRM, Instagram, TikTok, etc.)</li>
+    <li><span class="tag tag-purple">4 Agent Frameworks</span> — External AI agents (Hermes, OpenClaw, Composio, Glama)</li>
+  </ul>
+
+  <h2 id="flow">3. The Complete User Flow — Start to Finish</h2>
+  <div class="flow">
+    <div class="flow-step"><div class="num">1</div><div><strong>User arrives at landing page</strong> → sees the prompt box: "Describe your business idea." The hero section showcases what ERGIO can build. No login required to start.</div></div>
+    <div class="flow-step"><div class="num">2</div><div><strong>User types a prompt</strong> → e.g., "I'm a lawyer in Lagos specializing in property law. I need clients." → clicks "Start Building Free."</div></div>
+    <div class="flow-step"><div class="num">3</div><div><strong>Build animation starts</strong> → ERGIO shows a live build overlay with stages: Planning → Brand Identity → Website Content → SEO → Final Assembly. This is visual feedback while the AI works.</div></div>
+    <div class="flow-step"><div class="num">4</div><div><strong>AI generates the website</strong> → The Conductor (on Render) receives the prompt, calls the Website Engine, which:
+      <ul>
+        <li>Plans the business structure (pages, services, pricing)</li>
+        <li>Generates brand identity (name, tagline, colors, logo via Pollinations)</li>
+        <li>Writes all website copy (hero, about, services, contact)</li>
+        <li>Optimizes for SEO (meta tags, keywords, schema.org data)</li>
+        <li>Assembles full HTML/CSS/JS website</li>
+      </ul>
+    </div></div>
+    <div class="flow-step"><div class="num">5</div><div><strong>User sees live preview</strong> → The generated website appears in an iframe. User can refine it via chat ("make the header blue", "add a pricing section") — each refinement is an AI call that modifies the HTML.</div></div>
+    <div class="flow-step"><div class="num">6</div><div><strong>User creates account</strong> → Supabase auth creates a profile. The website is saved to the user's account in Supabase (generated_websites table).</div></div>
+    <div class="flow-step"><div class="num">7</div><div><strong>User enters dashboard</strong> → Sees their business with 10 engine panels:
+      <ul>
+        <li>Leads tab → Lead Engine starts scanning the internet for potential clients</li>
+        <li>Bookings tab → Booking Engine creates a calendar and booking form</li>
+        <li>Invoices tab → Invoice Engine generates PDF-ready invoices</li>
+        <li>Payments tab → Payment Engine connects Paystack for collections</li>
+        <li>Conductor tab → Chat with ERGIO AI for any task</li>
+      </ul>
+    </div></div>
+    <div class="flow-step"><div class="num">8</div><div><strong>ERGIO starts operating</strong> → While the user manages their business, ERGIO works in the background:
+      <ul>
+        <li>Lead Engine finds people needing legal services → scores them 0-100 → WhatsApp alerts for hot leads (80+)</li>
+        <li>Content Engine generates social media posts → user approves → ERGIO posts</li>
+        <li>When a lead books → Invoice Engine auto-generates invoice → Payment Engine sends payment link</li>
+        <li>After service → Reputation Engine sends review request → routes to Google or private feedback</li>
+      </ul>
+    </div></div>
+    <div class="flow-step"><div class="num">9</div><div><strong>Analytics Engine compiles data</strong> → Weekly insights report: revenue, leads, conversion rate, customer acquisition cost. User sees everything in the dashboard.</div></div>
+  </div>
+
+  <h2 id="engines">4. The 10 Engines</h2>
+
+  <h3>1. Website Engine <span class="tag tag-cyan">BUILD</span></h3>
+  <p><strong>What it does:</strong> Generates a full business website from a text prompt.</p>
+  <p><strong>How it works:</strong> Takes the user's prompt → sends to Groq (Llama 3.3 70B) with a structured prompt that asks for: business plan, brand identity (name, tagline, color scheme), website content (hero, about, services, pricing, contact), and SEO metadata. AI returns JSON → ERGIO assembles it into a complete HTML/CSS/JS website with images from Pollinations. The website is saved to Supabase.</p>
+
+  <h3>2. Lead Engine <span class="tag tag-green">OPERATE</span></h3>
+  <p><strong>What it does:</strong> Finds people actively looking for the user's service.</p>
+  <p><strong>How it works:</strong> Uses SearXNG to scan 70+ search engines (Google, Bing, DuckDuckGo, etc.) for queries like "need a lawyer in Lagos" or "property dispute help Nigeria." Scrapes results with Cheerio (HTML parser). AI scores each lead 0-100 based on: urgency, budget signals, location match, service match. Hot leads (80+) trigger WhatsApp alerts. Data stored in Supabase leads table.</p>
+
+  <h3>3. Booking Engine <span class="tag tag-blue">OPERATE</span></h3>
+  <p><strong>What it does:</strong> Manages calendar and appointment booking.</p>
+  <p><strong>How it works:</strong> Connects to Cal.com MCP for calendar sync. Creates a booking form on the user's website. When someone books → saves to Supabase bookings table → sends WhatsApp confirmation → schedules a reminder 1 hour before. Integrates with Google Calendar via MCP.</p>
+
+  <h3>4. Invoice Engine <span class="tag tag-amber">OPERATE</span></h3>
+  <p><strong>What it does:</strong> Auto-generates invoices after booking.</p>
+  <p><strong>How it works:</strong> When a booking is confirmed → generates an invoice with: business name, client name, service description, amount, due date, payment link. Sends via Resend (email) and WhatsApp (via Twilio). Tracks payment status in Supabase invoices table. Sends follow-up reminders for overdue invoices.</p>
+
+  <h3>5. Payment Engine <span class="tag tag-green">OPERATE</span></h3>
+  <p><strong>What it does:</strong> Collects payments via Paystack, Flutterwave, and Stripe.</p>
+  <p><strong>How it works:</strong> Integrates Paystack's API (initialize → verify → webhook). When a client clicks "Pay" on an invoice → Paystack processes the payment → webhook hits ERGIO's /payments endpoint → ERGIO verifies the payment → marks invoice as paid → sends receipt → updates revenue dashboard. Supports cards, bank transfer, USSD, mobile money.</p>
+
+  <h3>6. Content Engine <span class="tag tag-purple">OPERATE</span></h3>
+  <p><strong>What it does:</strong> Generates marketing content (social posts, blog posts, ad copy, video scripts).</p>
+  <p><strong>How it works:</strong> Uses Groq to generate platform-specific content: Twitter (280 chars), Instagram (caption + hashtags), Facebook (longer post), LinkedIn (professional tone). Also generates blog posts for SEO and video scripts for Higgsfield AI (video generation). Human approves before publishing — all content goes to the Approval Gateway.</p>
+
+  <h3>7. Voice Engine <span class="tag tag-pink">OPERATE</span></h3>
+  <p><strong>What it does:</strong> AI voice receptionist answers calls and books appointments.</p>
+  <p><strong>How it works:</strong> Connects to Vapi AI or Retell AI (MCP servers). When a call comes in → AI answers with a custom greeting → understands the caller's intent → books appointment (via Cal.com MCP) → answers FAQs (using business data from Supabase) → can also send WhatsApp voice messages via ElevenLabs. Calls are recorded and transcribed for quality.</p>
+
+  <h3>8. Analytics Engine <span class="tag tag-blue">OPERATE</span></h3>
+  <p><strong>What it does:</strong> Tracks revenue, leads, conversion rates, and generates weekly insights.</p>
+  <p><strong>How it works:</strong> Aggregates data from all Supabase tables: payments (revenue), leads (acquisition), bookings (conversion). Calculates: customer acquisition cost (CAC), lifetime value (LTV), conversion rate (leads → booked → paid). Generates a weekly report using AI. Revenue forecasting based on pipeline data (leads in progress × historical conversion rate × average deal size).</p>
+
+  <h3>9. Reputation Engine <span class="tag tag-amber">OPERATE</span></h3>
+  <p><strong>What it does:</strong> Manages reviews and online reputation.</p>
+  <p><strong>How it works:</strong> After a service is completed (booking marked as "completed") → sends a WhatsApp review request. If the client rates 4-5 stars → routes them to Google Business Profile to leave a public review. If 1-3 stars → routes them to a private feedback form. Monitors new reviews across Google, Facebook, and other platforms. Alerts the user when a negative review appears.</p>
+
+  <h3>10. Workflow Engine <span class="tag tag-purple">OPERATE</span></h3>
+  <p><strong>What it does:</strong> Visual drag-and-drop automation builder.</p>
+  <p><strong>How it works:</strong> Users create if/then workflows: "When lead score is 80+, send WhatsApp alert + create invoice." Powered by n8n MCP. Pre-built workflow recipes for common patterns: lead follow-up sequence, invoice reminder chain, review request automation. Workflows are stored in Supabase and executed via Redis task queue.</p>
+
+  <h2 id="conductor">5. The Conductor — AI Agent Runtime</h2>
+  <p>The Conductor is the "brain" of ERGIO. It's an AI agent that lives on Render and handles all user requests via chat (like Claude Code).</p>
+
+  <h3>Architecture:</h3>
+  <pre><code>User Chat → Conductor → Decides which Engine to activate
+                          → Calls MCP if external tool needed
+                          → Calls Plugin if app integration needed
+                          → Checks Human Approval Gateway
+                          → Returns result to user</code></pre>
+
+  <h3>Components:</h3>
+  <ul>
+    <li><strong>MCP Client</strong> — Connects to all 36 MCP servers, manages connections, handles reconnection</li>
+    <li><strong>Plugin Sandbox</strong> — Executes plugin code in isolated containers, prevents crashes</li>
+    <li><strong>Task Queue</strong> — Redis + Celery, async job execution with retry logic</li>
+    <li><strong>State Manager</strong> — Tracks each business in Supabase, maintains conversation context</li>
+    <li><strong>Human Approval Gateway</strong> — Pauses external actions (social posts, invoice sends, payments) and sends to dashboard for approval</li>
+    <li><strong>Event Bus</strong> — Redis Pub/Sub for inter-engine communication (lead captured → workflow triggered)</li>
+    <li><strong>Circuit Breaker</strong> — If an MCP or plugin fails 3 times, it's disabled and alerts the user</li>
+    <li><strong>Memory System</strong> — 3 layers: Durable Facts, Procedural Skills, Session Search</li>
+  </ul>
+
+  <h3>How the Conductor decides:</h3>
+  <ol>
+    <li>User types: "Find me clients for my law firm"</li>
+    <li>Conductor analyzes intent → determines this is a Lead Engine task</li>
+    <li>Conductor calls the Lead Engine with the user's business context</li>
+    <li>Lead Engine runs SearXNG search, scrapes results, AI scores leads</li>
+    <li>Results returned to Conductor → Conductor presents them to user</li>
+    <li>Conductor asks: "Want me to send cold emails to the top 5?"</li>
+    <li>If user says yes → Conductor calls Content Engine to write emails → checks Approval Gateway → user approves → sends via Resend</li>
+  </ol>
+
+  <h2 id="mcp">6. MCP System — 36 Protocol Servers</h2>
+  <p>MCP (Model Context Protocol) is the standard that lets AI agents talk to external tools. ERGIO's Conductor acts as an MCP Client — it sends requests to MCP Servers and receives structured responses.</p>
+
+  <h3>Categories:</h3>
+  <ul>
+    <li><strong>Payments (3):</strong> Stripe, Paystack, Flutterwave</li>
+    <li><strong>Communication (5):</strong> Twilio, Resend, Postmark, WhatsApp Business, Slack</li>
+    <li><strong>AI (4):</strong> Groq, OpenRouter, Pinecone, Higgsfield</li>
+    <li><strong>Voice & Caller (8):</strong> Vapi AI, Retell AI, Bland AI, Synthflow, AgentCall, AgentPhone, SkipCalls, GreetMate</li>
+    <li><strong>Agent Frameworks (4):</strong> Hermes Agent, OpenClaw, Composio, Glama</li>
+    <li><strong>Marketing (3):</strong> Google Ads, Meta Ads, Mailchimp</li>
+    <li><strong>Productivity (4):</strong> Notion, GitHub, Google Maps, Cal.com</li>
+    <li><strong>Infrastructure (3):</strong> Cloudflare, Vercel, Sentry</li>
+    <li><strong>Others (4):</strong> Apify, Instantly, n8n, Tavily</li>
+  </ul>
+
+  <h3>How MCP works:</h3>
+  <pre><code>ERGIO Conductor (MCP Client)
+    ↓ sends: {"tool": "send_whatsapp", "params": {"to": "+234...", "msg": "..."}}
+MCP Server (Twilio)
+    ↓ executes API call
+Twilio API
+    ↓ returns: {"status": "sent", "message_id": "..."}
+MCP Server
+    ↓ returns structured response
+ERGIO Conductor
+    ↓ presents result to user</code></pre>
+
+  <h2 id="plugins">7. Plugin System — 30 Plugins</h2>
+  <p>Plugins are app-specific integrations that give ERGIO direct access to external platforms. Unlike MCPs (which are tool servers), plugins are direct API integrations that execute actions on specific platforms.</p>
+  <p>Categories: Social Media (8), Communication (7), Payments (3), Productivity (4), Analytics (2), Marketing (3), CRM (1), E-commerce (1), Design (1).</p>
+
+  <h2 id="skills">8. Skills Marketplace</h2>
+  <p>Like Claude Code Skills — users upload custom instruction sets that teach ERGIO how to handle specialized tasks. The Conductor auto-discovers relevant skills for each task and loads them dynamically.</p>
+  <p>7 built-in skills ship with ERGIO: Nigeria Business Expert, Yoruba/Igbo/Hausa Marketing, Paystack Expert, WhatsApp Business, Restaurant Operations, Law Firm Management, Nigeria SEO Specialist.</p>
+  <p>Users can upload their own skills, rate them 1-5 stars, and download community skills. Skills are stored in the Skills Marketplace API on the Render backend.</p>
+
+  <h2 id="agents">9. External Agent Frameworks</h2>
+  <p>ERGIO can connect to external AI agent systems via MCP. This means ERGIO can delegate tasks to specialized agents that have their own intelligence:</p>
+
+  <h3>Hermes Agent (Nous Research)</h3>
+  <p>Self-improving AI agent. Key feature: it gets <strong>better over time</strong>. It remembers what worked, writes new skills from successful interactions, and has its own memory system. ERGIO connects to Hermes via its MCP server — sends a task → Hermes uses its own LLM + memory + tools → returns result.</p>
+
+  <h3>OpenClaw</h3>
+  <p>Multi-agent framework. You can spin up specialized agents (research agent, coding agent, data agent) and orchestrate them. Each agent has its own memory and tool set. ERGIO's Conductor can delegate to specific OpenClaw agents based on the task type.</p>
+
+  <h3>The System Behind It</h3>
+  <p>All agent connections use the Model Context Protocol (MCP). The formula: <code>AI Agent = LLM + Memory + Tools + Planning + Feedback</code>. The LLM provides reasoning. Memory provides context. Tools provide capability. Planning provides strategy. Feedback provides improvement. ERGIO's Conductor orchestrates all of this.</p>
+
+  <h2 id="security">10. Security System — 10 Layers</h2>
+  <ol>
+    <li><strong>Rate Limiting</strong> — 100 req/min default, 10/min for auth endpoints. Prevents brute force.</li>
+    <li><strong>XSS Prevention</strong> — Blocks <code>&lt;script&gt;</code>, <code>javascript:</code>, <code>onerror=</code> patterns in all inputs.</li>
+    <li><strong>SQL Injection Detection</strong> — Scans for UNION SELECT, DROP TABLE, OR 1=1 patterns.</li>
+    <li><strong>Content Security Policy (CSP)</strong> — Restricts what scripts can run. Only allows ERGIO's own domains.</li>
+    <li><strong>CORS</strong> — Only ergio.vercel.app and the Render URL are allowed origins.</li>
+    <li><strong>IP Blocklist</strong> — Auto-blocks IPs after 5 failed auth attempts.</li>
+    <li><strong>Payload Size Limit</strong> — Max 1MB per request. Prevents DoS attacks.</li>
+    <li><strong>HSTS</strong> — Forces HTTPS on all connections. Prevents man-in-the-middle.</li>
+    <li><strong>X-Frame-Options DENY</strong> — Prevents clickjacking (nobody can embed ERGIO in an iframe).</li>
+    <li><strong>API Key Hashing</strong> — All API keys are SHA-256 hashed. Never stored in plain text.</li>
+  </ol>
+
+  <h2 id="databases">11. Database Architecture</h2>
+  <p>ERGIO uses 4 databases, each with a specific job:</p>
+  <ul>
+    <li><strong>Supabase (PostgreSQL)</strong> — 23 tables: profiles, businesses, leads, bookings, invoices, payments, services, clients, reviews, transactions, engine_status, pending_approvals, activity_logs, outreach_log, plugin_configs, workflows, subscriptions, generated_content, memory_facts, memory_skills, session_memory, whatsapp_conversations, referrals. Row-level security enabled.</li>
+    <li><strong>MongoDB</strong> — Unstructured AI content: full generated website HTML, marketing content, brand assets, MCP responses.</li>
+    <li><strong>Firebase</strong> — Real-time: auth (already working), live chat messages, booking status updates, notification delivery.</li>
+    <li><strong>Redis</strong> — Task queue (Celery jobs), event bus (Pub/Sub for inter-engine communication), caching, rate limiting.</li>
+  </ul>
+
+  <h2 id="ai">12. AI Provider Router</h2>
+  <p>ERGIO has a 3-tier AI fallback system:</p>
+  <ol>
+    <li><strong>Groq (Primary)</strong> — Llama 3.3 70B. Fastest inference (sub-second). Free tier (14K tokens/min). Best for website generation and lead scoring.</li>
+    <li><strong>OpenRouter (Backup)</strong> — Multi-model access (GPT-4, Claude, Llama, Mistral). Used when Groq is rate-limited.</li>
+    <li><strong>Pollinations (Fallback)</strong> — Free, no API key, always available. Used for image generation and as ultimate text fallback.</li>
+  </ol>
+  <p>The router automatically falls back: if Groq fails → tries OpenRouter → if that fails → uses Pollinations. This ensures ERGIO never goes down due to AI provider issues.</p>
+
+  <h2 id="payments">13. Payment Flow</h2>
+  <pre><code>1. Invoice Engine generates invoice → saves to Supabase
+2. Payment Engine creates Paystack payment link
+3. Client receives link via email (Resend) + WhatsApp (Twilio)
+4. Client clicks link → Paystack checkout page
+5. Client pays (card/bank transfer/USSD/mobile money)
+6. Paystack sends webhook to ERGIO /api/payments
+7. ERGIO verifies payment with Paystack API
+8. Invoice marked as "paid" in Supabase
+9. Receipt sent to client
+10. Revenue dashboard updates in real-time
+11. Analytics Engine records the transaction</code></pre>
+
+  <h2 id="voice">14. AI Voice & Caller System</h2>
+  <p>ERGIO connects to 8 voice AI platforms via MCP:</p>
+  <ul>
+    <li><strong>Inbound calls</strong> — AI receptionist answers, understands intent, books appointments, answers FAQs</li>
+    <li><strong>Outbound calls</strong> — AI calls leads to qualify them, schedule demos, follow up</li>
+    <li><strong>WhatsApp voice messages</strong> — ElevenLabs generates voice messages sent via WhatsApp</li>
+    <li><strong>Call analytics</strong> — All calls recorded, transcribed, sentiment analyzed</li>
+  </ul>
+
+  <h2 id="infra">15. Infrastructure & Hosting</h2>
+  <ul>
+    <li><strong>Frontend</strong> — Vercel (global CDN, auto-deploy on git push, free tier)</li>
+    <li><strong>Backend</strong> — Render (Python FastAPI, no timeout, free tier with self-ping to prevent sleep)</li>
+    <li><strong>Database</strong> — Supabase (PostgreSQL, free tier: 500MB, 2GB transfer)</li>
+    <li><strong>AI</strong> — Groq (free tier) + OpenRouter (pay per use) + Pollinations (free)</li>
+    <li><strong>Images</strong> — Pollinations.ai (free, no key)</li>
+    <li><strong>Email</strong> — Resend (free 3,000/month)</li>
+    <li><strong>WhatsApp</strong> — Twilio (free 1,000 conversations/month)</li>
+    <li><strong>Payments</strong> — Paystack (1.5% per transaction in Nigeria)</li>
+    <li><strong>Admin Dashboard</strong> — Separate secure panel, SHA-256 key protected, 12 control tabs</li>
+  </ul>
+
+  <div class="highlight">
+    <p><strong>Total infrastructure cost to start: ₦0/month.</strong> All free tiers. Scales with revenue — upgrade each service only when needed.</p>
+  </div>
+
+  <p style="margin-top:2rem;color:var(--text3);font-size:.82rem">This guide covers every system in ERGIO v5.2. For technical details, see the codebase at github.com/emmanuelerogian723-alt/ergio (frontend) and github.com/emmanuelerogian723-alt/ergio-engines (backend).</p>
+</div>
+<footer>© 2026 ERGIO™. Built in Lagos, Nigeria for African entrepreneurs.</footer>
+</body>
+</html>
