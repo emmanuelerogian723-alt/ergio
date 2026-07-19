@@ -422,8 +422,9 @@ img{display:block;max-width:100%}
 </div>
 <div style="display:flex;align-items:center;gap:0.75rem">
 <a href="guide.html" style="color:var(--text2);font-size:0.85rem;font-weight:600;text-decoration:none;padding:0.5rem 1rem;border-radius:100px;border:1px solid rgba(255,255,255,0.12);transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">📖 Guide</a>
-      <a href="auth/login.html" style="color:var(--text2);font-size:0.85rem;font-weight:600;text-decoration:none;padding:0.5rem 1rem;border-radius:100px;border:1px solid rgba(255,255,255,0.12);transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">Log in</a>
-<a href="auth/signup.html" class="nav-cta" style="text-decoration:none;display:inline-block">Sign up free</a>
+      <a href="dashboard/index.html" id="navDashboard" style="color:var(--text2);font-size:0.85rem;font-weight:600;text-decoration:none;padding:0.5rem 1rem;border-radius:100px;border:1px solid rgba(255,255,255,0.12);transition:all 0.2s;display:none" onmouseover="this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">Dashboard</a>
+      <a href="auth/login.html" id="navLogin" style="color:var(--text2);font-size:0.85rem;font-weight:600;text-decoration:none;padding:0.5rem 1rem;border-radius:100px;border:1px solid rgba(255,255,255,0.12);transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">Log in</a>
+<a href="auth/signup.html" id="navSignup" class="nav-cta" style="text-decoration:none;display:inline-block">Sign up free</a>
 </div>
 </nav>
 
@@ -570,6 +571,83 @@ Launch Business
 </div>
 </div>
 </div>
+</section>
+
+
+<!-- ===== SHOWCASE — Higgsfield-style image grid ===== -->
+<section class="section" id="showcase" style="padding:5rem 0;overflow:hidden">
+  <div class="section-inner">
+    <div class="section-label" style="text-align:center">See it in action</div>
+    <h2 class="section-title" style="text-align:center">Built for African businesses.<br><span class="gradient-text">Powered by real AI.</span></h2>
+    <p class="section-desc" style="text-align:center;max-width:600px;margin:0 auto 3rem">Every feature you see below is live and working inside ERGIO — not a mockup, not a demo. This is what your business gets.</p>
+  </div>
+
+  <!-- Wide hero showcase -->
+  <div style="max-width:1200px;margin:0 auto;padding:0 1.5rem">
+    <div style="position:relative;border-radius:20px;overflow:hidden;margin-bottom:1.2rem;border:1px solid rgba(255,255,255,0.08)">
+      <img src="https://media.base44.com/images/public/6a59247734dcc018a1316fcb/f7c7ceac1_generated_image.png" alt="ERGIO Dashboard — Nigerian entrepreneur" style="width:100%;height:420px;object-fit:cover;display:block" loading="lazy">
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom, transparent 40%, rgba(5,5,8,0.85));display:flex;align-items:flex-end;padding:2rem">
+        <div>
+          <div style="display:inline-flex;align-items:center;gap:.4rem;background:rgba(0,217,255,0.15);border:1px solid rgba(0,217,255,0.3);border-radius:20px;padding:.3rem .8rem;font-size:.75rem;color:#00D9FF;margin-bottom:.5rem">● Live business dashboard</div>
+          <h3 style="font-size:1.4rem;font-weight:800;color:#fff;margin-bottom:.3rem">Your complete business HQ — built in 60 seconds</h3>
+          <p style="color:rgba(255,255,255,0.6);font-size:.85rem">AI builds your entire business stack. You just describe what you do.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3-column row -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem;margin-bottom:1.2rem">
+      <div style="position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08)">
+        <img src="https://media.base44.com/images/public/6a59247734dcc018a1316fcb/60ecf223d_generated_image.png" alt="AI website builder" style="width:100%;height:260px;object-fit:cover;display:block" loading="lazy">
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom, transparent 30%, rgba(5,5,8,0.9));display:flex;align-items:flex-end;padding:1.2rem">
+          <div>
+            <div style="font-size:.7rem;color:#00FF9D;font-weight:700;margin-bottom:.3rem">🌐 Website Builder</div>
+            <div style="font-size:.88rem;font-weight:700;color:#fff">Type one sentence. Get a full website.</div>
+          </div>
+        </div>
+      </div>
+      <div style="position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08)">
+        <img src="https://media.base44.com/images/public/6a59247734dcc018a1316fcb/73cebc33b_generated_image.png" alt="Client matching engine" style="width:100%;height:260px;object-fit:cover;display:block" loading="lazy">
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom, transparent 30%, rgba(5,5,8,0.9));display:flex;align-items:flex-end;padding:1.2rem">
+          <div>
+            <div style="font-size:.7rem;color:#00D9FF;font-weight:700;margin-bottom:.3rem">🎯 AI Client Matching</div>
+            <div style="font-size:.88rem;font-weight:700;color:#fff">Clients found and delivered to you daily.</div>
+          </div>
+        </div>
+      </div>
+      <div style="position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08)">
+        <img src="https://media.base44.com/images/public/6a59247734dcc018a1316fcb/a012cfd95_generated_image.png" alt="Payments and income tracking" style="width:100%;height:260px;object-fit:cover;display:block" loading="lazy">
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom, transparent 30%, rgba(5,5,8,0.9));display:flex;align-items:flex-end;padding:1.2rem">
+          <div>
+            <div style="font-size:.7rem;color:#fbbf24;font-weight:700;margin-bottom:.3rem">💳 Payments & Income</div>
+            <div style="font-size:.88rem;font-weight:700;color:#fff">Paystack built in. Track every naira.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom 2-column row -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem">
+      <div style="position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08)">
+        <img src="https://media.base44.com/images/public/6a59247734dcc018a1316fcb/e54679ddc_generated_image.png" alt="Business analytics dashboard" style="width:100%;height:300px;object-fit:cover;display:block" loading="lazy">
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom, transparent 30%, rgba(5,5,8,0.9));display:flex;align-items:flex-end;padding:1.2rem">
+          <div>
+            <div style="font-size:.7rem;color:#00D9FF;font-weight:700;margin-bottom:.3rem">📊 Smart Dashboard</div>
+            <div style="font-size:.88rem;font-weight:700;color:#fff">Real-time analytics. Real business insights.</div>
+          </div>
+        </div>
+      </div>
+      <div style="position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08)">
+        <img src="https://media.base44.com/images/public/6a59247734dcc018a1316fcb/291a1c332_generated_image.png" alt="ERGIO feature overview" style="width:100%;height:300px;object-fit:cover;display:block" loading="lazy">
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom, transparent 30%, rgba(5,5,8,0.9));display:flex;align-items:flex-end;padding:1.2rem">
+          <div>
+            <div style="font-size:.7rem;color:#00FF9D;font-weight:700;margin-bottom:.3rem">⚡ Four Core Engines</div>
+            <div style="font-size:.88rem;font-weight:700;color:#fff">WhatsApp bot, lead gen, outreach & more.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ===== ENGINES SECTION ===== -->
@@ -1010,13 +1088,18 @@ const stageLabels = [
 function startBuild(){
   const val = promptEl.value.trim();
   if(!val){promptEl.focus();return}
-  // Auth gate — check if user is logged in via Supabase session
+  // Auth gate — check if user is logged in (Supabase OR Firebase/localStorage)
   const session = localStorage.getItem('sb-owcxfzlanlrulflsyvlr-auth-token');
+  const ergioUser = localStorage.getItem('ergio_user');
   let isLoggedIn = false;
   try {
     const parsed = session ? JSON.parse(session) : null;
     isLoggedIn = !!(parsed && parsed.access_token && parsed.expires_at > Date.now()/1000);
   } catch(e) {}
+  // Also check Firebase/localStorage auth (used by dashboard)
+  if (!isLoggedIn && ergioUser) {
+    try { const u = JSON.parse(ergioUser); isLoggedIn = !!(u && (u.uid || u.id || u.email)); } catch(e) {}
+  }
   
   if (!isLoggedIn) {
     // Show sign-up modal instead of builder

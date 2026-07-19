@@ -293,6 +293,11 @@ export function corsHeaders(res) {
   if (res.req?.method === 'OPTIONS') return res.status(200).end();
 }
 
+
+export function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export function generateSlug(text) {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').substring(0, 50);
 }

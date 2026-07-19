@@ -1,0 +1,26 @@
+# Render configuration for ERGIO Engines
+services:
+  - type: web
+    name: ergio-engines
+    runtime: python
+    buildCommand: pip install -r requirements.txt && playwright install chromium --with-deps
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: GROQ_API_KEY
+        sync: false
+      - key: SUPABASE_URL
+        value: https://owcxfzlanlrulflsyvlr.supabase.co
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: SEARXNG_URL
+        value: https://search.sapti.me
+      - key: CORS_ORIGINS
+        value: https://ergio.vercel.app
+      - key: HEADLESS
+        value: "true"
+      - key: MAX_CONCURRENT_CRAWLS
+        value: "3"
+      - key: MAX_LEADS_PER_SCAN
+        value: "25"
