@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="google-site-verification" content="GOOGLE_VERIFICATION_CODE_HERE" />
+<title>ERGIO Admin — System Control Center</title>
+<link rel="icon" type="image/jpeg" href="/ergio/assets/ergio-logo.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#050508;--bg2:#0a0b10;--bg3:#0f1118;--surface:rgba(255,255,255,0.03);--surface2:rgba(255,255,255,0.06);--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--text:#f0f2f5;--text2:#a0a8b8;--text3:#5a6275;--cyan:#00d9ff;--green:#00ff9d;--blue:#3b82f6;--amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--pink:#ec4899;--radius:16px;--radius-sm:10px}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden;min-height:100vh}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* GATE */
+.gate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--bg)}
+.gate-box{background:var(--bg3);border:1px solid var(--border2);border-radius:24px;padding:48px;max-width:440px;width:90%;text-align:center}
+.gate-logo{width:64px;height:64px;border-radius:16px;margin:0 auto 20px;display:block}
+.gate h1{font-size:1.5rem;font-weight:800;margin-bottom:8px}
+.gate p{color:var(--text3);font-size:0.85rem;margin-bottom:28px}
+.gate input{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:14px 18px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.9rem;outline:none;text-align:center;letter-spacing:2px;transition:border-color .2s}
+.gate input:focus{border-color:var(--cyan)}
+.gate button{width:100%;margin-top:16px;background:linear-gradient(135deg,var(--cyan),var(--green));color:#000;border:none;padding:14px;border-radius:12px;font-weight:700;font-size:0.95rem;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.gate button:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(0,217,255,0.2)}
+.gate-error{color:var(--red);font-size:0.82rem;margin-top:12px;min-height:20px}
+.gate-hint{color:var(--text3);font-size:0.72rem;margin-top:24px}
+
+/* LAYOUT */
+.admin-layout{display:flex;min-height:100vh}
+.sidebar{width:260px;background:var(--bg2);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;z-index:100;display:flex;flex-direction:column;transition:transform .3s}
+.sidebar-header{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sidebar-header img{width:36px;height:36px;border-radius:10px}
+.sidebar-header span{font-weight:900;font-size:1.1rem}
+.sidebar-header small{color:var(--cyan);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;display:block}
+.sidebar-nav{flex:1;overflow-y:auto;padding:12px}
+.nav-section{font-size:0.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--text3);font-weight:600;padding:16px 12px 6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;color:var(--text2);font-size:0.85rem;font-weight:500;transition:all .15s;margin-bottom:2px}
+.nav-item:hover{background:var(--surface);color:var(--text)}
+.nav-item.active{background:linear-gradient(135deg,rgba(0,217,255,0.1),rgba(0,255,157,0.06));color:var(--cyan)}
+.nav-item svg{width:18px;height:18px;flex-shrink:0}
+.nav-item .badge{margin-left:auto;background:var(--red);color:#fff;font-size:0.65rem;padding:2px 7px;border-radius:100px;font-weight:600}
+.sidebar-footer{padding:16px;border-top:1px solid var(--border)}
+.sidebar-footer button{width:100%;background:transparent;border:1px solid var(--border2);color:var(--text2);padding:10px;border-radius:10px;font-size:0.82rem;cursor:pointer;transition:all .15s}
+.sidebar-footer button:hover{border-color:var(--red);color:var(--red)}
+
+.main{flex:1;margin-left:260px;padding:24px 32px;min-height:100vh}
+.main-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.main-header h1{font-size:1.6rem;font-weight:800}
+.main-header .breadcrumb{color:var(--text3);font-size:0.82rem;margin-top:2px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;box-shadow:0 0 10px var(--green);animation:pulse 2s infinite;margin-right:6px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;transition:border-color .2s}
+.card:hover{border-color:var(--border2)}
+.card-title{font-size:0.95rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:linear-gradient(135deg,var(--bg3),var(--bg2));border:1px solid var(--border);border-radius:14px;padding:20px;transition:all .2s}
+.stat-card:hover{transform:translateY(-2px);border-color:var(--border2)}
+.stat-card .icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:12px}
+.stat-card .label{color:var(--text3);font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.stat-card .value{font-size:1.8rem;font-weight:800;margin:4px 0}
+.stat-card .delta{font-size:0.78rem;font-weight:600}
+.stat-card .delta.up{color:var(--green)}
+.stat-card .delta.down{color:var(--red)}
+
+/* TABS */
+.tab-content{display:none;animation:fadeIn .3s ease}
+.tab-content.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse;font-size:0.85rem}
+.data-table th{text-align:left;padding:12px 14px;color:var(--text3);font-weight:600;font-size:0.75rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+.data-table td{padding:12px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+.data-table tr:hover td{background:var(--surface)}
+.status-pill{display:inline-block;padding:3px 10px;border-radius:100px;font-size:0.72rem;font-weight:600}
+.status-online{background:rgba(0,255,157,0.1);color:var(--green)}
+.status-offline{background:rgba(239,68,68,0.1);color:var(--red)}
+.status-warning{background:rgba(245,158,11,0.1);color:var(--amber)}
+
+/* ENGINE GRID */
+.engine-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.engine-card{background:linear-gradient(135deg,var(--bg3),var(--bg2));border:1px solid var(--border);border-radius:14px;padding:18px;transition:all .2s}
+.engine-card:hover{border-color:var(--border2)}
+.engine-card .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.engine-card .name{font-weight:700;font-size:0.9rem;display:flex;align-items:center;gap:8px}
+.engine-card .desc{color:var(--text3);font-size:0.78rem;margin-bottom:14px;line-height:1.5}
+.engine-card .controls{display:flex;gap:8px}
+.btn-sm{padding:8px 14px;border-radius:8px;border:none;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-primary{background:linear-gradient(135deg,var(--cyan),var(--green));color:#000}
+.btn-warn{background:rgba(245,158,11,0.15);color:var(--amber);border:1px solid rgba(245,158,11,0.3)}
+.btn-danger{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3)}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+
+/* LOG */
+.log-entry{display:flex;align-items:start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.log-time{color:var(--text3);font-size:0.75rem;font-family:'JetBrains Mono',monospace;white-space:nowrap;min-width:70px}
+.log-level{font-size:0.72rem;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase}
+.log-info{background:rgba(59,130,246,0.1);color:var(--blue)}
+.log-warn{background:rgba(245,158,11,0.1);color:var(--amber)}
+.log-error{background:rgba(239,68,68,0.1);color:var(--red)}
+.log-success{background:rgba(0,255,157,0.1);color:var(--green)}
+.log-msg{color:var(--text2);font-size:0.85rem;line-height:1.5}
+
+/* MOBILE */
+.mobile-toggle{display:none}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0;padding:16px}
+  .mobile-toggle{display:block;position:fixed;top:16px;right:16px;z-index:101;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:10px;cursor:pointer;color:var(--text)}
+  .stat-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════ SECURITY GATE ════════ -->
+<div class="gate" id="gate">
+  <div class="gate-box">
+    <img src="/ergio/assets/ergio-logo.jpg" alt="ERGIO" class="gate-logo">
+    <h1>ERGIO Admin</h1>
+    <p>System Control Center — Authorized Access Only</p>
+    <input type="password" id="gateKey" placeholder="Enter Access Key" onkeydown="if(event.key==='Enter')checkGate()">
+    <button onclick="checkGate()">Unlock Dashboard →</button>
+    <div class="gate-error" id="gateError"></div>
+    <div class="gate-hint">🔒 All access attempts are logged. Unauthorized access is prohibited.</div>
+  </div>
+</div>
+
+<!-- ════════ MAIN LAYOUT ════════ -->
+<div class="admin-layout" id="adminLayout" style="display:none">
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <img src="/ergio/assets/ergio-logo.jpg" alt="ERGIO">
+    <div>
+      <span>ERGIO</span>
+      <small>Admin Control</small>
+    </div>
+  </div>
+  <div class="sidebar-nav" id="sidebarNav">
+    <div class="nav-section">Overview</div>
+    <div class="nav-item active" onclick="switchTab('overview')" data-tab="overview">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item" onclick="switchTab('activity')" data-tab="activity">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Live Activity
+    </div>
+
+    <div class="nav-section">Operations</div>
+    <div class="nav-item" onclick="switchTab('engines')" data-tab="engines">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+      10 Engines
+    </div>
+    <div class="nav-item" onclick="switchTab('users')" data-tab="users">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Users
+    </div>
+    <div class="nav-item" onclick="switchTab('leads')" data-tab="leads">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Leads
+    </div>
+    <div class="nav-item" onclick="switchTab('payments')" data-tab="payments">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      Payments
+    </div>
+
+    <div class="nav-section">System</div>
+    <div class="nav-item" onclick="switchTab('mcps')" data-tab="mcps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      MCPs (36)
+    </div>
+    <div class="nav-item" onclick="switchTab('plugins')" data-tab="plugins">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9M14 17H5M20 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM4 7a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>
+      Plugins (30)
+    </div>
+    <div class="nav-item" onclick="switchTab('skills')" data-tab="skills">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Skills Market
+    </div>
+
+    <div class="nav-section">Security</div>
+    <div class="nav-item" onclick="switchTab('security')" data-tab="security">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Security Center
+    </div>
+    <div class="nav-item" onclick="switchTab('logs')" data-tab="logs">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      System Logs
+    </div>
+
+    <div class="nav-section">Config</div>
+    <div class="nav-item" onclick="switchTab('settings')" data-tab="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6"/></svg>
+      Settings
+    </div>
+    <div class="nav-item" onclick="switchTab('agents')" data-tab="agents">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6"/></svg>
+      Agent Frameworks
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <button onclick="logout()">🔒 Lock & Exit</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</div>
+
+  <!-- OVERVIEW TAB -->
+  <div class="tab-content active" id="tab-overview">
+    <div class="main-header">
+      <div>
+        <h1>System Overview</h1>
+        <div class="breadcrumb"><span class="live-dot"></span>All systems operational · Last sync: <span id="lastSync">--</span></div>
+      </div>
+    </div>
+    <div class="stat-grid" id="statGrid"></div>
+    <div class="card">
+      <div class="card-title">Engine Status <span style="font-size:0.78rem;color:var(--text3);font-weight:400">10 engines</span></div>
+      <div class="engine-grid" id="overviewEngines"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Recent Activity</div>
+      <div id="recentActivity"></div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY TAB -->
+  <div class="tab-content" id="tab-activity">
+    <div class="main-header"><div><h1>Live Activity Feed</h1><div class="breadcrumb">Real-time system events</div></div></div>
+    <div class="card">
+      <div class="card-title">Live Events <span style="font-size:0.78rem;color:var(--text3)">Auto-refreshing every 5s</span></div>
+      <div id="liveActivity"></div>
+    </div>
+  </div>
+
+  <!-- ENGINES TAB -->
+  <div class="tab-content" id="tab-engines">
+    <div class="main-header"><div><h1>10 Engines Control</h1><div class="breadcrumb">Start, stop, and configure each engine</div></div></div>
+    <div class="engine-grid" id="enginesGrid"></div>
+  </div>
+
+  <!-- USERS TAB -->
+  <div class="tab-content" id="tab-users">
+    <div class="main-header"><div><h1>User Management</h1><div class="breadcrumb">All registered users and businesses</div></div></div>
+    <div class="card">
+      <div class="card-title">Registered Users</div>
+      <div style="overflow-x:auto"><table class="data-table" id="usersTable"><thead><tr><th>Name</th><th>Email</th><th>Plan</th><th>Businesses</th><th>Joined</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- LEADS TAB -->
+  <div class="tab-content" id="tab-leads">
+    <div class="main-header"><div><h1>Lead Management</h1><div class="breadcrumb">All leads across the platform</div></div></div>
+    <div class="stat-grid" id="leadStats"></div>
+    <div class="card">
+      <div class="card-title">All Leads</div>
+      <div style="overflow-x:auto"><table class="data-table" id="leadsTable"><thead><tr><th>Business</th><th>Contact</th><th>Source</th><th>Score</th><th>Status</th><th>Date</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- PAYMENTS TAB -->
+  <div class="tab-content" id="tab-payments">
+    <div class="main-header"><div><h1>Payment Monitoring</h1><div class="breadcrumb">Revenue, transactions, subscriptions</div></div></div>
+    <div class="stat-grid" id="paymentStats"></div>
+    <div class="card">
+      <div class="card-title">Recent Transactions</div>
+      <div style="overflow-x:auto"><table class="data-table" id="paymentsTable"><thead><tr><th>Business</th><th>Amount</th><th>Gateway</th><th>Status</th><th>Date</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- MCPS TAB -->
+  <div class="tab-content" id="tab-mcps">
+    <div class="main-header"><div><h1>MCP Registry</h1><div class="breadcrumb">36 Model Context Protocol servers</div></div></div>
+    <div class="engine-grid" id="mcpsGrid"></div>
+  </div>
+
+  <!-- PLUGINS TAB -->
+  <div class="tab-content" id="tab-plugins">
+    <div class="main-header"><div><h1>Plugin Registry</h1><div class="breadcrumb">30 plugins</div></div></div>
+    <div class="engine-grid" id="pluginsGrid"></div>
+  </div>
+
+  <!-- SKILLS TAB -->
+  <div class="tab-content" id="tab-skills">
+    <div class="main-header"><div><h1>Skills Marketplace Admin</h1><div class="breadcrumb">Approve, reject, and manage community skills</div></div></div>
+    <div class="card">
+      <div class="card-title">All Skills <button class="btn-sm btn-primary" onclick="loadAdminSkills()">Refresh</button></div>
+      <div style="overflow-x:auto"><table class="data-table" id="skillsTable"><thead><tr><th>Name</th><th>Category</th><th>Author</th><th>Downloads</th><th>Rating</th><th>Type</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- SECURITY TAB -->
+  <div class="tab-content" id="tab-security">
+    <div class="main-header"><div><h1>Security Center</h1><div class="breadcrumb">Monitor and control platform security</div></div></div>
+    <div class="stat-grid" id="securityStats"></div>
+    <div class="card">
+      <div class="card-title">Security Features Active</div>
+      <div id="securityFeatures"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Blocked IPs <button class="btn-sm btn-danger" onclick="clearBlockedIPs()">Clear All</button></div>
+      <div id="blockedIPs"></div>
+    </div>
+  </div>
+
+  <!-- LOGS TAB -->
+  <div class="tab-content" id="tab-logs">
+    <div class="main-header"><div><h1>System Logs</h1><div class="breadcrumb">All system events and errors</div></div></div>
+    <div class="card">
+      <div class="card-title">Event Log</div>
+      <div id="systemLogs"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div class="tab-content" id="tab-settings">
+    <div class="main-header"><div><h1>Platform Settings</h1><div class="breadcrumb">Configure ERGIO system</div></div></div>
+    <div class="card">
+      <div class="card-title">Engine Backend</div>
+      <div style="display:grid;gap:12px">
+        <label style="color:var(--text2);font-size:0.85rem">Render API Base URL</label>
+        <input id="renderUrl" type="text" value="https://ergio-engines.onrender.com" style="background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.85rem;outline:none">
+        <label style="color:var(--text2);font-size:0.85rem;margin-top:8px">Supabase URL</label>
+        <input id="supabaseUrl" type="text" value="https://owcxfzlanlrulflsyvlr.supabase.co" style="background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.85rem;outline:none">
+        <button class="btn-sm btn-primary" onclick="saveSettings()" style="margin-top:8px;width:fit-content">Save Settings</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Admin Access Key</div>
+      <p style="color:var(--text2);font-size:0.85rem;margin-bottom:12px">Your current admin key is active. To change it, update the hash in the code.</p>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--text3)">SHA-256: efa29daa852b289cde1422da7fe2d3aade391543d0c0abe38198fb8f7198bbb</div>
+    </div>
+  </div>
+
+  <!-- AGENTS TAB -->
+  <div class="tab-content" id="tab-agents">
+    <div class="main-header"><div><h1>AI Agent Frameworks</h1><div class="breadcrumb">External agent connections</div></div></div>
+    <div class="engine-grid" id="adminAgentsGrid"></div>
+  </div>
+
+</main>
+</div>
+
+<script>
+// ════════ SECURITY GATE ════════
+var ADMIN_KEY_HASH = 'efa29daaa852b289cde1422da7fe2d3aade391543d0c0abe38198fb8f7198bbb';
+
+// SHA-256 implementation (Web Crypto API)
+async function sha256(text) {
+  var buf = new TextEncoder().encode(text);
+  var hash = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hash)).map(function(b){return b.toString(16).padStart(2,'0')}).join('');
+}
+
+async function checkGate() {
+  var key = document.getElementById('gateKey').value.trim();
+  var err = document.getElementById('gateError');
+  if (!key) { err.textContent = 'Please enter the access key'; return; }
+  var hash = await sha256(key);
+  if (hash === ADMIN_KEY_HASH) {
+    sessionStorage.setItem('ergio_admin_auth', '1');
+    sessionStorage.setItem('ergio_admin_login', Date.now().toString());
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('adminLayout').style.display = 'flex';
+    initAdmin();
+  } else {
+    err.textContent = '❌ Invalid key. Access denied.';
+    document.getElementById('gateKey').value = '';
+    logAccess('FAILED_LOGIN', 'Invalid admin key attempt');
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem('ergio_admin_auth');
+  location.reload();
+}
+
+function logAccess(type, detail) {
+  var logs = JSON.parse(localStorage.getItem('ergio_admin_logs') || '[]');
+  logs.unshift({time:new Date().toISOString(), type:type, detail:detail, ip:'local'});
+  if (logs.length > 500) logs = logs.slice(0, 500);
+  localStorage.setItem('ergio_admin_logs', JSON.stringify(logs));
+}
+
+// Check if already authenticated
+if (sessionStorage.getItem('ergio_admin_auth') === '1') {
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('adminLayout').style.display = 'flex';
+}
+
+// ════════ CONFIG ════════
+var CONFIG = {
+  renderBase: localStorage.getItem('ergio_render_url') || 'https://ergio-engines.onrender.com',
+  supabaseUrl: 'https://owcxfzlanlrulflsyvlr.supabase.co',
+  supabaseAnon: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93Y3hmenRsYW5scnVsZmxzeXZsciIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzQ3NjQzNzQ4LCJleHAiOjIwNjMyMDU3NDh9.wkhSA-DbWV-qqSO0sWE4Hf1ZL4Qpku3RDvCvjiPYoY-fFCE9k'
+};
+
+// ════════ TAB SWITCHING ════════
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  var el = document.getElementById('tab-' + tab);
+  if (el) el.classList.add('active');
+  var nav = document.querySelector('[data-tab="'+tab+'"]');
+  if (nav) nav.classList.add('active');
+  document.getElementById('sidebar').classList.remove('open');
+  // Load data for tab
+  if (tab === 'overview') loadOverview();
+  if (tab === 'activity') loadLiveActivity();
+  if (tab === 'engines') loadEngines();
+  if (tab === 'users') loadUsers();
+  if (tab === 'leads') loadLeads();
+  if (tab === 'payments') loadPayments();
+  if (tab === 'mcps') loadMCPs();
+  if (tab === 'plugins') loadPlugins();
+  if (tab === 'skills') loadAdminSkills();
+  if (tab === 'security') loadSecurity();
+  if (tab === 'logs') loadLogs();
+  if (tab === 'agents') loadAdminAgents();
+}
+
+// ════════ DATA ════════
+var ENGINES_DATA = [
+  {id:'website',name:'Website Engine',icon:'🌐',color:'#00d9ff',desc:'AI generates full business website from prompt',status:'active'},
+  {id:'lead',name:'Lead Engine',icon:'🎯',color:'#00ff9d',desc:'Captures leads, AI scores 0-100, WhatsApp alerts for hot leads',status:'active'},
+  {id:'booking',name:'Booking Engine',icon:'📅',color:'#3b82f6',desc:'Calendar, appointment booking, WhatsApp reminders',status:'active'},
+  {id:'invoice',name:'Invoice Engine',icon:'🧾',color:'#f59e0b',desc:'Auto-generates invoices, sends via email + WhatsApp',status:'active'},
+  {id:'payment',name:'Payment Engine',icon:'💳',color:'#00ff9d',desc:'Paystack, Flutterwave, Stripe collection + receipts',status:'active'},
+  {id:'content',name:'Content Engine',icon:'✨',color:'#8b5cf6',desc:'Social posts, blog content, ad copy, video scripts',status:'active'},
+  {id:'voice',name:'Voice Engine',icon:'🎙️',color:'#ec4899',desc:'AI voice receptionist, answers calls, books appointments',status:'active'},
+  {id:'analytics',name:'Analytics Engine',icon:'📊',color:'#3b82f6',desc:'Revenue, leads, conversion rates, weekly insights',status:'active'},
+  {id:'reputation',name:'Reputation Engine',icon:'⭐',color:'#f59e0b',desc:'Review requests, routes positive to Google, negative to feedback',status:'active'},
+  {id:'workflow',name:'Workflow Engine',icon:'⚡',color:'#8b5cf6',desc:'Visual drag-drop automation, if/then workflows, recipes',status:'active'}
+];
+
+var MCPS_DATA = [
+  {name:'Stripe',cat:'payments',status:'configured'},{name:'Resend',cat:'email',status:'configured'},
+  {name:'Supabase',cat:'database',status:'configured'},{name:'Groq',cat:'ai',status:'configured'},
+  {name:'Google Maps',cat:'location',status:'configured'},{name:'Twilio',cat:'communication',status:'configured'},
+  {name:'Cloudflare',cat:'infrastructure',status:'configured'},{name:'Higgsfield',cat:'media',status:'available'},
+  {name:'ElevenLabs',cat:'voice',status:'available'},{name:'Clay',cat:'leads',status:'available'},
+  {name:'Apify',cat:'scraping',status:'available'},{name:'Instantly',cat:'email',status:'available'},
+  {name:'Cal.com',cat:'scheduling',status:'available'},{name:'Postmark',cat:'email',status:'available'},
+  {name:'n8n',cat:'automation',status:'available'},{name:'Tavily',cat:'search',status:'available'},
+  {name:'GitHub',cat:'dev',status:'configured'},{name:'Slack',cat:'communication',status:'configured'},
+  {name:'Notion',cat:'productivity',status:'available'},{name:'Google Ads',cat:'marketing',status:'available'},
+  {name:'Meta Ads',cat:'marketing',status:'available'},{name:'WhatsApp Business',cat:'communication',status:'available'},
+  {name:'Vercel',cat:'infrastructure',status:'configured'},{name:'Sentry',cat:'monitoring',status:'configured'},
+  {name:'Pinecone',cat:'ai',status:'available'},
+  // Voice MCPs
+  {name:'Vapi AI',cat:'voice',status:'available'},{name:'Retell AI',cat:'voice',status:'available'},
+  {name:'Bland AI',cat:'voice',status:'available'},{name:'Synthflow',cat:'voice',status:'available'},
+  {name:'AgentCall',cat:'voice',status:'available'},{name:'AgentPhone',cat:'voice',status:'available'},
+  {name:'SkipCalls',cat:'voice',status:'available'},{name:'GreetMate',cat:'voice',status:'available'},
+  // Agent Frameworks
+  {name:'Hermes Agent',cat:'agent',status:'available'},{name:'OpenClaw',cat:'agent',status:'available'},
+  {name:'Composio',cat:'agent',status:'available'},{name:'Glama',cat:'agent',status:'available'}
+];
+
+var PLUGINS_DATA = [
+  {name:'WhatsApp CRM',cat:'communication'},{name:'Email Marketing',cat:'communication'},
+  {name:'Google Analytics',cat:'analytics'},{name:'Calendly',cat:'scheduling'},
+  {name:'Flutterwave',cat:'payments'},{name:'Instagram Feed',cat:'social'},
+  {name:'Push Notifications',cat:'communication'},{name:'AI Live Chat',cat:'communication'},
+  {name:'Facebook Business',cat:'social'},{name:'Twitter/X',cat:'social'},
+  {name:'LinkedIn',cat:'social'},{name:'TikTok',cat:'social'},
+  {name:'WhatsApp Catalog',cat:'communication'},{name:'Google Business Profile',cat:'marketing'},
+  {name:'YouTube',cat:'social'},{name:'Mailchimp',cat:'email'},
+  {name:'Notion',cat:'productivity'},{name:'Canva',cat:'design'},
+  {name:'Paystack POS',cat:'payments'},{name:'Telegram Bot',cat:'communication'},
+  {name:'Shopify',cat:'ecommerce'},{name:'Discord Bot',cat:'communication'},
+  {name:'Reddit',cat:'social'},{name:'Pinterest',cat:'social'},
+  {name:'Snapchat Ads',cat:'marketing'},{name:'WhatsApp Business API',cat:'communication'},
+  {name:'Google Drive',cat:'productivity'},{name:'Zoom',cat:'communication'},
+  {name:'HubSpot CRM',cat:'crm'},{name:'Google Calendar',cat:'scheduling'}
+];
+
+var AGENTS_DATA = [
+  {name:'Hermes Agent',icon:'🧠',color:'#8b5cf6',type:'Self-Improving Agent',desc:'Gets better over time — remembers what worked, writes new skills automatically',status:'available'},
+  {name:'OpenClaw',icon:'🐾',color:'#00d9ff',type:'Multi-Agent Framework',desc:'Spin up specialized agents (research, coding, data) and orchestrate them',status:'available'},
+  {name:'Composio',icon:'🔗',color:'#00ff9d',type:'Integration Layer',desc:'Connect 250+ apps through a single API',status:'available'},
+  {name:'Glama',icon:'🏪',color:'#f59e0b',type:'MCP Marketplace',desc:'1000+ MCP servers, one-click install',status:'available'}
+];
+
+var SECURITY_FEATURES = [
+  'Rate limiting (100/min default, 10/min auth)',
+  'XSS prevention (script/iframe blocking)',
+  'SQL injection detection',
+  'Content Security Policy (CSP) headers',
+  'CORS (whitelisted origins only)',
+  'IP blocklist (auto-block after 5 failed auths)',
+  'Payload size limit (1MB)',
+  'HSTS (HTTPS enforcement)',
+  'X-Frame-Options DENY (clickjacking prevention)',
+  'X-Content-Type-Options nosniff',
+  'API key hashing (SHA-256)',
+  'Input sanitization middleware'
+];
+
+// ════════ INIT ════════
+async function initAdmin() {
+  logAccess('ADMIN_LOGIN', 'Admin dashboard accessed');
+  loadOverview();
+  // Auto-refresh
+  setInterval(function() {
+    var active = document.querySelector('.tab-content.active');
+    if (active && active.id === 'tab-overview') loadOverview();
+    if (active && active.id === 'tab-activity') loadLiveActivity();
+  }, 5000);
+}
+
+async function apiGet(path) {
+  try {
+    var resp = await fetch(CONFIG.renderBase + path, {signal: AbortSignal.timeout(5000)});
+    return await resp.json();
+  } catch(e) { return null; }
+}
+
+async function supabaseGet(table, limit) {
+  try {
+    var resp = await fetch(CONFIG.supabaseUrl + '/rest/v1/' + table + '?limit=' + (limit||20) + '&order=created_date.desc', {
+      headers: {'apikey': CONFIG.supabaseAnon, 'Authorization': 'Bearer ' + CONFIG.supabaseAnon}
+    });
+    return await resp.json();
+  } catch(e) { return []; }
+}
+
+// ════════ OVERVIEW ════════
+async function loadOverview() {
+  document.getElementById('lastSync').textContent = new Date().toLocaleTimeString();
+  // Stats
+  var stats = [
+    {icon:'👥',label:'Total Users',value:'—',delta:'Loading...',color:'rgba(0,217,255,0.1)'},
+    {icon:'🏢',label:'Businesses',value:'—',delta:'Loading...',color:'rgba(0,255,157,0.1)'},
+    {icon:'🎯',label:'Total Leads',value:'—',delta:'Loading...',color:'rgba(245,158,11,0.1)'},
+    {icon:'💰',label:'Revenue (MTD)',value:'₦—',delta:'Loading...',color:'rgba(0,255,157,0.1)'},
+    {icon:'⚡',label:'Active Engines',value:'10/10',delta:'All operational',color:'rgba(139,92,246,0.1)'},
+    {icon:'🔌',label:'MCPs Connected',value:'—',delta:'Loading...',color:'rgba(59,130,246,0.1)'}
+  ];
+  document.getElementById('statGrid').innerHTML = stats.map(function(s) {
+    return '<div class="stat-card"><div class="icon" style="background:'+s.color+'">'+s.icon+'</div><div class="label">'+s.label+'</div><div class="value">'+s.value+'</div><div class="delta">'+s.delta+'</div></div>';
+  }).join('');
+
+  // Load real data
+  var health = await apiGet('/health');
+  var users = await supabaseGet('profiles', 500);
+  var businesses = await supabaseGet('businesses', 500);
+  var leads = await supabaseGet('leads', 500);
+  var payments = await supabaseGet('payments', 500);
+
+  var statsHtml = [
+    {icon:'👥',label:'Total Users',value:(users||[]).length,delta:'Registered',color:'rgba(0,217,255,0.1)',up:true},
+    {icon:'🏢',label:'Businesses',value:(businesses||[]).length,delta:'Active',color:'rgba(0,255,157,0.1)',up:true},
+    {icon:'🎯',label:'Total Leads',value:(leads||[]).length,delta:'Captured',color:'rgba(245,158,11,0.1)',up:true},
+    {icon:'💰',label:'Revenue (MTD)',value:'₦'+(payments||[]).reduce(function(s,p){return s+(p.data?.amount||0)},0).toLocaleString(),delta:'Collected',color:'rgba(0,255,157,0.1)',up:true},
+    {icon:'⚡',label:'Active Engines',value: health ? '10/10' : '—/10',delta: health ? 'All operational' : 'Backend offline',color:'rgba(139,92,246,0.1)',up:!!health},
+    {icon:'🔌',label:'MCPs Available',value:'36',delta:'8 voice, 4 agent frameworks',color:'rgba(59,130,246,0.1)',up:true}
+  ];
+  document.getElementById('statGrid').innerHTML = statsHtml.map(function(s) {
+    return '<div class="stat-card"><div class="icon" style="background:'+s.color+'">'+s.icon+'</div><div class="label">'+s.label+'</div><div class="value">'+s.value+'</div><div class="delta '+(s.up?'up':'down')+'">'+s.delta+'</div></div>';
+  }).join('');
+
+  // Engine status
+  document.getElementById('overviewEngines').innerHTML = ENGINES_DATA.map(function(e) {
+    return '<div class="engine-card"><div class="header"><div class="name">'+e.icon+' '+e.name+'</div><span class="status-pill '+(health?'status-online':'status-warning')+'">'+(health?'Active':'Standby')+'</span></div><div class="desc">'+e.desc+'</div></div>';
+  }).join('');
+
+  // Recent activity
+  var activity = [];
+  (leads||[]).slice(0,3).forEach(function(l) { activity.push({level:'success',msg:'New lead captured: '+(l.data?.name||l.data?.business_name||'Unknown')+' (score: '+(l.data?.score||'N/A')+')'}); });
+  (payments||[]).slice(0,3).forEach(function(p) { activity.push({level:'info',msg:'Payment: ₦'+(p.data?.amount||0).toLocaleString()+' — '+(p.data?.status||'pending')}); });
+  (users||[]).slice(0,2).forEach(function(u) { activity.push({level:'info',msg:'New user: '+(u.data?.email||u.data?.full_name||'Unknown')}); });
+  if (activity.length === 0) activity.push({level:'info',msg:'No recent activity. System idle.'});
+  document.getElementById('recentActivity').innerHTML = activity.map(function(a) {
+    return '<div class="log-entry"><span class="log-level log-'+a.level+'">'+a.level+'</span><span class="log-msg">'+a.msg+'</span></div>';
+  }).join('');
+}
+
+// ════════ LIVE ACTIVITY ════════
+async function loadLiveActivity() {
+  var leads = await supabaseGet('leads', 10);
+  var payments = await supabaseGet('payments', 10);
+  var users = await supabaseGet('profiles', 5);
+  var events = [];
+  (users||[]).forEach(function(u) { events.push({time:new Date(u.created_date||Date.now()).toLocaleTimeString(),level:'info',msg:'User registered: '+(u.data?.email||'Unknown')}); });
+  (leads||[]).forEach(function(l) { events.push({time:new Date(l.created_date||Date.now()).toLocaleTimeString(),level:'success',msg:'Lead captured: '+(l.data?.name||'Unknown')+' — score: '+(l.data?.score||'N/A')}); });
+  (payments||[]).forEach(function(p) { events.push({time:new Date(p.created_date||Date.now()).toLocaleTimeString(),level:'info',msg:'Payment: ₦'+(p.data?.amount||0).toLocaleString()+' — '+(p.data?.status||'pending')}); });
+  events.sort(function(a,b) { return b.time.localeCompare(a.time); });
+  if (events.length === 0) events.push({time:'--',level:'info',msg:'No live events. System idle.'});
+  document.getElementById('liveActivity').innerHTML = events.slice(0,30).map(function(e) {
+    return '<div class="log-entry"><span class="log-time">'+e.time+'</span><span class="log-level log-'+e.level+'">'+e.level+'</span><span class="log-msg">'+e.msg+'</span></div>';
+  }).join('');
+}
+
+// ════════ ENGINES ════════
+function loadEngines() {
+  document.getElementById('enginesGrid').innerHTML = ENGINES_DATA.map(function(e) {
+    return '<div class="engine-card"><div class="header"><div class="name">'+e.icon+' '+e.name+'</div><span class="status-pill status-online">Active</span></div><div class="desc">'+e.desc+'</div><div class="controls"><button class="btn-sm btn-primary" onclick="toggleEngine(\''+e.id+'\',\'start\')">▶ Start</button><button class="btn-sm btn-warn" onclick="toggleEngine(\''+e.id+'\',\'pause\')">⏸ Pause</button><button class="btn-sm btn-ghost" onclick="toggleEngine(\''+e.id+'\',\'config\')">⚙ Config</button></div></div>';
+  }).join('');
+}
+
+function toggleEngine(id, action) {
+  logAccess('ENGINE_'+action.toUpperCase(), id+' engine '+action);
+  alert('Engine '+id+' '+action+'ed. (Backend connection required for full control)');
+}
+
+// ════════ USERS ════════
+async function loadUsers() {
+  var users = await supabaseGet('profiles', 100);
+  var businesses = await supabaseGet('businesses', 100);
+  var tbody = document.querySelector('#usersTable tbody');
+  if (!users || users.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:2rem">No users found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = users.map(function(u) {
+    var userBiz = (businesses||[]).filter(function(b) { return b.data?.owner_id === u.id; }).length;
+    return '<tr><td>'+(u.data?.full_name||u.data?.name||'Unknown')+'</td><td>'+(u.data?.email||'—')+'</td><td><span class="status-pill status-online">'+(u.data?.plan||u.data?.subscription||'free')+'</span></td><td>'+userBiz+'</td><td>'+(u.created_date?new Date(u.created_date).toLocaleDateString():'—')+'</td><td><span class="status-pill status-online">Active</span></td></tr>';
+  }).join('');
+}
+
+// ════════ LEADS ════════
+async function loadLeads() {
+  var leads = await supabaseGet('leads', 100);
+  var stats = [
+    {icon:'🎯',label:'Total Leads',value:(leads||[]).length,color:'rgba(245,158,11,0.1)'},
+    {icon:'🔥',label:'Hot Leads (80+)',value:(leads||[]).filter(function(l){return(l.data?.score||0)>=80}).length,color:'rgba(239,68,68,0.1)'},
+    {icon:'✅',label:'Contacted',value:(leads||[]).filter(function(l){return l.data?.status==='contacted'}).length,color:'rgba(0,255,157,0.1)'},
+    {icon:'📞',label:'Converted',value:(leads||[]).filter(function(l){return l.data?.status==='converted'}).length,color:'rgba(0,217,255,0.1)'}
+  ];
+  document.getElementById('leadStats').innerHTML = stats.map(function(s) {
+    return '<div class="stat-card"><div class="icon" style="background:'+s.color+'">'+s.icon+'</div><div class="label">'+s.label+'</div><div class="value">'+s.value+'</div></div>';
+  }).join('');
+  var tbody = document.querySelector('#leadsTable tbody');
+  if (!leads || leads.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:2rem">No leads found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = leads.map(function(l) {
+    var score = l.data?.score || 0;
+    var scoreClass = score >= 80 ? 'status-online' : score >= 50 ? 'status-warning' : 'status-offline';
+    return '<tr><td>'+(l.data?.business_name||l.data?.service||'—')+'</td><td>'+(l.data?.name||l.data?.contact||'—')+' '+(l.data?.phone||l.data?.email||'')+'</td><td>'+(l.data?.source||'search')+'</td><td><span class="status-pill '+scoreClass+'">'+score+'</span></td><td><span class="status-pill '+(l.data?.status==='contacted'?'status-online':'status-warning')+'">'+(l.data?.status||'new')+'</span></td><td>'+(l.created_date?new Date(l.created_date).toLocaleDateString():'—')+'</td></tr>';
+  }).join('');
+}
+
+// ════════ PAYMENTS ════════
+async function loadPayments() {
+  var payments = await supabaseGet('payments', 100);
+  var total = (payments||[]).reduce(function(s,p){return s+(p.data?.amount||0)},0);
+  var successful = (payments||[]).filter(function(p){return p.data?.status==='success'||p.data?.status==='paid'});
+  var totalSuccess = successful.reduce(function(s,p){return s+(p.data?.amount||0)},0);
+  var stats = [
+    {icon:'💰',label:'Total Revenue',value:'₦'+totalSuccess.toLocaleString(),color:'rgba(0,255,157,0.1)'},
+    {icon:'📋',label:'Transactions',value:(payments||[]).length,color:'rgba(59,130,246,0.1)'},
+    {icon:'✅',label:'Successful',value:successful.length,color:'rgba(0,255,157,0.1)'},
+    {icon:'⏳',label:'Pending',value:(payments||[]).filter(function(p){return p.data?.status==='pending'}).length,color:'rgba(245,158,11,0.1)'}
+  ];
+  document.getElementById('paymentStats').innerHTML = stats.map(function(s) {
+    return '<div class="stat-card"><div class="icon" style="background:'+s.color+'">'+s.icon+'</div><div class="label">'+s.label+'</div><div class="value">'+s.value+'</div></div>';
+  }).join('');
+  var tbody = document.querySelector('#paymentsTable tbody');
+  if (!payments || payments.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:2rem">No transactions found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = payments.map(function(p) {
+    return '<tr><td>'+(p.data?.business_name||'—')+'</td><td>₦'+(p.data?.amount||0).toLocaleString()+'</td><td>'+(p.data?.gateway||'paystack')+'</td><td><span class="status-pill '+(p.data?.status==='success'||p.data?.status==='paid'?'status-online':p.data?.status==='pending'?'status-warning':'status-offline')+'">'+(p.data?.status||'pending')+'</span></td><td>'+(p.created_date?new Date(p.created_date).toLocaleDateString():'—')+'</td></tr>';
+  }).join('');
+}
+
+// ════════ MCPS ════════
+function loadMCPs() {
+  var catColors = {payments:'#00ff9d',email:'#3b82f6',database:'#8b5cf6',ai:'#00d9ff',location:'#f59e0b',communication:'#ec4899',infrastructure:'#64748b',media:'#8b5cf6',voice:'#ec4899',leads:'#00ff9d',scraping:'#f59e0b',scheduling:'#3b82f6',automation:'#8b5cf6',search:'#00d9ff',dev:'#64748b',monitoring:'#ef4444',marketing:'#ec4899',agent:'#8b5cf6'};
+  document.getElementById('mcpsGrid').innerHTML = MCPS_DATA.map(function(m) {
+    var color = catColors[m.cat] || '#64748b';
+    return '<div class="engine-card"><div class="header"><div class="name">'+m.name+'</div><span class="status-pill '+(m.status==='configured'?'status-online':'status-warning')+'">'+m.status+'</span></div><div class="desc">Category: '+m.cat+'</div><div class="controls"><button class="btn-sm '+(m.status==='configured'?'btn-warn':'btn-primary')+'" onclick="toggleMCP(\''+m.name+'\')">'+(m.status==='configured'?'Disconnect':'Connect')+'</button></div></div>';
+  }).join('');
+}
+
+function toggleMCP(name) { logAccess('MCP_TOGGLE', name); alert('MCP '+name+' toggled. (Backend required for full control)'); }
+
+// ════════ PLUGINS ════════
+function loadPlugins() {
+  document.getElementById('pluginsGrid').innerHTML = PLUGINS_DATA.map(function(p) {
+    return '<div class="engine-card"><div class="header"><div class="name">🔌 '+p.name+'</div><span class="status-pill status-warning">Available</span></div><div class="desc">Category: '+p.cat+'</div><div class="controls"><button class="btn-sm btn-primary" onclick="togglePlugin(\''+p.name+'\')">Enable</button></div></div>';
+  }).join('');
+}
+function togglePlugin(name) { alert('Plugin '+name+' enabled. (Backend required)'); }
+
+// ════════ SKILLS ADMIN ════════
+async function loadAdminSkills() {
+  var tbody = document.querySelector('#skillsTable tbody');
+  var skills = [
+    {id:'b1',name:'Nigeria Business Expert',category:'business',author:'ERGIO',downloads:142,rating:5.0,builtin:true},
+    {id:'b2',name:'Yoruba/Igbo/Hausa Marketing',category:'marketing',author:'ERGIO',downloads:98,rating:4.9,builtin:true},
+    {id:'b3',name:'Paystack Integration Expert',category:'payments',author:'ERGIO',downloads:76,rating:4.8,builtin:true},
+    {id:'b4',name:'WhatsApp Business Automation',category:'communication',author:'ERGIO',downloads:120,rating:4.7,builtin:true},
+    {id:'b5',name:'Restaurant Operations',category:'industry',author:'ERGIO',downloads:65,rating:4.9,builtin:true},
+    {id:'b6',name:'Law Firm Management',category:'industry',author:'ERGIO',downloads:43,rating:4.8,builtin:true},
+    {id:'b7',name:'Nigeria SEO Specialist',category:'marketing',author:'ERGIO',downloads:87,rating:5.0,builtin:true}
+  ];
+  // Try loading from backend
+  var remote = await apiGet('/api/skills');
+  if (remote && remote.skills) {
+    remote.skills.forEach(function(s) {
+      if (!s.builtin) skills.push(s);
+    });
+  }
+  tbody.innerHTML = skills.map(function(s) {
+    var stars = '';
+    for (var i=1;i<=5;i++) stars += i<=Math.round(s.rating)?'⭐':'☆';
+    return '<tr><td>'+s.name+'</td><td>'+s.category+'</td><td>'+s.author+'</td><td>'+s.downloads+'</td><td>'+stars+'</td><td><span class="status-pill '+(s.builtin?'status-online':'status-warning')+'">'+(s.builtin?'Built-in':'Community')+'</span></td><td>'+(s.builtin?'': '<button class="btn-sm btn-danger" onclick="deleteSkill(\''+s.id+'\')">Delete</button>')+'</td></tr>';
+  }).join('');
+}
+function deleteSkill(id) { if(confirm('Delete this skill?')) alert('Skill deleted (backend required)'); }
+
+// ════════ SECURITY ════════
+async function loadSecurity() {
+  var secStatus = await apiGet('/api/security/status');
+  var stats = [
+    {icon:'🛡️',label:'Security Status',value: secStatus ? 'Active' : 'Standby',color:'rgba(0,255,157,0.1)'},
+    {icon:'🚫',label:'Blocked IPs',value: secStatus ? secStatus.blocked_ips : 0,color:'rgba(239,68,68,0.1)'},
+    {icon:'⚠️',label:'Failed Attempts',value: secStatus ? secStatus.failed_attempts : 0,color:'rgba(245,158,11,0.1)'},
+    {icon:'🔒',label:'Active Features',value: secStatus ? secStatus.features.length : SECURITY_FEATURES.length,color:'rgba(59,130,246,0.1)'}
+  ];
+  document.getElementById('securityStats').innerHTML = stats.map(function(s) {
+    return '<div class="stat-card"><div class="icon" style="background:'+s.color+'">'+s.icon+'</div><div class="label">'+s.label+'</div><div class="value">'+s.value+'</div></div>';
+  }).join('');
+  document.getElementById('securityFeatures').innerHTML = (secStatus ? secStatus.features : SECURITY_FEATURES).map(function(f) {
+    return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--green)">✓</span><span style="color:var(--text2);font-size:0.85rem">'+f+'</span></div>';
+  }).join('');
+  // Blocked IPs
+  var blocked = await apiGet('/api/security/blocked-ips');
+  var ips = (blocked && blocked.blocked_ips) || [];
+  document.getElementById('blockedIPs').innerHTML = ips.length === 0 ? '<div style="color:var(--text3);padding:1rem;text-align:center">No blocked IPs. All clear.</div>' : ips.map(function(ip) {
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-family:monospace;color:var(--text2)">'+ip+'</span><button class="btn-sm btn-danger" onclick="unblockIP(\''+ip+'\')">Unblock</button></div>';
+  }).join('');
+}
+
+function clearBlockedIPs() { if(confirm('Clear all blocked IPs?')) alert('All IPs unblocked (backend required)'); }
+function unblockIP(ip) { alert('IP '+ip+' unblocked (backend required)'); }
+
+// ════════ LOGS ════════
+function loadLogs() {
+  var logs = JSON.parse(localStorage.getItem('ergio_admin_logs') || '[]');
+  if (logs.length === 0) logs.push({time:new Date().toISOString(),type:'INFO',detail:'Admin dashboard initialized. No logs yet.'});
+  document.getElementById('systemLogs').innerHTML = logs.map(function(l) {
+    var level = l.type.includes('FAILED') ? 'error' : l.type.includes('WARN') ? 'warn' : 'info';
+    return '<div class="log-entry"><span class="log-time">'+new Date(l.time).toLocaleTimeString()+'</span><span class="log-level log-'+level+'">'+l.type+'</span><span class="log-msg">'+l.detail+'</span></div>';
+  }).join('');
+}
+
+// ════════ AGENTS ════════
+function loadAdminAgents() {
+  document.getElementById('adminAgentsGrid').innerHTML = AGENTS_DATA.map(function(a) {
+    return '<div class="engine-card"><div class="header"><div class="name">'+a.icon+' '+a.name+'</div><span class="status-pill status-warning">'+a.status+'</span></div><div class="desc" style="margin-bottom:6px">'+a.desc+'</div><div class="desc" style="font-size:0.72rem;color:var(--text3)">Type: '+a.type+'</div><div class="controls" style="margin-top:12px"><button class="btn-sm btn-primary" onclick="connectAgentAdmin(\''+a.name+'\')">Connect</button></div></div>';
+  }).join('');
+}
+function connectAgentAdmin(name) { var key = prompt('Enter API key for '+name+':'); if(key) alert(name+' connected (backend required)'); }
+
+// ════════ SETTINGS ════════
+function saveSettings() {
+  var url = document.getElementById('renderUrl').value.trim();
+  if (url) { localStorage.setItem('ergio_render_url', url); CONFIG.renderBase = url; alert('✅ Settings saved!'); }
+}
+
+// ════════ INIT ════════
+if (sessionStorage.getItem('ergio_admin_auth') === '1') {
+  initAdmin();
+}
+</script>
+</body>
+</html>
