@@ -261,7 +261,7 @@ Return JSON with:
     
     const websiteHtml = is3D 
       ? generate3DWebsiteHTML(plan, brand, content, colors, logoUrl, images)
-      : generateRichWebsiteHTML(plan, brand, content, colors, logoUrl, images);
+      : generateWebsiteHTML(plan, brand, content, colors, logoUrl, images);
 
     send('website', { html: websiteHtml, logoUrl, imageCount: totalImages, designStyle: (typeof style !== "undefined" ? style.name : "aurora-dark") });
     send('status', { task: '🔧 Setting up booking & payments...', step: 6, total: 8 });
