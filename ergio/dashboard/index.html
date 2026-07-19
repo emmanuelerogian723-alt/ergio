@@ -163,7 +163,15 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6m0 8v6M2 12h6m8 0h6M5 5l4 4m6 6l4 4M19 5l-4 4M5 19l4-4"/></svg>
         🔌 MCP & Plugins
       </div>
-      <div class="nav-item" onclick="switchTab('integrations')" data-tab="integrations">
+      <div class="nav-item" onclick="switchTab('skills')" data-tab="skills">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          Skills
+        </div>
+        <div class="nav-item" onclick="switchTab('agents')" data-tab="agents">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m4.22-13.22l4.24-4.24M3.54 20.46l4.24-4.24M20.46 20.46l-4.24-4.24M3.54 3.54l4.24 4.24"/></svg>
+          Agents
+        </div>
+        <div class="nav-item" onclick="switchTab('integrations')" data-tab="integrations">
           <div class="nav-icon">🔌</div>
           <div class="nav-label">Integrations</div>
         </div>
@@ -806,6 +814,74 @@
       </div>
     </div>
 
+    <!-- SKILLS MARKETPLACE TAB -->
+    <div class="tab-content" id="tab-skills">
+      <div style="margin-bottom:24px">
+        <h1 style="font-size:28px;margin:0;background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent">🎓 Skills Marketplace</h1>
+        <p style="color:#94a3b8;margin:4px 0 0">Upload custom skills — ERGIO learns and works better at specialized tasks</p>
+      </div>
+
+      <!-- Upload button -->
+      <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap">
+        <button onclick="showSkillUploadForm()" id="uploadSkillBtn" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:white;border:none;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">⬆ Upload Skill</button>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="skillSearchInput" type="text" placeholder="Search skills..." style="background:#1e293b;border:1px solid #334155;border-radius:100px;padding:10px 16px;color:white;font-size:13px;outline:none;width:250px" onkeyup="searchSkills(this.value)">
+          <select id="skillCategoryFilter" onchange="searchSkills()" style="background:#1e293b;border:1px solid #334155;border-radius:100px;padding:10px 16px;color:white;font-size:13px;outline:none;cursor:pointer">
+            <option value="all">All Categories</option>
+            <option value="business">Business</option>
+            <option value="marketing">Marketing</option>
+            <option value="finance">Finance</option>
+            <option value="communication">Communication</option>
+            <option value="payments">Payments</option>
+            <option value="industry">Industry-Specific</option>
+            <option value="general">General</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Upload form (hidden by default) -->
+      <div id="skillUploadForm" style="display:none;background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid #334155;border-radius:20px;padding:24px;margin-bottom:24px">
+        <h3 style="color:white;font-size:18px;margin:0 0 16px">⬆ Upload a New Skill</h3>
+        <p style="color:#94a3b8;font-size:13px;margin:0 0 16px">Skills are instruction sets that teach ERGIO how to handle specialized tasks — just like Claude Code skills. Write clear, detailed instructions.</p>
+        <div style="display:grid;gap:12px">
+          <input id="skillName" type="text" placeholder="Skill name (e.g. 'Real Estate Nigeria')" style="background:#0f172a;border:1px solid #334155;border-radius:10px;padding:12px 16px;color:white;font-size:14px;outline:none">
+          <input id="skillDesc" type="text" placeholder="Short description" style="background:#0f172a;border:1px solid #334155;border-radius:10px;padding:12px 16px;color:white;font-size:14px;outline:none">
+          <select id="skillCat" style="background:#0f172a;border:1px solid #334155;border-radius:10px;padding:12px 16px;color:white;font-size:14px;outline:none;cursor:pointer">
+            <option value="general">General</option>
+            <option value="business">Business</option>
+            <option value="marketing">Marketing</option>
+            <option value="finance">Finance</option>
+            <option value="communication">Communication</option>
+            <option value="payments">Payments</option>
+            <option value="industry">Industry-Specific</option>
+          </select>
+          <textarea id="skillInstructions" placeholder="Write detailed instructions for ERGIO... (min 20 characters, max 10,000)" style="background:#0f172a;border:1px solid #334155;border-radius:10px;padding:12px 16px;color:white;font-size:14px;outline:none;min-height:150px;resize:vertical;font-family:inherit"></textarea>
+          <div style="display:flex;gap:8px">
+            <button onclick="uploadSkill()" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:white;border:none;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">Publish Skill</button>
+            <button onclick="document.getElementById('skillUploadForm').style.display='none'" style="background:transparent;border:1px solid #334155;color:#94a3b8;padding:12px 24px;border-radius:10px;font-size:14px;cursor:pointer">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skills grid -->
+      <div id="skillsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px"></div>
+    </div>
+
+    <!-- AI AGENT FRAMEWORKS TAB -->
+    <div class="tab-content" id="tab-agents">
+      <div style="margin-bottom:24px">
+        <h1 style="font-size:28px;margin:0;background:linear-gradient(135deg,#8b5cf6,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent">🤖 AI Agent Frameworks</h1>
+        <p style="color:#94a3b8;margin:4px 0 0">Connect ERGIO to external AI agent systems for enhanced capabilities</p>
+      </div>
+
+      <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid #334155;border-radius:16px;padding:20px;margin-bottom:24px">
+        <h3 style="color:white;font-size:16px;margin:0 0 8px">How Agent MCP Works</h3>
+        <p style="color:#94a3b8;font-size:13px;line-height:1.6;margin:0">ERGIO's Conductor acts as an <b style="color:#8b5cf6">MCP Client</b> — it connects to external AI agent frameworks via the <b style="color:#8b5cf6">Model Context Protocol</b>. When you give ERGIO a task, it can delegate to specialized agents (like Hermes or OpenClaw) that have their own memory, tools, and intelligence. These agents get <i>better over time</i> — they remember what worked and create new skills from successful interactions.</p>
+      </div>
+
+      <div id="agentsList" style="display:flex;flex-direction:column;gap:16px"></div>
+    </div>
+
   </div>
 
   
@@ -847,10 +923,12 @@ function switchTab(tab) {
   document.querySelector('[data-tab="' + tab + '"]')?.classList.add('active');
   const titles = { overview:'Overview', website:'Website', leads:'Leads', bookings:'Bookings',
     outreach:'Outreach', engines:'Engines', analytics:'Analytics', agents:'AI Agents',
-    plugins:'Plugins & MCP', advisor:'AI Advisor', integrations:'Integrations' };
+    plugins:'Plugins & MCP', advisor:'AI Advisor', integrations:'Integrations', skills:'Skills Marketplace', agents:'AI Agent Frameworks' };
   const titleEl = document.getElementById('pageTitle');
   if (titleEl) titleEl.textContent = titles[tab] || tab.charAt(0).toUpperCase() + tab.slice(1);
   if (tab === 'integrations') { loadPluginsGrid(); loadConnectedIntegrations(); }
+  if (tab === 'skills') { loadSkillsMarketplace(); }
+  if (tab === 'agents') { loadAgentFrameworks(); }
   if (tab === 'leads') { scanLeads(); }
   if (tab === 'engines') { loadEngineStatusFromRender(); }
 }
@@ -1165,6 +1243,15 @@ const INTEGRATIONS_CATALOG = [
   { id:'huggingface', name:'Hugging Face', category:'ai', logo:'https://cdn.worldvectorlogo.com/logos/hugging-face.svg', desc:'Open-source AI models and inference API', env:['HF_TOKEN'], status:'available' },
   { id:'n8n', name:'n8n', category:'ai', logo:'https://cdn.worldvectorlogo.com/logos/n8n.svg', desc:'Workflow automation with 400+ integrations', env:['N8N_WEBHOOK_URL'], status:'available' },
   { id:'cal-com', name:'Cal.com', category:'productivity', logo:'https://cdn.worldvectorlogo.com/logos/cal-com.svg', desc:'Open-source scheduling and booking system', env:['CAL_API_KEY'], status:'available' },
+  // AI Voice & Caller MCPs
+  { id:'vapi', name:'Vapi AI', category:'ai', logo:'https://vapi.ai/vapi-logo.svg', desc:'Build and deploy AI voice agents — phone calls, receptionists, appointment booking', env:['VAPI_API_KEY'], status:'available' },
+  { id:'retell-ai', name:'Retell AI', category:'ai', logo:'https://www.retellai.com/logo.svg', desc:'AI voice agent platform — inbound/outbound calls with real-time conversation', env:['RETELL_API_KEY'], status:'available' },
+  { id:'bland-ai', name:'Bland AI', category:'ai', logo:'https://www.bland.ai/logo.svg', desc:'AI phone calling — outbound campaigns, lead qualification, appointment scheduling', env:['BLAND_API_KEY'], status:'available' },
+  { id:'synthflow', name:'Synthflow', category:'ai', logo:'https://synthflow.ai/logo.svg', desc:'No-code AI voice assistant builder with white-label support', env:['SYNTHFLOW_API_KEY'], status:'available' },
+  { id:'agentcall', name:'AgentCall', category:'ai', logo:'https://agentcall.co/logo.svg', desc:'Hosted phone tools for AI agents — make calls, send SMS, manage numbers', env:['AGENTCALL_API_KEY'], status:'available' },
+  { id:'agentphone', name:'AgentPhone', category:'ai', logo:'https://agentphone.ai/logo.svg', desc:'Phone number management + AI voice calls via MCP', env:['AGENTPHONE_API_KEY'], status:'available' },
+  { id:'skipcalls', name:'SkipCalls', category:'ai', logo:'https://skipcalls.com/logo.svg', desc:'AI voice for any MCP-compatible agent — scheduling and transcription', env:['SKIPCALLS_API_KEY'], status:'available' },
+  { id:'greetmate', name:'GreetMate', category:'ai', logo:'https://greetmate.ai/logo.svg', desc:'AI phone automation for medical, dental, salon — intake forms + scheduling', env:['GREETMATE_API_KEY'], status:'available' },
 ];
 
 var currentIntCategory = 'all';
@@ -1361,6 +1448,251 @@ function disconnectIntegration(name) {
   Object.keys(saved).forEach(function(k) { if (saved[k].name === name) delete saved[k]; });
   localStorage.setItem('ergio_integrations', JSON.stringify(saved));
   loadConnectedIntegrations();
+}
+
+// ============ SKILLS MARKETPLACE ============
+var allSkills = [];
+
+async function loadSkillsMarketplace() {
+  var grid = document.getElementById('skillsGrid');
+  if (!grid) return;
+  grid.innerHTML = '<div style="color:#64748b;padding:2rem;text-align:center">Loading skills...</div>';
+  try {
+    var resp;
+    if (ENGINES) {
+      try {
+        resp = await fetch(ENGINES.base + '/api/skills');
+        var data = await resp.json();
+        allSkills = data.skills || [];
+      } catch(e) { allSkills = []; }
+    }
+    // Fallback to built-in skills if backend not connected
+    if (allSkills.length === 0) {
+      allSkills = getBuiltinSkills();
+    }
+    renderSkillsGrid(allSkills);
+  } catch(e) {
+    allSkills = getBuiltinSkills();
+    renderSkillsGrid(allSkills);
+  }
+}
+
+function getBuiltinSkills() {
+  return [
+    {id:'b1',name:'Nigeria Business Expert',description:'CAC registration, FIRS tax, Nigerian business law',category:'business',author:'ERGIO',downloads:142,rating:5.0,builtin:true,instructions:''},
+    {id:'b2',name:'Yoruba/Igbo/Hausa Marketing',description:'Local language marketing copy for authentic engagement',category:'marketing',author:'ERGIO',downloads:98,rating:4.9,builtin:true,instructions:''},
+    {id:'b3',name:'Paystack Integration Expert',description:'Paystack API, webhooks, Nigerian payment methods',category:'payments',author:'ERGIO',downloads:76,rating:4.8,builtin:true,instructions:''},
+    {id:'b4',name:'WhatsApp Business Automation',description:'Templates, message rules, approval flows',category:'communication',author:'ERGIO',downloads:120,rating:4.7,builtin:true,instructions:''},
+    {id:'b5',name:'Restaurant Operations',description:'Table management, menu optimization, POS, delivery',category:'industry',author:'ERGIO',downloads:65,rating:4.9,builtin:true,instructions:''},
+    {id:'b6',name:'Law Firm Management',description:'Client intake, case management, NBA compliance',category:'industry',author:'ERGIO',downloads:43,rating:4.8,builtin:true,instructions:''},
+    {id:'b7',name:'Nigeria SEO Specialist',description:'Local SEO, Google Business Profile, Naira pricing',category:'marketing',author:'ERGIO',downloads:87,rating:5.0,builtin:true,instructions:''},
+  ];
+}
+
+function renderSkillsGrid(skills) {
+  var grid = document.getElementById('skillsGrid');
+  if (!grid) return;
+  if (skills.length === 0) {
+    grid.innerHTML = '<div style="color:#64748b;padding:2rem;text-align:center;grid-column:1/-1">No skills found. Try a different search or upload your own!</div>';
+    return;
+  }
+  var categoryColors = {
+    business: '#3b82f6', marketing: '#ec4899', finance: '#f59e0b',
+    communication: '#00d9ff', payments: '#00ff9d', industry: '#8b5cf6', general: '#64748b'
+  };
+  grid.innerHTML = skills.map(function(skill) {
+    var color = categoryColors[skill.category] || '#64748b';
+    var stars = '';
+    for (var i = 1; i <= 5; i++) {
+      stars += i <= Math.round(skill.rating) ? '⭐' : '☆';
+    }
+    return '<div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid #334155;border-radius:16px;padding:20px;transition:all .3s" onmouseover="this.style.borderColor=\''+color+'\'" onmouseout="this.style.borderColor=\'#334155\'">' +
+      '<div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:12px">' +
+        '<div style="display:flex;align-items:center;gap:10px">' +
+          '<div style="width:44px;height:44px;border-radius:12px;background:'+color+'20;display:flex;align-items:center;justify-content:center;font-size:1.4rem">🎓</div>' +
+          '<div><div style="font-weight:700;font-size:15px;color:white">' + skill.name + '</div>' +
+          '<div style="font-size:11px;color:'+color+';text-transform:uppercase;letter-spacing:.5px;font-weight:600">' + skill.category + '</div></div>' +
+        '</div>' +
+        (skill.builtin ? '<span style="background:rgba(0,217,255,0.1);color:#00d9ff;font-size:10px;padding:4px 8px;border-radius:100px;font-weight:600">BUILT-IN</span>' : '<span style="background:rgba(245,158,11,0.1);color:#f59e0b;font-size:10px;padding:4px 8px;border-radius:100px;font-weight:600">COMMUNITY</span>') +
+      '</div>' +
+      '<p style="font-size:12px;color:#94a3b8;margin:0 0 12px;line-height:1.5">' + skill.description + '</p>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
+        '<div style="font-size:11px;color:#64748b">by ' + skill.author + '</div>' +
+        '<div style="font-size:11px;color:#64748b">⬇ ' + (skill.downloads || 0) + ' downloads</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px">' +
+        '<button onclick="downloadSkill(\''+skill.id+'\',\''+skill.name.replace(/\'/g,'')+'\')" style="flex:1;padding:9px;border-radius:10px;background:linear-gradient(135deg,#f59e0b,#ef4444);border:none;color:white;font-weight:600;font-size:13px;cursor:pointer">Install</button>' +
+        '<button onclick="rateSkillPrompt(\''+skill.id+'\',\''+skill.name.replace(/\'/g,'')+'\')" style="padding:9px 12px;border-radius:10px;background:transparent;border:1px solid #334155;color:#94a3b8;font-size:13px;cursor:pointer">⭐</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function searchSkills(query) {
+  var q = (query || document.getElementById('skillSearchInput')?.value || '').toLowerCase();
+  var cat = document.getElementById('skillCategoryFilter')?.value || 'all';
+  var filtered = allSkills.filter(function(s) {
+    var matchQuery = !q || s.name.toLowerCase().indexOf(q) >= 0 || s.description.toLowerCase().indexOf(q) >= 0;
+    var matchCat = cat === 'all' || s.category === cat;
+    return matchQuery && matchCat;
+  });
+  renderSkillsGrid(filtered);
+}
+
+function showSkillUploadForm() {
+  var form = document.getElementById('skillUploadForm');
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+async function uploadSkill() {
+  var name = document.getElementById('skillName').value.trim();
+  var desc = document.getElementById('skillDesc').value.trim();
+  var cat = document.getElementById('skillCat').value;
+  var instructions = document.getElementById('skillInstructions').value.trim();
+  if (!name || !desc || instructions.length < 20) {
+    alert('Please fill all fields. Instructions must be at least 20 characters.');
+    return;
+  }
+  if (ENGINES) {
+    try {
+      var resp = await fetch(ENGINES.base + '/api/skills', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({name:name, description:desc, category:cat, instructions:instructions, author: (currentUser?.email || 'anonymous')})
+      });
+      var data = await resp.json();
+      if (data.success) {
+        alert('✅ Skill published to marketplace!');
+        document.getElementById('skillUploadForm').style.display = 'none';
+        document.getElementById('skillName').value = '';
+        document.getElementById('skillDesc').value = '';
+        document.getElementById('skillInstructions').value = '';
+        loadSkillsMarketplace();
+      } else { alert('❌ Failed: ' + (data.detail || 'Unknown error')); }
+    } catch(e) { alert('❌ ' + e.message); }
+  } else {
+    // Save locally
+    var localSkills = JSON.parse(localStorage.getItem('ergio_skills') || '[]');
+    localSkills.push({id:'local-'+Date.now(),name:name,description:desc,category:cat,instructions:instructions,author:currentUser?.email||'you',downloads:0,rating:0,builtin:false});
+    localStorage.setItem('ergio_skills', JSON.stringify(localSkills));
+    alert('✅ Skill saved locally! Deploy the engine backend to share with the community.');
+    document.getElementById('skillUploadForm').style.display = 'none';
+    loadSkillsMarketplace();
+  }
+}
+
+function downloadSkill(id, name) {
+  if (ENGINES) {
+    fetch(ENGINES.base + '/api/skills/' + id + '/download', {method:'POST'}).catch(function(){});
+  }
+  // Save to installed skills
+  var installed = JSON.parse(localStorage.getItem('ergio_installed_skills') || '[]');
+  if (installed.indexOf(id) < 0) {
+    installed.push(id);
+    localStorage.setItem('ergio_installed_skills', JSON.stringify(installed));
+  }
+  alert('✅ ' + name + ' installed! ERGIO will use this skill for relevant tasks.');
+}
+
+function rateSkillPrompt(id, name) {
+  var rating = prompt('Rate ' + name + ' (1-5 stars):', '5');
+  if (rating && rating >= 1 && rating <= 5) {
+    if (ENGINES) {
+      fetch(ENGINES.base + '/api/skills/' + id + '/rate', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({rating:parseFloat(rating)})
+      }).catch(function(){});
+    }
+    alert('Thanks for rating!');
+  }
+}
+
+// ============ AI AGENT FRAMEWORKS ============
+var agentFrameworks = [
+  {
+    id:'hermes', name:'Hermes Agent', icon:'🧠', color:'#8b5cf6',
+    type:'Self-Improving Agent',
+    description:'Open-source AI agent by Nous Research. Gets better over time — remembers what worked, writes new skills from successful interactions. Has memory, skill scanner, browser automation, and multi-agent orchestration.',
+    howItWorks:'Hermes Agent runs as a local process and exposes an MCP server. ERGIO sends a task → Hermes uses its own LLM + memory + tools to complete it → returns the result. The key difference: Hermes LEARNS from each interaction and creates new skills automatically.',
+    capabilities:['Memory system','Skill scanner (auto-discovers new skills)','Browser automation','Multi-agent orchestration','Messaging integrations','Self-improving'],
+    envVar:'HERMES_API_KEY',
+    badge:'RECOMMENDED'
+  },
+  {
+    id:'openclaw', name:'OpenClaw', icon:'🐾', color:'#00d9ff',
+    type:'Multi-Agent Framework',
+    description:'Open-source AI agent with messaging integrations, browser automation, and multi-agent support. Agents can be specialized (research, coding, data) and orchestrated together.',
+    howItWorks:'OpenClaw runs as a self-hosted service. ERGIO connects to its MCP endpoint and can spin up specialized agents for different tasks. Each agent has its own memory, tools, and conversation context.',
+    capabilities:['Specialized agents','Messaging (WhatsApp, Telegram, Slack)','Browser automation','Memory per agent','Self-hosted','Multi-agent coordination'],
+    envVar:'OPENCLAW_API_KEY',
+    badge:'OPEN SOURCE'
+  },
+  {
+    id:'composio', name:'Composio', icon:'🔗', color:'#00ff9d',
+    type:'Integration Layer',
+    description:'Universal integration layer — connect 250+ apps to ERGIO through a single API. Handles auth, rate limiting, and tool execution for all apps automatically.',
+    howItWorks:'Instead of building individual integrations for each app, ERGIO calls Composio\'s MCP server which handles everything. This means ERGIO can instantly connect to 250+ apps without any code changes.',
+    capabilities:['250+ app integrations','Automatic auth management','Rate limiting per app','Webhook handling','Single API for all apps'],
+    envVar:'COMPOSIO_API_KEY',
+    badge:'250+ APPS'
+  },
+  {
+    id:'glama', name:'Glama MCP Marketplace', icon:'🏪', color:'#f59e0b',
+    type:'MCP Server Marketplace',
+    description:'Discover and connect to 1000+ MCP servers for any use case. Like an app store for AI tools.',
+    howItWorks:'ERGIO searches Glama\'s marketplace for a needed capability (e.g. "send Slack message"), installs the MCP server, and immediately gains that tool. Any new MCP server on Glama becomes instantly available to ERGIO.',
+    capabilities:['1000+ MCP servers','Search and discover','One-click install','Auto-connection','Unlimited extensibility'],
+    envVar:'GLAMA_API_KEY',
+    badge:'1000+ SERVERS'
+  }
+];
+
+async function loadAgentFrameworks() {
+  var list = document.getElementById('agentsList');
+  if (!list) return;
+  list.innerHTML = agentFrameworks.map(function(agent) {
+    return '<div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid #334155;border-radius:20px;padding:24px;transition:all .3s" onmouseover="this.style.borderColor=\''+agent.color+'\'" onmouseout="this.style.borderColor=\'#334155\'">' +
+      '<div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:16px">' +
+        '<div style="display:flex;align-items:center;gap:16px">' +
+          '<div style="width:56px;height:56px;border-radius:14px;background:'+agent.color+'20;display:flex;align-items:center;justify-content:center;font-size:1.8rem">'+agent.icon+'</div>' +
+          '<div><div style="font-weight:800;font-size:20px;color:white">'+agent.name+'</div>' +
+          '<div style="font-size:12px;color:'+agent.color+';font-weight:600;text-transform:uppercase;letter-spacing:.5px">'+agent.type+'</div></div>' +
+        '</div>' +
+        '<span style="background:'+agent.color+'20;color:'+agent.color+';font-size:10px;padding:6px 12px;border-radius:100px;font-weight:700">'+agent.badge+'</span>' +
+      '</div>' +
+      '<p style="color:#94a3b8;font-size:14px;line-height:1.6;margin:0 0 16px">'+agent.description+'</p>' +
+      '<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px;margin-bottom:16px">' +
+        '<div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:6px">⚙ How it works</div>' +
+        '<p style="color:#a0a8b8;font-size:12px;line-height:1.6;margin:0">'+agent.howItWorks+'</p>' +
+      '</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">' +
+        agent.capabilities.map(function(c) {
+          return '<span style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:4px 10px;border-radius:100px;font-size:11px;color:#a0a8b8">'+c+'</span>';
+        }).join('') +
+      '</div>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px">' +
+        '<div style="font-size:12px;color:#64748b">Requires: <code style="background:rgba(255,255,255,0.05);padding:2px 8px;border-radius:6px;color:'+agent.color+'">'+agent.envVar+'</code></div>' +
+        '<button onclick="connectAgent(\''+agent.id+'\',\''+agent.name+'\',\''+agent.envVar+'\')" style="background:linear-gradient(135deg,'+agent.color+','+agent.color+'80);color:white;border:none;padding:10px 24px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">Connect →</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function connectAgent(id, name, envVar) {
+  var apiKey = prompt('Enter your ' + envVar + ' for ' + name + ':\n\nYou can get this from the ' + name + ' dashboard.');
+  if (!apiKey) return;
+  if (ENGINES) {
+    fetch(ENGINES.base + '/api/agents/' + id + '/connect', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({api_key:apiKey})
+    }).then(function(r) { return r.json(); })
+      .then(function(d) { if (d.success) alert('✅ ' + name + ' connected! ERGIO can now delegate tasks to this agent.'); else alert('❌ Failed: ' + (d.detail||'')); })
+      .catch(function() { alert('Backend not connected. Deploy the engine on Render first.'); });
+  } else {
+    alert('Backend not connected. Deploy the engine on Render to connect agent frameworks.');
+  }
 }
 
 // ============ AUTH ============
