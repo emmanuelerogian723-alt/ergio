@@ -148,6 +148,100 @@
       input.value = '';
     }
 
+
+// ── ERGIO CONDUCTOR ──
+async function initConductor() {
+  if (!window.ErgioCommand) return;
+  const statusEl = document.getElementById('conductorStatus');
+  const health = await ErgioCommand.checkHealth();
+  if (health.status === 'healthy') {
+    statusEl.textContent = '🟢 Online — ' + (health.groq ? 'AI ready' : 'AI limited');
+    statusEl.style.color = 'rgba(0,255,136,.7)';
+  } else {
+    statusEl.textContent = '🔴 Offline (cold start)';
+    statusEl.style.color = 'rgba(255,100,100,.7)';
+    setTimeout(() => initConductor(), 15000); // retry
+  }
+}
+
+async function runConductor() {
+  const input = document.getElementById('conductorInput');
+  const chat = document.getElementById('conductorChat');
+  const text = input.value.trim();
+  if (!text) return;
+  
+  // User message
+  chat.innerHTML += `<div style="align-self:flex-end;background:rgba(99,102,241,.2);padding:.6rem .9rem;border-radius:.6rem .6rem 0 .6rem;max-width:80%;font-size:.85rem">${text.replace(/</g,'&lt;')}</div>`;
+  input.value = '';
+  chat.scrollTop = chat.scrollHeight;
+  
+  // Loading
+  const loadingId = 'load-' + Date.now();
+  chat.innerHTML += `<div id="${loadingId}" style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;font-size:.85rem;color:rgba(255,255,255,.5)">⚡ ERGIO is working...</div>`;
+  chat.scrollTop = chat.scrollHeight;
+  
+  try {
+    const bizId = localStorage.getItem('ergio_business_id') || null;
+    const result = await ErgioCommand.command(text, bizId, null);
+    document.getElementById(loadingId).remove();
+    
+    let response = result.summary || result.report || JSON.stringify(result).substring(0, 300);
+    if (result.sub_tasks) {
+      response = `📋 ${result.sub_tasks.length} tasks planned:\n` + 
+        result.sub_tasks.map((t,i) => `${i+1}. ${t.engine} → ${t.action}${t.requires_approval ? ' (needs approval)' : ''}`).join('\n');
+    }
+    
+    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;max-width:85%;font-size:.85rem;white-space:pre-wrap">${response.replace(/</g,'&lt;')}</div>`;
+  } catch (e) {
+    document.getElementById(loadingId).remove();
+    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,100,100,.1);padding:.6rem .9rem;border-radius:.6rem;font-size:.85rem">⚠️ ${e.message}</div>`;
+  }
+  chat.scrollTop = chat.scrollHeight;
+}
+
+
+// ── Engine Status from Render ──
+async function loadEngineStatusFromRender() {
+  if (!window.ErgioCommand) return;
+  try {
+    const status = await ErgioCommand.getSystemStatus();
+    if (status.status === 'operational' && status.engines) {
+      const enginesList = ['website_engine','lead_engine','booking_engine','invoice_engine','payment_engine','content_engine','voice_engine','analytics_engine','reputation_engine','workflow_engine'];
+      const labels = {
+        website_engine: '🌐 Website Engine', lead_engine: '🎯 Lead Engine',
+        booking_engine: '📅 Booking Engine', invoice_engine: '🧾 Invoice Engine',
+        payment_engine: '💰 Payment Engine', content_engine: '🎬 Content Engine',
+        voice_engine: '🎙️ Voice Engine', analytics_engine: '📊 Analytics Engine',
+        reputation_engine: '⭐ Reputation Engine', workflow_engine: '🔄 Workflow Engine'
+      };
+      const engineGrid = document.querySelector('#tab-engines .engine-grid');
+      if (engineGrid) {
+        enginesList.forEach(eng => {
+          const isActive = status.engines.includes(eng);
+          const card = engineGrid.querySelector(`[data-engine="${eng}"]`);
+          if (card) {
+            const statusDot = card.querySelector('.status-dot') || document.createElement('span');
+            statusDot.className = 'status-dot';
+            statusDot.style.cssText = 'display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;' + (isActive ? 'background:#00ff88' : 'background:#666');
+            if (!card.querySelector('.status-dot')) card.insertBefore(statusDot, card.firstChild);
+          }
+        });
+      }
+      // Also show MCP and plugin counts
+      const mcpCount = document.getElementById('mcpCount');
+      if (mcpCount) mcpCount.textContent = (status.mcps || []).length;
+      const pluginCount = document.getElementById('pluginCount');
+      if (pluginCount) pluginCount.textContent = (status.plugins || []).length;
+    }
+  } catch (e) {
+    console.warn('Engine status load failed:', e.message);
+  }
+}
+
+// Init conductor on load
+setTimeout(initConductor, 500);
+setTimeout(loadEngineStatusFromRender, 1000);
+
 </script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
     // ── Advisor Engine ──
@@ -291,6 +385,100 @@
       askAdvisor(q);
       input.value = '';
     }
+
+
+// ── ERGIO CONDUCTOR ──
+async function initConductor() {
+  if (!window.ErgioCommand) return;
+  const statusEl = document.getElementById('conductorStatus');
+  const health = await ErgioCommand.checkHealth();
+  if (health.status === 'healthy') {
+    statusEl.textContent = '🟢 Online — ' + (health.groq ? 'AI ready' : 'AI limited');
+    statusEl.style.color = 'rgba(0,255,136,.7)';
+  } else {
+    statusEl.textContent = '🔴 Offline (cold start)';
+    statusEl.style.color = 'rgba(255,100,100,.7)';
+    setTimeout(() => initConductor(), 15000); // retry
+  }
+}
+
+async function runConductor() {
+  const input = document.getElementById('conductorInput');
+  const chat = document.getElementById('conductorChat');
+  const text = input.value.trim();
+  if (!text) return;
+  
+  // User message
+  chat.innerHTML += `<div style="align-self:flex-end;background:rgba(99,102,241,.2);padding:.6rem .9rem;border-radius:.6rem .6rem 0 .6rem;max-width:80%;font-size:.85rem">${text.replace(/</g,'&lt;')}</div>`;
+  input.value = '';
+  chat.scrollTop = chat.scrollHeight;
+  
+  // Loading
+  const loadingId = 'load-' + Date.now();
+  chat.innerHTML += `<div id="${loadingId}" style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;font-size:.85rem;color:rgba(255,255,255,.5)">⚡ ERGIO is working...</div>`;
+  chat.scrollTop = chat.scrollHeight;
+  
+  try {
+    const bizId = localStorage.getItem('ergio_business_id') || null;
+    const result = await ErgioCommand.command(text, bizId, null);
+    document.getElementById(loadingId).remove();
+    
+    let response = result.summary || result.report || JSON.stringify(result).substring(0, 300);
+    if (result.sub_tasks) {
+      response = `📋 ${result.sub_tasks.length} tasks planned:\n` + 
+        result.sub_tasks.map((t,i) => `${i+1}. ${t.engine} → ${t.action}${t.requires_approval ? ' (needs approval)' : ''}`).join('\n');
+    }
+    
+    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;max-width:85%;font-size:.85rem;white-space:pre-wrap">${response.replace(/</g,'&lt;')}</div>`;
+  } catch (e) {
+    document.getElementById(loadingId).remove();
+    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,100,100,.1);padding:.6rem .9rem;border-radius:.6rem;font-size:.85rem">⚠️ ${e.message}</div>`;
+  }
+  chat.scrollTop = chat.scrollHeight;
+}
+
+
+// ── Engine Status from Render ──
+async function loadEngineStatusFromRender() {
+  if (!window.ErgioCommand) return;
+  try {
+    const status = await ErgioCommand.getSystemStatus();
+    if (status.status === 'operational' && status.engines) {
+      const enginesList = ['website_engine','lead_engine','booking_engine','invoice_engine','payment_engine','content_engine','voice_engine','analytics_engine','reputation_engine','workflow_engine'];
+      const labels = {
+        website_engine: '🌐 Website Engine', lead_engine: '🎯 Lead Engine',
+        booking_engine: '📅 Booking Engine', invoice_engine: '🧾 Invoice Engine',
+        payment_engine: '💰 Payment Engine', content_engine: '🎬 Content Engine',
+        voice_engine: '🎙️ Voice Engine', analytics_engine: '📊 Analytics Engine',
+        reputation_engine: '⭐ Reputation Engine', workflow_engine: '🔄 Workflow Engine'
+      };
+      const engineGrid = document.querySelector('#tab-engines .engine-grid');
+      if (engineGrid) {
+        enginesList.forEach(eng => {
+          const isActive = status.engines.includes(eng);
+          const card = engineGrid.querySelector(`[data-engine="${eng}"]`);
+          if (card) {
+            const statusDot = card.querySelector('.status-dot') || document.createElement('span');
+            statusDot.className = 'status-dot';
+            statusDot.style.cssText = 'display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;' + (isActive ? 'background:#00ff88' : 'background:#666');
+            if (!card.querySelector('.status-dot')) card.insertBefore(statusDot, card.firstChild);
+          }
+        });
+      }
+      // Also show MCP and plugin counts
+      const mcpCount = document.getElementById('mcpCount');
+      if (mcpCount) mcpCount.textContent = (status.mcps || []).length;
+      const pluginCount = document.getElementById('pluginCount');
+      if (pluginCount) pluginCount.textContent = (status.plugins || []).length;
+    }
+  } catch (e) {
+    console.warn('Engine status load failed:', e.message);
+  }
+}
+
+// Init conductor on load
+setTimeout(initConductor, 500);
+setTimeout(loadEngineStatusFromRender, 1000);
 
 </script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js">
@@ -436,6 +624,100 @@
       input.value = '';
     }
 
+
+// ── ERGIO CONDUCTOR ──
+async function initConductor() {
+  if (!window.ErgioCommand) return;
+  const statusEl = document.getElementById('conductorStatus');
+  const health = await ErgioCommand.checkHealth();
+  if (health.status === 'healthy') {
+    statusEl.textContent = '🟢 Online — ' + (health.groq ? 'AI ready' : 'AI limited');
+    statusEl.style.color = 'rgba(0,255,136,.7)';
+  } else {
+    statusEl.textContent = '🔴 Offline (cold start)';
+    statusEl.style.color = 'rgba(255,100,100,.7)';
+    setTimeout(() => initConductor(), 15000); // retry
+  }
+}
+
+async function runConductor() {
+  const input = document.getElementById('conductorInput');
+  const chat = document.getElementById('conductorChat');
+  const text = input.value.trim();
+  if (!text) return;
+  
+  // User message
+  chat.innerHTML += `<div style="align-self:flex-end;background:rgba(99,102,241,.2);padding:.6rem .9rem;border-radius:.6rem .6rem 0 .6rem;max-width:80%;font-size:.85rem">${text.replace(/</g,'&lt;')}</div>`;
+  input.value = '';
+  chat.scrollTop = chat.scrollHeight;
+  
+  // Loading
+  const loadingId = 'load-' + Date.now();
+  chat.innerHTML += `<div id="${loadingId}" style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;font-size:.85rem;color:rgba(255,255,255,.5)">⚡ ERGIO is working...</div>`;
+  chat.scrollTop = chat.scrollHeight;
+  
+  try {
+    const bizId = localStorage.getItem('ergio_business_id') || null;
+    const result = await ErgioCommand.command(text, bizId, null);
+    document.getElementById(loadingId).remove();
+    
+    let response = result.summary || result.report || JSON.stringify(result).substring(0, 300);
+    if (result.sub_tasks) {
+      response = `📋 ${result.sub_tasks.length} tasks planned:\n` + 
+        result.sub_tasks.map((t,i) => `${i+1}. ${t.engine} → ${t.action}${t.requires_approval ? ' (needs approval)' : ''}`).join('\n');
+    }
+    
+    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;max-width:85%;font-size:.85rem;white-space:pre-wrap">${response.replace(/</g,'&lt;')}</div>`;
+  } catch (e) {
+    document.getElementById(loadingId).remove();
+    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,100,100,.1);padding:.6rem .9rem;border-radius:.6rem;font-size:.85rem">⚠️ ${e.message}</div>`;
+  }
+  chat.scrollTop = chat.scrollHeight;
+}
+
+
+// ── Engine Status from Render ──
+async function loadEngineStatusFromRender() {
+  if (!window.ErgioCommand) return;
+  try {
+    const status = await ErgioCommand.getSystemStatus();
+    if (status.status === 'operational' && status.engines) {
+      const enginesList = ['website_engine','lead_engine','booking_engine','invoice_engine','payment_engine','content_engine','voice_engine','analytics_engine','reputation_engine','workflow_engine'];
+      const labels = {
+        website_engine: '🌐 Website Engine', lead_engine: '🎯 Lead Engine',
+        booking_engine: '📅 Booking Engine', invoice_engine: '🧾 Invoice Engine',
+        payment_engine: '💰 Payment Engine', content_engine: '🎬 Content Engine',
+        voice_engine: '🎙️ Voice Engine', analytics_engine: '📊 Analytics Engine',
+        reputation_engine: '⭐ Reputation Engine', workflow_engine: '🔄 Workflow Engine'
+      };
+      const engineGrid = document.querySelector('#tab-engines .engine-grid');
+      if (engineGrid) {
+        enginesList.forEach(eng => {
+          const isActive = status.engines.includes(eng);
+          const card = engineGrid.querySelector(`[data-engine="${eng}"]`);
+          if (card) {
+            const statusDot = card.querySelector('.status-dot') || document.createElement('span');
+            statusDot.className = 'status-dot';
+            statusDot.style.cssText = 'display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;' + (isActive ? 'background:#00ff88' : 'background:#666');
+            if (!card.querySelector('.status-dot')) card.insertBefore(statusDot, card.firstChild);
+          }
+        });
+      }
+      // Also show MCP and plugin counts
+      const mcpCount = document.getElementById('mcpCount');
+      if (mcpCount) mcpCount.textContent = (status.mcps || []).length;
+      const pluginCount = document.getElementById('pluginCount');
+      if (pluginCount) pluginCount.textContent = (status.plugins || []).length;
+    }
+  } catch (e) {
+    console.warn('Engine status load failed:', e.message);
+  }
+}
+
+// Init conductor on load
+setTimeout(initConductor, 500);
+setTimeout(loadEngineStatusFromRender, 1000);
+
 </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
     // ── Advisor Engine ──
@@ -580,6 +862,100 @@
       input.value = '';
     }
 
+
+// ── ERGIO CONDUCTOR ──
+async function initConductor() {
+  if (!window.ErgioCommand) return;
+  const statusEl = document.getElementById('conductorStatus');
+  const health = await ErgioCommand.checkHealth();
+  if (health.status === 'healthy') {
+    statusEl.textContent = '🟢 Online — ' + (health.groq ? 'AI ready' : 'AI limited');
+    statusEl.style.color = 'rgba(0,255,136,.7)';
+  } else {
+    statusEl.textContent = '🔴 Offline (cold start)';
+    statusEl.style.color = 'rgba(255,100,100,.7)';
+    setTimeout(() => initConductor(), 15000); // retry
+  }
+}
+
+async function runConductor() {
+  const input = document.getElementById('conductorInput');
+  const chat = document.getElementById('conductorChat');
+  const text = input.value.trim();
+  if (!text) return;
+  
+  // User message
+  chat.innerHTML += `<div style="align-self:flex-end;background:rgba(99,102,241,.2);padding:.6rem .9rem;border-radius:.6rem .6rem 0 .6rem;max-width:80%;font-size:.85rem">${text.replace(/</g,'&lt;')}</div>`;
+  input.value = '';
+  chat.scrollTop = chat.scrollHeight;
+  
+  // Loading
+  const loadingId = 'load-' + Date.now();
+  chat.innerHTML += `<div id="${loadingId}" style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;font-size:.85rem;color:rgba(255,255,255,.5)">⚡ ERGIO is working...</div>`;
+  chat.scrollTop = chat.scrollHeight;
+  
+  try {
+    const bizId = localStorage.getItem('ergio_business_id') || null;
+    const result = await ErgioCommand.command(text, bizId, null);
+    document.getElementById(loadingId).remove();
+    
+    let response = result.summary || result.report || JSON.stringify(result).substring(0, 300);
+    if (result.sub_tasks) {
+      response = `📋 ${result.sub_tasks.length} tasks planned:\n` + 
+        result.sub_tasks.map((t,i) => `${i+1}. ${t.engine} → ${t.action}${t.requires_approval ? ' (needs approval)' : ''}`).join('\n');
+    }
+    
+    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;max-width:85%;font-size:.85rem;white-space:pre-wrap">${response.replace(/</g,'&lt;')}</div>`;
+  } catch (e) {
+    document.getElementById(loadingId).remove();
+    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,100,100,.1);padding:.6rem .9rem;border-radius:.6rem;font-size:.85rem">⚠️ ${e.message}</div>`;
+  }
+  chat.scrollTop = chat.scrollHeight;
+}
+
+
+// ── Engine Status from Render ──
+async function loadEngineStatusFromRender() {
+  if (!window.ErgioCommand) return;
+  try {
+    const status = await ErgioCommand.getSystemStatus();
+    if (status.status === 'operational' && status.engines) {
+      const enginesList = ['website_engine','lead_engine','booking_engine','invoice_engine','payment_engine','content_engine','voice_engine','analytics_engine','reputation_engine','workflow_engine'];
+      const labels = {
+        website_engine: '🌐 Website Engine', lead_engine: '🎯 Lead Engine',
+        booking_engine: '📅 Booking Engine', invoice_engine: '🧾 Invoice Engine',
+        payment_engine: '💰 Payment Engine', content_engine: '🎬 Content Engine',
+        voice_engine: '🎙️ Voice Engine', analytics_engine: '📊 Analytics Engine',
+        reputation_engine: '⭐ Reputation Engine', workflow_engine: '🔄 Workflow Engine'
+      };
+      const engineGrid = document.querySelector('#tab-engines .engine-grid');
+      if (engineGrid) {
+        enginesList.forEach(eng => {
+          const isActive = status.engines.includes(eng);
+          const card = engineGrid.querySelector(`[data-engine="${eng}"]`);
+          if (card) {
+            const statusDot = card.querySelector('.status-dot') || document.createElement('span');
+            statusDot.className = 'status-dot';
+            statusDot.style.cssText = 'display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;' + (isActive ? 'background:#00ff88' : 'background:#666');
+            if (!card.querySelector('.status-dot')) card.insertBefore(statusDot, card.firstChild);
+          }
+        });
+      }
+      // Also show MCP and plugin counts
+      const mcpCount = document.getElementById('mcpCount');
+      if (mcpCount) mcpCount.textContent = (status.mcps || []).length;
+      const pluginCount = document.getElementById('pluginCount');
+      if (pluginCount) pluginCount.textContent = (status.plugins || []).length;
+    }
+  } catch (e) {
+    console.warn('Engine status load failed:', e.message);
+  }
+}
+
+// Init conductor on load
+setTimeout(initConductor, 500);
+setTimeout(loadEngineStatusFromRender, 1000);
+
 </script>
   <style>
     :root{--bg:#0A0E14;--surface:#0F141C;--card:#131A23;--border:#1E2730;--text:#E8EEF4;--muted:#8B98A8;--cyan:#00D9FF;--green:#00FF9D;--blue:#2563FF;--red:#FF4757;--yellow:#FFB800;--purple:#8B5CF6}
@@ -679,7 +1055,196 @@
 .advisor-msg-user { background: #1e40af; color: white; padding: 12px 16px; border-radius: 16px 16px 4px 16px; max-width: 80%; align-self: flex-end; }
 .advisor-msg-ai { background: #1e293b; border: 1px solid #334155; color: #e2e8f0; padding: 12px 16px; border-radius: 16px 16px 16px 4px; max-width: 80%; align-self: flex-start; }
 </style>
-<script src="../lib/engines-api.js"></script>
+<script src="../lib/engines-api.js">
+// ── ERGIO CONDUCTOR ──
+async function initConductor() {
+  if (!window.ErgioCommand) return;
+  const statusEl = document.getElementById('conductorStatus');
+  const health = await ErgioCommand.checkHealth();
+  if (health.status === 'healthy') {
+    statusEl.textContent = '🟢 Online — ' + (health.groq ? 'AI ready' : 'AI limited');
+    statusEl.style.color = 'rgba(0,255,136,.7)';
+  } else {
+    statusEl.textContent = '🔴 Offline (cold start)';
+    statusEl.style.color = 'rgba(255,100,100,.7)';
+    setTimeout(() => initConductor(), 15000); // retry
+  }
+}
+
+async function runConductor() {
+  const input = document.getElementById('conductorInput');
+  const chat = document.getElementById('conductorChat');
+  const text = input.value.trim();
+  if (!text) return;
+  
+  // User message
+  chat.innerHTML += `<div style="align-self:flex-end;background:rgba(99,102,241,.2);padding:.6rem .9rem;border-radius:.6rem .6rem 0 .6rem;max-width:80%;font-size:.85rem">${text.replace(/</g,'&lt;')}</div>`;
+  input.value = '';
+  chat.scrollTop = chat.scrollHeight;
+  
+  // Loading
+  const loadingId = 'load-' + Date.now();
+  chat.innerHTML += `<div id="${loadingId}" style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;font-size:.85rem;color:rgba(255,255,255,.5)">⚡ ERGIO is working...</div>`;
+  chat.scrollTop = chat.scrollHeight;
+  
+  try {
+    const bizId = localStorage.getItem('ergio_business_id') || null;
+    const result = await ErgioCommand.command(text, bizId, null);
+    document.getElementById(loadingId).remove();
+    
+    let response = result.summary || result.report || JSON.stringify(result).substring(0, 300);
+    if (result.sub_tasks) {
+      response = `📋 ${result.sub_tasks.length} tasks planned:\n` + 
+        result.sub_tasks.map((t,i) => `${i+1}. ${t.engine} → ${t.action}${t.requires_approval ? ' (needs approval)' : ''}`).join('\n');
+    }
+    
+    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;max-width:85%;font-size:.85rem;white-space:pre-wrap">${response.replace(/</g,'&lt;')}</div>`;
+  } catch (e) {
+    document.getElementById(loadingId).remove();
+    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,100,100,.1);padding:.6rem .9rem;border-radius:.6rem;font-size:.85rem">⚠️ ${e.message}</div>`;
+  }
+  chat.scrollTop = chat.scrollHeight;
+}
+
+
+// ── Engine Status from Render ──
+async function loadEngineStatusFromRender() {
+  if (!window.ErgioCommand) return;
+  try {
+    const status = await ErgioCommand.getSystemStatus();
+    if (status.status === 'operational' && status.engines) {
+      const enginesList = ['website_engine','lead_engine','booking_engine','invoice_engine','payment_engine','content_engine','voice_engine','analytics_engine','reputation_engine','workflow_engine'];
+      const labels = {
+        website_engine: '🌐 Website Engine', lead_engine: '🎯 Lead Engine',
+        booking_engine: '📅 Booking Engine', invoice_engine: '🧾 Invoice Engine',
+        payment_engine: '💰 Payment Engine', content_engine: '🎬 Content Engine',
+        voice_engine: '🎙️ Voice Engine', analytics_engine: '📊 Analytics Engine',
+        reputation_engine: '⭐ Reputation Engine', workflow_engine: '🔄 Workflow Engine'
+      };
+      const engineGrid = document.querySelector('#tab-engines .engine-grid');
+      if (engineGrid) {
+        enginesList.forEach(eng => {
+          const isActive = status.engines.includes(eng);
+          const card = engineGrid.querySelector(`[data-engine="${eng}"]`);
+          if (card) {
+            const statusDot = card.querySelector('.status-dot') || document.createElement('span');
+            statusDot.className = 'status-dot';
+            statusDot.style.cssText = 'display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;' + (isActive ? 'background:#00ff88' : 'background:#666');
+            if (!card.querySelector('.status-dot')) card.insertBefore(statusDot, card.firstChild);
+          }
+        });
+      }
+      // Also show MCP and plugin counts
+      const mcpCount = document.getElementById('mcpCount');
+      if (mcpCount) mcpCount.textContent = (status.mcps || []).length;
+      const pluginCount = document.getElementById('pluginCount');
+      if (pluginCount) pluginCount.textContent = (status.plugins || []).length;
+    }
+  } catch (e) {
+    console.warn('Engine status load failed:', e.message);
+  }
+}
+
+// Init conductor on load
+setTimeout(initConductor, 500);
+setTimeout(loadEngineStatusFromRender, 1000);
+
+</script>
+<script src="../lib/ergio-command.js">
+// ── ERGIO CONDUCTOR ──
+async function initConductor() {
+  if (!window.ErgioCommand) return;
+  const statusEl = document.getElementById('conductorStatus');
+  const health = await ErgioCommand.checkHealth();
+  if (health.status === 'healthy') {
+    statusEl.textContent = '🟢 Online — ' + (health.groq ? 'AI ready' : 'AI limited');
+    statusEl.style.color = 'rgba(0,255,136,.7)';
+  } else {
+    statusEl.textContent = '🔴 Offline (cold start)';
+    statusEl.style.color = 'rgba(255,100,100,.7)';
+    setTimeout(() => initConductor(), 15000); // retry
+  }
+}
+
+async function runConductor() {
+  const input = document.getElementById('conductorInput');
+  const chat = document.getElementById('conductorChat');
+  const text = input.value.trim();
+  if (!text) return;
+  
+  // User message
+  chat.innerHTML += `<div style="align-self:flex-end;background:rgba(99,102,241,.2);padding:.6rem .9rem;border-radius:.6rem .6rem 0 .6rem;max-width:80%;font-size:.85rem">${text.replace(/</g,'&lt;')}</div>`;
+  input.value = '';
+  chat.scrollTop = chat.scrollHeight;
+  
+  // Loading
+  const loadingId = 'load-' + Date.now();
+  chat.innerHTML += `<div id="${loadingId}" style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;font-size:.85rem;color:rgba(255,255,255,.5)">⚡ ERGIO is working...</div>`;
+  chat.scrollTop = chat.scrollHeight;
+  
+  try {
+    const bizId = localStorage.getItem('ergio_business_id') || null;
+    const result = await ErgioCommand.command(text, bizId, null);
+    document.getElementById(loadingId).remove();
+    
+    let response = result.summary || result.report || JSON.stringify(result).substring(0, 300);
+    if (result.sub_tasks) {
+      response = `📋 ${result.sub_tasks.length} tasks planned:\n` + 
+        result.sub_tasks.map((t,i) => `${i+1}. ${t.engine} → ${t.action}${t.requires_approval ? ' (needs approval)' : ''}`).join('\n');
+    }
+    
+    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;max-width:85%;font-size:.85rem;white-space:pre-wrap">${response.replace(/</g,'&lt;')}</div>`;
+  } catch (e) {
+    document.getElementById(loadingId).remove();
+    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,100,100,.1);padding:.6rem .9rem;border-radius:.6rem;font-size:.85rem">⚠️ ${e.message}</div>`;
+  }
+  chat.scrollTop = chat.scrollHeight;
+}
+
+
+// ── Engine Status from Render ──
+async function loadEngineStatusFromRender() {
+  if (!window.ErgioCommand) return;
+  try {
+    const status = await ErgioCommand.getSystemStatus();
+    if (status.status === 'operational' && status.engines) {
+      const enginesList = ['website_engine','lead_engine','booking_engine','invoice_engine','payment_engine','content_engine','voice_engine','analytics_engine','reputation_engine','workflow_engine'];
+      const labels = {
+        website_engine: '🌐 Website Engine', lead_engine: '🎯 Lead Engine',
+        booking_engine: '📅 Booking Engine', invoice_engine: '🧾 Invoice Engine',
+        payment_engine: '💰 Payment Engine', content_engine: '🎬 Content Engine',
+        voice_engine: '🎙️ Voice Engine', analytics_engine: '📊 Analytics Engine',
+        reputation_engine: '⭐ Reputation Engine', workflow_engine: '🔄 Workflow Engine'
+      };
+      const engineGrid = document.querySelector('#tab-engines .engine-grid');
+      if (engineGrid) {
+        enginesList.forEach(eng => {
+          const isActive = status.engines.includes(eng);
+          const card = engineGrid.querySelector(`[data-engine="${eng}"]`);
+          if (card) {
+            const statusDot = card.querySelector('.status-dot') || document.createElement('span');
+            statusDot.className = 'status-dot';
+            statusDot.style.cssText = 'display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;' + (isActive ? 'background:#00ff88' : 'background:#666');
+            if (!card.querySelector('.status-dot')) card.insertBefore(statusDot, card.firstChild);
+          }
+        });
+      }
+      // Also show MCP and plugin counts
+      const mcpCount = document.getElementById('mcpCount');
+      if (mcpCount) mcpCount.textContent = (status.mcps || []).length;
+      const pluginCount = document.getElementById('pluginCount');
+      if (pluginCount) pluginCount.textContent = (status.plugins || []).length;
+    }
+  } catch (e) {
+    console.warn('Engine status load failed:', e.message);
+  }
+}
+
+// Init conductor on load
+setTimeout(initConductor, 500);
+setTimeout(loadEngineStatusFromRender, 1000);
+
+</script>
 </head>
 <body>
   <!-- SIDEBAR -->
@@ -794,6 +1359,30 @@
             <div class="icon">📧</div>
             <div class="label">Outreach</div>
             <div class="desc">Send cold emails</div>
+          </div>
+        </div>
+
+        <!-- ERGIO CONDUCTOR — AI Command Center -->
+        <div class="panel" style="border:1px solid rgba(99,102,241,.3);background:rgba(15,15,35,.6)">
+          <div class="panel-header">
+            <div class="panel-title">🎭 ERGIO Conductor</div>
+            <div class="panel-action" id="conductorStatus" style="font-size:.75rem;color:rgba(255,255,255,.4)">Checking...</div>
+          </div>
+          <p style="font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:1rem">
+            Tell ERGIO what you need. The AI brain orchestrates all 10 engines — build websites, find leads, send invoices, create content, and more.
+          </p>
+          <div id="conductorChat" style="max-height:300px;overflow-y:auto;margin-bottom:.75rem;display:flex;flex-direction:column;gap:.5rem">
+            <div style="font-size:.85rem;color:rgba(255,255,255,.4);text-align:center;padding:1rem">
+              Try: "Find leads for my photography business in Lagos" or "Generate a marketing post for Instagram"
+            </div>
+          </div>
+          <div style="display:flex;gap:.5rem">
+            <input id="conductorInput" type="text" placeholder="Tell ERGIO what to do..." 
+              style="flex:1;padding:.65rem .9rem;border-radius:.6rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:.9rem"
+              onkeypress="if(event.key==='Enter')runConductor()">
+            <button class="btn btn-primary" onclick="runConductor()" style="padding:.65rem 1.2rem">
+              ⚡ Run
+            </button>
           </div>
         </div>
 
@@ -2072,6 +2661,100 @@
       input.value = '';
     }
 
+
+// ── ERGIO CONDUCTOR ──
+async function initConductor() {
+  if (!window.ErgioCommand) return;
+  const statusEl = document.getElementById('conductorStatus');
+  const health = await ErgioCommand.checkHealth();
+  if (health.status === 'healthy') {
+    statusEl.textContent = '🟢 Online — ' + (health.groq ? 'AI ready' : 'AI limited');
+    statusEl.style.color = 'rgba(0,255,136,.7)';
+  } else {
+    statusEl.textContent = '🔴 Offline (cold start)';
+    statusEl.style.color = 'rgba(255,100,100,.7)';
+    setTimeout(() => initConductor(), 15000); // retry
+  }
+}
+
+async function runConductor() {
+  const input = document.getElementById('conductorInput');
+  const chat = document.getElementById('conductorChat');
+  const text = input.value.trim();
+  if (!text) return;
+  
+  // User message
+  chat.innerHTML += `<div style="align-self:flex-end;background:rgba(99,102,241,.2);padding:.6rem .9rem;border-radius:.6rem .6rem 0 .6rem;max-width:80%;font-size:.85rem">${text.replace(/</g,'&lt;')}</div>`;
+  input.value = '';
+  chat.scrollTop = chat.scrollHeight;
+  
+  // Loading
+  const loadingId = 'load-' + Date.now();
+  chat.innerHTML += `<div id="${loadingId}" style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;font-size:.85rem;color:rgba(255,255,255,.5)">⚡ ERGIO is working...</div>`;
+  chat.scrollTop = chat.scrollHeight;
+  
+  try {
+    const bizId = localStorage.getItem('ergio_business_id') || null;
+    const result = await ErgioCommand.command(text, bizId, null);
+    document.getElementById(loadingId).remove();
+    
+    let response = result.summary || result.report || JSON.stringify(result).substring(0, 300);
+    if (result.sub_tasks) {
+      response = `📋 ${result.sub_tasks.length} tasks planned:\n` + 
+        result.sub_tasks.map((t,i) => `${i+1}. ${t.engine} → ${t.action}${t.requires_approval ? ' (needs approval)' : ''}`).join('\n');
+    }
+    
+    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;max-width:85%;font-size:.85rem;white-space:pre-wrap">${response.replace(/</g,'&lt;')}</div>`;
+  } catch (e) {
+    document.getElementById(loadingId).remove();
+    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,100,100,.1);padding:.6rem .9rem;border-radius:.6rem;font-size:.85rem">⚠️ ${e.message}</div>`;
+  }
+  chat.scrollTop = chat.scrollHeight;
+}
+
+
+// ── Engine Status from Render ──
+async function loadEngineStatusFromRender() {
+  if (!window.ErgioCommand) return;
+  try {
+    const status = await ErgioCommand.getSystemStatus();
+    if (status.status === 'operational' && status.engines) {
+      const enginesList = ['website_engine','lead_engine','booking_engine','invoice_engine','payment_engine','content_engine','voice_engine','analytics_engine','reputation_engine','workflow_engine'];
+      const labels = {
+        website_engine: '🌐 Website Engine', lead_engine: '🎯 Lead Engine',
+        booking_engine: '📅 Booking Engine', invoice_engine: '🧾 Invoice Engine',
+        payment_engine: '💰 Payment Engine', content_engine: '🎬 Content Engine',
+        voice_engine: '🎙️ Voice Engine', analytics_engine: '📊 Analytics Engine',
+        reputation_engine: '⭐ Reputation Engine', workflow_engine: '🔄 Workflow Engine'
+      };
+      const engineGrid = document.querySelector('#tab-engines .engine-grid');
+      if (engineGrid) {
+        enginesList.forEach(eng => {
+          const isActive = status.engines.includes(eng);
+          const card = engineGrid.querySelector(`[data-engine="${eng}"]`);
+          if (card) {
+            const statusDot = card.querySelector('.status-dot') || document.createElement('span');
+            statusDot.className = 'status-dot';
+            statusDot.style.cssText = 'display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;' + (isActive ? 'background:#00ff88' : 'background:#666');
+            if (!card.querySelector('.status-dot')) card.insertBefore(statusDot, card.firstChild);
+          }
+        });
+      }
+      // Also show MCP and plugin counts
+      const mcpCount = document.getElementById('mcpCount');
+      if (mcpCount) mcpCount.textContent = (status.mcps || []).length;
+      const pluginCount = document.getElementById('pluginCount');
+      if (pluginCount) pluginCount.textContent = (status.plugins || []).length;
+    }
+  } catch (e) {
+    console.warn('Engine status load failed:', e.message);
+  }
+}
+
+// Init conductor on load
+setTimeout(initConductor, 500);
+setTimeout(loadEngineStatusFromRender, 1000);
+
 </script>
 <script src="/guide-widget.js">
 
@@ -2231,6 +2914,100 @@ async function runEngine4(action) {
     setTimeout(() => setEngineStatus('engine4Status', 'ready'), 3000);
   }
 }
+
+
+// ── ERGIO CONDUCTOR ──
+async function initConductor() {
+  if (!window.ErgioCommand) return;
+  const statusEl = document.getElementById('conductorStatus');
+  const health = await ErgioCommand.checkHealth();
+  if (health.status === 'healthy') {
+    statusEl.textContent = '🟢 Online — ' + (health.groq ? 'AI ready' : 'AI limited');
+    statusEl.style.color = 'rgba(0,255,136,.7)';
+  } else {
+    statusEl.textContent = '🔴 Offline (cold start)';
+    statusEl.style.color = 'rgba(255,100,100,.7)';
+    setTimeout(() => initConductor(), 15000); // retry
+  }
+}
+
+async function runConductor() {
+  const input = document.getElementById('conductorInput');
+  const chat = document.getElementById('conductorChat');
+  const text = input.value.trim();
+  if (!text) return;
+  
+  // User message
+  chat.innerHTML += `<div style="align-self:flex-end;background:rgba(99,102,241,.2);padding:.6rem .9rem;border-radius:.6rem .6rem 0 .6rem;max-width:80%;font-size:.85rem">${text.replace(/</g,'&lt;')}</div>`;
+  input.value = '';
+  chat.scrollTop = chat.scrollHeight;
+  
+  // Loading
+  const loadingId = 'load-' + Date.now();
+  chat.innerHTML += `<div id="${loadingId}" style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;font-size:.85rem;color:rgba(255,255,255,.5)">⚡ ERGIO is working...</div>`;
+  chat.scrollTop = chat.scrollHeight;
+  
+  try {
+    const bizId = localStorage.getItem('ergio_business_id') || null;
+    const result = await ErgioCommand.command(text, bizId, null);
+    document.getElementById(loadingId).remove();
+    
+    let response = result.summary || result.report || JSON.stringify(result).substring(0, 300);
+    if (result.sub_tasks) {
+      response = `📋 ${result.sub_tasks.length} tasks planned:\n` + 
+        result.sub_tasks.map((t,i) => `${i+1}. ${t.engine} → ${t.action}${t.requires_approval ? ' (needs approval)' : ''}`).join('\n');
+    }
+    
+    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;max-width:85%;font-size:.85rem;white-space:pre-wrap">${response.replace(/</g,'&lt;')}</div>`;
+  } catch (e) {
+    document.getElementById(loadingId).remove();
+    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,100,100,.1);padding:.6rem .9rem;border-radius:.6rem;font-size:.85rem">⚠️ ${e.message}</div>`;
+  }
+  chat.scrollTop = chat.scrollHeight;
+}
+
+
+// ── Engine Status from Render ──
+async function loadEngineStatusFromRender() {
+  if (!window.ErgioCommand) return;
+  try {
+    const status = await ErgioCommand.getSystemStatus();
+    if (status.status === 'operational' && status.engines) {
+      const enginesList = ['website_engine','lead_engine','booking_engine','invoice_engine','payment_engine','content_engine','voice_engine','analytics_engine','reputation_engine','workflow_engine'];
+      const labels = {
+        website_engine: '🌐 Website Engine', lead_engine: '🎯 Lead Engine',
+        booking_engine: '📅 Booking Engine', invoice_engine: '🧾 Invoice Engine',
+        payment_engine: '💰 Payment Engine', content_engine: '🎬 Content Engine',
+        voice_engine: '🎙️ Voice Engine', analytics_engine: '📊 Analytics Engine',
+        reputation_engine: '⭐ Reputation Engine', workflow_engine: '🔄 Workflow Engine'
+      };
+      const engineGrid = document.querySelector('#tab-engines .engine-grid');
+      if (engineGrid) {
+        enginesList.forEach(eng => {
+          const isActive = status.engines.includes(eng);
+          const card = engineGrid.querySelector(`[data-engine="${eng}"]`);
+          if (card) {
+            const statusDot = card.querySelector('.status-dot') || document.createElement('span');
+            statusDot.className = 'status-dot';
+            statusDot.style.cssText = 'display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;' + (isActive ? 'background:#00ff88' : 'background:#666');
+            if (!card.querySelector('.status-dot')) card.insertBefore(statusDot, card.firstChild);
+          }
+        });
+      }
+      // Also show MCP and plugin counts
+      const mcpCount = document.getElementById('mcpCount');
+      if (mcpCount) mcpCount.textContent = (status.mcps || []).length;
+      const pluginCount = document.getElementById('pluginCount');
+      if (pluginCount) pluginCount.textContent = (status.plugins || []).length;
+    }
+  } catch (e) {
+    console.warn('Engine status load failed:', e.message);
+  }
+}
+
+// Init conductor on load
+setTimeout(initConductor, 500);
+setTimeout(loadEngineStatusFromRender, 1000);
 
 </script>
   <button onclick="ERGIO_GUIDE.reset()" style="position:fixed;bottom:20px;left:20px;background:rgba(0,217,255,.1);color:#00D9FF;border:1px solid rgba(0,217,255,.2);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:.8rem;z-index:9999">🎓 Guide</button>
