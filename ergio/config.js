@@ -5,6 +5,11 @@ window.ERGIO_CONFIG = {
     ? 'https://ergio.vercel.app' 
     : window.location.origin,
 
+  // ERGIO Engines Backend (Render — Python FastAPI)
+  enginesApiBase: window.location.origin.includes('localhost')
+    ? 'http://localhost:8000'  // Local dev
+    : 'https://ergio-engines.onrender.com',  // Render production
+
   // Firebase Auth (main authentication)
   firebase: {
     apiKey: "AIzaSyBRhBF6Nscqz53rMCF0ykAcMnWuRIrfgJw",

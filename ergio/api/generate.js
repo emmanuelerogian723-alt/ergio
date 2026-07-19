@@ -354,10 +354,19 @@ Return ONLY JSON:
       /3d|interactive|animated|immersive|motion|3dimentional/i.test(prompt + JSON.stringify(answers || {}));
     
     let websiteHtml;
+    const contentForHTML = content;
+    const planForHTML = plan;
+    // Ensure content.about is always a string (not undefined)
+    if (!contentForHTML.about) contentForHTML.about = plan.description || plan.type + ' in ' + plan.city;
+    if (!contentForHTML.hero) contentForHTML.hero = { headline: plan.businessName, subheadline: plan.tagline || '', cta: 'Get Started' };
+    if (!contentForHTML.whyChooseUs) contentForHTML.whyChooseUs = ['Expert Team', 'Trusted Quality', 'Fast Service', 'Best Prices'];
+    if (!contentForHTML.testimonials) contentForHTML.testimonials = [];
+    if (!contentForHTML.faq) contentForHTML.faq = [];
+    if (!contentForHTML.contactInfo) contentForHTML.contactInfo = { phone: '+234 800 000 0000', email: 'info@business.com', address: plan.city + ', Nigeria', whatsapp: '+234 800 000 0000' };
     try {
       websiteHtml = is3D 
-        ? generate3DWebsiteHTML(plan, brand, content, colors, logoUrl, images)
-        : generateWebsiteHTML(plan, brand, content, colors, logoUrl, images);
+        ? generate3DWebsiteHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
+        : generateWebsiteHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images);
     } catch(genErr) {
       console.error('HTML generation error:', genErr.message, genErr.stack);
       // Fallback minimal HTML
