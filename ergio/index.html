@@ -200,7 +200,9 @@ img{display:block;max-width:100%}
 .dash-activity-item .badge.amber{background:rgba(251,191,36,0.1);color:var(--amber)}
 
 /* ===== PRICING ===== */
-.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;max-width:1000px;margin:0 auto}
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.2rem;max-width:1400px;margin:0 auto}
+@media(max-width:768px){.pricing-grid{grid-template-columns:1fr 1fr;gap:.8rem}}
+@media(max-width:500px){.pricing-grid{grid-template-columns:1fr}}
 .pricing-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.2rem;position:relative;transition:all 0.3s}
 .pricing-card:hover{border-color:var(--border2);transform:scale(1.02)}
 .pricing-card.popular{border-color:var(--cyan);box-shadow:0 0 50px rgba(0,217,255,0.15)}
@@ -809,9 +811,9 @@ Launch Business
 <div class="section-inner">
 <div class="section-label" style="text-align:center">Pricing</div>
 <h2 class="section-title" style="text-align:center">Start free. Scale when you earn.</h2>
-<p class="section-desc" style="text-align:center;margin-left:auto;margin-right:auto">5 tiers designed for African businesses. From your first website to running a multi-business agency. No hidden fees, cancel anytime.</p>
+<p class="section-desc" style="text-align:center;margin-left:auto;margin-right:auto">6 tiers designed for African businesses — from your first website to running a multi-business agency. Priced to keep ERGIO running sustainably while staying 80% cheaper than GoHighLevel.</p>
 
-<div class="pricing-grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;max-width:1300px">
+<div class="pricing-grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;max-width:1400px">
 
 <!-- Tier 1: Free -->
 <div class="pricing-card">
@@ -824,86 +826,105 @@ Launch Business
 <li>Contact form + WhatsApp</li>
 <li>ERGIO subdomain</li>
 <li>Lead capture forms</li>
+<li>Basic analytics</li>
 <li class="disabled">AI engines (10)</li>
 <li class="disabled">CRM & dashboard</li>
 <li class="disabled">Payment collection</li>
-<li class="disabled">MCP integrations</li>
 </ul>
 <button class="pricing-btn secondary" onclick="document.getElementById('prompt').focus();window.scrollTo({top:0,behavior:'smooth'})">Start Free</button>
 </div>
 
-<!-- Tier 2: Launch -->
+<!-- Tier 2: Starter -->
 <div class="pricing-card">
-<div class="pricing-tier">Launch</div>
-<div class="pricing-price"><span class="currency">₦</span>2,500<span class="period">/month</span></div>
-<p style="color:var(--text2);font-size:0.82rem;margin-bottom:1rem">For businesses getting started</p>
+<div class="pricing-tier">Starter</div>
+<div class="pricing-price"><span class="currency">₦</span>5,000<span class="period">/month</span></div>
+<p style="color:var(--text2);font-size:0.82rem;margin-bottom:1rem">For solo entrepreneurs</p>
 <ul class="pricing-features">
 <li>Everything in Free</li>
-<li>3 business websites</li>
+<li>2 business websites</li>
 <li>Lead Engine (AI scoring)</li>
 <li>Basic CRM dashboard</li>
 <li>Booking management</li>
 <li>Invoice generation</li>
-<li>Email notifications</li>
+<li>Email notifications (50/mo)</li>
 <li class="disabled">Payment collection</li>
 <li class="disabled">Content & Voice engines</li>
 </ul>
 <button class="pricing-btn secondary" onclick="document.getElementById('prompt').focus();window.scrollTo({top:0,behavior:'smooth'})">Get Started</button>
 </div>
 
-<!-- Tier 3: Grow (Most Popular) -->
+<!-- Tier 3: Launch -->
+<div class="pricing-card">
+<div class="pricing-tier">Launch</div>
+<div class="pricing-price"><span class="currency">₦</span>12,500<span class="period">/month</span></div>
+<p style="color:var(--text2);font-size:0.82rem;margin-bottom:1rem">For growing businesses</p>
+<ul class="pricing-features">
+<li>Everything in Starter</li>
+<li>5 business websites</li>
+<li>Paystack payment collection</li>
+<li>AI Outreach Engine (cold emails)</li>
+<li>Content Engine (social posts)</li>
+<li>WhatsApp automation</li>
+<li>Email notifications (500/mo)</li>
+<li>3 MCP integrations</li>
+<li class="disabled">Voice Engine</li>
+</ul>
+<button class="pricing-btn secondary" onclick="document.getElementById('prompt').focus();window.scrollTo({top:0,behavior:'smooth'})">Get Launch</button>
+</div>
+
+<!-- Tier 4: Grow (Most Popular) -->
 <div class="pricing-card popular">
 <div class="pricing-tier">Grow</div>
-<div class="pricing-price"><span class="currency">₦</span>7,500<span class="period">/month</span></div>
+<div class="pricing-price"><span class="currency">₦</span>25,000<span class="period">/month</span></div>
 <p style="color:var(--text2);font-size:0.82rem;margin-bottom:1rem">Most popular — all 10 engines</p>
 <ul class="pricing-features">
 <li>Everything in Launch</li>
 <li>All 10 AI engines</li>
-<li>Paystack + Flutterwave</li>
-<li>Content Engine (social posts)</li>
-<li>WhatsApp automation</li>
+<li>Unlimited business websites</li>
+<li>Voice Engine (AI receptionist)</li>
+<li>Reputation Engine (reviews)</li>
 <li>Analytics dashboard</li>
-<li>Reputation Engine</li>
-<li>5 MCP integrations</li>
+<li>10 MCP integrations</li>
+<li>Email notifications (5,000/mo)</li>
 <li class="disabled">White-label</li>
 </ul>
 <button class="pricing-btn primary" onclick="document.getElementById('prompt').focus();window.scrollTo({top:0,behavior:'smooth'})">Go Grow</button>
 </div>
 
-<!-- Tier 4: Scale -->
+<!-- Tier 5: Scale -->
 <div class="pricing-card">
 <div class="pricing-tier">Scale</div>
-<div class="pricing-price"><span class="currency">₦</span>20,000<span class="period">/month</span></div>
+<div class="pricing-price"><span class="currency">₦</span>60,000<span class="period">/month</span></div>
 <p style="color:var(--text2);font-size:0.82rem;margin-bottom:1rem">For agencies & multi-business</p>
 <ul class="pricing-features">
 <li>Everything in Grow</li>
-<li>Unlimited businesses</li>
-<li>Voice Engine (AI receptionist)</li>
-<li>Video ad generation (Higgsfield)</li>
+<li>White-label branding</li>
+<li>Custom domain + branding</li>
 <li>Workflow automation builder</li>
-<li>15 MCP integrations</li>
+<li>20 MCP integrations</li>
 <li>Priority AI processing</li>
 <li>API access</li>
-<li class="disabled">White-label branding</li>
+<li>Team collaboration (5 seats)</li>
+<li class="disabled">Unlimited seats</li>
 </ul>
 <button class="pricing-btn secondary" onclick="document.getElementById('prompt').focus();window.scrollTo({top:0,behavior:'smooth'})">Scale Up</button>
 </div>
 
-<!-- Tier 5: Enterprise -->
+<!-- Tier 6: Enterprise -->
 <div class="pricing-card">
 <div class="pricing-tier">Enterprise</div>
-<div class="pricing-price"><span class="currency">₦</span>50,000<span class="period">/month</span></div>
+<div class="pricing-price"><span class="currency">₦</span>150,000<span class="period">/month</span></div>
 <p style="color:var(--text2);font-size:0.82rem;margin-bottom:1rem">White-label SaaS platform</p>
 <ul class="pricing-features">
 <li>Everything in Scale</li>
-<li>White-label branding</li>
-<li>Custom domain + branding</li>
-<li>Team collaboration (10 seats)</li>
+<li>Unlimited team seats</li>
 <li>All 25 MCP integrations</li>
 <li>Clay lead enrichment</li>
-<li>Dedicated support</li>
+<li>Dedicated support (24/7)</li>
 <li>Custom AI training</li>
 <li>SLA guarantee (99.9%)</li>
+<li>On-premise deployment</li>
+<li>Custom integrations</li>
 </ul>
 <button class="pricing-btn secondary" onclick="document.getElementById('prompt').focus();window.scrollTo({top:0,behavior:'smooth'})">Go Enterprise</button>
 </div>
@@ -931,10 +952,21 @@ Launch Business
 </div>
 <div style="text-align:center;padding:1rem;background:var(--bg);border-radius:12px">
 <div style="font-size:1.5rem">⚡</div>
-<div style="font-weight:700;color:var(--green);font-size:1.1rem;margin:.3rem 0">₦0-50K/mo</div>
-<div style="font-size:.75rem;color:var(--text3)">ERGIO<br>Build + operate + grow, all-in-one</div>
+<div style="font-weight:700;color:var(--green);font-size:1.1rem;margin:.3rem 0">₦5K-150K/mo</div>
+<div style="font-size:.75rem;color:var(--text3)">ERGIO<br>Full business OS + AI engines</div>
 </div>
 </div>
+<div style="text-align:center;margin-top:1rem;padding:.8rem;background:rgba(0,255,157,.05);border-radius:10px">
+<p style="font-size:.8rem;color:var(--text2);margin:0">✅ ERGIO does what GoHighLevel + Lovable + Calendly + Canva do — for 80% less, fully automated, and built for Africa</p>
+</div>
+</div>
+
+<!-- Revenue breakdown for transparency -->
+<div style="margin-top:1.5rem;max-width:800px;margin-left:auto;margin-right:auto;text-align:center">
+<p style="color:var(--text3);font-size:0.78rem;line-height:1.6">
+Your subscription keeps ERGIO running: AI processing (40%) · Server infrastructure (25%) · Database & storage (15%) · Email & SMS gateways (10%) · Development & support (10%).<br>
+We reinvest every naira into making ERGIO better for African businesses.
+</p>
 </div>
 
 </div>

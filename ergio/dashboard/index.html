@@ -771,6 +771,36 @@
       </div>
     </div>
 
+    <!-- INTEGRATIONS TAB -->
+    <div class="tab-content" id="tab-integrations">
+      <div style="margin-bottom:24px">
+        <h1 style="font-size:28px;margin:0;background:linear-gradient(135deg,#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent">🔌 Integrations</h1>
+        <p style="color:#94a3b8;margin:4px 0 0">Connect your favorite apps and services to ERGIO</p>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap" id="integrationsCategories">
+        <button class="int-cat-btn active" onclick="showIntegrationsCategory('all')" style="padding:8px 16px;border-radius:100px;border:1px solid #334155;background:#1e293b;color:white;font-size:13px;cursor:pointer">All</button>
+        <button class="int-cat-btn" onclick="showIntegrationsCategory('payments')" style="padding:8px 16px;border-radius:100px;border:1px solid #334155;background:transparent;color:#94a3b8;font-size:13px;cursor:pointer">Payments</button>
+        <button class="int-cat-btn" onclick="showIntegrationsCategory('communication')" style="padding:8px 16px;border-radius:100px;border:1px solid #334155;background:transparent;color:#94a3b8;font-size:13px;cursor:pointer">Communication</button>
+        <button class="int-cat-btn" onclick="showIntegrationsCategory('productivity')" style="padding:8px 16px;border-radius:100px;border:1px solid #334155;background:transparent;color:#94a3b8;font-size:13px;cursor:pointer">Productivity</button>
+        <button class="int-cat-btn" onclick="showIntegrationsCategory('marketing')" style="padding:8px 16px;border-radius:100px;border:1px solid #334155;background:transparent;color:#94a3b8;font-size:13px;cursor:pointer">Marketing</button>
+        <button class="int-cat-btn" onclick="showIntegrationsCategory('analytics')" style="padding:8px 16px;border-radius:100px;border:1px solid #334155;background:transparent;color:#94a3b8;font-size:13px;cursor:pointer">Analytics</button>
+        <button class="int-cat-btn" onclick="showIntegrationsCategory('ai')" style="padding:8px 16px;border-radius:100px;border:1px solid #334155;background:transparent;color:#94a3b8;font-size:13px;cursor:pointer">AI & Automation</button>
+      </div>
+
+      <div id="integrationsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px"></div>
+
+      <div style="margin-top:32px">
+        <h3 style="color:white;font-size:18px;margin:0 0 16px">🔌 Connected MCP Servers</h3>
+        <div id="connectedMcpsList" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+
+      <div style="margin-top:24px">
+        <h3 style="color:white;font-size:18px;margin:0 0 16px">⚡ Connected Plugins</h3>
+        <div id="connectedPluginsList" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+
   </div>
 
   
@@ -1099,16 +1129,100 @@ async function scanLeads() {
 }
 
 // ============ INTEGRATIONS (MCP & Plugins) ============
+const INTEGRATIONS_CATALOG = [
+  // Payments
+  { id:'paystack', name:'Paystack', category:'payments', logo:'https://cdn.worldvectorlogo.com/logos/paystack.svg', desc:'Accept payments from customers across Africa', env:['PAYSTACK_SECRET_KEY'], status:'available' },
+  { id:'stripe', name:'Stripe', category:'payments', logo:'https://cdn.worldvectorlogo.com/logos/stripe-2.svg', desc:'Global payment processing for online businesses', env:['STRIPE_SECRET_KEY'], status:'available' },
+  { id:'flutterwave', name:'Flutterwave', category:'payments', logo:'https://cdn.worldvectorlogo.com/logos/flutterwave.svg', desc:'Pan-African payment gateway', env:['FLW_SECRET_KEY'], status:'available' },
+  // Communication
+  { id:'whatsapp', name:'WhatsApp Business', category:'communication', logo:'https://cdn.worldvectorlogo.com/logos/whatsapp-business.svg', desc:'Automated WhatsApp messages and customer chat', env:['WHATSAPP_TOKEN','WHATSAPP_PHONE_ID'], status:'available' },
+  { id:'telegram', name:'Telegram', category:'communication', logo:'https://cdn.worldvectorlogo.com/logos/telegram.svg', desc:'Send messages and alerts via Telegram bots', env:['TELEGRAM_BOT_TOKEN'], status:'available' },
+  { id:'resend', name:'Resend', category:'communication', logo:'https://resend.com/logo.svg', desc:'Send transactional and marketing emails', env:['RESEND_API_KEY'], status:'available' },
+  { id:'twilio', name:'Twilio', category:'communication', logo:'https://cdn.worldvectorlogo.com/logos/twilio.svg', desc:'SMS, voice, and messaging API', env:['TWILIO_SID','TWILIO_TOKEN'], status:'available' },
+  // Productivity
+  { id:'notion', name:'Notion', category:'productivity', logo:'https://cdn.worldvectorlogo.com/logos/notion-1.svg', desc:'Sync tasks, notes, and project data with Notion', env:['NOTION_TOKEN'], status:'available' },
+  { id:'slack', name:'Slack', category:'productivity', logo:'https://cdn.worldvectorlogo.com/logos/slack-1.svg', desc:'Send notifications and alerts to Slack channels', env:['SLACK_BOT_TOKEN'], status:'available' },
+  { id:'github', name:'GitHub', category:'productivity', logo:'https://cdn.worldvectorlogo.com/logos/github-icon-1.svg', desc:'Deploy websites and manage code repositories', env:['GITHUB_TOKEN'], status:'available' },
+  { id:'google-calendar', name:'Google Calendar', category:'productivity', logo:'https://cdn.worldvectorlogo.com/logos/google-calendar.svg', desc:'Sync bookings and appointments with Google Calendar', env:['GOOGLE_CREDENTIALS'], status:'available' },
+  // Marketing
+  { id:'mailchimp', name:'Mailchimp', category:'marketing', logo:'https://cdn.worldvectorlogo.com/logos/mailchimp.svg', desc:'Email marketing campaigns and automation', env:['MAILCHIMP_API_KEY'], status:'available' },
+  { id:'meta-ads', name:'Meta Ads', category:'marketing', logo:'https://cdn.worldvectorlogo.com/logos/meta-3.svg', desc:'Create and manage Facebook & Instagram ads', env:['META_ACCESS_TOKEN'], status:'available' },
+  { id:'google-ads', name:'Google Ads', category:'marketing', logo:'https://cdn.worldvectorlogo.com/logos/google-ads.svg', desc:'Run Google search and display advertising', env:['GOOGLE_ADS_TOKEN'], status:'available' },
+  { id:'canva', name:'Canva', category:'marketing', logo:'https://cdn.worldvectorlogo.com/logos/canva.svg', desc:'Design marketing materials and social media graphics', env:['CANVA_TOKEN'], status:'available' },
+  // Analytics
+  { id:'ga4', name:'Google Analytics', category:'analytics', logo:'https://cdn.worldvectorlogo.com/logos/google-analytics-4.svg', desc:'Track website visitors and user behavior', env:['GA4_PROPERTY_ID','GA4_CREDENTIALS'], status:'available' },
+  { id:'mixpanel', name:'Mixpanel', category:'analytics', logo:'https://cdn.worldvectorlogo.com/logos/mixpanel.svg', desc:'Product analytics and user event tracking', env:['MIXPANEL_TOKEN'], status:'available' },
+  { id:'hotjar', name:'Hotjar', category:'analytics', logo:'https://cdn.worldvectorlogo.com/logos/hotjar.svg', desc:'Heatmaps and session recordings for your website', env:['HOTJAR_ID'], status:'available' },
+  // AI & Automation
+  { id:'openai', name:'OpenAI', category:'ai', logo:'https://cdn.worldvectorlogo.com/logos/openai-2.svg', desc:'GPT-4 for advanced AI text generation', env:['OPENAI_API_KEY'], status:'available' },
+  { id:'elevenlabs', name:'ElevenLabs', category:'ai', logo:'https://cdn.worldvectorlogo.com/logos/elevenlabs.svg', desc:'AI voice synthesis and audio generation', env:['ELEVENLABS_API_KEY'], status:'available' },
+  { id:'groq', name:'Groq', category:'ai', logo:'https://cdn.worldvectorlogo.com/logos/groq.svg', desc:'Ultra-fast Llama inference for real-time AI', env:['GROQ_API_KEY'], status:'available' },
+  { id:'huggingface', name:'Hugging Face', category:'ai', logo:'https://cdn.worldvectorlogo.com/logos/hugging-face.svg', desc:'Open-source AI models and inference API', env:['HF_TOKEN'], status:'available' },
+  { id:'n8n', name:'n8n', category:'ai', logo:'https://cdn.worldvectorlogo.com/logos/n8n.svg', desc:'Workflow automation with 400+ integrations', env:['N8N_WEBHOOK_URL'], status:'available' },
+  { id:'cal-com', name:'Cal.com', category:'productivity', logo:'https://cdn.worldvectorlogo.com/logos/cal-com.svg', desc:'Open-source scheduling and booking system', env:['CAL_API_KEY'], status:'available' },
+];
+
+var currentIntCategory = 'all';
+
 function showIntegrationsCategory(cat) {
-  ['plugins','mcps','connected'].forEach(function(c) {
-    var el = document.getElementById('integrations-' + c);
-    if (el) el.style.display = c === cat ? 'block' : 'none';
-    var btn = document.getElementById('cat-' + c);
-    if (btn) {
-      if (c === cat) { btn.style.background = 'linear-gradient(135deg,#6366f1,#00d9ff)'; btn.style.color = '#fff'; btn.style.border = 'none'; }
-      else { btn.style.background = 'transparent'; btn.style.color = 'rgba(255,255,255,.6)'; btn.style.border = '1px solid rgba(255,255,255,.1)'; }
-    }
+  currentIntCategory = cat;
+  document.querySelectorAll('.int-cat-btn').forEach(function(btn) {
+    btn.classList.remove('active');
+    btn.style.background = 'transparent';
+    btn.style.color = '#94a3b8';
+    btn.style.borderColor = '#334155';
   });
+  event.target.classList.add('active');
+  event.target.style.background = '#1e293b';
+  event.target.style.color = 'white';
+  renderIntegrationsGrid();
+}
+
+function renderIntegrationsGrid() {
+  var grid = document.getElementById('integrationsGrid');
+  if (!grid) return;
+  var filtered = currentIntCategory === 'all' ? INTEGRATIONS_CATALOG : INTEGRATIONS_CATALOG.filter(function(i) { return i.category === currentIntCategory; });
+  grid.innerHTML = filtered.map(function(int) {
+    return '<div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid #334155;border-radius:16px;padding:20px;transition:all .3s" onmouseover="this.style.borderColor=\'#6366f1\'" onmouseout="this.style.borderColor=\'#334155\'">' +
+      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">' +
+        '<div style="width:48px;height:48px;border-radius:12px;background:#0f172a;border:1px solid #334155;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">' +
+          '<img src="' + int.logo + '" alt="' + int.name + '" style="width:32px;height:32px;object-fit:contain" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'🔌\'">' +
+        '</div>' +
+        '<div style="flex:1;min-width:0">' +
+          '<div style="font-weight:700;font-size:15px;color:white">' + int.name + '</div>' +
+          '<div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px">' + int.category + '</div>' +
+        '</div>' +
+        '<div style="width:8px;height:8px;border-radius:50%;background:#64748b;flex-shrink:0" title="Not connected"></div>' +
+      '</div>' +
+      '<p style="font-size:12px;color:#94a3b8;margin:0 0 16px;line-height:1.5">' + int.desc + '</p>' +
+      '<button onclick="connectIntegration(\'' + int.id + '\',\'' + int.name.replace(/\'/g,'') + '\')" style="width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#00d9ff);border:none;color:white;font-weight:600;font-size:13px;cursor:pointer;transition:all .2s">Connect</button>' +
+    '</div>';
+  }).join('');
+}
+
+async function connectIntegration(id, name) {
+  var integration = INTEGRATIONS_CATALOG.find(function(i) { return i.id === id; });
+  if (!integration) return;
+  var envVars = {};
+  for (var i = 0; i < integration.env.length; i++) {
+    var val = prompt('Enter your ' + integration.env[i] + ' for ' + name + ':');
+    if (!val) return;
+    envVars[integration.env[i]] = val;
+  }
+  if (ENGINES) {
+    try {
+      await ENGINES.connectPlugin({ id: id, name: name, envVars: envVars });
+      alert('✅ ' + name + ' connected successfully!');
+      loadConnectedIntegrations();
+    } catch(e) { alert('❌ Failed to connect: ' + e.message); }
+  } else {
+    // Save locally as fallback
+    var saved = JSON.parse(localStorage.getItem('ergio_integrations') || '{}');
+    saved[id] = { name: name, envVars: envVars, connected_at: new Date().toISOString() };
+    localStorage.setItem('ergio_integrations', JSON.stringify(saved));
+    alert('✅ ' + name + ' connected (saved locally — deploy engine backend for full integration)');
+    loadConnectedIntegrations();
+  }
 }
 
 async function loadPluginsGrid() {
@@ -1182,20 +1296,66 @@ async function connectMCP() {
 }
 
 async function loadConnectedIntegrations() {
-  var list = document.getElementById('connectedList');
-  if (!list || !ENGINES) return;
-  try {
-    var connected = await ENGINES.listConnectedPlugins();
-    if (connected && connected.length > 0) {
-      list.innerHTML = connected.map(function(p) {
-        return '<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:.8rem 1rem;margin-bottom:.5rem"><div><div style="font-weight:700">' + p.name + '</div><div style="font-size:.72rem;color:rgba(255,255,255,.4)">Connected ' + (p.connected_at||'') + '</div></div><button class="btn btn-ghost" style="color:#ef4444">Disconnect</button></div>';
+  // Load locally saved integrations
+  var saved = JSON.parse(localStorage.getItem('ergio_integrations') || '{}');
+  var savedKeys = Object.keys(saved);
+  
+  var pluginsList = document.getElementById('connectedPluginsList');
+  var mcpsList = document.getElementById('connectedMcpsList');
+  
+  // Try to load from backend first
+  var backendConnected = [];
+  if (ENGINES) {
+    try {
+      backendConnected = await ENGINES.listConnectedPlugins();
+      if (!Array.isArray(backendConnected)) backendConnected = backendConnected.plugins || [];
+    } catch(e) {}
+  }
+  
+  // Merge backend + local
+  var allConnected = backendConnected.map(function(p) { return { name: p.name, at: p.connected_at || '', source: 'backend' }; });
+  savedKeys.forEach(function(k) { allConnected.push({ name: saved[k].name, at: saved[k].connected_at, source: 'local' }); });
+  
+  if (pluginsList) {
+    if (allConnected.length > 0) {
+      pluginsList.innerHTML = allConnected.map(function(p) {
+        return '<div style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid #334155;border-radius:10px;padding:12px 16px">' +
+          '<div style="display:flex;align-items:center;gap:10px"><div style="width:8px;height:8px;border-radius:50%;background:#22c55e"></div><div><div style="font-weight:600;font-size:14px;color:white">' + p.name + '</div><div style="font-size:11px;color:#64748b">Connected ' + (p.at ? new Date(p.at).toLocaleDateString() : '') + ' · ' + p.source + '</div></div></div>' +
+          '<button onclick="disconnectIntegration(\'' + p.name + '\')" style="background:transparent;border:1px solid #ef4444;color:#ef4444;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer">Disconnect</button>' +
+        '</div>';
       }).join('');
     } else {
-      list.innerHTML = '<div style="color:rgba(255,255,255,.4);padding:2rem;text-align:center">No integrations connected yet</div>';
+      pluginsList.innerHTML = '<div style="color:#64748b;padding:16px;text-align:center;font-size:13px">No integrations connected yet. Click "Connect" on any integration above.</div>';
     }
-  } catch(e) {
-    list.innerHTML = '<div style="color:rgba(255,255,255,.4);padding:2rem;text-align:center">Backend not connected</div>';
   }
+  
+  // Load connected MCPs
+  if (mcpsList) {
+    if (ENGINES) {
+      try {
+        var mcps = await ENGINES.listMcps();
+        var connectedMcps = (mcps.mcps || mcps || []).filter(function(m) { return m.connected; });
+        if (connectedMcps.length > 0) {
+          mcpsList.innerHTML = connectedMcps.map(function(m) {
+            return '<div style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid #334155;border-radius:10px;padding:12px 16px"><div><div style="font-weight:600;font-size:14px;color:white">' + m.name + '</div><div style="font-size:11px;color:#64748b">' + (m.transport || 'http') + '</div></div><div style="width:8px;height:8px;border-radius:50%;background:#22c55e"></div></div>';
+          }).join('');
+        } else {
+          mcpsList.innerHTML = '<div style="color:#64748b;padding:16px;text-align:center;font-size:13px">No MCP servers connected.</div>';
+        }
+      } catch(e) {
+        mcpsList.innerHTML = '<div style="color:#64748b;padding:16px;text-align:center;font-size:13px">Backend not connected — deploy on Render to enable MCPs.</div>';
+      }
+    } else {
+      mcpsList.innerHTML = '<div style="color:#64748b;padding:16px;text-align:center;font-size:13px">Backend not connected — deploy on Render to enable MCPs.</div>';
+    }
+  }
+}
+
+function disconnectIntegration(name) {
+  var saved = JSON.parse(localStorage.getItem('ergio_integrations') || '{}');
+  Object.keys(saved).forEach(function(k) { if (saved[k].name === name) delete saved[k]; });
+  localStorage.setItem('ergio_integrations', JSON.stringify(saved));
+  loadConnectedIntegrations();
 }
 
 // ============ AUTH ============
@@ -1219,6 +1379,7 @@ function initDashboard() {
   if (dashContent) dashContent.style.display = 'block';
   setTimeout(initConductor, 500);
   setTimeout(loadEngineStatusFromRender, 1000);
+  setTimeout(function() { renderIntegrationsGrid(); loadConnectedIntegrations(); }, 800);
 }
 
 // ============ INIT ============
