@@ -5,958 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard — ERGIO</title>
   <link rel="icon" href="../favicon.ico">
-  <script src="../config.js">
-    // ── Advisor Engine ──
-    async function runAdvisorAnalysis() {
-      const btn = document.getElementById('advisorRunBtn');
-      btn.textContent = '⏳ Analyzing...';
-      btn.disabled = true;
-
-      try {
-        const userId = currentUser?.uid || 'demo';
-        const r = await fetch(`${API_BASE}/api/advisor?action=analyze&userId=${userId}`);
-        const data = await r.json();
-
-        if (data.success) {
-          renderAdvisorAnalysis(data);
-        } else {
-          btn.textContent = '❌ Error';
-          setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
-        }
-      } catch (e) {
-        console.error('Advisor error:', e);
-        btn.textContent = '❌ Error';
-        setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
-      }
-    }
-
-    function renderAdvisorAnalysis(data) {
-      document.getElementById('advisorRunBtn').textContent = '🔄 Refresh Analysis';
-      document.getElementById('advisorRunBtn').disabled = false;
-
-      // Show health card
-      document.getElementById('advisorHealthCard').style.display = 'block';
-      document.getElementById('advisorScoreValue').textContent = data.healthScore;
-      document.getElementById('advisorHealthStatus').textContent = data.healthStatus;
-      document.getElementById('advisorBusinessName').textContent = `${data.business.name} • ${data.business.industry} • ${data.business.location}`;
-
-      // Animate score circle
-      const offset = 440 - (440 * data.healthScore / 100);
-      setTimeout(() => {
-        document.getElementById('advisorScoreCircle').style.strokeDashoffset = offset;
-      }, 100);
-
-      // Metrics row
-      const m = data.metrics;
-      const metricsHtml = [
-        { label: 'Revenue', value: '₦' + (m.totalRevenue || 0).toLocaleString(), icon: '💰', color: '#10b981' },
-        { label: 'Leads', value: m.totalLeads, icon: '🎯', color: '#3b82f6' },
-        { label: 'Conversion', value: m.leadConversionRate + '%', icon: '🔄', color: '#f59e0b' },
-        { label: 'Bookings', value: m.totalBookings, icon: '📅', color: '#8b5cf6' },
-        { label: 'Rating', value: m.avgRating + '★', icon: '⭐', color: '#ef4444' },
-      ].map(x => `<div style="text-align:center;"><div style="font-size:20px;">${x.icon}</div><div style="font-size:18px; font-weight:700; color:${x.color};">${x.value}</div><div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">${x.label}</div></div>`).join('');
-      document.getElementById('advisorMetricsRow').innerHTML = metricsHtml;
-
-      // Breakdown bars
-      document.getElementById('advisorBreakdown').style.display = 'grid';
-      const breakdownHtml = Object.entries(data.breakdown).map(([key, val]) => {
-        const pct = (val.score / val.max) * 100;
-        const color = pct >= 75 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444';
-        return `<div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:16px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-            <span style="color:#cbd5e1; font-size:13px; font-weight:500;">${val.label}</span>
-            <span style="color:${color}; font-weight:700; font-size:14px;">${val.score}/${val.max}</span>
-          </div>
-          <div style="height:8px; background:#0f172a; border-radius:4px; overflow:hidden;">
-            <div style="height:100%; width:${pct}%; background:${color}; border-radius:4px; transition:width 1s ease;"></div>
-          </div>
-        </div>`;
-      }).join('');
-      document.getElementById('advisorBreakdown').innerHTML = breakdownHtml;
-
-      // Insights
-      if (data.insights && data.insights.length > 0) {
-        document.getElementById('advisorInsights').style.display = 'block';
-        const insightsHtml = data.insights.map(ins => {
-          const bg = ins.type === 'warning' ? 'rgba(239,68,68,0.1)' : ins.type === 'success' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)';
-          const border = ins.type === 'warning' ? '#ef4444' : ins.type === 'success' ? '#10b981' : '#3b82f6';
-          return `<div style="background:${bg}; border-left:3px solid ${border}; padding:14px 16px; border-radius:8px; color:#e2e8f0; font-size:14px;">
-            ${ins.icon} ${ins.text}
-          </div>`;
-        }).join('');
-        document.getElementById('advisorInsightsList').innerHTML = insightsHtml;
-      }
-
-      // Recommendations
-      if (data.recommendations && data.recommendations.length > 0) {
-        document.getElementById('advisorRecs').style.display = 'block';
-        const recsHtml = data.recommendations.map((rec, i) => {
-          const priorityColor = rec.priority === 'high' ? '#ef4444' : rec.priority === 'medium' ? '#f59e0b' : '#10b981';
-          return `<div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:20px;">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-              <span style="background:${priorityColor}; color:white; font-size:10px; padding:3px 8px; border-radius:6px; text-transform:uppercase; font-weight:600;">${rec.priority}</span>
-              <h4 style="color:white; margin:0; font-size:15px;">${i+1}. ${rec.title}</h4>
-            </div>
-            <p style="color:#94a3b8; font-size:13px; margin:4px 0 8px;">${rec.description}</p>
-            <div style="display:flex; gap:16px; margin-top:8px;">
-              <div style="font-size:12px; color:#10b981;">✅ ${rec.action}</div>
-            </div>
-            <div style="font-size:12px; color:#3b82f6; margin-top:4px;">📈 ${rec.expectedImpact}</div>
-          </div>`;
-        }).join('');
-        document.getElementById('advisorRecsList').innerHTML = recsHtml;
-      }
-    }
-
-    async function askAdvisor(question) {
-      const chat = document.getElementById('advisorChat');
-      
-      // Add user message
-      chat.innerHTML += `<div class="advisor-msg-user">${question}</div>`;
-      
-      // Typing indicator
-      chat.innerHTML += `<div class="advisor-msg-ai" id="typingMsg">🤔 Thinking...</div>`;
-      chat.scrollTop = chat.scrollHeight;
-
-      try {
-        const r = await fetch(`${API_BASE}/api/advisor`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            question,
-            businessName: currentUser?.displayName || 'My Business',
-            industry: 'General',
-            location: 'Nigeria'
-          })
-        });
-        const data = await r.json();
-        
-        document.getElementById('typingMsg').remove();
-        chat.innerHTML += `<div class="advisor-msg-ai">${(data.answer || data.error || 'No response').replace(/\n/g, '<br>')}</div>`;
-        chat.scrollTop = chat.scrollHeight;
-      } catch (e) {
-        document.getElementById('typingMsg').remove();
-        chat.innerHTML += `<div class="advisor-msg-ai">Sorry, I couldn't process that right now.</div>`;
-      }
-    }
-
-    function askAdvisorFromInput() {
-      const input = document.getElementById('advisorInput');
-      const q = input.value.trim();
-      if (!q) return;
-      askAdvisor(q);
-      input.value = '';
-    }
-
-
-// ── ERGIO CONDUCTOR ──
-async function initConductor() {
-  if (!window.ErgioCommand) return;
-  const statusEl = document.getElementById('conductorStatus');
-  const health = await ErgioCommand.checkHealth();
-  if (health.status === 'healthy') {
-    statusEl.textContent = '🟢 Online — ' + (health.groq ? 'AI ready' : 'AI limited');
-    statusEl.style.color = 'rgba(0,255,136,.7)';
-  } else {
-    statusEl.textContent = '🔴 Offline (cold start)';
-    statusEl.style.color = 'rgba(255,100,100,.7)';
-    setTimeout(() => initConductor(), 15000); // retry
-  }
-}
-
-async function runConductor() {
-  const input = document.getElementById('conductorInput');
-  const chat = document.getElementById('conductorChat');
-  const text = input.value.trim();
-  if (!text) return;
   
-  // User message
-  chat.innerHTML += `<div style="align-self:flex-end;background:rgba(99,102,241,.2);padding:.6rem .9rem;border-radius:.6rem .6rem 0 .6rem;max-width:80%;font-size:.85rem">${text.replace(/</g,'&lt;')}</div>`;
-  input.value = '';
-  chat.scrollTop = chat.scrollHeight;
   
-  // Loading
-  const loadingId = 'load-' + Date.now();
-  chat.innerHTML += `<div id="${loadingId}" style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;font-size:.85rem;color:rgba(255,255,255,.5)">⚡ ERGIO is working...</div>`;
-  chat.scrollTop = chat.scrollHeight;
-  
-  try {
-    const bizId = localStorage.getItem('ergio_business_id') || null;
-    const result = await ErgioCommand.command(text, bizId, null);
-    document.getElementById(loadingId).remove();
-    
-    let response = result.summary || result.report || JSON.stringify(result).substring(0, 300);
-    if (result.sub_tasks) {
-      response = `📋 ${result.sub_tasks.length} tasks planned:\n` + 
-        result.sub_tasks.map((t,i) => `${i+1}. ${t.engine} → ${t.action}${t.requires_approval ? ' (needs approval)' : ''}`).join('\n');
-    }
-    
-    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;max-width:85%;font-size:.85rem;white-space:pre-wrap">${response.replace(/</g,'&lt;')}</div>`;
-  } catch (e) {
-    document.getElementById(loadingId).remove();
-    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,100,100,.1);padding:.6rem .9rem;border-radius:.6rem;font-size:.85rem">⚠️ ${e.message}</div>`;
-  }
-  chat.scrollTop = chat.scrollHeight;
-}
-
-
-// ── Engine Status from Render ──
-async function loadEngineStatusFromRender() {
-  if (!window.ErgioCommand) return;
-  try {
-    const status = await ErgioCommand.getSystemStatus();
-    if (status.status === 'operational' && status.engines) {
-      const enginesList = ['website_engine','lead_engine','booking_engine','invoice_engine','payment_engine','content_engine','voice_engine','analytics_engine','reputation_engine','workflow_engine'];
-      const labels = {
-        website_engine: '🌐 Website Engine', lead_engine: '🎯 Lead Engine',
-        booking_engine: '📅 Booking Engine', invoice_engine: '🧾 Invoice Engine',
-        payment_engine: '💰 Payment Engine', content_engine: '🎬 Content Engine',
-        voice_engine: '🎙️ Voice Engine', analytics_engine: '📊 Analytics Engine',
-        reputation_engine: '⭐ Reputation Engine', workflow_engine: '🔄 Workflow Engine'
-      };
-      const engineGrid = document.querySelector('#tab-engines .engine-grid');
-      if (engineGrid) {
-        enginesList.forEach(eng => {
-          const isActive = status.engines.includes(eng);
-          const card = engineGrid.querySelector(`[data-engine="${eng}"]`);
-          if (card) {
-            const statusDot = card.querySelector('.status-dot') || document.createElement('span');
-            statusDot.className = 'status-dot';
-            statusDot.style.cssText = 'display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;' + (isActive ? 'background:#00ff88' : 'background:#666');
-            if (!card.querySelector('.status-dot')) card.insertBefore(statusDot, card.firstChild);
-          }
-        });
-      }
-      // Also show MCP and plugin counts
-      const mcpCount = document.getElementById('mcpCount');
-      if (mcpCount) mcpCount.textContent = (status.mcps || []).length;
-      const pluginCount = document.getElementById('pluginCount');
-      if (pluginCount) pluginCount.textContent = (status.plugins || []).length;
-    }
-  } catch (e) {
-    console.warn('Engine status load failed:', e.message);
-  }
-}
-
-// Init conductor on load
-setTimeout(initConductor, 500);
-setTimeout(loadEngineStatusFromRender, 1000);
-
-</script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
-    // ── Advisor Engine ──
-    async function runAdvisorAnalysis() {
-      const btn = document.getElementById('advisorRunBtn');
-      btn.textContent = '⏳ Analyzing...';
-      btn.disabled = true;
-
-      try {
-        const userId = currentUser?.uid || 'demo';
-        const r = await fetch(`${API_BASE}/api/advisor?action=analyze&userId=${userId}`);
-        const data = await r.json();
-
-        if (data.success) {
-          renderAdvisorAnalysis(data);
-        } else {
-          btn.textContent = '❌ Error';
-          setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
-        }
-      } catch (e) {
-        console.error('Advisor error:', e);
-        btn.textContent = '❌ Error';
-        setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
-      }
-    }
-
-    function renderAdvisorAnalysis(data) {
-      document.getElementById('advisorRunBtn').textContent = '🔄 Refresh Analysis';
-      document.getElementById('advisorRunBtn').disabled = false;
-
-      // Show health card
-      document.getElementById('advisorHealthCard').style.display = 'block';
-      document.getElementById('advisorScoreValue').textContent = data.healthScore;
-      document.getElementById('advisorHealthStatus').textContent = data.healthStatus;
-      document.getElementById('advisorBusinessName').textContent = `${data.business.name} • ${data.business.industry} • ${data.business.location}`;
-
-      // Animate score circle
-      const offset = 440 - (440 * data.healthScore / 100);
-      setTimeout(() => {
-        document.getElementById('advisorScoreCircle').style.strokeDashoffset = offset;
-      }, 100);
-
-      // Metrics row
-      const m = data.metrics;
-      const metricsHtml = [
-        { label: 'Revenue', value: '₦' + (m.totalRevenue || 0).toLocaleString(), icon: '💰', color: '#10b981' },
-        { label: 'Leads', value: m.totalLeads, icon: '🎯', color: '#3b82f6' },
-        { label: 'Conversion', value: m.leadConversionRate + '%', icon: '🔄', color: '#f59e0b' },
-        { label: 'Bookings', value: m.totalBookings, icon: '📅', color: '#8b5cf6' },
-        { label: 'Rating', value: m.avgRating + '★', icon: '⭐', color: '#ef4444' },
-      ].map(x => `<div style="text-align:center;"><div style="font-size:20px;">${x.icon}</div><div style="font-size:18px; font-weight:700; color:${x.color};">${x.value}</div><div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">${x.label}</div></div>`).join('');
-      document.getElementById('advisorMetricsRow').innerHTML = metricsHtml;
-
-      // Breakdown bars
-      document.getElementById('advisorBreakdown').style.display = 'grid';
-      const breakdownHtml = Object.entries(data.breakdown).map(([key, val]) => {
-        const pct = (val.score / val.max) * 100;
-        const color = pct >= 75 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444';
-        return `<div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:16px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-            <span style="color:#cbd5e1; font-size:13px; font-weight:500;">${val.label}</span>
-            <span style="color:${color}; font-weight:700; font-size:14px;">${val.score}/${val.max}</span>
-          </div>
-          <div style="height:8px; background:#0f172a; border-radius:4px; overflow:hidden;">
-            <div style="height:100%; width:${pct}%; background:${color}; border-radius:4px; transition:width 1s ease;"></div>
-          </div>
-        </div>`;
-      }).join('');
-      document.getElementById('advisorBreakdown').innerHTML = breakdownHtml;
-
-      // Insights
-      if (data.insights && data.insights.length > 0) {
-        document.getElementById('advisorInsights').style.display = 'block';
-        const insightsHtml = data.insights.map(ins => {
-          const bg = ins.type === 'warning' ? 'rgba(239,68,68,0.1)' : ins.type === 'success' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)';
-          const border = ins.type === 'warning' ? '#ef4444' : ins.type === 'success' ? '#10b981' : '#3b82f6';
-          return `<div style="background:${bg}; border-left:3px solid ${border}; padding:14px 16px; border-radius:8px; color:#e2e8f0; font-size:14px;">
-            ${ins.icon} ${ins.text}
-          </div>`;
-        }).join('');
-        document.getElementById('advisorInsightsList').innerHTML = insightsHtml;
-      }
-
-      // Recommendations
-      if (data.recommendations && data.recommendations.length > 0) {
-        document.getElementById('advisorRecs').style.display = 'block';
-        const recsHtml = data.recommendations.map((rec, i) => {
-          const priorityColor = rec.priority === 'high' ? '#ef4444' : rec.priority === 'medium' ? '#f59e0b' : '#10b981';
-          return `<div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:20px;">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-              <span style="background:${priorityColor}; color:white; font-size:10px; padding:3px 8px; border-radius:6px; text-transform:uppercase; font-weight:600;">${rec.priority}</span>
-              <h4 style="color:white; margin:0; font-size:15px;">${i+1}. ${rec.title}</h4>
-            </div>
-            <p style="color:#94a3b8; font-size:13px; margin:4px 0 8px;">${rec.description}</p>
-            <div style="display:flex; gap:16px; margin-top:8px;">
-              <div style="font-size:12px; color:#10b981;">✅ ${rec.action}</div>
-            </div>
-            <div style="font-size:12px; color:#3b82f6; margin-top:4px;">📈 ${rec.expectedImpact}</div>
-          </div>`;
-        }).join('');
-        document.getElementById('advisorRecsList').innerHTML = recsHtml;
-      }
-    }
-
-    async function askAdvisor(question) {
-      const chat = document.getElementById('advisorChat');
-      
-      // Add user message
-      chat.innerHTML += `<div class="advisor-msg-user">${question}</div>`;
-      
-      // Typing indicator
-      chat.innerHTML += `<div class="advisor-msg-ai" id="typingMsg">🤔 Thinking...</div>`;
-      chat.scrollTop = chat.scrollHeight;
-
-      try {
-        const r = await fetch(`${API_BASE}/api/advisor`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            question,
-            businessName: currentUser?.displayName || 'My Business',
-            industry: 'General',
-            location: 'Nigeria'
-          })
-        });
-        const data = await r.json();
-        
-        document.getElementById('typingMsg').remove();
-        chat.innerHTML += `<div class="advisor-msg-ai">${(data.answer || data.error || 'No response').replace(/\n/g, '<br>')}</div>`;
-        chat.scrollTop = chat.scrollHeight;
-      } catch (e) {
-        document.getElementById('typingMsg').remove();
-        chat.innerHTML += `<div class="advisor-msg-ai">Sorry, I couldn't process that right now.</div>`;
-      }
-    }
-
-    function askAdvisorFromInput() {
-      const input = document.getElementById('advisorInput');
-      const q = input.value.trim();
-      if (!q) return;
-      askAdvisor(q);
-      input.value = '';
-    }
-
-
-// ── ERGIO CONDUCTOR ──
-async function initConductor() {
-  if (!window.ErgioCommand) return;
-  const statusEl = document.getElementById('conductorStatus');
-  const health = await ErgioCommand.checkHealth();
-  if (health.status === 'healthy') {
-    statusEl.textContent = '🟢 Online — ' + (health.groq ? 'AI ready' : 'AI limited');
-    statusEl.style.color = 'rgba(0,255,136,.7)';
-  } else {
-    statusEl.textContent = '🔴 Offline (cold start)';
-    statusEl.style.color = 'rgba(255,100,100,.7)';
-    setTimeout(() => initConductor(), 15000); // retry
-  }
-}
-
-async function runConductor() {
-  const input = document.getElementById('conductorInput');
-  const chat = document.getElementById('conductorChat');
-  const text = input.value.trim();
-  if (!text) return;
-  
-  // User message
-  chat.innerHTML += `<div style="align-self:flex-end;background:rgba(99,102,241,.2);padding:.6rem .9rem;border-radius:.6rem .6rem 0 .6rem;max-width:80%;font-size:.85rem">${text.replace(/</g,'&lt;')}</div>`;
-  input.value = '';
-  chat.scrollTop = chat.scrollHeight;
-  
-  // Loading
-  const loadingId = 'load-' + Date.now();
-  chat.innerHTML += `<div id="${loadingId}" style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;font-size:.85rem;color:rgba(255,255,255,.5)">⚡ ERGIO is working...</div>`;
-  chat.scrollTop = chat.scrollHeight;
-  
-  try {
-    const bizId = localStorage.getItem('ergio_business_id') || null;
-    const result = await ErgioCommand.command(text, bizId, null);
-    document.getElementById(loadingId).remove();
-    
-    let response = result.summary || result.report || JSON.stringify(result).substring(0, 300);
-    if (result.sub_tasks) {
-      response = `📋 ${result.sub_tasks.length} tasks planned:\n` + 
-        result.sub_tasks.map((t,i) => `${i+1}. ${t.engine} → ${t.action}${t.requires_approval ? ' (needs approval)' : ''}`).join('\n');
-    }
-    
-    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;max-width:85%;font-size:.85rem;white-space:pre-wrap">${response.replace(/</g,'&lt;')}</div>`;
-  } catch (e) {
-    document.getElementById(loadingId).remove();
-    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,100,100,.1);padding:.6rem .9rem;border-radius:.6rem;font-size:.85rem">⚠️ ${e.message}</div>`;
-  }
-  chat.scrollTop = chat.scrollHeight;
-}
-
-
-// ── Engine Status from Render ──
-async function loadEngineStatusFromRender() {
-  if (!window.ErgioCommand) return;
-  try {
-    const status = await ErgioCommand.getSystemStatus();
-    if (status.status === 'operational' && status.engines) {
-      const enginesList = ['website_engine','lead_engine','booking_engine','invoice_engine','payment_engine','content_engine','voice_engine','analytics_engine','reputation_engine','workflow_engine'];
-      const labels = {
-        website_engine: '🌐 Website Engine', lead_engine: '🎯 Lead Engine',
-        booking_engine: '📅 Booking Engine', invoice_engine: '🧾 Invoice Engine',
-        payment_engine: '💰 Payment Engine', content_engine: '🎬 Content Engine',
-        voice_engine: '🎙️ Voice Engine', analytics_engine: '📊 Analytics Engine',
-        reputation_engine: '⭐ Reputation Engine', workflow_engine: '🔄 Workflow Engine'
-      };
-      const engineGrid = document.querySelector('#tab-engines .engine-grid');
-      if (engineGrid) {
-        enginesList.forEach(eng => {
-          const isActive = status.engines.includes(eng);
-          const card = engineGrid.querySelector(`[data-engine="${eng}"]`);
-          if (card) {
-            const statusDot = card.querySelector('.status-dot') || document.createElement('span');
-            statusDot.className = 'status-dot';
-            statusDot.style.cssText = 'display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;' + (isActive ? 'background:#00ff88' : 'background:#666');
-            if (!card.querySelector('.status-dot')) card.insertBefore(statusDot, card.firstChild);
-          }
-        });
-      }
-      // Also show MCP and plugin counts
-      const mcpCount = document.getElementById('mcpCount');
-      if (mcpCount) mcpCount.textContent = (status.mcps || []).length;
-      const pluginCount = document.getElementById('pluginCount');
-      if (pluginCount) pluginCount.textContent = (status.plugins || []).length;
-    }
-  } catch (e) {
-    console.warn('Engine status load failed:', e.message);
-  }
-}
-
-// Init conductor on load
-setTimeout(initConductor, 500);
-setTimeout(loadEngineStatusFromRender, 1000);
-
-</script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js">
-    // ── Advisor Engine ──
-    async function runAdvisorAnalysis() {
-      const btn = document.getElementById('advisorRunBtn');
-      btn.textContent = '⏳ Analyzing...';
-      btn.disabled = true;
-
-      try {
-        const userId = currentUser?.uid || 'demo';
-        const r = await fetch(`${API_BASE}/api/advisor?action=analyze&userId=${userId}`);
-        const data = await r.json();
-
-        if (data.success) {
-          renderAdvisorAnalysis(data);
-        } else {
-          btn.textContent = '❌ Error';
-          setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
-        }
-      } catch (e) {
-        console.error('Advisor error:', e);
-        btn.textContent = '❌ Error';
-        setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
-      }
-    }
-
-    function renderAdvisorAnalysis(data) {
-      document.getElementById('advisorRunBtn').textContent = '🔄 Refresh Analysis';
-      document.getElementById('advisorRunBtn').disabled = false;
-
-      // Show health card
-      document.getElementById('advisorHealthCard').style.display = 'block';
-      document.getElementById('advisorScoreValue').textContent = data.healthScore;
-      document.getElementById('advisorHealthStatus').textContent = data.healthStatus;
-      document.getElementById('advisorBusinessName').textContent = `${data.business.name} • ${data.business.industry} • ${data.business.location}`;
-
-      // Animate score circle
-      const offset = 440 - (440 * data.healthScore / 100);
-      setTimeout(() => {
-        document.getElementById('advisorScoreCircle').style.strokeDashoffset = offset;
-      }, 100);
-
-      // Metrics row
-      const m = data.metrics;
-      const metricsHtml = [
-        { label: 'Revenue', value: '₦' + (m.totalRevenue || 0).toLocaleString(), icon: '💰', color: '#10b981' },
-        { label: 'Leads', value: m.totalLeads, icon: '🎯', color: '#3b82f6' },
-        { label: 'Conversion', value: m.leadConversionRate + '%', icon: '🔄', color: '#f59e0b' },
-        { label: 'Bookings', value: m.totalBookings, icon: '📅', color: '#8b5cf6' },
-        { label: 'Rating', value: m.avgRating + '★', icon: '⭐', color: '#ef4444' },
-      ].map(x => `<div style="text-align:center;"><div style="font-size:20px;">${x.icon}</div><div style="font-size:18px; font-weight:700; color:${x.color};">${x.value}</div><div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">${x.label}</div></div>`).join('');
-      document.getElementById('advisorMetricsRow').innerHTML = metricsHtml;
-
-      // Breakdown bars
-      document.getElementById('advisorBreakdown').style.display = 'grid';
-      const breakdownHtml = Object.entries(data.breakdown).map(([key, val]) => {
-        const pct = (val.score / val.max) * 100;
-        const color = pct >= 75 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444';
-        return `<div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:16px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-            <span style="color:#cbd5e1; font-size:13px; font-weight:500;">${val.label}</span>
-            <span style="color:${color}; font-weight:700; font-size:14px;">${val.score}/${val.max}</span>
-          </div>
-          <div style="height:8px; background:#0f172a; border-radius:4px; overflow:hidden;">
-            <div style="height:100%; width:${pct}%; background:${color}; border-radius:4px; transition:width 1s ease;"></div>
-          </div>
-        </div>`;
-      }).join('');
-      document.getElementById('advisorBreakdown').innerHTML = breakdownHtml;
-
-      // Insights
-      if (data.insights && data.insights.length > 0) {
-        document.getElementById('advisorInsights').style.display = 'block';
-        const insightsHtml = data.insights.map(ins => {
-          const bg = ins.type === 'warning' ? 'rgba(239,68,68,0.1)' : ins.type === 'success' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)';
-          const border = ins.type === 'warning' ? '#ef4444' : ins.type === 'success' ? '#10b981' : '#3b82f6';
-          return `<div style="background:${bg}; border-left:3px solid ${border}; padding:14px 16px; border-radius:8px; color:#e2e8f0; font-size:14px;">
-            ${ins.icon} ${ins.text}
-          </div>`;
-        }).join('');
-        document.getElementById('advisorInsightsList').innerHTML = insightsHtml;
-      }
-
-      // Recommendations
-      if (data.recommendations && data.recommendations.length > 0) {
-        document.getElementById('advisorRecs').style.display = 'block';
-        const recsHtml = data.recommendations.map((rec, i) => {
-          const priorityColor = rec.priority === 'high' ? '#ef4444' : rec.priority === 'medium' ? '#f59e0b' : '#10b981';
-          return `<div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:20px;">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-              <span style="background:${priorityColor}; color:white; font-size:10px; padding:3px 8px; border-radius:6px; text-transform:uppercase; font-weight:600;">${rec.priority}</span>
-              <h4 style="color:white; margin:0; font-size:15px;">${i+1}. ${rec.title}</h4>
-            </div>
-            <p style="color:#94a3b8; font-size:13px; margin:4px 0 8px;">${rec.description}</p>
-            <div style="display:flex; gap:16px; margin-top:8px;">
-              <div style="font-size:12px; color:#10b981;">✅ ${rec.action}</div>
-            </div>
-            <div style="font-size:12px; color:#3b82f6; margin-top:4px;">📈 ${rec.expectedImpact}</div>
-          </div>`;
-        }).join('');
-        document.getElementById('advisorRecsList').innerHTML = recsHtml;
-      }
-    }
-
-    async function askAdvisor(question) {
-      const chat = document.getElementById('advisorChat');
-      
-      // Add user message
-      chat.innerHTML += `<div class="advisor-msg-user">${question}</div>`;
-      
-      // Typing indicator
-      chat.innerHTML += `<div class="advisor-msg-ai" id="typingMsg">🤔 Thinking...</div>`;
-      chat.scrollTop = chat.scrollHeight;
-
-      try {
-        const r = await fetch(`${API_BASE}/api/advisor`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            question,
-            businessName: currentUser?.displayName || 'My Business',
-            industry: 'General',
-            location: 'Nigeria'
-          })
-        });
-        const data = await r.json();
-        
-        document.getElementById('typingMsg').remove();
-        chat.innerHTML += `<div class="advisor-msg-ai">${(data.answer || data.error || 'No response').replace(/\n/g, '<br>')}</div>`;
-        chat.scrollTop = chat.scrollHeight;
-      } catch (e) {
-        document.getElementById('typingMsg').remove();
-        chat.innerHTML += `<div class="advisor-msg-ai">Sorry, I couldn't process that right now.</div>`;
-      }
-    }
-
-    function askAdvisorFromInput() {
-      const input = document.getElementById('advisorInput');
-      const q = input.value.trim();
-      if (!q) return;
-      askAdvisor(q);
-      input.value = '';
-    }
-
-
-// ── ERGIO CONDUCTOR ──
-async function initConductor() {
-  if (!window.ErgioCommand) return;
-  const statusEl = document.getElementById('conductorStatus');
-  const health = await ErgioCommand.checkHealth();
-  if (health.status === 'healthy') {
-    statusEl.textContent = '🟢 Online — ' + (health.groq ? 'AI ready' : 'AI limited');
-    statusEl.style.color = 'rgba(0,255,136,.7)';
-  } else {
-    statusEl.textContent = '🔴 Offline (cold start)';
-    statusEl.style.color = 'rgba(255,100,100,.7)';
-    setTimeout(() => initConductor(), 15000); // retry
-  }
-}
-
-async function runConductor() {
-  const input = document.getElementById('conductorInput');
-  const chat = document.getElementById('conductorChat');
-  const text = input.value.trim();
-  if (!text) return;
-  
-  // User message
-  chat.innerHTML += `<div style="align-self:flex-end;background:rgba(99,102,241,.2);padding:.6rem .9rem;border-radius:.6rem .6rem 0 .6rem;max-width:80%;font-size:.85rem">${text.replace(/</g,'&lt;')}</div>`;
-  input.value = '';
-  chat.scrollTop = chat.scrollHeight;
-  
-  // Loading
-  const loadingId = 'load-' + Date.now();
-  chat.innerHTML += `<div id="${loadingId}" style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;font-size:.85rem;color:rgba(255,255,255,.5)">⚡ ERGIO is working...</div>`;
-  chat.scrollTop = chat.scrollHeight;
-  
-  try {
-    const bizId = localStorage.getItem('ergio_business_id') || null;
-    const result = await ErgioCommand.command(text, bizId, null);
-    document.getElementById(loadingId).remove();
-    
-    let response = result.summary || result.report || JSON.stringify(result).substring(0, 300);
-    if (result.sub_tasks) {
-      response = `📋 ${result.sub_tasks.length} tasks planned:\n` + 
-        result.sub_tasks.map((t,i) => `${i+1}. ${t.engine} → ${t.action}${t.requires_approval ? ' (needs approval)' : ''}`).join('\n');
-    }
-    
-    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;max-width:85%;font-size:.85rem;white-space:pre-wrap">${response.replace(/</g,'&lt;')}</div>`;
-  } catch (e) {
-    document.getElementById(loadingId).remove();
-    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,100,100,.1);padding:.6rem .9rem;border-radius:.6rem;font-size:.85rem">⚠️ ${e.message}</div>`;
-  }
-  chat.scrollTop = chat.scrollHeight;
-}
-
-
-// ── Engine Status from Render ──
-async function loadEngineStatusFromRender() {
-  if (!window.ErgioCommand) return;
-  try {
-    const status = await ErgioCommand.getSystemStatus();
-    if (status.status === 'operational' && status.engines) {
-      const enginesList = ['website_engine','lead_engine','booking_engine','invoice_engine','payment_engine','content_engine','voice_engine','analytics_engine','reputation_engine','workflow_engine'];
-      const labels = {
-        website_engine: '🌐 Website Engine', lead_engine: '🎯 Lead Engine',
-        booking_engine: '📅 Booking Engine', invoice_engine: '🧾 Invoice Engine',
-        payment_engine: '💰 Payment Engine', content_engine: '🎬 Content Engine',
-        voice_engine: '🎙️ Voice Engine', analytics_engine: '📊 Analytics Engine',
-        reputation_engine: '⭐ Reputation Engine', workflow_engine: '🔄 Workflow Engine'
-      };
-      const engineGrid = document.querySelector('#tab-engines .engine-grid');
-      if (engineGrid) {
-        enginesList.forEach(eng => {
-          const isActive = status.engines.includes(eng);
-          const card = engineGrid.querySelector(`[data-engine="${eng}"]`);
-          if (card) {
-            const statusDot = card.querySelector('.status-dot') || document.createElement('span');
-            statusDot.className = 'status-dot';
-            statusDot.style.cssText = 'display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;' + (isActive ? 'background:#00ff88' : 'background:#666');
-            if (!card.querySelector('.status-dot')) card.insertBefore(statusDot, card.firstChild);
-          }
-        });
-      }
-      // Also show MCP and plugin counts
-      const mcpCount = document.getElementById('mcpCount');
-      if (mcpCount) mcpCount.textContent = (status.mcps || []).length;
-      const pluginCount = document.getElementById('pluginCount');
-      if (pluginCount) pluginCount.textContent = (status.plugins || []).length;
-    }
-  } catch (e) {
-    console.warn('Engine status load failed:', e.message);
-  }
-}
-
-// Init conductor on load
-setTimeout(initConductor, 500);
-setTimeout(loadEngineStatusFromRender, 1000);
-
-</script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-    // ── Advisor Engine ──
-    async function runAdvisorAnalysis() {
-      const btn = document.getElementById('advisorRunBtn');
-      btn.textContent = '⏳ Analyzing...';
-      btn.disabled = true;
-
-      try {
-        const userId = currentUser?.uid || 'demo';
-        const r = await fetch(`${API_BASE}/api/advisor?action=analyze&userId=${userId}`);
-        const data = await r.json();
-
-        if (data.success) {
-          renderAdvisorAnalysis(data);
-        } else {
-          btn.textContent = '❌ Error';
-          setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
-        }
-      } catch (e) {
-        console.error('Advisor error:', e);
-        btn.textContent = '❌ Error';
-        setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
-      }
-    }
-
-    function renderAdvisorAnalysis(data) {
-      document.getElementById('advisorRunBtn').textContent = '🔄 Refresh Analysis';
-      document.getElementById('advisorRunBtn').disabled = false;
-
-      // Show health card
-      document.getElementById('advisorHealthCard').style.display = 'block';
-      document.getElementById('advisorScoreValue').textContent = data.healthScore;
-      document.getElementById('advisorHealthStatus').textContent = data.healthStatus;
-      document.getElementById('advisorBusinessName').textContent = `${data.business.name} • ${data.business.industry} • ${data.business.location}`;
-
-      // Animate score circle
-      const offset = 440 - (440 * data.healthScore / 100);
-      setTimeout(() => {
-        document.getElementById('advisorScoreCircle').style.strokeDashoffset = offset;
-      }, 100);
-
-      // Metrics row
-      const m = data.metrics;
-      const metricsHtml = [
-        { label: 'Revenue', value: '₦' + (m.totalRevenue || 0).toLocaleString(), icon: '💰', color: '#10b981' },
-        { label: 'Leads', value: m.totalLeads, icon: '🎯', color: '#3b82f6' },
-        { label: 'Conversion', value: m.leadConversionRate + '%', icon: '🔄', color: '#f59e0b' },
-        { label: 'Bookings', value: m.totalBookings, icon: '📅', color: '#8b5cf6' },
-        { label: 'Rating', value: m.avgRating + '★', icon: '⭐', color: '#ef4444' },
-      ].map(x => `<div style="text-align:center;"><div style="font-size:20px;">${x.icon}</div><div style="font-size:18px; font-weight:700; color:${x.color};">${x.value}</div><div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">${x.label}</div></div>`).join('');
-      document.getElementById('advisorMetricsRow').innerHTML = metricsHtml;
-
-      // Breakdown bars
-      document.getElementById('advisorBreakdown').style.display = 'grid';
-      const breakdownHtml = Object.entries(data.breakdown).map(([key, val]) => {
-        const pct = (val.score / val.max) * 100;
-        const color = pct >= 75 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444';
-        return `<div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:16px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-            <span style="color:#cbd5e1; font-size:13px; font-weight:500;">${val.label}</span>
-            <span style="color:${color}; font-weight:700; font-size:14px;">${val.score}/${val.max}</span>
-          </div>
-          <div style="height:8px; background:#0f172a; border-radius:4px; overflow:hidden;">
-            <div style="height:100%; width:${pct}%; background:${color}; border-radius:4px; transition:width 1s ease;"></div>
-          </div>
-        </div>`;
-      }).join('');
-      document.getElementById('advisorBreakdown').innerHTML = breakdownHtml;
-
-      // Insights
-      if (data.insights && data.insights.length > 0) {
-        document.getElementById('advisorInsights').style.display = 'block';
-        const insightsHtml = data.insights.map(ins => {
-          const bg = ins.type === 'warning' ? 'rgba(239,68,68,0.1)' : ins.type === 'success' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)';
-          const border = ins.type === 'warning' ? '#ef4444' : ins.type === 'success' ? '#10b981' : '#3b82f6';
-          return `<div style="background:${bg}; border-left:3px solid ${border}; padding:14px 16px; border-radius:8px; color:#e2e8f0; font-size:14px;">
-            ${ins.icon} ${ins.text}
-          </div>`;
-        }).join('');
-        document.getElementById('advisorInsightsList').innerHTML = insightsHtml;
-      }
-
-      // Recommendations
-      if (data.recommendations && data.recommendations.length > 0) {
-        document.getElementById('advisorRecs').style.display = 'block';
-        const recsHtml = data.recommendations.map((rec, i) => {
-          const priorityColor = rec.priority === 'high' ? '#ef4444' : rec.priority === 'medium' ? '#f59e0b' : '#10b981';
-          return `<div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:20px;">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-              <span style="background:${priorityColor}; color:white; font-size:10px; padding:3px 8px; border-radius:6px; text-transform:uppercase; font-weight:600;">${rec.priority}</span>
-              <h4 style="color:white; margin:0; font-size:15px;">${i+1}. ${rec.title}</h4>
-            </div>
-            <p style="color:#94a3b8; font-size:13px; margin:4px 0 8px;">${rec.description}</p>
-            <div style="display:flex; gap:16px; margin-top:8px;">
-              <div style="font-size:12px; color:#10b981;">✅ ${rec.action}</div>
-            </div>
-            <div style="font-size:12px; color:#3b82f6; margin-top:4px;">📈 ${rec.expectedImpact}</div>
-          </div>`;
-        }).join('');
-        document.getElementById('advisorRecsList').innerHTML = recsHtml;
-      }
-    }
-
-    async function askAdvisor(question) {
-      const chat = document.getElementById('advisorChat');
-      
-      // Add user message
-      chat.innerHTML += `<div class="advisor-msg-user">${question}</div>`;
-      
-      // Typing indicator
-      chat.innerHTML += `<div class="advisor-msg-ai" id="typingMsg">🤔 Thinking...</div>`;
-      chat.scrollTop = chat.scrollHeight;
-
-      try {
-        const r = await fetch(`${API_BASE}/api/advisor`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            question,
-            businessName: currentUser?.displayName || 'My Business',
-            industry: 'General',
-            location: 'Nigeria'
-          })
-        });
-        const data = await r.json();
-        
-        document.getElementById('typingMsg').remove();
-        chat.innerHTML += `<div class="advisor-msg-ai">${(data.answer || data.error || 'No response').replace(/\n/g, '<br>')}</div>`;
-        chat.scrollTop = chat.scrollHeight;
-      } catch (e) {
-        document.getElementById('typingMsg').remove();
-        chat.innerHTML += `<div class="advisor-msg-ai">Sorry, I couldn't process that right now.</div>`;
-      }
-    }
-
-    function askAdvisorFromInput() {
-      const input = document.getElementById('advisorInput');
-      const q = input.value.trim();
-      if (!q) return;
-      askAdvisor(q);
-      input.value = '';
-    }
-
-
-// ── ERGIO CONDUCTOR ──
-async function initConductor() {
-  if (!window.ErgioCommand) return;
-  const statusEl = document.getElementById('conductorStatus');
-  const health = await ErgioCommand.checkHealth();
-  if (health.status === 'healthy') {
-    statusEl.textContent = '🟢 Online — ' + (health.groq ? 'AI ready' : 'AI limited');
-    statusEl.style.color = 'rgba(0,255,136,.7)';
-  } else {
-    statusEl.textContent = '🔴 Offline (cold start)';
-    statusEl.style.color = 'rgba(255,100,100,.7)';
-    setTimeout(() => initConductor(), 15000); // retry
-  }
-}
-
-async function runConductor() {
-  const input = document.getElementById('conductorInput');
-  const chat = document.getElementById('conductorChat');
-  const text = input.value.trim();
-  if (!text) return;
-  
-  // User message
-  chat.innerHTML += `<div style="align-self:flex-end;background:rgba(99,102,241,.2);padding:.6rem .9rem;border-radius:.6rem .6rem 0 .6rem;max-width:80%;font-size:.85rem">${text.replace(/</g,'&lt;')}</div>`;
-  input.value = '';
-  chat.scrollTop = chat.scrollHeight;
-  
-  // Loading
-  const loadingId = 'load-' + Date.now();
-  chat.innerHTML += `<div id="${loadingId}" style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;font-size:.85rem;color:rgba(255,255,255,.5)">⚡ ERGIO is working...</div>`;
-  chat.scrollTop = chat.scrollHeight;
-  
-  try {
-    const bizId = localStorage.getItem('ergio_business_id') || null;
-    const result = await ErgioCommand.command(text, bizId, null);
-    document.getElementById(loadingId).remove();
-    
-    let response = result.summary || result.report || JSON.stringify(result).substring(0, 300);
-    if (result.sub_tasks) {
-      response = `📋 ${result.sub_tasks.length} tasks planned:\n` + 
-        result.sub_tasks.map((t,i) => `${i+1}. ${t.engine} → ${t.action}${t.requires_approval ? ' (needs approval)' : ''}`).join('\n');
-    }
-    
-    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;max-width:85%;font-size:.85rem;white-space:pre-wrap">${response.replace(/</g,'&lt;')}</div>`;
-  } catch (e) {
-    document.getElementById(loadingId).remove();
-    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,100,100,.1);padding:.6rem .9rem;border-radius:.6rem;font-size:.85rem">⚠️ ${e.message}</div>`;
-  }
-  chat.scrollTop = chat.scrollHeight;
-}
-
-
-// ── Engine Status from Render ──
-async function loadEngineStatusFromRender() {
-  if (!window.ErgioCommand) return;
-  try {
-    const status = await ErgioCommand.getSystemStatus();
-    if (status.status === 'operational' && status.engines) {
-      const enginesList = ['website_engine','lead_engine','booking_engine','invoice_engine','payment_engine','content_engine','voice_engine','analytics_engine','reputation_engine','workflow_engine'];
-      const labels = {
-        website_engine: '🌐 Website Engine', lead_engine: '🎯 Lead Engine',
-        booking_engine: '📅 Booking Engine', invoice_engine: '🧾 Invoice Engine',
-        payment_engine: '💰 Payment Engine', content_engine: '🎬 Content Engine',
-        voice_engine: '🎙️ Voice Engine', analytics_engine: '📊 Analytics Engine',
-        reputation_engine: '⭐ Reputation Engine', workflow_engine: '🔄 Workflow Engine'
-      };
-      const engineGrid = document.querySelector('#tab-engines .engine-grid');
-      if (engineGrid) {
-        enginesList.forEach(eng => {
-          const isActive = status.engines.includes(eng);
-          const card = engineGrid.querySelector(`[data-engine="${eng}"]`);
-          if (card) {
-            const statusDot = card.querySelector('.status-dot') || document.createElement('span');
-            statusDot.className = 'status-dot';
-            statusDot.style.cssText = 'display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;' + (isActive ? 'background:#00ff88' : 'background:#666');
-            if (!card.querySelector('.status-dot')) card.insertBefore(statusDot, card.firstChild);
-          }
-        });
-      }
-      // Also show MCP and plugin counts
-      const mcpCount = document.getElementById('mcpCount');
-      if (mcpCount) mcpCount.textContent = (status.mcps || []).length;
-      const pluginCount = document.getElementById('pluginCount');
-      if (pluginCount) pluginCount.textContent = (status.plugins || []).length;
-    }
-  } catch (e) {
-    console.warn('Engine status load failed:', e.message);
-  }
-}
-
-// Init conductor on load
-setTimeout(initConductor, 500);
-setTimeout(loadEngineStatusFromRender, 1000);
-
-</script>
   <style>
     :root{--bg:#0A0E14;--surface:#0F141C;--card:#131A23;--border:#1E2730;--text:#E8EEF4;--muted:#8B98A8;--cyan:#00D9FF;--green:#00FF9D;--blue:#2563FF;--red:#FF4757;--yellow:#FFB800;--purple:#8B5CF6}
     *{margin:0;padding:0;box-sizing:border-box}
@@ -1055,196 +105,14 @@ setTimeout(loadEngineStatusFromRender, 1000);
 .advisor-msg-user { background: #1e40af; color: white; padding: 12px 16px; border-radius: 16px 16px 4px 16px; max-width: 80%; align-self: flex-end; }
 .advisor-msg-ai { background: #1e293b; border: 1px solid #334155; color: #e2e8f0; padding: 12px 16px; border-radius: 16px 16px 16px 4px; max-width: 80%; align-self: flex-start; }
 </style>
-<script src="../lib/engines-api.js">
-// ── ERGIO CONDUCTOR ──
-async function initConductor() {
-  if (!window.ErgioCommand) return;
-  const statusEl = document.getElementById('conductorStatus');
-  const health = await ErgioCommand.checkHealth();
-  if (health.status === 'healthy') {
-    statusEl.textContent = '🟢 Online — ' + (health.groq ? 'AI ready' : 'AI limited');
-    statusEl.style.color = 'rgba(0,255,136,.7)';
-  } else {
-    statusEl.textContent = '🔴 Offline (cold start)';
-    statusEl.style.color = 'rgba(255,100,100,.7)';
-    setTimeout(() => initConductor(), 15000); // retry
-  }
-}
-
-async function runConductor() {
-  const input = document.getElementById('conductorInput');
-  const chat = document.getElementById('conductorChat');
-  const text = input.value.trim();
-  if (!text) return;
-  
-  // User message
-  chat.innerHTML += `<div style="align-self:flex-end;background:rgba(99,102,241,.2);padding:.6rem .9rem;border-radius:.6rem .6rem 0 .6rem;max-width:80%;font-size:.85rem">${text.replace(/</g,'&lt;')}</div>`;
-  input.value = '';
-  chat.scrollTop = chat.scrollHeight;
-  
-  // Loading
-  const loadingId = 'load-' + Date.now();
-  chat.innerHTML += `<div id="${loadingId}" style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;font-size:.85rem;color:rgba(255,255,255,.5)">⚡ ERGIO is working...</div>`;
-  chat.scrollTop = chat.scrollHeight;
-  
-  try {
-    const bizId = localStorage.getItem('ergio_business_id') || null;
-    const result = await ErgioCommand.command(text, bizId, null);
-    document.getElementById(loadingId).remove();
-    
-    let response = result.summary || result.report || JSON.stringify(result).substring(0, 300);
-    if (result.sub_tasks) {
-      response = `📋 ${result.sub_tasks.length} tasks planned:\n` + 
-        result.sub_tasks.map((t,i) => `${i+1}. ${t.engine} → ${t.action}${t.requires_approval ? ' (needs approval)' : ''}`).join('\n');
-    }
-    
-    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;max-width:85%;font-size:.85rem;white-space:pre-wrap">${response.replace(/</g,'&lt;')}</div>`;
-  } catch (e) {
-    document.getElementById(loadingId).remove();
-    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,100,100,.1);padding:.6rem .9rem;border-radius:.6rem;font-size:.85rem">⚠️ ${e.message}</div>`;
-  }
-  chat.scrollTop = chat.scrollHeight;
-}
 
 
-// ── Engine Status from Render ──
-async function loadEngineStatusFromRender() {
-  if (!window.ErgioCommand) return;
-  try {
-    const status = await ErgioCommand.getSystemStatus();
-    if (status.status === 'operational' && status.engines) {
-      const enginesList = ['website_engine','lead_engine','booking_engine','invoice_engine','payment_engine','content_engine','voice_engine','analytics_engine','reputation_engine','workflow_engine'];
-      const labels = {
-        website_engine: '🌐 Website Engine', lead_engine: '🎯 Lead Engine',
-        booking_engine: '📅 Booking Engine', invoice_engine: '🧾 Invoice Engine',
-        payment_engine: '💰 Payment Engine', content_engine: '🎬 Content Engine',
-        voice_engine: '🎙️ Voice Engine', analytics_engine: '📊 Analytics Engine',
-        reputation_engine: '⭐ Reputation Engine', workflow_engine: '🔄 Workflow Engine'
-      };
-      const engineGrid = document.querySelector('#tab-engines .engine-grid');
-      if (engineGrid) {
-        enginesList.forEach(eng => {
-          const isActive = status.engines.includes(eng);
-          const card = engineGrid.querySelector(`[data-engine="${eng}"]`);
-          if (card) {
-            const statusDot = card.querySelector('.status-dot') || document.createElement('span');
-            statusDot.className = 'status-dot';
-            statusDot.style.cssText = 'display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;' + (isActive ? 'background:#00ff88' : 'background:#666');
-            if (!card.querySelector('.status-dot')) card.insertBefore(statusDot, card.firstChild);
-          }
-        });
-      }
-      // Also show MCP and plugin counts
-      const mcpCount = document.getElementById('mcpCount');
-      if (mcpCount) mcpCount.textContent = (status.mcps || []).length;
-      const pluginCount = document.getElementById('pluginCount');
-      if (pluginCount) pluginCount.textContent = (status.plugins || []).length;
-    }
-  } catch (e) {
-    console.warn('Engine status load failed:', e.message);
-  }
-}
-
-// Init conductor on load
-setTimeout(initConductor, 500);
-setTimeout(loadEngineStatusFromRender, 1000);
-
-</script>
-<script src="../lib/ergio-command.js">
-// ── ERGIO CONDUCTOR ──
-async function initConductor() {
-  if (!window.ErgioCommand) return;
-  const statusEl = document.getElementById('conductorStatus');
-  const health = await ErgioCommand.checkHealth();
-  if (health.status === 'healthy') {
-    statusEl.textContent = '🟢 Online — ' + (health.groq ? 'AI ready' : 'AI limited');
-    statusEl.style.color = 'rgba(0,255,136,.7)';
-  } else {
-    statusEl.textContent = '🔴 Offline (cold start)';
-    statusEl.style.color = 'rgba(255,100,100,.7)';
-    setTimeout(() => initConductor(), 15000); // retry
-  }
-}
-
-async function runConductor() {
-  const input = document.getElementById('conductorInput');
-  const chat = document.getElementById('conductorChat');
-  const text = input.value.trim();
-  if (!text) return;
-  
-  // User message
-  chat.innerHTML += `<div style="align-self:flex-end;background:rgba(99,102,241,.2);padding:.6rem .9rem;border-radius:.6rem .6rem 0 .6rem;max-width:80%;font-size:.85rem">${text.replace(/</g,'&lt;')}</div>`;
-  input.value = '';
-  chat.scrollTop = chat.scrollHeight;
-  
-  // Loading
-  const loadingId = 'load-' + Date.now();
-  chat.innerHTML += `<div id="${loadingId}" style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;font-size:.85rem;color:rgba(255,255,255,.5)">⚡ ERGIO is working...</div>`;
-  chat.scrollTop = chat.scrollHeight;
-  
-  try {
-    const bizId = localStorage.getItem('ergio_business_id') || null;
-    const result = await ErgioCommand.command(text, bizId, null);
-    document.getElementById(loadingId).remove();
-    
-    let response = result.summary || result.report || JSON.stringify(result).substring(0, 300);
-    if (result.sub_tasks) {
-      response = `📋 ${result.sub_tasks.length} tasks planned:\n` + 
-        result.sub_tasks.map((t,i) => `${i+1}. ${t.engine} → ${t.action}${t.requires_approval ? ' (needs approval)' : ''}`).join('\n');
-    }
-    
-    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;max-width:85%;font-size:.85rem;white-space:pre-wrap">${response.replace(/</g,'&lt;')}</div>`;
-  } catch (e) {
-    document.getElementById(loadingId).remove();
-    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,100,100,.1);padding:.6rem .9rem;border-radius:.6rem;font-size:.85rem">⚠️ ${e.message}</div>`;
-  }
-  chat.scrollTop = chat.scrollHeight;
-}
-
-
-// ── Engine Status from Render ──
-async function loadEngineStatusFromRender() {
-  if (!window.ErgioCommand) return;
-  try {
-    const status = await ErgioCommand.getSystemStatus();
-    if (status.status === 'operational' && status.engines) {
-      const enginesList = ['website_engine','lead_engine','booking_engine','invoice_engine','payment_engine','content_engine','voice_engine','analytics_engine','reputation_engine','workflow_engine'];
-      const labels = {
-        website_engine: '🌐 Website Engine', lead_engine: '🎯 Lead Engine',
-        booking_engine: '📅 Booking Engine', invoice_engine: '🧾 Invoice Engine',
-        payment_engine: '💰 Payment Engine', content_engine: '🎬 Content Engine',
-        voice_engine: '🎙️ Voice Engine', analytics_engine: '📊 Analytics Engine',
-        reputation_engine: '⭐ Reputation Engine', workflow_engine: '🔄 Workflow Engine'
-      };
-      const engineGrid = document.querySelector('#tab-engines .engine-grid');
-      if (engineGrid) {
-        enginesList.forEach(eng => {
-          const isActive = status.engines.includes(eng);
-          const card = engineGrid.querySelector(`[data-engine="${eng}"]`);
-          if (card) {
-            const statusDot = card.querySelector('.status-dot') || document.createElement('span');
-            statusDot.className = 'status-dot';
-            statusDot.style.cssText = 'display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;' + (isActive ? 'background:#00ff88' : 'background:#666');
-            if (!card.querySelector('.status-dot')) card.insertBefore(statusDot, card.firstChild);
-          }
-        });
-      }
-      // Also show MCP and plugin counts
-      const mcpCount = document.getElementById('mcpCount');
-      if (mcpCount) mcpCount.textContent = (status.mcps || []).length;
-      const pluginCount = document.getElementById('pluginCount');
-      if (pluginCount) pluginCount.textContent = (status.plugins || []).length;
-    }
-  } catch (e) {
-    console.warn('Engine status load failed:', e.message);
-  }
-}
-
-// Init conductor on load
-setTimeout(initConductor, 500);
-setTimeout(loadEngineStatusFromRender, 1000);
-
-</script>
+  <script src="../config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../lib/engines-api.js"></script>
+  <script src="../lib/ergio-command.js"></script>
 </head>
 <body>
   <!-- SIDEBAR -->
@@ -1290,7 +158,11 @@ setTimeout(loadEngineStatusFromRender, 1000);
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6m0 8v6M2 12h6m8 0h6M5 5l4 4m6 6l4 4M19 5l-4 4M5 19l4-4"/></svg>
         🔌 MCP & Plugins
       </div>
-      <div class="nav-item" onclick="switchTab('advisor')" data-tab="advisor">
+      <div class="nav-item" onclick="switchTab('integrations')" data-tab="integrations">
+          <div class="nav-icon">🔌</div>
+          <div class="nav-label">Integrations</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('advisor')" data-tab="advisor">
         <span style="font-size: 20px;">🧠</span>
         <span class="nav-label">Advisor</span>
         <span class="nav-badge" style="background: #10b981; color: white; font-size: 9px; padding: 2px 6px; border-radius: 8px;">NEW</span>
@@ -1362,27 +234,50 @@ setTimeout(loadEngineStatusFromRender, 1000);
           </div>
         </div>
 
-        <!-- ERGIO CONDUCTOR — AI Command Center -->
+        <!-- ERGIO CONDUCTOR — AI Command Center (Live Streaming) -->
         <div class="panel" style="border:1px solid rgba(99,102,241,.3);background:rgba(15,15,35,.6)">
           <div class="panel-header">
             <div class="panel-title">🎭 ERGIO Conductor</div>
             <div class="panel-action" id="conductorStatus" style="font-size:.75rem;color:rgba(255,255,255,.4)">Checking...</div>
           </div>
           <p style="font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:1rem">
-            Tell ERGIO what you need. The AI brain orchestrates all 10 engines — build websites, find leads, send invoices, create content, and more.
+            Tell ERGIO what you need. Watch the AI work in real-time — just like Claude Code.
           </p>
-          <div id="conductorChat" style="max-height:300px;overflow-y:auto;margin-bottom:.75rem;display:flex;flex-direction:column;gap:.5rem">
-            <div style="font-size:.85rem;color:rgba(255,255,255,.4);text-align:center;padding:1rem">
+          
+          <!-- Live activity log (Claude Code style) -->
+          <div id="conductorChat" style="max-height:400px;overflow-y:auto;margin-bottom:.75rem;display:flex;flex-direction:column;gap:.3rem;font-family:'SF Mono',Monaco,monospace;font-size:.82rem">
+            <div style="color:rgba(255,255,255,.3);text-align:center;padding:1.5rem 0">
+              <div style="font-size:2rem;margin-bottom:.5rem">⚡</div>
               Try: "Find leads for my photography business in Lagos" or "Generate a marketing post for Instagram"
             </div>
           </div>
+          
+          <!-- Progress bar -->
+          <div id="conductorProgress" style="display:none;margin-bottom:.75rem">
+            <div style="height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden">
+              <div id="conductorProgressBar" style="height:100%;background:linear-gradient(90deg,#6366f1,#00d9ff);width:0%;transition:width .3s"></div>
+            </div>
+            <div id="conductorProgressLabel" style="font-size:.72rem;color:rgba(255,255,255,.4);margin-top:.25rem"></div>
+          </div>
+          
           <div style="display:flex;gap:.5rem">
             <input id="conductorInput" type="text" placeholder="Tell ERGIO what to do..." 
               style="flex:1;padding:.65rem .9rem;border-radius:.6rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:.9rem"
               onkeypress="if(event.key==='Enter')runConductor()">
-            <button class="btn btn-primary" onclick="runConductor()" style="padding:.65rem 1.2rem">
+            <button class="btn btn-primary" id="conductorRunBtn" onclick="runConductor()" style="padding:.65rem 1.2rem">
               ⚡ Run
             </button>
+          </div>
+        </div>
+
+        <!-- MCP & PLUGIN CONNECTION CENTER -->
+        <div class="panel" style="border:1px solid rgba(0,217,255,.2);background:rgba(15,15,35,.6)">
+          <div class="panel-header">
+            <div class="panel-title">🔌 Integrations</div>
+            <button class="panel-action" onclick="switchTab('integrations')" style="cursor:pointer;font-size:.75rem;color:#00d9ff">Manage all →</button>
+          </div>
+          <div id="connectedIntegrations" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.5rem">
+            <div style="font-size:.82rem;color:rgba(255,255,255,.4);padding:.5rem">No integrations connected yet. Click "Manage all" to connect your apps.</div>
           </div>
         </div>
 
@@ -1469,92 +364,176 @@ setTimeout(loadEngineStatusFromRender, 1000);
       <!-- ENGINES TAB -->
       <div class="tab-content" id="tab-engines">
         <div style="margin-bottom:1.5rem">
-          <h2 style="font-size:1.5rem;margin-bottom:.5rem">⚡ Four Core Engines</h2>
-          <p style="color:var(--muted);font-size:0.9rem">Your AI client acquisition system — running 24/7 to grow your business automatically.</p>
+          <h2 style="font-size:1.5rem;margin-bottom:.5rem">⚡ Ten AI Engines</h2>
+          <p style="color:var(--muted);font-size:0.9rem">Your AI business operating system — 10 engines running 24/7 to build, grow, and manage your business automatically.</p>
         </div>
 
-        <!-- ENGINE 1: Local Discovery -->
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1rem;position:relative;overflow:hidden">
-          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--green))"></div>
-          <div style="display:flex;align-items:flex-start;gap:1rem;margin-bottom:1rem">
-            <div style="width:48px;height:48px;border-radius:12px;background:rgba(0,217,255,0.1);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🗺️</div>
-            <div style="flex:1">
-              <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem">
-                <h3 style="font-size:1rem;font-weight:700">Engine 01 — Local Discovery</h3>
-                <span id="engine1Status" style="font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(0,255,157,0.1);color:var(--green);border:1px solid rgba(0,255,157,0.2)">● Ready</span>
-              </div>
-              <p style="color:var(--muted);font-size:0.85rem;margin-bottom:.8rem">SEO optimization + Google Maps integration. Get found by people searching for your service in your city.</p>
+        <div id="engineGrid10" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem;margin-bottom:1.5rem">
+          <!-- Engine 01: Website -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;position:relative;overflow:hidden">
+            <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#00D9FF,#8B5CF6)"></div>
+            <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.8rem">
+              <div style="width:40px;height:40px;border-radius:10px;background:rgba(0,217,255,0.1);display:flex;align-items:center;justify-content:center;font-size:18px">🌐</div>
+              <div><h3 style="font-size:.95rem;font-weight:700">01 — Website Engine</h3><span style="font-size:10px;color:var(--green)">● Active</span></div>
+            </div>
+            <p style="color:var(--muted);font-size:.82rem;margin-bottom:.8rem">AI generates full business website from prompt. Supabase persistence, templates, SEO optimization.</p>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+              <button onclick="window.location.href='../index.html'" style="padding:.4rem .8rem;border-radius:8px;background:linear-gradient(135deg,#00D9FF,#8B5CF6);border:none;color:#000;font-weight:600;font-size:.75rem;cursor:pointer">🔨 Build Site</button>
+              <button onclick="runConductorCommand('website_engine', 'generate_seo', {})" style="padding:.4rem .8rem;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:.75rem;cursor:pointer">📊 SEO</button>
             </div>
           </div>
-          <div style="display:flex;gap:.8rem;flex-wrap:wrap">
-            <button onclick="runEngine1('find_leads')" style="padding:.5rem 1rem;border-radius:8px;background:linear-gradient(135deg,var(--cyan),var(--blue));border:none;color:#000;font-weight:700;font-size:0.8rem;cursor:pointer">🔍 Find Local Leads</button>
-            <button onclick="runEngine1('seo_keywords')" style="padding:.5rem 1rem;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:0.8rem;cursor:pointer">📊 SEO Keywords</button>
-            <button onclick="runEngine1('demand_match')" style="padding:.5rem 1rem;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:0.8rem;cursor:pointer">🎯 Demand Match</button>
-          </div>
-          <div id="engine1Result" style="margin-top:1rem;display:none"></div>
-        </div>
 
-        <!-- ENGINE 2: AI Outreach -->
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1rem;position:relative;overflow:hidden">
-          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),var(--blue))"></div>
-          <div style="display:flex;align-items:flex-start;gap:1rem;margin-bottom:1rem">
-            <div style="width:48px;height:48px;border-radius:12px;background:rgba(0,255,157,0.1);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">✉️</div>
-            <div style="flex:1">
-              <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem">
-                <h3 style="font-size:1rem;font-weight:700">Engine 02 — AI Outreach</h3>
-                <span id="engine2Status" style="font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(0,255,157,0.1);color:var(--green);border:1px solid rgba(0,255,157,0.2)">● Ready</span>
-              </div>
-              <p style="color:var(--muted);font-size:0.85rem;margin-bottom:.8rem">AI writes personalized cold emails and social messages to potential clients on your behalf.</p>
+          <!-- Engine 02: Lead -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;position:relative;overflow:hidden">
+            <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#00FF9D,#00D9FF)"></div>
+            <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.8rem">
+              <div style="width:40px;height:40px;border-radius:10px;background:rgba(0,255,157,0.1);display:flex;align-items:center;justify-content:center;font-size:18px">🎯</div>
+              <div><h3 style="font-size:.95rem;font-weight:700">02 — Lead Engine</h3><span style="font-size:10px;color:var(--green)">● Active</span></div>
+            </div>
+            <p style="color:var(--muted);font-size:.82rem;margin-bottom:.8rem">Captures leads via website forms, AI scores 0-100, WhatsApp alerts for hot leads (80+). Clay enrichment.</p>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+              <button onclick="switchTab('leads'); scanLeads()" style="padding:.4rem .8rem;border-radius:8px;background:linear-gradient(135deg,#00FF9D,#00D9FF);border:none;color:#000;font-weight:600;font-size:.75rem;cursor:pointer">🔍 Find Leads</button>
+              <button onclick="runConductorCommand('lead_engine', 'score_leads', {leads:[]})" style="padding:.4rem .8rem;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:.75rem;cursor:pointer">🎯 Score</button>
             </div>
           </div>
-          <div style="display:flex;gap:.8rem;flex-wrap:wrap">
-            <button onclick="runEngine2('generate_outreach')" style="padding:.5rem 1rem;border-radius:8px;background:linear-gradient(135deg,var(--green),var(--cyan));border:none;color:#000;font-weight:700;font-size:0.8rem;cursor:pointer">✍️ Generate Outreach</button>
-            <button onclick="runEngine2('social_content')" style="padding:.5rem 1rem;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:0.8rem;cursor:pointer">📱 Social Content</button>
-          </div>
-          <div id="engine2Result" style="margin-top:1rem;display:none"></div>
-        </div>
 
-        <!-- ENGINE 3: Demand Matching -->
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1rem;position:relative;overflow:hidden">
-          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--amber))"></div>
-          <div style="display:flex;align-items:flex-start;gap:1rem;margin-bottom:1rem">
-            <div style="width:48px;height:48px;border-radius:12px;background:rgba(59,130,246,0.1);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">⚡</div>
-            <div style="flex:1">
-              <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem">
-                <h3 style="font-size:1rem;font-weight:700">Engine 03 — Demand Matching</h3>
-                <span id="engine3Status" style="font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(0,255,157,0.1);color:var(--green);border:1px solid rgba(0,255,157,0.2)">● Ready</span>
-              </div>
-              <p style="color:var(--muted);font-size:0.85rem;margin-bottom:.8rem">Scans social media and job boards in real-time, matching your services to people actively looking to hire.</p>
+          <!-- Engine 03: Booking -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;position:relative;overflow:hidden">
+            <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#8B5CF6,#EC4899)"></div>
+            <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.8rem">
+              <div style="width:40px;height:40px;border-radius:10px;background:rgba(139,92,246,0.1);display:flex;align-items:center;justify-content:center;font-size:18px">📅</div>
+              <div><h3 style="font-size:.95rem;font-weight:700">03 — Booking Engine</h3><span style="font-size:10px;color:var(--amber)">● Configured</span></div>
+            </div>
+            <p style="color:var(--muted);font-size:.82rem;margin-bottom:.8rem">Manages calendar, books appointments, sends WhatsApp reminders. Cal.com + Google Calendar integration.</p>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+              <button onclick="switchTab('bookings')" style="padding:.4rem .8rem;border-radius:8px;background:linear-gradient(135deg,#8B5CF6,#EC4899);border:none;color:#fff;font-weight:600;font-size:.75rem;cursor:pointer">📅 View Calendar</button>
+              <button onclick="runConductorCommand('booking_engine', 'get_slots', {})" style="padding:.4rem .8rem;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:.75rem;cursor:pointer">🕐 Get Slots</button>
             </div>
           </div>
-          <div style="display:flex;gap:.8rem;flex-wrap:wrap">
-            <button onclick="runEngine3()" style="padding:.5rem 1rem;border-radius:8px;background:linear-gradient(135deg,var(--blue),var(--cyan));border:none;color:#fff;font-weight:700;font-size:0.8rem;cursor:pointer">⚡ Match Clients Now</button>
-            <button onclick="runEngine1('demand_match')" style="padding:.5rem 1rem;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:0.8rem;cursor:pointer">🎯 Score Matches</button>
-          </div>
-          <div id="engine3Result" style="margin-top:1rem;display:none"></div>
-        </div>
 
-        <!-- ENGINE 4: Repeat Clients -->
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem;position:relative;overflow:hidden">
-          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--amber),var(--green))"></div>
-          <div style="display:flex;align-items:flex-start;gap:1rem;margin-bottom:1rem">
-            <div style="width:48px;height:48px;border-radius:12px;background:rgba(251,191,36,0.1);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🔄</div>
-            <div style="flex:1">
-              <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem">
-                <h3 style="font-size:1rem;font-weight:700">Engine 04 — Repeat Clients</h3>
-                <span id="engine4Status" style="font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(0,255,157,0.1);color:var(--green);border:1px solid rgba(0,255,157,0.2)">● Ready</span>
-              </div>
-              <p style="color:var(--muted);font-size:0.85rem;margin-bottom:.8rem">Automated follow-ups and retention campaigns. Turns one-time clients into long-term relationships.</p>
+          <!-- Engine 04: Invoice -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;position:relative;overflow:hidden">
+            <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#F59E0B,#EF4444)"></div>
+            <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.8rem">
+              <div style="width:40px;height:40px;border-radius:10px;background:rgba(245,158,11,0.1);display:flex;align-items:center;justify-content:center;font-size:18px">🧾</div>
+              <div><h3 style="font-size:.95rem;font-weight:700">04 — Invoice Engine</h3><span style="font-size:10px;color:var(--green)">● Active</span></div>
+            </div>
+            <p style="color:var(--muted);font-size:.82rem;margin-bottom:.8rem">Auto-generates invoices after booking, sends via email + WhatsApp, tracks payment status, follows up overdue.</p>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+              <button onclick="runConductorCommand('invoice_engine', 'generate_invoice', {client_name:'Test Client', amount:50000, service:'Consultation'})" style="padding:.4rem .8rem;border-radius:8px;background:linear-gradient(135deg,#F59E0B,#EF4444);border:none;color:#fff;font-weight:600;font-size:.75rem;cursor:pointer">🧾 Generate</button>
+              <button onclick="runConductorCommand('invoice_engine', 'track_invoices', {})" style="padding:.4rem .8rem;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:.75rem;cursor:pointer">📊 Track</button>
             </div>
           </div>
-          <div style="display:flex;gap:.8rem;flex-wrap:wrap">
-            <button onclick="runEngine4('repeat_client')" style="padding:.5rem 1rem;border-radius:8px;background:linear-gradient(135deg,var(--amber),var(--green));border:none;color:#000;font-weight:700;font-size:0.8rem;cursor:pointer">🔄 Re-engage Clients</button>
-            <button onclick="runEngine2('social_content')" style="padding:.5rem 1rem;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:0.8rem;cursor:pointer">📣 Loyalty Campaign</button>
+
+          <!-- Engine 05: Payment -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;position:relative;overflow:hidden">
+            <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#10B981,#06B6D4)"></div>
+            <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.8rem">
+              <div style="width:40px;height:40px;border-radius:10px;background:rgba(16,185,129,0.1);display:flex;align-items:center;justify-content:center;font-size:18px">💰</div>
+              <div><h3 style="font-size:.95rem;font-weight:700">05 — Payment Engine</h3><span style="font-size:10px;color:var(--green)">● Active</span></div>
+            </div>
+            <p style="color:var(--muted);font-size:.82rem;margin-bottom:.8rem">Collects via Paystack, Flutterwave, Stripe. Tracks revenue in real-time, sends receipts.</p>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+              <button onclick="runConductorCommand('payment_engine', 'create_payment_link', {gateway:'paystack', amount:10000, email:'test@test.com'})" style="padding:.4rem .8rem;border-radius:8px;background:linear-gradient(135deg,#10B981,#06B6D4);border:none;color:#fff;font-weight:600;font-size:.75rem;cursor:pointer">💳 Create Link</button>
+            </div>
           </div>
-          <div id="engine4Result" style="margin-top:1rem;display:none"></div>
+
+          <!-- Engine 06: Content -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;position:relative;overflow:hidden">
+            <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#EC4899,#8B5CF6)"></div>
+            <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.8rem">
+              <div style="width:40px;height:40px;border-radius:10px;background:rgba(236,72,153,0.1);display:flex;align-items:center;justify-content:center;font-size:18px">🎬</div>
+              <div><h3 style="font-size:.95rem;font-weight:700">06 — Content Engine</h3><span style="font-size:10px;color:var(--green)">● Active</span></div>
+            </div>
+            <p style="color:var(--muted);font-size:.82rem;margin-bottom:.8rem">Generates marketing content — social posts, blog posts, ad copy, video scripts. Higgsfield for video ads.</p>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+              <button onclick="runConductorCommand('content_engine', 'generate_content', {platform:'instagram', business_type:'salon', business_name:'My Business'})" style="padding:.4rem .8rem;border-radius:8px;background:linear-gradient(135deg,#EC4899,#8B5CF6);border:none;color:#fff;font-weight:600;font-size:.75rem;cursor:pointer">✍️ Generate</button>
+              <button onclick="runConductorCommand('content_engine', 'generate_video_ad', {prompt:'Professional ad for a salon in Lagos'})" style="padding:.4rem .8rem;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:.75rem;cursor:pointer">🎬 Video Ad</button>
+            </div>
+          </div>
+
+          <!-- Engine 07: Voice -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;position:relative;overflow:hidden">
+            <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#06B6D4,#3B82F6)"></div>
+            <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.8rem">
+              <div style="width:40px;height:40px;border-radius:10px;background:rgba(6,182,212,0.1);display:flex;align-items:center;justify-content:center;font-size:18px">🎙️</div>
+              <div><h3 style="font-size:.95rem;font-weight:700">07 — Voice Engine</h3><span style="font-size:10px;color:var(--amber)">● Configured</span></div>
+            </div>
+            <p style="color:var(--muted);font-size:.82rem;margin-bottom:.8rem">AI voice receptionist answers calls, books appointments, answers FAQs. ElevenLabs voice generation.</p>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+              <button onclick="runConductorCommand('voice_engine', 'answer_call', {question:'What are your opening hours?', business_name:'My Business'})" style="padding:.4rem .8rem;border-radius:8px;background:linear-gradient(135deg,#06B6D4,#3B82F6);border:none;color:#fff;font-weight:600;font-size:.75rem;cursor:pointer">🎙️ Test Voice</button>
+            </div>
+          </div>
+
+          <!-- Engine 08: Analytics -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;position:relative;overflow:hidden">
+            <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#3B82F6,#8B5CF6)"></div>
+            <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.8rem">
+              <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.1);display:flex;align-items:center;justify-content:center;font-size:18px">📊</div>
+              <div><h3 style="font-size:.95rem;font-weight:700">08 — Analytics Engine</h3><span style="font-size:10px;color:var(--green)">● Active</span></div>
+            </div>
+            <p style="color:var(--muted);font-size:.82rem;margin-bottom:.8rem">Tracks revenue, leads, bookings, conversion rates, CAC. Weekly insights report. Revenue forecasting.</p>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+              <button onclick="switchTab('analytics')" style="padding:.4rem .8rem;border-radius:8px;background:linear-gradient(135deg,#3B82F6,#8B5CF6);border:none;color:#fff;font-weight:600;font-size:.75rem;cursor:pointer">📊 Dashboard</button>
+              <button onclick="runConductorCommand('analytics_engine', 'weekly_insights', {})" style="padding:.4rem .8rem;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:.75rem;cursor:pointer">📋 Insights</button>
+            </div>
+          </div>
+
+          <!-- Engine 09: Reputation -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;position:relative;overflow:hidden">
+            <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#F59E0B,#10B981)"></div>
+            <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.8rem">
+              <div style="width:40px;height:40px;border-radius:10px;background:rgba(251,191,36,0.1);display:flex;align-items:center;justify-content:center;font-size:18px">⭐</div>
+              <div><h3 style="font-size:.95rem;font-weight:700">09 — Reputation Engine</h3><span style="font-size:10px;color:var(--green)">● Active</span></div>
+            </div>
+            <p style="color:var(--muted);font-size:.82rem;margin-bottom:.8rem">Auto-sends review requests via WhatsApp. Routes positive reviews to Google, negative to private form.</p>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+              <button onclick="runConductorCommand('reputation_engine', 'request_review', {service:'haircut', business_name:'My Business'})" style="padding:.4rem .8rem;border-radius:8px;background:linear-gradient(135deg,#F59E0B,#10B981);border:none;color:#fff;font-weight:600;font-size:.75rem;cursor:pointer">⭐ Request Review</button>
+            </div>
+          </div>
+
+          <!-- Engine 10: Workflow -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;position:relative;overflow:hidden">
+            <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#8B5CF6,#EC4899)"></div>
+            <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.8rem">
+              <div style="width:40px;height:40px;border-radius:10px;background:rgba(139,92,246,0.1);display:flex;align-items:center;justify-content:center;font-size:18px">🔄</div>
+              <div><h3 style="font-size:.95rem;font-weight:700">10 — Workflow Engine</h3><span style="font-size:10px;color:var(--amber)">● Configured</span></div>
+            </div>
+            <p style="color:var(--muted);font-size:.82rem;margin-bottom:.8rem">Visual drag-and-drop automation builder. If/then workflows: "When lead score is 80+, send WhatsApp alert + create invoice."</p>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+              <button onclick="runConductorCommand('workflow_engine', 'create_recipe', {recipe:'new_lead_whatsapp'})" style="padding:.4rem .8rem;border-radius:8px;background:linear-gradient(135deg,#8B5CF6,#EC4899);border:none;color:#fff;font-weight:600;font-size:.75rem;cursor:pointer">⚡ Quick Recipe</button>
+            </div>
+          </div>
         </div>
 
-        <!-- All tools row -->
+        <!-- Workflow Recipes -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1rem">
+          <h3 style="font-size:1rem;font-weight:700;margin-bottom:.8rem">📋 Pre-built Workflow Recipes</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.8rem">
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1rem;cursor:pointer" onclick="runConductorCommand('workflow_engine', 'create_recipe', {recipe:'new_lead_whatsapp'})">
+              <div style="font-size:1.2rem;margin-bottom:.4rem">🎯</div>
+              <div style="font-weight:600;font-size:.85rem;margin-bottom:.2rem">Hot Lead Alert</div>
+              <div style="font-size:.72rem;color:var(--muted)">When lead score 80+ → WhatsApp alert + create invoice</div>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1rem;cursor:pointer" onclick="runConductorCommand('workflow_engine', 'create_recipe', {recipe:'new_booking_invoice'})">
+              <div style="font-size:1.2rem;margin-bottom:.4rem">📅</div>
+              <div style="font-weight:600;font-size:.85rem;margin-bottom:.2rem">Auto-Invoice on Booking</div>
+              <div style="font-size:.72rem;color:var(--muted)">When booking created → generate invoice → send email</div>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1rem;cursor:pointer" onclick="runConductorCommand('workflow_engine', 'create_recipe', {recipe:'post_sale_review'})">
+              <div style="font-size:1.2rem;margin-bottom:.4rem">⭐</div>
+              <div style="font-weight:600;font-size:.85rem;margin-bottom:.2rem">Post-Sale Review</div>
+              <div style="font-size:.72rem;color:var(--muted)">After payment → wait 24h → send review request</div>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1rem;cursor:pointer" onclick="runConductorCommand('workflow_engine', 'create_recipe', {recipe:'weekly_content'})">
+              <div style="font-size:1.2rem;margin-bottom:.4rem">📱</div>
+              <div style="font-weight:600;font-size:.85rem;margin-bottom:.2rem">Weekly Content Auto-Gen</div>
+              <div style="font-size:.72rem;color:var(--muted)">Every Monday 9am → generate content → queue posts</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Tools -->
         <div style="margin-bottom:1rem">
           <h3 style="font-size:1rem;font-weight:700;margin-bottom:.8rem">Additional Tools</h3>
           <div class="quick-actions" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr))">
@@ -1574,16 +553,12 @@ setTimeout(loadEngineStatusFromRender, 1000);
         </div>
 
         <!-- Engine Result Panel -->
-        <div id="enginePanel" style="display:none;background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:1.5rem">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-            <h3 id="enginePanelTitle" style="font-size:1rem;font-weight:700">Engine Result</h3>
-            <button onclick="document.getElementById('enginePanel').style.display='none'" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px">✕</button>
-          </div>
-          <div id="enginePanelContent" style="font-size:0.88rem;line-height:1.7;color:var(--text2);white-space:pre-wrap"></div>
+        <div id="enginePanelResult" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-top:1rem">
+          <h3 style="font-size:1rem;font-weight:700;margin-bottom:.5rem">Engine Output</h3>
+          <pre id="enginePanelOutput" style="font-size:.8rem;color:var(--muted);white-space:pre-wrap;max-height:400px;overflow-y:auto"></pre>
         </div>
       </div>
 
-      <!-- ANALYTICS TAB -->
       <div class="tab-content" id="tab-analytics">
         <div class="kpi-grid">
           <div class="kpi-card">
@@ -1798,1218 +773,474 @@ setTimeout(loadEngineStatusFromRender, 1000);
 
   </div>
 
+  
+
+
   <script>
-    // ── Firebase Auth Init (graceful) ──
-    let fbAuth = null;
+// ============ ERGIO DASHBOARD — CONSOLIDATED v6.0 ============
+const API_BASE = window.ERGIO_CONFIG?.apiBase || window.location.origin.replace(/\/dashboard$/, '');
+const ENGINES = window.ErgioEngines || null;
+const CMD = window.ErgioCommand || null;
+let currentUser = null;
+let fbAuth = null;
+let sbClient = null;
+
+// ── Firebase Auth Init (graceful) ──
+try {
+  const FB_CFG = window.ERGIO_CONFIG.firebase;
+  if (FB_CFG && FB_CFG.apiKey && !FB_CFG.apiKey.includes('Placeholder')) {
+    firebase.initializeApp(FB_CFG);
+    fbAuth = firebase.auth();
+  }
+} catch(e) { console.log('Firebase init:', e.message); }
+
+// ── Supabase Init ──
+try {
+  const SB_URL = window.ERGIO_CONFIG.supabaseUrl;
+  const SB_KEY = window.ERGIO_CONFIG.supabaseAnonKey;
+  if (SB_URL && SB_KEY) {
+    sbClient = supabase.createClient(SB_URL, SB_KEY);
+  }
+} catch(e) { console.log('Supabase init:', e.message); }
+
+// ============ TAB SWITCHING ============
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  const el = document.getElementById('tab-' + tab);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelector('[data-tab="' + tab + '"]')?.classList.add('active');
+  const titles = { overview:'Overview', website:'Website', leads:'Leads', bookings:'Bookings',
+    outreach:'Outreach', engines:'Engines', analytics:'Analytics', agents:'AI Agents',
+    plugins:'Plugins & MCP', advisor:'AI Advisor', integrations:'Integrations' };
+  const titleEl = document.getElementById('pageTitle');
+  if (titleEl) titleEl.textContent = titles[tab] || tab.charAt(0).toUpperCase() + tab.slice(1);
+  if (tab === 'integrations') { loadPluginsGrid(); loadConnectedIntegrations(); }
+  if (tab === 'leads') { scanLeads(); }
+  if (tab === 'engines') { loadEngineStatusFromRender(); }
+}
+
+// ============ ADVISOR ENGINE ============
+async function runAdvisorAnalysis() {
+  const btn = document.getElementById('advisorRunBtn');
+  if (!btn) return;
+  btn.textContent = '⏳ Analyzing...';
+  btn.disabled = true;
+  try {
+    const userId = currentUser?.uid || 'demo';
+    const r = await fetch(API_BASE + '/api/advisor?action=analyze&userId=' + userId);
+    const data = await r.json();
+    if (data.success) renderAdvisorAnalysis(data);
+    else { btn.textContent = '❌ Error'; setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000); }
+  } catch (e) {
+    console.error('Advisor error:', e);
+    btn.textContent = '❌ Error'; setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
+  }
+}
+
+function renderAdvisorAnalysis(data) {
+  const btn = document.getElementById('advisorRunBtn');
+  if (btn) { btn.textContent = '🔄 Refresh Analysis'; btn.disabled = false; }
+  const card = document.getElementById('advisorHealthCard');
+  if (!card) return;
+  card.style.display = 'block';
+  document.getElementById('advisorScoreValue').textContent = data.healthScore;
+  document.getElementById('advisorHealthStatus').textContent = data.healthStatus;
+  document.getElementById('advisorBusinessName').textContent = data.business.name + ' • ' + data.business.industry + ' • ' + data.business.location;
+  const offset = 440 - (440 * data.healthScore / 100);
+  const circle = document.getElementById('advisorScoreCircle');
+  if (circle) circle.style.strokeDashoffset = offset;
+  const m = data.metrics;
+  document.getElementById('advisorMetricsRow').innerHTML = [
+    { label: 'Revenue', value: '₦' + (m.totalRevenue||0).toLocaleString(), color: '#10b981' },
+    { label: 'Leads', value: m.totalLeads||0, color: '#3b82f6' },
+    { label: 'Bookings', value: m.totalBookings||0, color: '#8b5cf6' },
+    { label: 'Reviews', value: m.totalReviews||0, color: '#f59e0b' },
+  ].map(function(x) { return '<div style="text-align:center"><div style="font-size:24px;font-weight:800;color:' + x.color + '">' + x.value + '</div><div style="font-size:11px;color:#94a3b8;text-transform:uppercase">' + x.label + '</div></div>'; }).join('');
+  if (data.breakdown) {
+    document.getElementById('advisorBreakdown').style.display = 'grid';
+    document.getElementById('advisorBreakdown').innerHTML = Object.entries(data.breakdown).map(function(kv) {
+      var v = kv[1]; var pct = (v.score / v.max) * 100;
+      return '<div style="background:#1e293b;border:1px solid #334155;border-radius:12px;padding:16px"><div style="color:#94a3b8;font-size:12px;margin-bottom:4px">' + v.label + '</div><div style="font-size:24px;font-weight:800;color:white">' + v.score + '/' + v.max + '</div><div style="height:6px;background:#0f172a;border-radius:3px;margin-top:8px"><div style="height:100%;background:linear-gradient(90deg,#10b981,#3b82f6);border-radius:3px;width:' + pct + '%"></div></div></div>';
+    }).join('');
+  }
+  if (data.insights && data.insights.length) {
+    document.getElementById('advisorInsights').style.display = 'block';
+    document.getElementById('advisorInsightsList').innerHTML = data.insights.map(function(i) {
+      return '<div style="background:#1e293b;border:1px solid #334155;border-radius:12px;padding:14px;display:flex;gap:12px"><div style="font-size:20px">' + (i.icon||'💡') + '</div><div style="flex:1"><div style="color:' + (i.type==='warning'?'#f59e0b':'#10b981') + ';font-weight:600;font-size:13px;text-transform:capitalize">' + i.type + '</div><div style="color:#cbd5e1;font-size:13px;margin-top:2px">' + i.text + '</div></div></div>';
+    }).join('');
+  }
+  if (data.recommendations && data.recommendations.length) {
+    document.getElementById('advisorRecs').style.display = 'block';
+    document.getElementById('advisorRecsList').innerHTML = data.recommendations.map(function(r, i) {
+      return '<div style="background:#1e293b;border:1px solid #334155;border-radius:12px;padding:16px"><div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px"><div style="font-weight:700;color:white;font-size:14px">' + (i+1) + '. ' + r.title + '</div><span style="background:' + (r.priority==='high'?'#ef444433':r.priority==='medium'?'#f59e0b33':'#10b98133') + ';color:' + (r.priority==='high'?'#ef4444':r.priority==='medium'?'#f59e0b':'#10b981') + ';padding:2px 8px;border-radius:6px;font-size:10px;text-transform:uppercase;font-weight:700">' + r.priority + '</span></div><div style="color:#94a3b8;font-size:13px;margin-bottom:8px">' + r.description + '</div><div style="color:#10b981;font-size:12px"><strong>Action:</strong> ' + r.action + '</div><div style="color:#3b82f6;font-size:12px;margin-top:4px"><strong>Expected:</strong> ' + r.expectedImpact + '</div></div>';
+    }).join('');
+  }
+}
+
+async function askAdvisor(question) {
+  const chat = document.getElementById('advisorChat');
+  if (!chat) return;
+  chat.innerHTML += '<div style="align-self:flex-end;background:rgba(16,185,129,.2);padding:12px 16px;border-radius:12px 12px 0 12px;max-width:80%;color:white">' + question + '</div>';
+  chat.innerHTML += '<div id="advTyping" style="align-self:flex-start;background:rgba(255,255,255,.06);padding:12px 16px;border-radius:12px 12px 12px 0;max-width:80%;color:#94a3b8">🤔 Thinking...</div>';
+  chat.scrollTop = chat.scrollHeight;
+  try {
+    const r = await fetch(API_BASE + '/api/advisor', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: question, userId: currentUser?.uid || 'demo' })
+    });
+    const data = await r.json();
+    var t = document.getElementById('advTyping');
+    if (t) t.remove();
+    chat.innerHTML += '<div style="align-self:flex-start;background:rgba(255,255,255,.06);padding:12px 16px;border-radius:12px 12px 12px 0;max-width:80%;color:white">' + (data.answer || data.response || 'Sorry, I could not process that.') + '</div>';
+    chat.scrollTop = chat.scrollHeight;
+  } catch(e) {
+    var t = document.getElementById('advTyping');
+    if (t) t.remove();
+    chat.innerHTML += '<div style="color:#ef4444">❌ ' + e.message + '</div>';
+  }
+}
+
+function askAdvisorFromInput() {
+  const input = document.getElementById('advisorInput');
+  if (!input || !input.value.trim()) return;
+  askAdvisor(input.value.trim());
+  input.value = '';
+}
+
+// ============ ERGIO CONDUCTOR (STREAMING — Claude Code style) ============
+function initConductor() {
+  const statusEl = document.getElementById('conductorStatus');
+  if (!statusEl) return;
+  if (ENGINES) {
+    ENGINES.health().then(function() {
+      statusEl.textContent = '🟢 Online';
+      statusEl.style.color = '#22c55e';
+    }).catch(function() {
+      statusEl.textContent = '🔴 Offline';
+      statusEl.style.color = '#ef4444';
+      setTimeout(initConductor, 15000);
+    });
+  } else {
+    statusEl.textContent = '⚠️ Engine API not loaded';
+    statusEl.style.color = '#f59e0b';
+  }
+}
+
+async function runConductor() {
+  const input = document.getElementById('conductorInput');
+  const chat = document.getElementById('conductorChat');
+  if (!input || !chat) return;
+  const text = input.value.trim();
+  if (!text) return;
+  const bizId = localStorage.getItem('ergio_business_id') || null;
+  const runBtn = document.getElementById('conductorRunBtn');
+
+  // Clear placeholder
+  if (chat.children.length === 1 && chat.children[0].style.color) chat.innerHTML = '';
+
+  // User message (Claude Code style)
+  chat.innerHTML += '<div style="color:#00d9ff;padding:.3rem 0 .3rem .5rem;border-left:2px solid #00d9ff;font-weight:600;font-family:SF Mono,Monaco,monospace;font-size:.82rem">> ' + text.replace(/</g,'&lt;') + '</div>';
+  input.value = '';
+  if (runBtn) { runBtn.disabled = true; runBtn.textContent = '⏳ Running...'; }
+
+  const progress = document.getElementById('conductorProgress');
+  const progressBar = document.getElementById('conductorProgressBar');
+  const progressLabel = document.getElementById('conductorProgressLabel');
+  if (progress) progress.style.display = 'block';
+  if (progressBar) progressBar.style.width = '0%';
+
+  chat.scrollTop = chat.scrollHeight;
+
+  if (ENGINES && ENGINES.streamConductor) {
     try {
-      const FB_CFG = window.ERGIO_CONFIG.firebase;
-      if (FB_CFG && FB_CFG.apiKey && !FB_CFG.apiKey.includes('Placeholder')) {
-        firebase.initializeApp(FB_CFG);
-        fbAuth = firebase.auth();
-      }
-    } catch(e) { console.log('Firebase not configured yet:', e.message); }
-
-    // ── Supabase (database) ──
-    let sbClient = null;
-    let currentUser = null;
-
-    function initSupabase() {
-      const cfg = window.ERGIO_CONFIG;
-      if (!cfg || !cfg.supabaseUrl) return false;
-      sbClient = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
-      return true;
-    }
-
-    function checkAuth() {
-      initSupabase();
-      
-      // Check localStorage first for quick auth
-      const savedUser = localStorage.getItem('ergio_user');
-      if (savedUser) {
-        try { currentUser = JSON.parse(savedUser); } catch(e) {}
-      }
-
-      if (fbAuth) {
-        // Firebase is configured — use it
-        fbAuth.onAuthStateChanged((user) => {
-          if (user) {
-            currentUser = {
-              id: user.uid,
-              uid: user.uid,
-              email: user.email,
-              user_metadata: {
-                full_name: user.displayName || user.email?.split('@')[0] || 'User',
-                biz_type: currentUser?.bizType || localStorage.getItem('ergio_biz_type') || 'general business',
-                city: currentUser?.city || localStorage.getItem('ergio_city') || 'Nigeria'
-              }
-            };
-            localStorage.setItem('ergio_user', JSON.stringify({
-              uid: user.uid, id: user.uid,
-              email: user.email,
-              fullName: user.displayName || user.email?.split('@')[0]
-            }));
-            initDashboard();
-          } else {
-            if (currentUser && (currentUser.id || currentUser.uid)) {
-              initDashboard();
-            } else {
-              showLoginPrompt();
-            }
+      await ENGINES.streamConductor(text, bizId, null, function(type, data) {
+        var styles = {
+          status: 'color:rgba(255,255,255,.6);padding:.15rem 0 .15rem 1rem;font-size:.78rem',
+          plan: 'color:#a78bfa;padding:.2rem 0 .2rem 1rem;font-size:.78rem',
+          task_start: 'color:#fbbf24;padding:.3rem 0 .3rem 1rem;font-size:.78rem;font-weight:600',
+          task_progress: 'color:rgba(255,255,255,.4);padding:.1rem 0 .1rem 1.5rem;font-size:.72rem',
+          task_done: 'color:#22c55e;padding:.2rem 0 .2rem 1rem;font-size:.78rem',
+          task_error: 'color:#ef4444;padding:.2rem 0 .2rem 1rem;font-size:.78rem',
+          result: 'color:#22c55e;padding:.4rem 0 .4rem .5rem;border-top:1px solid rgba(255,255,255,.08);font-weight:700',
+          error: 'color:#ef4444;padding:.3rem 0',
+        };
+        var msg = data.message || '';
+        if (type === 'status' && progressBar && data.step && data.total) {
+          progressBar.style.width = ((data.step / data.total) * 100) + '%';
+          if (progressLabel) progressLabel.textContent = msg;
+        }
+        if (type === 'result' && progressBar) progressBar.style.width = '100%';
+        if (type === 'plan' && data.sub_tasks) {
+          chat.innerHTML += '<div style="' + styles[type] + '">' + msg + '</div>';
+          for (var i = 0; i < data.sub_tasks.length; i++) {
+            var t = data.sub_tasks[i];
+            chat.innerHTML += '<div style="color:rgba(255,255,255,.3);padding:.1rem 0 .1rem 1.5rem;font-size:.72rem">  → ' + t.engine + ' → ' + t.action + '</div>';
           }
-        });
-      } else {
-        // Firebase not configured — use localStorage session (Supabase auth fallback)
-        if (currentUser && (currentUser.id || currentUser.uid)) {
-          initDashboard();
-        } else {
-          showLoginPrompt();
-        }
-      }
-    }
-
-    function showLoginPrompt() {
-      document.getElementById('loginPrompt').style.display = 'block';
-      document.getElementById('dashboardContent').style.display = 'none';
-      document.getElementById('loadingState').style.display = 'none';
-    }
-
-    function initDashboard() {
-      document.getElementById('loadingState').style.display = 'none';
-      document.getElementById('dashboardContent').style.display = 'block';
-
-      const name = currentUser.user_metadata?.full_name || currentUser.fullName || currentUser.email?.split('@')[0] || 'User';
-      document.getElementById('userName').textContent = name;
-      document.getElementById('userEmail').textContent = currentUser.email || '';
-      document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
-
-      loadWebsitePreview();
-      loadBusinessData();
-    }
-
-    function loadWebsitePreview() {
-      const savedWebsite = localStorage.getItem('ergio_generated_website');
-      const savedBusiness = localStorage.getItem('ergio_generated_business');
-
-      if (savedWebsite && savedWebsite.length > 100) {
-        const biz = savedBusiness ? JSON.parse(savedBusiness) : {};
-        document.getElementById('noWebsiteState').style.display = 'none';
-        document.getElementById('websitePreview').style.display = 'block';
-        document.getElementById('myWebsiteFrame').srcdoc = savedWebsite;
-        if (biz.name) document.getElementById('websiteName').textContent = biz.name;
-        if (biz.slug) document.getElementById('websiteUrl').textContent = 'ergio.app/' + biz.slug;
-      }
-    }
-
-    async function loadBusinessData() {
-      if (!sbClient || !currentUser) return;
-
-      try {
-        // Get user's business
-        const { data: businesses } = await sbClient.from('businesses')
-          .select('*').eq('user_id', currentUser.id || currentUser.uid).limit(1);
-
-        // Get real counts
-        const { count: leadsCount } = await sbClient.from('leads')
-          .select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id || currentUser.uid);
-
-        const { count: bookingsCount } = await sbClient.from('bookings')
-          .select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id || currentUser.uid);
-
-        // Render KPIs with real data
-        renderKPIs(businesses?.length || 0, leadsCount || 0, bookingsCount || 0, 0);
-
-        // Load recent leads
-        if (leadsCount > 0) {
-          const { data: recentLeads } = await sbClient.from('leads')
-            .select('*').eq('user_id', currentUser.id || currentUser.uid).order('created_date', { ascending: false }).limit(5);
-          renderRecentLeads(recentLeads || []);
-        } else {
-          document.getElementById('recentLeads').innerHTML = `
-            <div class="empty-state">
-              <div class="icon">🎯</div>
-              <h3>No leads yet</h3>
-              <p>ERGIO will scan the internet to find people who need your services. Click "Scan for Clients" to start.</p>
-            </div>`;
-        }
-
-        // Load bookings
-        if (bookingsCount > 0) {
-          const { data: bookings } = await sbClient.from('bookings')
-            .select('*').eq('user_id', currentUser.id || currentUser.uid).order('created_date', { ascending: false }).limit(10);
-          renderBookings(bookings || []);
-        }
-
-      } catch(e) {
-        console.log('Data load error:', e.message);
-        renderKPIs(0, 0, 0, 0);
-        document.getElementById('recentLeads').innerHTML = `
-          <div class="empty-state">
-            <div class="icon">🎯</div>
-            <h3>No leads yet</h3>
-            <p>ERGIO will scan the internet to find people who need your services.</p>
-          </div>`;
-      }
-    }
-
-    function renderKPIs(businessCount, leadsCount, bookingsCount, revenue) {
-      document.getElementById('kpiGrid').innerHTML = `
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:rgba(0,217,255,.15)">🌐</div>
-          <div class="kpi-value">${businessCount}</div>
-          <div class="kpi-label">Websites Built</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:rgba(0,255,157,.15)">🎯</div>
-          <div class="kpi-value">${leadsCount}</div>
-          <div class="kpi-label">Leads Found</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:rgba(255,184,0,.15)">📅</div>
-          <div class="kpi-value">${bookingsCount}</div>
-          <div class="kpi-label">Bookings</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:rgba(139,92,246,.15)">💰</div>
-          <div class="kpi-value">₦${revenue.toLocaleString()}</div>
-          <div class="kpi-label">Revenue</div>
-        </div>`;
-    }
-
-    function renderRecentLeads(leads) {
-      if (!leads || leads.length === 0) {
-        document.getElementById('recentLeads').innerHTML = `
-          <div class="empty-state">
-            <div class="icon">🎯</div>
-            <h3>No leads yet</h3>
-            <p>ERGIO will scan the internet to find people who need your services.</p>
-          </div>`;
-        return;
-      }
-
-      document.getElementById('recentLeads').innerHTML = leads.map(lead => {
-        const score = lead.score || lead.lead_score || 0;
-        const scoreColor = score >= 80 ? 'var(--green)' : score >= 50 ? 'var(--yellow)' : 'var(--red)';
-        return `
-          <div class="lead-item">
-            <div class="lead-score" style="background:${scoreColor}20;color:${scoreColor}">${score}</div>
-            <div class="lead-info">
-              <div class="lead-name">${lead.name || lead.business_name || 'Unknown'}</div>
-              <div class="lead-detail">${lead.service_needed || lead.service || 'Service inquiry'} · ${lead.phone || lead.email || 'No contact'}</div>
-            </div>
-            <button class="lead-action" onclick="contactLead('${lead.id || ''}')">Contact →</button>
-          </div>`;
-      }).join('');
-    }
-
-    function renderBookings(bookings) {
-      const list = document.getElementById('bookingsList');
-      if (!bookings || bookings.length === 0) return;
-      list.innerHTML = bookings.map(b => {
-        const date = new Date(b.booking_date || b.created_date || Date.now());
-        return `
-          <div class="booking-item">
-            <div class="booking-date">
-              <div class="day">${date.getDate()}</div>
-              <div class="month">${date.toLocaleString('default',{month:'short'})}</div>
-            </div>
-            <div class="booking-info">
-              <div class="booking-name">${b.client_name || 'Client'}</div>
-              <div class="booking-service">${b.service || b.service_name || 'Service'}</div>
-            </div>
-            <div class="booking-status ${b.status || 'pending'}">${(b.status || 'pending').charAt(0).toUpperCase() + (b.status || 'pending').slice(1)}</div>
-          </div>`;
-      }).join('');
-    }
-
-    let isScanning = false;
-    async function scanLeads() {
-      if (isScanning) return;
-      isScanning = true;
-      const btn = document.getElementById('scanBtn');
-      if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-lg" style="width:16px;height:16px;border-width:2px"></span> Scanning...'; }
-
-      const list = document.getElementById('leadsList');
-      list.innerHTML = '<div class="loading"><div class="spinner-lg"></div><p>Scanning the internet for clients who need your services...</p></div>';
-
-      try {
-        const response = await fetch(`${window.ERGIO_CONFIG.apiBase}/api/leads`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            service: currentUser?.user_metadata?.biz_type || currentUser?.bizType || localStorage.getItem('ergio_biz_type') || 'general business',
-            location: currentUser?.user_metadata?.city || 'Nigeria'
-          })
-        });
-
-        if (!response.ok) throw new Error('Scan failed');
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let leads = [];
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const text = decoder.decode(value);
-          const lines = text.split('\n');
-          for (const line of lines) {
-            if (!line.startsWith('data: ')) continue;
-            try {
-              const event = JSON.parse(line.slice(6));
-              if (event.type === 'lead' && event.lead) {
-                leads.push(event.lead);
-                renderLeadsList(leads, false);
-              }
-              if (event.type === 'done') {
-                renderLeadsList(leads, true);
-              }
-            } catch(e) {}
+        } else if (styles[type]) {
+          chat.innerHTML += '<div style="' + styles[type] + '">' + msg + '</div>';
+          if (type === 'task_done' && data.result_summary) {
+            chat.innerHTML += '<div style="color:rgba(255,255,255,.3);padding:.1rem 0 .1rem 1.5rem;font-size:.72rem;overflow:hidden;text-overflow:ellipsis">' + (data.result_summary||'').substring(0,120) + '...</div>';
           }
         }
-
-        if (leads.length === 0) {
-          list.innerHTML = `
-            <div class="empty-state">
-              <div class="icon">🎯</div>
-              <h3>No leads found this time</h3>
-              <p>Try again later or refine your business type. ERGIO scans 70+ search engines for potential clients.</p>
-            </div>`;
-        }
-      } catch(e) {
-        list.innerHTML = `
-          <div class="empty-state">
-            <div class="icon">⚠️</div>
-            <h3>Scan temporarily unavailable</h3>
-            <p>The lead scanner is working but hit a rate limit. Try again in a few minutes.</p>
-          </div>`;
-      }
-
-      isScanning = false;
-      if (btn) { btn.disabled = false; btn.innerHTML = '🎯 Scan for Clients'; }
-    }
-
-    function renderLeadsList(leads, done) {
-      const list = document.getElementById('leadsList');
-      let html = done ? '' : '<div style="color:var(--cyan);font-size:.85rem;margin-bottom:1rem">🔍 Found ' + leads.length + ' leads...</div>';
-      html += leads.map(lead => {
-        const score = lead.score || 0;
-        const scoreColor = score >= 80 ? 'var(--green)' : score >= 50 ? 'var(--yellow)' : 'var(--red)';
-        return `
-          <div class="lead-item">
-            <div class="lead-score" style="background:${scoreColor}20;color:${scoreColor}">${score}</div>
-            <div class="lead-info">
-              <div class="lead-name">${lead.name || lead.business_name || 'Potential Client'}</div>
-              <div class="lead-detail">${lead.service_needed || lead.service || 'Service inquiry'} · ${lead.phone || lead.email || 'No contact'}</div>
-            </div>
-            <button class="lead-action">Contact →</button>
-          </div>`;
-      }).join('');
-      list.innerHTML = html;
-    }
-
-    function openWebsiteFull() {
-      const html = localStorage.getItem('ergio_generated_website');
-      if (html) {
-        const blob = new Blob([html], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-      }
-    }
-
-    function switchTab(tab) {
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.getElementById('tab-' + tab).classList.add('active');
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.querySelector(`[data-tab="${tab}"]`)?.classList.add('active');
-      document.getElementById('pageTitle').textContent = tab.charAt(0).toUpperCase() + tab.slice(1);
-    }
-
-    async function handleLogout() {
-      try { if (fbAuth) await fbAuth.signOut(); } catch(e) {}
-      try { if (sbClient) await sbClient.auth.signOut(); } catch(e) {}
-      localStorage.removeItem('ergio_user');
-      window.location.href = '../auth/login.html';
-    }
-
-    // Add a 5-second timeout to prevent infinite loading
-    setTimeout(() => {
-      if (document.getElementById('loadingState').style.display !== 'none') {
-        // Check localStorage fallback
-        const savedUser = localStorage.getItem('ergio_user');
-        if (savedUser) {
-          try {
-            currentUser = JSON.parse(savedUser);
-            initDashboard();
-          } catch(e) {
-            showLoginPrompt();
-          }
-        } else {
-          showLoginPrompt();
-        }
-      }
-    }, 5000);
-
-    // ════════════════════════════════════════════
-    // AGENTIC MODE — AI Agents
-    // ════════════════════════════════════════════
-
-    const AGENT_ICONS = {
-      ceo: { icon: '👑', name: 'CEO Agent', color: '#FFD700' },
-      planner: { icon: '📋', name: 'Business Planner', color: '#00D9FF' },
-      'web-engineer': { icon: '🏗️', name: 'Website Engineer', color: '#00FF9D' },
-      backend: { icon: '⚙️', name: 'Backend Engineer', color: '#8B5CF6' },
-      frontend: { icon: '🎨', name: 'Frontend Engineer', color: '#FF6B6B' },
-      marketing: { icon: '📣', name: 'Marketing Agent', color: '#FF9500' },
-      ops: { icon: '🔄', name: 'Operations Agent', color: '#2563FF' }
-    };
-
-    const agentStates = {};
-
-    function renderAgentGrid() {
-      const grid = document.getElementById('agentGrid');
-      if (!grid) return;
-      grid.innerHTML = Object.entries(AGENT_ICONS).map(([id, a]) => {
-        const state = agentStates[id] || 'idle';
-        const stateColor = state === 'working' ? '#FFB800' : state === 'done' ? '#00FF9D' : '#1E2730';
-        const stateText = state === 'working' ? 'Working...' : state === 'done' ? 'Complete' : 'Idle';
-        return `
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.2rem;position:relative;overflow:hidden">
-            <div style="position:absolute;top:0;left:0;width:4px;height:100%;background:${a.color};opacity:.6"></div>
-            <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.6rem">
-              <div style="font-size:1.8rem">${a.icon}</div>
-              <div>
-                <div style="font-weight:700;font-size:.95rem">${a.name}</div>
-                <div style="font-size:.75rem;color:${stateColor}">● ${stateText}</div>
-              </div>
-            </div>
-            <div id="agent-${id}-message" style="font-size:.82rem;color:var(--muted);min-height:2.4rem">
-              ${state === 'working' ? (agentStates[id + '_msg'] || 'Thinking...') : 'Ready for tasks'}
-            </div>
-          </div>`;
-      }).join('');
-    }
-
-    let agentRunning = false;
-    async function runAgents(workflow) {
-      if (agentRunning) return;
-
-      const prompt = currentUser?.user_metadata?.biz_type || 'General Business';
-      agentRunning = true;
-
-      // Reset states
-      Object.keys(AGENT_ICONS).forEach(id => { agentStates[id] = 'idle'; });
-      renderAgentGrid();
-
-      document.getElementById('agentActivity').style.display = 'block';
-      document.getElementById('agentResults').style.display = 'none';
-      const log = document.getElementById('agentLog');
-      log.innerHTML = '<div style="color:var(--cyan)">🚀 Launching workflow: ' + workflow + '</div>';
-
-      // Disable buttons
-      document.querySelectorAll('#tab-agents button').forEach(b => b.disabled = true);
-
-      try {
-        const response = await fetch(window.ERGIO_CONFIG.apiBase + '/api/agents', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt, workflow })
-        });
-
-        if (!response.ok) throw new Error('Agent request failed');
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        const results = {};
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const text = decoder.decode(value);
-          const lines = text.split('\n');
-          for (const line of lines) {
-            if (!line.startsWith('data: ')) continue;
-            try {
-              const event = JSON.parse(line.slice(6));
-              handleAgentEvent(event, results, log);
-            } catch(e) {}
-          }
-        }
-
-        // Show results
-        renderAgentResults(results);
-
-      } catch(e) {
-        log.innerHTML += '<div style="color:var(--red)">❌ Error: ' + e.message + '</div>';
-      }
-
-      agentRunning = false;
-      document.querySelectorAll('#tab-agents button').forEach(b => b.disabled = false);
-    }
-
-    function handleAgentEvent(event, results, log) {
-      const { type, data } = event;
-
-      if (type === 'agent_start') {
-        agentStates[data.agentId] = 'working';
-        agentStates[data.agentId + '_msg'] = data.task;
-        renderAgentGrid();
-        log.innerHTML += '<div style="color:' + (AGENT_ICONS[data.agentId]?.color || '#fff') + '">' +
-          data.icon + ' <b>' + data.agentName + '</b>: ' + data.task + '</div>';
-        log.scrollTop = log.scrollHeight;
-      }
-
-      if (type === 'agent_progress') {
-        agentStates[data.agentId + '_msg'] = data.message;
-        const msgEl = document.getElementById('agent-' + data.agentId + '-message');
-        if (msgEl) msgEl.textContent = data.message;
-        log.innerHTML += '<div style="color:var(--muted);padding-left:2rem">→ ' + data.message + '</div>';
-        log.scrollTop = log.scrollHeight;
-      }
-
-      if (type === 'agent_done') {
-        agentStates[data.agentId] = 'done';
-        renderAgentGrid();
-        results[data.agentId] = data.result;
-        const name = AGENT_ICONS[data.agentId]?.name || data.agentId;
-        log.innerHTML += '<div style="color:var(--green)">✓ ' + name + ' completed</div>';
-        log.scrollTop = log.scrollHeight;
-      }
-
-      if (type === 'complete') {
-        log.innerHTML += '<div style="color:var(--green);font-weight:700;margin-top:.5rem">🎉 ' + data.message + '</div>';
-      }
-    }
-
-    function renderAgentResults(results) {
-      const container = document.getElementById('agentResultsContent');
-      document.getElementById('agentResults').style.display = 'block';
-
-      let html = '';
-      for (const [agentId, result] of Object.entries(results)) {
-        const agent = AGENT_ICONS[agentId];
-        if (!agent) continue;
-        html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem">' +
-          '<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem">' +
-          '<span style="font-size:1.4rem">' + agent.icon + '</span>' +
-          '<span style="font-weight:700">' + agent.name + ' — Results</span></div>' +
-          '<pre style="font-size:.8rem;color:var(--muted);white-space:pre-wrap;max-height:300px;overflow-y:auto">' +
-          JSON.stringify(result, null, 2).replace(/</g, '&lt;') + '</pre></div>';
-      }
-      container.innerHTML = html || '<p style="color:var(--muted)">No results to display</p>';
-    }
-
-    // Render agent grid on load
-    renderAgentGrid();
-
-    // ════════════════════════════════════════════
-    // MCP SERVERS & PLUGINS
-    // ════════════════════════════════════════════
-
-    let pluginMarketplace = [];
-    let userMcpServers = [];
-
-    async function loadPlugins() {
-      try {
-        const res = await fetch(window.ERGIO_CONFIG.apiBase + '/api/mcp?action=marketplace');
-        const data = await res.json();
-        pluginMarketplace = data.plugins || [];
-        renderPluginGrid();
-      } catch(e) {
-        console.error('Failed to load plugins:', e);
-      }
-    }
-
-    function renderPluginGrid(filter) {
-      const grid = document.getElementById('pluginGrid');
-      if (!grid) return;
-      let plugins = pluginMarketplace;
-      if (filter) {
-        filter = filter.toLowerCase();
-        plugins = plugins.filter(p =>
-          p.name.toLowerCase().includes(filter) ||
-          p.description.toLowerCase().includes(filter) ||
-          p.category.toLowerCase().includes(filter)
-        );
-      }
-      grid.innerHTML = plugins.map(p => `
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.2rem;transition:all .2s;cursor:pointer" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)'">
-          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem">
-            <span style="font-size:1.8rem">${p.icon}</span>
-            <div>
-              <div style="font-weight:700;font-size:.95rem">${p.name} ${p.verified ? '✓' : ''}</div>
-              <div style="font-size:.7rem;color:var(--cyan)">${p.category}${p.popular ? ' · 🔥 Popular' : ''}</div>
-            </div>
-          </div>
-          <p style="font-size:.82rem;color:var(--muted);margin-bottom:.6rem">${p.description}</p>
-          ${p.env && p.env.length > 0 ? '<div style="font-size:.7rem;color:var(--muted);margin-bottom:.5rem">Requires: ' + p.env.map(e => '<code>' + e + '</code>').join(' ') + '</div>' : ''}
-          <button class="btn btn-primary" onclick="addPlugin('${p.id}')" style="width:100%;padding:.5rem;font-size:.85rem">+ Add</button>
-        </div>
-      `).join('');
-    }
-
-    function filterPlugins() {
-      const q = document.getElementById('pluginSearch').value;
-      renderPluginGrid(q);
-    }
-
-    function switchPluginTab(tab) {
-      document.getElementById('pluginTabMarketplace').style.background = tab === 'marketplace' ? 'var(--cyan)' : 'transparent';
-      document.getElementById('pluginTabMarketplace').style.color = tab === 'marketplace' ? '#000' : 'var(--muted)';
-      document.getElementById('pluginTabMyServers').style.background = tab === 'myservers' ? 'var(--cyan)' : 'transparent';
-      document.getElementById('pluginTabMyServers').style.color = tab === 'myservers' ? '#000' : 'var(--muted)';
-      document.getElementById('pluginMarketplace').style.display = tab === 'marketplace' ? 'block' : 'none';
-      document.getElementById('pluginMyServers').style.display = tab === 'myservers' ? 'block' : 'none';
-      if (tab === 'myservers') loadMyServers();
-    }
-
-    async function addPlugin(pluginId) {
-      const plugin = pluginMarketplace.find(p => p.id === pluginId);
-      if (!plugin) return;
-
-      try {
-        const res = await fetch(window.ERGIO_CONFIG.apiBase + '/api/mcp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: plugin.name,
-            pluginId: plugin.id,
-            transport: plugin.transport,
-            command: plugin.command,
-            args: plugin.args,
-            url: plugin.url,
-            envVars: {},
-            userId: currentUser?.uid || 'anon'
-          })
-        });
-        const data = await res.json();
-        alert(plugin.icon + ' ' + plugin.name + ' added! Configure env vars in My Servers tab.');
-        switchPluginTab('myservers');
-      } catch(e) {
-        alert('Failed to add plugin: ' + e.message);
-      }
-    }
-
-    async function loadMyServers() {
-      try {
-        const res = await fetch(window.ERGIO_CONFIG.apiBase + '/api/mcp?userId=' + (currentUser?.uid || 'anon'));
-        const data = await res.json();
-        userMcpServers = data.servers || [];
-        renderMyServers();
-      } catch(e) {
-        // Fallback to localStorage
-        userMcpServers = JSON.parse(localStorage.getItem('ergio_mcp_servers') || '[]');
-        renderMyServers();
-      }
-    }
-
-    function renderMyServers() {
-      const list = document.getElementById('myServersList');
-      if (!list) return;
-      if (!userMcpServers || userMcpServers.length === 0) {
-        list.innerHTML = '<div style="background:var(--surface);border:1px dashed var(--border);border-radius:12px;padding:2rem;text-align:center;color:var(--muted)">No MCP servers configured yet. Browse the marketplace to add one.</div>';
-        return;
-      }
-      list.innerHTML = userMcpServers.map(s => {
-        const plugin = pluginMarketplace.find(p => p.id === s.plugin_id);
-        const icon = plugin?.icon || '🔌';
-        return `
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem;display:flex;align-items:center;justify-content:space-between">
-            <div style="display:flex;align-items:center;gap:.8rem">
-              <span style="font-size:1.4rem">${icon}</span>
-              <div>
-                <div style="font-weight:600;font-size:.9rem">${s.name}</div>
-                <div style="font-size:.75rem;color:var(--muted)">${s.transport} · ${s.status || 'pending'}</div>
-              </div>
-            </div>
-            <div style="display:flex;gap:.5rem">
-              <button class="btn btn-ghost" style="padding:.4rem .8rem;font-size:.8rem" onclick="testMcpServer('${s.id}')">Test</button>
-              <button class="btn btn-ghost" style="padding:.4rem .8rem;font-size:.8rem;color:var(--red)" onclick="removeMcpServer('${s.id}')">Remove</button>
-            </div>
-          </div>`;
-      }).join('');
-    }
-
-    async function testMcpServer(serverId) {
-      const server = userMcpServers.find(s => s.id == serverId);
-      if (!server) return;
-      try {
-        const res = await fetch(window.ERGIO_CONFIG.apiBase + '/api/mcp', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ serverId, url: server.url, transport: server.transport })
-        });
-        const data = await res.json();
-        if (data.status === 'connected') {
-          alert('✅ ' + server.name + ' is connected!\nTools: ' + (data.tools || []).map(t => t.name).join(', '));
-        }
-      } catch(e) {
-        alert('❌ Connection failed: ' + e.message);
-      }
-    }
-
-    async function removeMcpServer(serverId) {
-      try {
-        await fetch(window.ERGIO_CONFIG.apiBase + '/api/mcp', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ serverId, userId: currentUser?.uid || 'anon' })
-        });
-      } catch(e) {}
-      // Also remove from localStorage
-      userMcpServers = userMcpServers.filter(s => s.id != serverId);
-      localStorage.setItem('ergio_mcp_servers', JSON.stringify(userMcpServers));
-      renderMyServers();
-    }
-
-    function showAddCustomServer() {
-      document.getElementById('customServerModal').style.display = 'flex';
-      // Show/hide fields based on transport
-      document.getElementById('mcpTransport').onchange = function() {
-        const isStdio = this.value === 'stdio';
-        document.getElementById('mcpUrlField').style.display = isStdio ? 'none' : 'block';
-        document.getElementById('mcpCommandField').style.display = isStdio ? 'block' : 'none';
-      };
-    }
-
-    async function addCustomServer() {
-      const name = document.getElementById('mcpName').value || 'Custom MCP';
-      const transport = document.getElementById('mcpTransport').value;
-      const url = document.getElementById('mcpUrl').value;
-      const command = document.getElementById('mcpCommand').value;
-      const argsStr = document.getElementById('mcpArgs').value;
-      const envStr = document.getElementById('mcpEnv').value;
-
-      let args = [];
-      if (argsStr) args = argsStr.split(',').map(a => a.trim());
-
-      let envVars = {};
-      if (envStr) {
-        try { envVars = JSON.parse(envStr); } catch(e) { alert('Invalid env vars JSON'); return; }
-      }
-
-      try {
-        const res = await fetch(window.ERGIO_CONFIG.apiBase + '/api/mcp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name, pluginId: 'custom', transport, command, args, url,
-            envVars, userId: currentUser?.uid || 'anon'
-          })
-        });
-        const data = await res.json();
-        // Also save to localStorage as backup
-        userMcpServers.push(data.server);
-        localStorage.setItem('ergio_mcp_servers', JSON.stringify(userMcpServers));
-        document.getElementById('customServerModal').style.display = 'none';
-        renderMyServers();
-        // Clear fields
-        document.getElementById('mcpName').value = '';
-        document.getElementById('mcpUrl').value = '';
-        document.getElementById('mcpCommand').value = '';
-        document.getElementById('mcpArgs').value = '';
-        document.getElementById('mcpEnv').value = '';
-      } catch(e) {
-        alert('Failed to add server: ' + e.message);
-      }
-    }
-
-    // Load plugins on page load
-    loadPlugins();
-
-    // Start
-    checkAuth();
-  
-    // ── Advisor Engine ──
-    async function runAdvisorAnalysis() {
-      const btn = document.getElementById('advisorRunBtn');
-      btn.textContent = '⏳ Analyzing...';
-      btn.disabled = true;
-
-      try {
-        const userId = currentUser?.uid || 'demo';
-        const r = await fetch(`${API_BASE}/api/advisor?action=analyze&userId=${userId}`);
-        const data = await r.json();
-
-        if (data.success) {
-          renderAdvisorAnalysis(data);
-        } else {
-          btn.textContent = '❌ Error';
-          setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
-        }
-      } catch (e) {
-        console.error('Advisor error:', e);
-        btn.textContent = '❌ Error';
-        setTimeout(() => { btn.textContent = '📊 Analyze My Business'; btn.disabled = false; }, 2000);
-      }
-    }
-
-    function renderAdvisorAnalysis(data) {
-      document.getElementById('advisorRunBtn').textContent = '🔄 Refresh Analysis';
-      document.getElementById('advisorRunBtn').disabled = false;
-
-      // Show health card
-      document.getElementById('advisorHealthCard').style.display = 'block';
-      document.getElementById('advisorScoreValue').textContent = data.healthScore;
-      document.getElementById('advisorHealthStatus').textContent = data.healthStatus;
-      document.getElementById('advisorBusinessName').textContent = `${data.business.name} • ${data.business.industry} • ${data.business.location}`;
-
-      // Animate score circle
-      const offset = 440 - (440 * data.healthScore / 100);
-      setTimeout(() => {
-        document.getElementById('advisorScoreCircle').style.strokeDashoffset = offset;
-      }, 100);
-
-      // Metrics row
-      const m = data.metrics;
-      const metricsHtml = [
-        { label: 'Revenue', value: '₦' + (m.totalRevenue || 0).toLocaleString(), icon: '💰', color: '#10b981' },
-        { label: 'Leads', value: m.totalLeads, icon: '🎯', color: '#3b82f6' },
-        { label: 'Conversion', value: m.leadConversionRate + '%', icon: '🔄', color: '#f59e0b' },
-        { label: 'Bookings', value: m.totalBookings, icon: '📅', color: '#8b5cf6' },
-        { label: 'Rating', value: m.avgRating + '★', icon: '⭐', color: '#ef4444' },
-      ].map(x => `<div style="text-align:center;"><div style="font-size:20px;">${x.icon}</div><div style="font-size:18px; font-weight:700; color:${x.color};">${x.value}</div><div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">${x.label}</div></div>`).join('');
-      document.getElementById('advisorMetricsRow').innerHTML = metricsHtml;
-
-      // Breakdown bars
-      document.getElementById('advisorBreakdown').style.display = 'grid';
-      const breakdownHtml = Object.entries(data.breakdown).map(([key, val]) => {
-        const pct = (val.score / val.max) * 100;
-        const color = pct >= 75 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444';
-        return `<div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:16px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-            <span style="color:#cbd5e1; font-size:13px; font-weight:500;">${val.label}</span>
-            <span style="color:${color}; font-weight:700; font-size:14px;">${val.score}/${val.max}</span>
-          </div>
-          <div style="height:8px; background:#0f172a; border-radius:4px; overflow:hidden;">
-            <div style="height:100%; width:${pct}%; background:${color}; border-radius:4px; transition:width 1s ease;"></div>
-          </div>
-        </div>`;
-      }).join('');
-      document.getElementById('advisorBreakdown').innerHTML = breakdownHtml;
-
-      // Insights
-      if (data.insights && data.insights.length > 0) {
-        document.getElementById('advisorInsights').style.display = 'block';
-        const insightsHtml = data.insights.map(ins => {
-          const bg = ins.type === 'warning' ? 'rgba(239,68,68,0.1)' : ins.type === 'success' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)';
-          const border = ins.type === 'warning' ? '#ef4444' : ins.type === 'success' ? '#10b981' : '#3b82f6';
-          return `<div style="background:${bg}; border-left:3px solid ${border}; padding:14px 16px; border-radius:8px; color:#e2e8f0; font-size:14px;">
-            ${ins.icon} ${ins.text}
-          </div>`;
-        }).join('');
-        document.getElementById('advisorInsightsList').innerHTML = insightsHtml;
-      }
-
-      // Recommendations
-      if (data.recommendations && data.recommendations.length > 0) {
-        document.getElementById('advisorRecs').style.display = 'block';
-        const recsHtml = data.recommendations.map((rec, i) => {
-          const priorityColor = rec.priority === 'high' ? '#ef4444' : rec.priority === 'medium' ? '#f59e0b' : '#10b981';
-          return `<div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:20px;">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-              <span style="background:${priorityColor}; color:white; font-size:10px; padding:3px 8px; border-radius:6px; text-transform:uppercase; font-weight:600;">${rec.priority}</span>
-              <h4 style="color:white; margin:0; font-size:15px;">${i+1}. ${rec.title}</h4>
-            </div>
-            <p style="color:#94a3b8; font-size:13px; margin:4px 0 8px;">${rec.description}</p>
-            <div style="display:flex; gap:16px; margin-top:8px;">
-              <div style="font-size:12px; color:#10b981;">✅ ${rec.action}</div>
-            </div>
-            <div style="font-size:12px; color:#3b82f6; margin-top:4px;">📈 ${rec.expectedImpact}</div>
-          </div>`;
-        }).join('');
-        document.getElementById('advisorRecsList').innerHTML = recsHtml;
-      }
-    }
-
-    async function askAdvisor(question) {
-      const chat = document.getElementById('advisorChat');
-      
-      // Add user message
-      chat.innerHTML += `<div class="advisor-msg-user">${question}</div>`;
-      
-      // Typing indicator
-      chat.innerHTML += `<div class="advisor-msg-ai" id="typingMsg">🤔 Thinking...</div>`;
-      chat.scrollTop = chat.scrollHeight;
-
-      try {
-        const r = await fetch(`${API_BASE}/api/advisor`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            question,
-            businessName: currentUser?.displayName || 'My Business',
-            industry: 'General',
-            location: 'Nigeria'
-          })
-        });
-        const data = await r.json();
-        
-        document.getElementById('typingMsg').remove();
-        chat.innerHTML += `<div class="advisor-msg-ai">${(data.answer || data.error || 'No response').replace(/\n/g, '<br>')}</div>`;
         chat.scrollTop = chat.scrollHeight;
-      } catch (e) {
-        document.getElementById('typingMsg').remove();
-        chat.innerHTML += `<div class="advisor-msg-ai">Sorry, I couldn't process that right now.</div>`;
-      }
+      });
+    } catch(e) {
+      chat.innerHTML += '<div style="color:rgba(255,255,255,.4);padding:.2rem 1rem;font-size:.72rem">  Stream unavailable, trying direct...</div>';
+      await conductorFallback(text, bizId, chat, progressBar);
     }
-
-    function askAdvisorFromInput() {
-      const input = document.getElementById('advisorInput');
-      const q = input.value.trim();
-      if (!q) return;
-      askAdvisor(q);
-      input.value = '';
-    }
-
-
-// ── ERGIO CONDUCTOR ──
-async function initConductor() {
-  if (!window.ErgioCommand) return;
-  const statusEl = document.getElementById('conductorStatus');
-  const health = await ErgioCommand.checkHealth();
-  if (health.status === 'healthy') {
-    statusEl.textContent = '🟢 Online — ' + (health.groq ? 'AI ready' : 'AI limited');
-    statusEl.style.color = 'rgba(0,255,136,.7)';
   } else {
-    statusEl.textContent = '🔴 Offline (cold start)';
-    statusEl.style.color = 'rgba(255,100,100,.7)';
-    setTimeout(() => initConductor(), 15000); // retry
+    await conductorFallback(text, bizId, chat, progressBar);
   }
-}
 
-async function runConductor() {
-  const input = document.getElementById('conductorInput');
-  const chat = document.getElementById('conductorChat');
-  const text = input.value.trim();
-  if (!text) return;
-  
-  // User message
-  chat.innerHTML += `<div style="align-self:flex-end;background:rgba(99,102,241,.2);padding:.6rem .9rem;border-radius:.6rem .6rem 0 .6rem;max-width:80%;font-size:.85rem">${text.replace(/</g,'&lt;')}</div>`;
-  input.value = '';
-  chat.scrollTop = chat.scrollHeight;
-  
-  // Loading
-  const loadingId = 'load-' + Date.now();
-  chat.innerHTML += `<div id="${loadingId}" style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;font-size:.85rem;color:rgba(255,255,255,.5)">⚡ ERGIO is working...</div>`;
-  chat.scrollTop = chat.scrollHeight;
-  
-  try {
-    const bizId = localStorage.getItem('ergio_business_id') || null;
-    const result = await ErgioCommand.command(text, bizId, null);
-    document.getElementById(loadingId).remove();
-    
-    let response = result.summary || result.report || JSON.stringify(result).substring(0, 300);
-    if (result.sub_tasks) {
-      response = `📋 ${result.sub_tasks.length} tasks planned:\n` + 
-        result.sub_tasks.map((t,i) => `${i+1}. ${t.engine} → ${t.action}${t.requires_approval ? ' (needs approval)' : ''}`).join('\n');
-    }
-    
-    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;max-width:85%;font-size:.85rem;white-space:pre-wrap">${response.replace(/</g,'&lt;')}</div>`;
-  } catch (e) {
-    document.getElementById(loadingId).remove();
-    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,100,100,.1);padding:.6rem .9rem;border-radius:.6rem;font-size:.85rem">⚠️ ${e.message}</div>`;
-  }
+  if (runBtn) { runBtn.disabled = false; runBtn.textContent = '⚡ Run'; }
+  if (input) input.focus();
   chat.scrollTop = chat.scrollHeight;
 }
 
-
-// ── Engine Status from Render ──
-async function loadEngineStatusFromRender() {
-  if (!window.ErgioCommand) return;
+async function conductorFallback(text, bizId, chat, progressBar) {
   try {
-    const status = await ErgioCommand.getSystemStatus();
-    if (status.status === 'operational' && status.engines) {
-      const enginesList = ['website_engine','lead_engine','booking_engine','invoice_engine','payment_engine','content_engine','voice_engine','analytics_engine','reputation_engine','workflow_engine'];
-      const labels = {
-        website_engine: '🌐 Website Engine', lead_engine: '🎯 Lead Engine',
-        booking_engine: '📅 Booking Engine', invoice_engine: '🧾 Invoice Engine',
-        payment_engine: '💰 Payment Engine', content_engine: '🎬 Content Engine',
-        voice_engine: '🎙️ Voice Engine', analytics_engine: '📊 Analytics Engine',
-        reputation_engine: '⭐ Reputation Engine', workflow_engine: '🔄 Workflow Engine'
-      };
-      const engineGrid = document.querySelector('#tab-engines .engine-grid');
-      if (engineGrid) {
-        enginesList.forEach(eng => {
-          const isActive = status.engines.includes(eng);
-          const card = engineGrid.querySelector(`[data-engine="${eng}"]`);
-          if (card) {
-            const statusDot = card.querySelector('.status-dot') || document.createElement('span');
-            statusDot.className = 'status-dot';
-            statusDot.style.cssText = 'display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;' + (isActive ? 'background:#00ff88' : 'background:#666');
-            if (!card.querySelector('.status-dot')) card.insertBefore(statusDot, card.firstChild);
-          }
-        });
-      }
-      // Also show MCP and plugin counts
-      const mcpCount = document.getElementById('mcpCount');
-      if (mcpCount) mcpCount.textContent = (status.mcps || []).length;
-      const pluginCount = document.getElementById('pluginCount');
-      if (pluginCount) pluginCount.textContent = (status.plugins || []).length;
-    }
-  } catch (e) {
-    console.warn('Engine status load failed:', e.message);
-  }
-}
-
-// Init conductor on load
-setTimeout(initConductor, 500);
-setTimeout(loadEngineStatusFromRender, 1000);
-
-</script>
-<script src="/guide-widget.js">
-
-// ============ FOUR CORE ENGINES ============
-const API = window.ERGIO_CONFIG?.apiBase || window.location.origin.replace(/\/dashboard$/, '');
-
-function showEngineResult(panelId, resultHtml, title) {
-  const panel = document.getElementById('enginePanel');
-  if (panel) {
-    document.getElementById('enginePanelTitle').textContent = title;
-    document.getElementById('enginePanelContent').innerHTML = resultHtml;
-    panel.style.display = 'block';
-    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-}
-
-function setEngineStatus(statusId, state) {
-  const el = document.getElementById(statusId);
-  if (!el) return;
-  const states = {
-    ready: { text: '● Ready', bg: 'rgba(0,255,157,0.1)', color: 'var(--green)', border: 'rgba(0,255,157,0.2)' },
-    running: { text: '⏳ Running...', bg: 'rgba(0,217,255,0.1)', color: 'var(--cyan)', border: 'rgba(0,217,255,0.2)' },
-    done: { text: '✓ Done', bg: 'rgba(0,255,157,0.1)', color: 'var(--green)', border: 'rgba(0,255,157,0.2)' },
-    error: { text: '✕ Error', bg: 'rgba(239,68,68,0.1)', color: 'var(--red)', border: 'rgba(239,68,68,0.2)' },
-  };
-  const s = states[state] || states.ready;
-  el.textContent = s.text;
-  el.style.background = s.bg;
-  el.style.color = s.color;
-  el.style.border = `1px solid ${s.border}`;
-}
-
-async function runEngine1(action) {
-  const bizType = window.currentBusiness?.type || window.currentBusiness?.industry || 'business';
-  const location = window.currentBusiness?.location || 'Lagos, Nigeria';
-  setEngineStatus('engine1Status', 'running');
-  try {
-    const r = await fetch(`${API}/api/leads`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, businessType: bizType, location, businessId: window.currentUser?.uid })
-    });
-    
-    // SSE stream handler
-    const reader = r.body.getReader();
-    const decoder = new TextDecoder();
-    let leads = [];
-    let buffer = '';
-    
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop();
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          try {
-            const d = JSON.parse(line.slice(6));
-            if (d.type === 'lead') leads.push(d.data);
-            if (d.type === 'complete') {
-              leads = d.data?.leads || leads;
-            }
-          } catch {}
+    if (ENGINES) {
+      const result = await ENGINES.conductor(text, bizId, null);
+      if (progressBar) progressBar.style.width = '100%';
+      chat.innerHTML += '<div style="color:#22c55e;padding:.3rem 0;font-weight:600">✅ ' + (result.summary || 'Done') + '</div>';
+      if (result.results) {
+        for (var i = 0; i < result.results.length; i++) {
+          var r = result.results[i];
+          var icon = r.status === 'completed' ? '✅' : '❌';
+          chat.innerHTML += '<div style="color:rgba(255,255,255,.5);padding:.1rem 1rem;font-size:.78rem">  ' + icon + ' ' + r.engine + ' → ' + r.action + '</div>';
         }
       }
-    }
-    
-    if (leads.length > 0) {
-      const html = leads.slice(0, 8).map(l => `
-        <div style="padding:.8rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;margin-bottom:.5rem;display:flex;gap:.8rem;align-items:flex-start">
-          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--green));display:flex;align-items:center;justify-content:center;font-weight:800;color:#000;font-size:14px;flex-shrink:0">${(l.name||'?')[0]}</div>
-          <div style="flex:1">
-            <div style="font-weight:700;font-size:.9rem">${l.name || 'Lead'}</div>
-            <div style="color:var(--muted);font-size:.8rem">${l.location || location} • ${l.platform || 'web'}</div>
-            <div style="color:var(--text2);font-size:.82rem;margin-top:2px">${l.message || l.reason || ''}</div>
-          </div>
-          <div style="font-size:.75rem;padding:3px 8px;border-radius:20px;background:rgba(0,255,157,.1);color:var(--green);white-space:nowrap">${l.score || 80}% match</div>
-        </div>
-      `).join('');
-      showEngineResult('engine1Result', html, `🗺️ Local Discovery — ${leads.length} leads found`);
+    } else if (CMD && CMD.command) {
+      const result = await CMD.command(text, bizId, null);
+      chat.innerHTML += '<div style="color:#22c55e;padding:.3rem 0">✅ ' + (result.summary || 'Done') + '</div>';
     } else {
-      showEngineResult('engine1Result', '<p style="color:var(--muted)">Scanning complete. Set up your business profile to improve lead matching.</p>', '🗺️ Local Discovery');
+      chat.innerHTML += '<div style="color:#ef4444;padding:.3rem 0">❌ Engine backend not connected. Deploy on Render first.</div>';
     }
-    setEngineStatus('engine1Status', 'done');
-    setTimeout(() => setEngineStatus('engine1Status', 'ready'), 5000);
   } catch(e) {
-    console.error('Engine 1 error:', e);
-    setEngineStatus('engine1Status', 'error');
-    showEngineResult('engine1Result', `<p style="color:var(--red)">Connection issue. Please try again.</p>`, '🗺️ Engine Error');
-    setTimeout(() => setEngineStatus('engine1Status', 'ready'), 3000);
+    chat.innerHTML += '<div style="color:#ef4444;padding:.3rem 0">❌ ' + e.message + '</div>';
   }
 }
 
-async function runEngine2(action) {
-  const bizType = window.currentBusiness?.type || window.currentBusiness?.industry || 'business';
-  const bizName = window.currentBusiness?.name || 'My Business';
-  const location = window.currentBusiness?.location || 'Lagos, Nigeria';
-  setEngineStatus('engine2Status', 'running');
-  try {
-    const r = await fetch(`${API}/api/outreach`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, businessType: bizType, businessName: bizName, location, businessId: window.currentUser?.uid })
-    });
-    const data = await r.json();
-    if (data.success) {
-      const content = data.outreach || data.email || data.content || data.message || JSON.stringify(data.data || data, null, 2);
-      const html = `<div style="background:rgba(0,217,255,0.05);border:1px solid rgba(0,217,255,0.15);border-radius:10px;padding:1rem;white-space:pre-wrap;font-size:.85rem;line-height:1.7">${content.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;
-      showEngineResult('engine2Result', html, `✉️ AI Outreach — ${action === 'social_content' ? 'Social Content' : 'Email'} Generated`);
-    } else {
-      showEngineResult('engine2Result', '<p style="color:var(--muted)">Engine initializing. Complete your business profile first.</p>', '✉️ AI Outreach');
-    }
-    setEngineStatus('engine2Status', 'done');
-    setTimeout(() => setEngineStatus('engine2Status', 'ready'), 5000);
-  } catch(e) {
-    setEngineStatus('engine2Status', 'error');
-    showEngineResult('engine2Result', '<p style="color:var(--red)">Connection issue. Please try again.</p>', '✉️ Engine Error');
-    setTimeout(() => setEngineStatus('engine2Status', 'ready'), 3000);
-  }
-}
-
-async function runEngine3() {
-  const bizType = window.currentBusiness?.type || 'business';
-  const location = window.currentBusiness?.location || 'Lagos, Nigeria';
-  setEngineStatus('engine3Status', 'running');
-  // Use the leads API with demand_match action
-  await runEngine1('demand_match');
-  setEngineStatus('engine3Status', 'done');
-  setTimeout(() => setEngineStatus('engine3Status', 'ready'), 5000);
-}
-
-async function runEngine4(action) {
-  const bizType = window.currentBusiness?.type || 'business';
-  const bizName = window.currentBusiness?.name || 'My Business';
-  const location = window.currentBusiness?.location || 'Lagos, Nigeria';
-  setEngineStatus('engine4Status', 'running');
-  try {
-    const r = await fetch(`${API}/api/outreach`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, businessType: bizType, businessName: bizName, location })
-    });
-    const data = await r.json();
-    const content = data.message || data.followUp || data.content || 'Retention campaign ready. Connect your client database to activate.';
-    const html = `
-      <div style="background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.15);border-radius:10px;padding:1rem">
-        <div style="font-weight:700;color:var(--amber);margin-bottom:.5rem">🔄 Re-engagement Message</div>
-        <div style="font-size:.85rem;line-height:1.7;white-space:pre-wrap">${(content).replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
-      </div>`;
-    showEngineResult('engine4Result', html, '🔄 Repeat Client Engine');
-    setEngineStatus('engine4Status', 'done');
-    setTimeout(() => setEngineStatus('engine4Status', 'ready'), 5000);
-  } catch(e) {
-    setEngineStatus('engine4Status', 'error');
-    showEngineResult('engine4Result', '<p style="color:var(--red)">Connection issue. Please try again.</p>', '🔄 Engine Error');
-    setTimeout(() => setEngineStatus('engine4Status', 'ready'), 3000);
-  }
-}
-
-
-// ── ERGIO CONDUCTOR ──
-async function initConductor() {
-  if (!window.ErgioCommand) return;
-  const statusEl = document.getElementById('conductorStatus');
-  const health = await ErgioCommand.checkHealth();
-  if (health.status === 'healthy') {
-    statusEl.textContent = '🟢 Online — ' + (health.groq ? 'AI ready' : 'AI limited');
-    statusEl.style.color = 'rgba(0,255,136,.7)';
-  } else {
-    statusEl.textContent = '🔴 Offline (cold start)';
-    statusEl.style.color = 'rgba(255,100,100,.7)';
-    setTimeout(() => initConductor(), 15000); // retry
-  }
-}
-
-async function runConductor() {
-  const input = document.getElementById('conductorInput');
-  const chat = document.getElementById('conductorChat');
-  const text = input.value.trim();
-  if (!text) return;
-  
-  // User message
-  chat.innerHTML += `<div style="align-self:flex-end;background:rgba(99,102,241,.2);padding:.6rem .9rem;border-radius:.6rem .6rem 0 .6rem;max-width:80%;font-size:.85rem">${text.replace(/</g,'&lt;')}</div>`;
-  input.value = '';
-  chat.scrollTop = chat.scrollHeight;
-  
-  // Loading
-  const loadingId = 'load-' + Date.now();
-  chat.innerHTML += `<div id="${loadingId}" style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;font-size:.85rem;color:rgba(255,255,255,.5)">⚡ ERGIO is working...</div>`;
-  chat.scrollTop = chat.scrollHeight;
-  
-  try {
-    const bizId = localStorage.getItem('ergio_business_id') || null;
-    const result = await ErgioCommand.command(text, bizId, null);
-    document.getElementById(loadingId).remove();
-    
-    let response = result.summary || result.report || JSON.stringify(result).substring(0, 300);
-    if (result.sub_tasks) {
-      response = `📋 ${result.sub_tasks.length} tasks planned:\n` + 
-        result.sub_tasks.map((t,i) => `${i+1}. ${t.engine} → ${t.action}${t.requires_approval ? ' (needs approval)' : ''}`).join('\n');
-    }
-    
-    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,255,255,.06);padding:.6rem .9rem;border-radius:.6rem .6rem .6rem 0;max-width:85%;font-size:.85rem;white-space:pre-wrap">${response.replace(/</g,'&lt;')}</div>`;
-  } catch (e) {
-    document.getElementById(loadingId).remove();
-    chat.innerHTML += `<div style="align-self:flex-start;background:rgba(255,100,100,.1);padding:.6rem .9rem;border-radius:.6rem;font-size:.85rem">⚠️ ${e.message}</div>`;
-  }
-  chat.scrollTop = chat.scrollHeight;
-}
-
-
-// ── Engine Status from Render ──
+// ============ ENGINE STATUS ============
 async function loadEngineStatusFromRender() {
-  if (!window.ErgioCommand) return;
+  const container = document.getElementById('engineStatusGrid');
+  if (!container) return;
   try {
-    const status = await ErgioCommand.getSystemStatus();
-    if (status.status === 'operational' && status.engines) {
-      const enginesList = ['website_engine','lead_engine','booking_engine','invoice_engine','payment_engine','content_engine','voice_engine','analytics_engine','reputation_engine','workflow_engine'];
-      const labels = {
-        website_engine: '🌐 Website Engine', lead_engine: '🎯 Lead Engine',
-        booking_engine: '📅 Booking Engine', invoice_engine: '🧾 Invoice Engine',
-        payment_engine: '💰 Payment Engine', content_engine: '🎬 Content Engine',
-        voice_engine: '🎙️ Voice Engine', analytics_engine: '📊 Analytics Engine',
-        reputation_engine: '⭐ Reputation Engine', workflow_engine: '🔄 Workflow Engine'
-      };
-      const engineGrid = document.querySelector('#tab-engines .engine-grid');
-      if (engineGrid) {
-        enginesList.forEach(eng => {
-          const isActive = status.engines.includes(eng);
-          const card = engineGrid.querySelector(`[data-engine="${eng}"]`);
-          if (card) {
-            const statusDot = card.querySelector('.status-dot') || document.createElement('span');
-            statusDot.className = 'status-dot';
-            statusDot.style.cssText = 'display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;' + (isActive ? 'background:#00ff88' : 'background:#666');
-            if (!card.querySelector('.status-dot')) card.insertBefore(statusDot, card.firstChild);
-          }
-        });
-      }
-      // Also show MCP and plugin counts
-      const mcpCount = document.getElementById('mcpCount');
-      if (mcpCount) mcpCount.textContent = (status.mcps || []).length;
-      const pluginCount = document.getElementById('pluginCount');
-      if (pluginCount) pluginCount.textContent = (status.plugins || []).length;
+    if (ENGINES) {
+      const status = await ENGINES.status();
+      const engines = status.engines || [];
+      container.innerHTML = engines.map(function(e) {
+        return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:1rem"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem"><div style="font-weight:700;font-size:.85rem">' + (e.name || e) + '</div><div style="width:8px;height:8px;border-radius:50%;background:#22c55e"></div></div><div style="font-size:.72rem;color:rgba(255,255,255,.4)">' + (e.description || 'Operational') + '</div></div>';
+      }).join('');
     }
-  } catch (e) {
-    console.warn('Engine status load failed:', e.message);
+  } catch(e) {
+    container.innerHTML = '<div style="color:rgba(255,255,255,.4);padding:1rem;text-align:center">Engine backend offline. Deploy on Render to enable.</div>';
   }
 }
 
-// Init conductor on load
-setTimeout(initConductor, 500);
-setTimeout(loadEngineStatusFromRender, 1000);
+function showEngineResult(text) {
+  const panel = document.getElementById('enginePanelResult');
+  const output = document.getElementById('enginePanelOutput');
+  if (panel) panel.style.display = 'block';
+  if (output) output.textContent = text;
+}
 
-</script>
-  <button onclick="ERGIO_GUIDE.reset()" style="position:fixed;bottom:20px;left:20px;background:rgba(0,217,255,.1);color:#00D9FF;border:1px solid rgba(0,217,255,.2);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:.8rem;z-index:9999">🎓 Guide</button>
-  </body>
+async function runConductorCommand(engine, action, params) {
+  showEngineResult('⚡ Running ' + engine + ' → ' + action + '...');
+  try {
+    var result;
+    if (CMD && CMD.command) {
+      result = await CMD.command(engine + ': ' + action, null, null);
+    } else if (ENGINES) {
+      result = await ENGINES.conductor(engine + ': ' + action, null, null);
+    }
+    showEngineResult(JSON.stringify(result, null, 2));
+  } catch(e) {
+    showEngineResult('❌ ' + e.message);
+  }
+}
+
+function setEngineStatus(id, status) {
+  const el = document.getElementById(id);
+  if (el) { el.textContent = status; el.style.color = status.indexOf('✅') >= 0 ? '#22c55e' : '#f59e0b'; }
+}
+
+async function runEngine1() { return runConductorCommand('local_discovery', 'scan', {}); }
+async function runEngine2() { return runConductorCommand('demand_matching', 'match', {}); }
+async function runEngine3() { return runConductorCommand('ai_outreach', 'send', {}); }
+async function runEngine4() { return runConductorCommand('repeat_client', 'followup', {}); }
+
+// ============ LEADS ============
+async function scanLeads() {
+  const container = document.getElementById('leadsList');
+  if (!container) return;
+  container.innerHTML = '<div style="color:rgba(255,255,255,.4);padding:2rem;text-align:center">🔍 Scanning for leads...</div>';
+  try {
+    const bizType = localStorage.getItem('ergio_business_type') || 'photographer';
+    const city = localStorage.getItem('ergio_city') || 'Lagos';
+    const r = await fetch(API_BASE + '/api/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ businessType: bizType, city: city })
+    });
+    const data = await r.json();
+    if (data.leads && data.leads.length) {
+      container.innerHTML = data.leads.map(function(l) {
+        return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:1rem;margin-bottom:.5rem"><div style="display:flex;justify-content:space-between;align-items:start"><div><div style="font-weight:700;font-size:.9rem">' + (l.name || l.business || 'Unknown') + '</div><div style="font-size:.78rem;color:rgba(255,255,255,.4)">' + (l.phone||l.email||l.website||'') + '</div></div><div style="text-align:right"><div style="font-size:1.2rem;font-weight:800;color:' + ((l.score||0)>=80?'#22c55e':(l.score||0)>=50?'#f59e0b':'#ef4444') + '">' + (l.score||0) + '</div><div style="font-size:.65rem;color:rgba(255,255,255,.3)">SCORE</div></div></div></div>';
+      }).join('');
+    } else {
+      container.innerHTML = '<div style="color:rgba(255,255,255,.4);padding:2rem;text-align:center">No leads found. Try a different search.</div>';
+    }
+  } catch(e) {
+    container.innerHTML = '<div style="color:#ef4444;padding:2rem;text-align:center">Error: ' + e.message + '</div>';
+  }
+}
+
+// ============ INTEGRATIONS (MCP & Plugins) ============
+function showIntegrationsCategory(cat) {
+  ['plugins','mcps','connected'].forEach(function(c) {
+    var el = document.getElementById('integrations-' + c);
+    if (el) el.style.display = c === cat ? 'block' : 'none';
+    var btn = document.getElementById('cat-' + c);
+    if (btn) {
+      if (c === cat) { btn.style.background = 'linear-gradient(135deg,#6366f1,#00d9ff)'; btn.style.color = '#fff'; btn.style.border = 'none'; }
+      else { btn.style.background = 'transparent'; btn.style.color = 'rgba(255,255,255,.6)'; btn.style.border = '1px solid rgba(255,255,255,.1)'; }
+    }
+  });
+}
+
+async function loadPluginsGrid() {
+  const grid = document.getElementById('pluginsGrid');
+  if (!grid) return;
+  grid.innerHTML = '<div style="color:rgba(255,255,255,.4);padding:2rem;text-align:center">Loading...</div>';
+  try {
+    var plugins = [];
+    if (ENGINES) {
+      var resp = await ENGINES.listPlugins();
+      plugins = resp.plugins || resp || [];
+    }
+    if (plugins.length === 0) {
+      try {
+        var r = await fetch(API_BASE + '/api/mcp');
+        var data = await r.json();
+        plugins = data.plugins || [];
+      } catch(e2) {}
+    }
+    if (plugins.length === 0) {
+      grid.innerHTML = '<div style="color:rgba(255,255,255,.4);padding:2rem;text-align:center">No plugins available yet. Connect the engine backend to enable.</div>';
+      return;
+    }
+    grid.innerHTML = plugins.map(function(p) {
+      return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1.2rem"><div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem"><div style="width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;font-size:1.2rem">' + (p.icon || '🔌') + '</div><div><div style="font-weight:700;font-size:.9rem">' + p.name + '</div><div style="font-size:.68rem;color:rgba(255,255,255,.4)">' + (p.category||'Plugin') + '</div></div></div><p style="font-size:.78rem;color:rgba(255,255,255,.4);margin-bottom:.6rem">' + (p.description||'') + '</p><button class="btn btn-primary" onclick="connectPlugin(\'' + p.id + '\',\'' + p.name.replace(/'/g,'') + '\')" style="width:100%;padding:.4rem;font-size:.8rem">Connect</button></div>';
+    }).join('');
+  } catch(e) {
+    grid.innerHTML = '<div style="color:#ef4444;padding:2rem;text-align:center">Failed: ' + e.message + '</div>';
+  }
+}
+
+async function connectPlugin(id, name) {
+  var envVars = {};
+  if (ENGINES) {
+    try {
+      var plugins = await ENGINES.listPlugins();
+      var plugin = null;
+      var list = plugins.plugins || plugins;
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].id === id) { plugin = list[i]; break; }
+      }
+      if (plugin && plugin.env && plugin.env.length > 0) {
+        for (var j = 0; j < plugin.env.length; j++) {
+          var val = prompt('Enter your ' + plugin.env[j] + ' for ' + name + ':');
+          if (val) envVars[plugin.env[j]] = val; else return;
+        }
+      }
+      await ENGINES.connectPlugin({ id: id, name: name, envVars: envVars });
+      alert('✅ ' + name + ' connected!');
+    } catch(e) { alert('❌ ' + e.message); }
+  } else {
+    alert('Engine backend not connected. Deploy on Render first.');
+  }
+}
+
+async function connectMCP() {
+  var name = document.getElementById('mcpName') ? document.getElementById('mcpName').value.trim() : '';
+  var url = document.getElementById('mcpUrl') ? document.getElementById('mcpUrl').value.trim() : '';
+  var transport = document.getElementById('mcpTransport') ? document.getElementById('mcpTransport').value : 'http';
+  var apiKey = document.getElementById('mcpApiKey') ? document.getElementById('mcpApiKey').value.trim() : '';
+  if (!name || !url) { alert('Name and URL required'); return; }
+  if (ENGINES) {
+    try {
+      await ENGINES.connectMcp({ id: name.toLowerCase().replace(/\s/g,'_'), name: name, url: url, transport: transport, apiKey: apiKey });
+      alert('✅ MCP server connected!');
+      document.getElementById('mcpName').value = '';
+      document.getElementById('mcpUrl').value = '';
+      document.getElementById('mcpApiKey').value = '';
+    } catch(e) { alert('❌ ' + e.message); }
+  }
+}
+
+async function loadConnectedIntegrations() {
+  var list = document.getElementById('connectedList');
+  if (!list || !ENGINES) return;
+  try {
+    var connected = await ENGINES.listConnectedPlugins();
+    if (connected && connected.length > 0) {
+      list.innerHTML = connected.map(function(p) {
+        return '<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:.8rem 1rem;margin-bottom:.5rem"><div><div style="font-weight:700">' + p.name + '</div><div style="font-size:.72rem;color:rgba(255,255,255,.4)">Connected ' + (p.connected_at||'') + '</div></div><button class="btn btn-ghost" style="color:#ef4444">Disconnect</button></div>';
+      }).join('');
+    } else {
+      list.innerHTML = '<div style="color:rgba(255,255,255,.4);padding:2rem;text-align:center">No integrations connected yet</div>';
+    }
+  } catch(e) {
+    list.innerHTML = '<div style="color:rgba(255,255,255,.4);padding:2rem;text-align:center">Backend not connected</div>';
+  }
+}
+
+// ============ AUTH ============
+async function handleLogout() {
+  try { if (fbAuth) await fbAuth.signOut(); } catch(e) {}
+  try { if (sbClient) await sbClient.auth.signOut(); } catch(e) {}
+  localStorage.removeItem('ergio_user');
+  window.location.href = '../auth/login.html';
+}
+
+function showLoginPrompt() {
+  const loading = document.getElementById('loadingState');
+  if (loading) loading.innerHTML = '<div style="text-align:center;padding:3rem"><h2>Please log in</h2><p>Redirecting...</p></div>';
+  setTimeout(function() { window.location.href = '../auth/login.html'; }, 1500);
+}
+
+function initDashboard() {
+  const loading = document.getElementById('loadingState');
+  if (loading) loading.style.display = 'none';
+  const dashContent = document.getElementById('dashboardContent');
+  if (dashContent) dashContent.style.display = 'block';
+  setTimeout(initConductor, 500);
+  setTimeout(loadEngineStatusFromRender, 1000);
+}
+
+// ============ INIT ============
+setTimeout(function() {
+  var savedUser = localStorage.getItem('ergio_user');
+  if (savedUser) {
+    try {
+      currentUser = JSON.parse(savedUser);
+      initDashboard();
+    } catch(e) { showLoginPrompt(); }
+  } else if (fbAuth) {
+    fbAuth.onAuthStateChanged(function(user) {
+      if (user) {
+        currentUser = { uid: user.uid, email: user.email, name: user.displayName };
+        initDashboard();
+      } else { showLoginPrompt(); }
+    });
+  } else {
+    currentUser = { uid: 'demo', email: 'demo@ergio.app', name: 'Demo User' };
+    initDashboard();
+  }
+}, 500);
+  </script>
+</body>
 </html>
