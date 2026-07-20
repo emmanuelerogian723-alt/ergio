@@ -1778,43 +1778,97 @@
     let pluginMarketplace = [];
     let userMcpServers = [];
 
+    // Hardcoded fallback plugin list (used if API fails)
+    const BUILTIN_PLUGINS = [
+      { id:'paystack-mcp', name:'Paystack', icon:'🇳🇬', category:'Payments', description:'Accept payments from customers across Africa. NGN, GHS, KES, ZAR supported.', env:['PAYSTACK_SECRET_KEY'], popular:true, verified:true },
+      { id:'flutterwave-mcp', name:'Flutterwave', icon:'🌍', category:'Payments', description:'Pan-African payments — Nigeria, Ghana, Kenya, South Africa & more.', env:['FLUTTERWAVE_SECRET_KEY'], popular:true, verified:true },
+      { id:'stripe-mcp', name:'Stripe', icon:'💳', category:'Payments', description:'Global payment processing. Cards, Apple Pay, Google Pay.', env:['STRIPE_API_KEY'], verified:true },
+      { id:'whatsapp-mcp', name:'WhatsApp Business', icon:'💬', category:'Communication', description:'Send automated WhatsApp messages and notifications to clients.', env:['WHATSAPP_TOKEN','WHATSAPP_PHONE_ID'], popular:true, verified:true },
+      { id:'resend-mcp', name:'Resend', icon:'📧', category:'Email', description:'Send beautiful transactional and marketing emails.', env:['RESEND_API_KEY'], popular:true, verified:true },
+      { id:'twilio-mcp', name:'Twilio', icon:'📞', category:'Communication', description:'SMS alerts, voice calls, and messaging API.', env:['TWILIO_ACCOUNT_SID','TWILIO_AUTH_TOKEN'], verified:true },
+      { id:'telegram-mcp', name:'Telegram', icon:'✈️', category:'Communication', description:'Send alerts and updates via Telegram bot.', env:['TELEGRAM_BOT_TOKEN'], verified:true },
+      { id:'github-mcp', name:'GitHub', icon:'🐙', category:'Developer', description:'Deploy websites and manage code repositories automatically.', env:['GITHUB_TOKEN'], popular:true, verified:true },
+      { id:'supabase-mcp', name:'Supabase', icon:'⚡', category:'Database', description:'PostgreSQL database — stores all your business data.', env:['SUPABASE_URL','SUPABASE_ANON_KEY'], popular:true, verified:true },
+      { id:'groq-mcp', name:'Groq AI', icon:'🤖', category:'AI', description:'Ultra-fast AI inference powering ERGIO engines. Free tier available.', env:['GROQ_API_KEY'], popular:true, verified:true },
+      { id:'openai-mcp', name:'OpenAI (GPT-4)', icon:'🧠', category:'AI', description:'Advanced AI for complex reasoning, writing, and analysis.', env:['OPENAI_API_KEY'], verified:true },
+      { id:'google-calendar-mcp', name:'Google Calendar', icon:'📅', category:'Productivity', description:'Sync bookings and appointments automatically.', env:['GOOGLE_CLIENT_ID','GOOGLE_CLIENT_SECRET'], verified:true },
+      { id:'notion-mcp', name:'Notion', icon:'📝', category:'Productivity', description:'Sync tasks, notes and CRM data with your Notion workspace.', env:['NOTION_API_KEY'], verified:true },
+      { id:'slack-mcp', name:'Slack', icon:'💼', category:'Productivity', description:'Get instant alerts and notifications in your Slack channels.', env:['SLACK_BOT_TOKEN'], verified:true },
+      { id:'meta-ads-mcp', name:'Meta Ads', icon:'👤', category:'Marketing', description:'Create and manage Facebook & Instagram ad campaigns.', env:['META_ACCESS_TOKEN','META_AD_ACCOUNT_ID'], verified:true },
+      { id:'google-ads-mcp', name:'Google Ads', icon:'🎯', category:'Marketing', description:'Run Google search and display advertising for your business.', env:['GOOGLE_ADS_DEVELOPER_TOKEN'], verified:true },
+      { id:'mailchimp-mcp', name:'Mailchimp', icon:'🐒', category:'Marketing', description:'Email marketing campaigns and audience management.', env:['MAILCHIMP_API_KEY'], verified:true },
+      { id:'google-analytics-mcp', name:'Google Analytics', icon:'📊', category:'Analytics', description:'Track website visitors and understand your audience.', env:['GA_MEASUREMENT_ID'], popular:true, verified:true },
+      { id:'gmail-mcp', name:'Gmail', icon:'✉️', category:'Email', description:'Read and send emails directly from ERGIO agents.', env:['GMAIL_CLIENT_ID','GMAIL_REFRESH_TOKEN'], verified:true },
+      { id:'cal-com-mcp', name:'Cal.com', icon:'📆', category:'Bookings', description:'Open-source scheduling — clients book appointments online.', env:['CAL_API_KEY'], popular:true, verified:true },
+      { id:'n8n-mcp', name:'n8n Automation', icon:'🔗', category:'Automation', description:'Connect 400+ apps with no-code workflow automation.', env:['N8N_API_KEY','N8N_BASE_URL'], verified:true },
+      { id:'zapier-mcp', name:'Zapier', icon:'⚡', category:'Automation', description:'Automate tasks across 5,000+ apps without code.', env:['ZAPIER_WEBHOOK_URL'], verified:true },
+      { id:'pollinations-mcp', name:'Pollinations AI', icon:'🌸', category:'AI', description:'Free AI image generation for logos and marketing content.', env:[], popular:true, verified:true },
+      { id:'osm-mcp', name:'OpenStreetMap', icon:'🗺️', category:'Location', description:'Free geocoding and location services. No API key needed.', env:[], popular:true, verified:true },
+    ];
+
     async function loadPlugins() {
       try {
-        const res = await fetch(window.ERGIO_CONFIG.apiBase + '/api/mcp?action=marketplace');
-        const data = await res.json();
-        pluginMarketplace = data.plugins || [];
-        renderPluginGrid();
+        const apiBase = (window.ERGIO_CONFIG?.apiBase) || window.location.origin.replace(/\/dashboard.*$/, '');
+        const res = await fetch(apiBase + '/api/mcp?action=marketplace', { signal: AbortSignal.timeout(8000) });
+        if (res.ok) {
+          const data = await res.json();
+          pluginMarketplace = (data.plugins || []).length > 0 ? data.plugins : BUILTIN_PLUGINS;
+        } else {
+          pluginMarketplace = BUILTIN_PLUGINS;
+        }
       } catch(e) {
-        console.error('Failed to load plugins:', e);
+        console.warn('Plugin API unavailable, using built-in list:', e.message);
+        pluginMarketplace = BUILTIN_PLUGINS;
       }
+      renderPluginGrid();
     }
 
     function renderPluginGrid(filter) {
       const grid = document.getElementById('pluginGrid');
       if (!grid) return;
+      const connected = getConnectedIntegrations ? getConnectedIntegrations() : {};
       let plugins = pluginMarketplace;
       if (filter) {
         filter = filter.toLowerCase();
         plugins = plugins.filter(p =>
           p.name.toLowerCase().includes(filter) ||
           p.description.toLowerCase().includes(filter) ||
-          p.category.toLowerCase().includes(filter)
+          (p.category||'').toLowerCase().includes(filter)
         );
       }
-      grid.innerHTML = plugins.map(p => `
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.2rem;transition:all .2s;cursor:pointer" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)'">
-          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem">
-            <span style="font-size:1.8rem">${p.icon}</span>
-            <div>
-              <div style="font-weight:700;font-size:.95rem">${p.name} ${p.verified ? '✓' : ''}</div>
-              <div style="font-size:.7rem;color:var(--cyan)">${p.category}${p.popular ? ' · 🔥 Popular' : ''}</div>
+      if (plugins.length === 0) {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--muted)">No plugins match your search.</div>';
+        return;
+      }
+      grid.innerHTML = plugins.map(p => {
+        const isConn = !!connected[p.id] || !!connected[p.id?.replace('-mcp','')];
+        const borderCol = isConn ? '#10b98140' : 'var(--border)';
+        const badge = isConn
+          ? '<span style="font-size:.7rem;padding:2px 7px;border-radius:20px;background:rgba(16,185,129,.15);color:#10b981;border:1px solid #10b98140">✓ Connected</span>'
+          : (p.popular ? '<span style="font-size:.7rem;padding:2px 7px;border-radius:20px;background:rgba(0,217,255,.1);color:var(--cyan)">🔥 Popular</span>' : '');
+        const btnStyle = isConn
+          ? 'width:100%;padding:.55rem;font-size:.82rem;border-radius:8px;background:rgba(16,185,129,.1);border:1px solid #10b981;color:#10b981;cursor:pointer;font-weight:600'
+          : 'width:100%;padding:.55rem;font-size:.82rem;border-radius:8px;background:linear-gradient(135deg,var(--cyan),var(--blue));border:none;color:#000;cursor:pointer;font-weight:700';
+        const btnText = isConn ? '⚙️ Manage' : '+ Connect';
+        const envNote = p.env && p.env.length > 0
+          ? '<div style="font-size:.7rem;color:var(--muted);margin-bottom:.7rem;background:rgba(255,255,255,.03);padding:.3rem .6rem;border-radius:6px">🔑 Needs: ' + p.env.slice(0,2).map(e => '<code style="background:rgba(0,217,255,.1);padding:1px 4px;border-radius:3px;font-size:.68rem">' + e + '</code>').join(' ') + (p.env.length > 2 ? ' +' + (p.env.length-2) + ' more' : '') + '</div>'
+          : '<div style="font-size:.7rem;color:#10b981;margin-bottom:.7rem">✅ No API key needed</div>';
+        return \`<div style="background:var(--surface);border:1px solid \${borderCol};border-radius:16px;padding:1.2rem;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(0,217,255,.4)'" onmouseout="this.style.borderColor='\${borderCol}'">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.6rem">
+            <div style="display:flex;align-items:center;gap:.6rem">
+              <span style="font-size:1.6rem;width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:var(--surface2);border-radius:8px">\${p.icon}</span>
+              <div>
+                <div style="font-weight:700;font-size:.92rem">\${p.name}\${p.verified ? ' <span style="color:var(--cyan);font-size:.7rem">✓</span>' : ''}</div>
+                <div style="font-size:.7rem;color:var(--muted)">\${p.category||'General'}</div>
+              </div>
             </div>
+            \${badge}
           </div>
-          <p style="font-size:.82rem;color:var(--muted);margin-bottom:.6rem">${p.description}</p>
-          ${p.env && p.env.length > 0 ? '<div style="font-size:.7rem;color:var(--muted);margin-bottom:.5rem">Requires: ' + p.env.map(e => '<code>' + e + '</code>').join(' ') + '</div>' : ''}
-          <button class="btn btn-primary" onclick="addPlugin('${p.id}')" style="width:100%;padding:.5rem;font-size:.85rem">+ Add</button>
-        </div>
-      `).join('');
+          <p style="font-size:.82rem;color:var(--muted);margin-bottom:.7rem;line-height:1.5">\${p.description}</p>
+          \${envNote}
+          <button onclick="addPlugin('\${p.id}')" style="\${btnStyle}">\${btnText}</button>
+        </div>\`;
+      }).join('');
     }
 
     function filterPlugins() {
@@ -1835,28 +1889,55 @@
     async function addPlugin(pluginId) {
       const plugin = pluginMarketplace.find(p => p.id === pluginId);
       if (!plugin) return;
-
-      try {
-        const res = await fetch(window.ERGIO_CONFIG.apiBase + '/api/mcp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: plugin.name,
-            pluginId: plugin.id,
-            transport: plugin.transport,
-            command: plugin.command,
-            args: plugin.args,
-            url: plugin.url,
-            envVars: {},
-            userId: currentUser?.uid || 'anon'
-          })
-        });
-        const data = await res.json();
-        alert(plugin.icon + ' ' + plugin.name + ' added! Configure env vars in My Servers tab.');
-        switchPluginTab('myservers');
-      } catch(e) {
-        alert('Failed to add plugin: ' + e.message);
+      
+      // If no env vars needed, just activate instantly
+      if (!plugin.env || plugin.env.length === 0) {
+        const store = getConnectedIntegrations ? getConnectedIntegrations() : {};
+        store[pluginId] = { key: 'built-in', connectedAt: new Date().toISOString() };
+        localStorage.setItem('ergio_integrations', JSON.stringify(store));
+        renderPluginGrid();
+        if (typeof showIntegToast === 'function') showIntegToast('✅ ' + plugin.name + ' activated! No API key needed.');
+        return;
       }
+
+      // Use the integrations modal if available
+      const integKey = pluginId.replace('-mcp','');
+      const integConfig = window.ERGIO_CONFIG?.integrations?.[integKey];
+      if (integConfig && typeof openIntegModal === 'function') {
+        openIntegModal(integKey);
+        return;
+      }
+
+      // Fallback: quick prompt for first env var
+      const firstEnv = plugin.env[0];
+      const apiKey = window.prompt(
+        plugin.icon + ' Connect ' + plugin.name + '\n\nEnter your ' + firstEnv + ':',
+        ''
+      );
+      if (!apiKey || !apiKey.trim()) return;
+
+      // Save to localStorage
+      const store = getConnectedIntegrations ? getConnectedIntegrations() : {};
+      store[pluginId] = { key: apiKey.trim(), connectedAt: new Date().toISOString() };
+      localStorage.setItem('ergio_integrations', JSON.stringify(store));
+
+      // Push to Render engines
+      const ENGINES = window.ERGIO_CONFIG?.enginesBase || 'https://ergio-engines.onrender.com';
+      fetch(ENGINES + '/mcp/configure', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ integration: integKey, apiKey: apiKey.trim() })
+      }).catch(()=>{});
+
+      // Add to My Servers
+      const servers = JSON.parse(localStorage.getItem('ergio_mcp_servers') || '[]');
+      if (!servers.find(s => s.plugin_id === pluginId)) {
+        servers.push({ plugin_id: pluginId, name: plugin.name, status: 'active', addedAt: new Date().toISOString() });
+        localStorage.setItem('ergio_mcp_servers', JSON.stringify(servers));
+        userMcpServers = servers;
+      }
+
+      renderPluginGrid();
+      if (typeof showIntegToast === 'function') showIntegToast('✅ ' + plugin.name + ' connected!');
     }
 
     async function loadMyServers() {
