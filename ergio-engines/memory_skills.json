@@ -1,0 +1,13 @@
+[
+  {
+    "name": "deploy_website",
+    "steps": [
+      "Build HTML",
+      "Push to Vercel",
+      "Verify URL"
+    ],
+    "trigger": "deploy or publish",
+    "verification": "URL returns 200",
+    "created_at": "2026-07-19T00:04:18.589234"
+  }
+]
