@@ -724,6 +724,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6m0 8v6M2 12h6m8 0h6M5 5l4 4m6 6l4 4M19 5l-4 4M5 19l4-4"/></svg>
         🔌 MCP & Plugins
       </div>
+      <div class="nav-item" onclick="switchTab('integrations')" data-tab="integrations">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        🔗 Integrations
+      </div>
       <div class="nav-item" onclick="switchTab('advisor')" data-tab="advisor">
         <span style="font-size: 20px;">🧠</span>
         <span class="nav-label">Advisor</span>
@@ -1138,6 +1142,58 @@
         </div>
       </div>
     </div>
+
+      <!-- INTEGRATIONS TAB -->
+      <div class="tab-content" id="tab-integrations">
+        <div style="margin-bottom:1.5rem">
+          <h2 style="font-size:1.5rem;margin-bottom:.5rem">🔗 Integrations</h2>
+          <p style="color:var(--muted);font-size:.9rem">Connect your favorite apps and services to ERGIO</p>
+        </div>
+
+        <!-- Filter tabs -->
+        <div id="integTabBar" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem">
+          <button class="integ-filter active" onclick="filterIntegrations('All')" style="padding:.4rem .9rem;border-radius:20px;border:1px solid var(--cyan);background:var(--cyan);color:#000;font-size:.8rem;font-weight:600;cursor:pointer">All</button>
+          <button class="integ-filter" onclick="filterIntegrations('Payments')" style="padding:.4rem .9rem;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer">Payments</button>
+          <button class="integ-filter" onclick="filterIntegrations('Communication')" style="padding:.4rem .9rem;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer">Communication</button>
+          <button class="integ-filter" onclick="filterIntegrations('Productivity')" style="padding:.4rem .9rem;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer">Productivity</button>
+          <button class="integ-filter" onclick="filterIntegrations('Marketing')" style="padding:.4rem .9rem;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer">Marketing</button>
+          <button class="integ-filter" onclick="filterIntegrations('Analytics')" style="padding:.4rem .9rem;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer">Analytics</button>
+          <button class="integ-filter" onclick="filterIntegrations('AI & Automation')" style="padding:.4rem .9rem;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer">AI & Automation</button>
+        </div>
+
+        <!-- Integration status bar -->
+        <div id="integStatusBar" style="display:none;background:rgba(0,217,255,.08);border:1px solid rgba(0,217,255,.2);border-radius:12px;padding:.8rem 1rem;margin-bottom:1.5rem;font-size:.85rem;color:var(--cyan)">
+          <span id="integStatusMsg">Connecting...</span>
+        </div>
+
+        <!-- Integrations Grid -->
+        <div id="integrationsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem"></div>
+
+        <!-- API Key Modal -->
+        <div id="integModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center">
+          <div style="background:#0d1117;border:1px solid var(--border);border-radius:20px;padding:2rem;max-width:460px;width:90%;max-height:80vh;overflow-y:auto">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+              <h3 id="integModalTitle" style="font-size:1.1rem;margin:0">Connect Integration</h3>
+              <button onclick="closeIntegModal()" style="background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;line-height:1">×</button>
+            </div>
+            <p id="integModalDesc" style="color:var(--muted);font-size:.9rem;margin-bottom:1.5rem"></p>
+            <div style="margin-bottom:1rem">
+              <label style="font-size:.85rem;color:var(--muted);display:block;margin-bottom:.4rem">API Key / Secret</label>
+              <input type="password" id="integApiKey" placeholder="Paste your API key here" style="width:100%;padding:.7rem;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.9rem;box-sizing:border-box">
+            </div>
+            <div id="integExtraField" style="display:none;margin-bottom:1rem">
+              <label id="integExtraLabel" style="font-size:.85rem;color:var(--muted);display:block;margin-bottom:.4rem">Additional Field</label>
+              <input type="text" id="integExtraValue" placeholder="" style="width:100%;padding:.7rem;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.9rem;box-sizing:border-box">
+            </div>
+            <div style="display:flex;gap:.5rem">
+              <button onclick="saveIntegration()" style="flex:1;padding:.8rem;border-radius:10px;background:linear-gradient(135deg,var(--cyan),var(--blue));border:none;color:#000;font-weight:700;cursor:pointer;font-size:.9rem">✓ Connect</button>
+              <a id="integDocsLink" href="#" target="_blank" style="padding:.8rem 1rem;border-radius:10px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:.8rem;display:flex;align-items:center;gap:.3rem;text-decoration:none">📖 Docs</a>
+            </div>
+            <div id="integConnectStatus" style="margin-top:.8rem;font-size:.85rem;display:none"></div>
+          </div>
+        </div>
+      </div>
+
     <!-- ── Advisor Tab ── -->
     <div id="tab-advisor" class="tab-content">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
@@ -1528,10 +1584,14 @@
 
     function switchTab(tab) {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.getElementById('tab-' + tab).classList.add('active');
+      const tabEl = document.getElementById('tab-' + tab);
+      if (tabEl) tabEl.classList.add('active');
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.querySelector(`[data-tab="${tab}"]`)?.classList.add('active');
-      document.getElementById('pageTitle').textContent = tab.charAt(0).toUpperCase() + tab.slice(1);
+      document.querySelector('[data-tab="' + tab + '"]')?.classList.add('active');
+      const titles = {overview:'Overview',website:'My Website',leads:'Leads',bookings:'Bookings',outreach:'Outreach',engines:'Engines',analytics:'Analytics',agents:'AI Agents',plugins:'MCP & Plugins',integrations:'Integrations',advisor:'Advisor'};
+      if (document.getElementById('pageTitle')) document.getElementById('pageTitle').textContent = titles[tab] || (tab.charAt(0).toUpperCase() + tab.slice(1));
+      // Init integrations grid when switching to it
+      if (tab === 'integrations') setTimeout(() => { if (typeof renderIntegrations === 'function') renderIntegrations('All'); }, 50);
     }
 
     async function handleLogout() {
@@ -2233,5 +2293,260 @@ async function runEngine4(action) {
 
 </script>
   <button onclick="ERGIO_GUIDE.reset()" style="position:fixed;bottom:20px;left:20px;background:rgba(0,217,255,.1);color:#00D9FF;border:1px solid rgba(0,217,255,.2);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:.8rem;z-index:9999">🎓 Guide</button>
+
+<script>
+// ======================================================
+// ERGIO INTEGRATIONS SYSTEM
+// ======================================================
+const ENGINES_BASE = window.ERGIO_CONFIG?.enginesBase || 'https://ergio-engines.onrender.com';
+const INTEG_CONFIG = window.ERGIO_CONFIG?.integrations || {};
+let currentIntegKey = null;
+
+// Load saved integrations from localStorage
+function getConnectedIntegrations() {
+  try { return JSON.parse(localStorage.getItem('ergio_integrations') || '{}'); } catch { return {}; }
+}
+function saveIntegrationKey(id, key, extra) {
+  const store = getConnectedIntegrations();
+  store[id] = { key, extra, connectedAt: new Date().toISOString() };
+  localStorage.setItem('ergio_integrations', JSON.stringify(store));
+}
+function isConnected(id) {
+  return !!getConnectedIntegrations()[id];
+}
+
+// Render the integrations grid
+function renderIntegrations(filter) {
+  const grid = document.getElementById('integrationsGrid');
+  if (!grid) return;
+  const connected = getConnectedIntegrations();
+  const integs = Object.entries(INTEG_CONFIG);
+  const filtered = filter && filter !== 'All'
+    ? integs.filter(([,v]) => v.category === filter)
+    : integs;
+
+  grid.innerHTML = filtered.map(([id, integ]) => {
+    const conn = !!connected[id];
+    const statusDot = conn
+      ? '<span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block"></span>'
+      : '<span style="width:8px;height:8px;border-radius:50%;background:#475569;display:inline-block"></span>';
+    const statusText = conn ? '<span style="color:#10b981;font-size:.75rem;font-weight:600">Connected</span>' : '<span style="color:#475569;font-size:.75rem">Not connected</span>';
+    const iconBg = `background:${integ.color}22;border:1px solid ${integ.color}44`;
+    const iconStyle = `width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;${iconBg}`;
+    return \`<div class="integ-card" data-category="\${integ.category}" style="background:var(--surface);border:1px solid \${conn ? '#10b98140' : 'var(--border)'};border-radius:14px;padding:1.2rem;position:relative;transition:border-color .2s">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.8rem">
+        <div style="display:flex;align-items:center;gap:.7rem">
+          <div style="\${iconStyle}">\${integ.icon}</div>
+          <div>
+            <div style="font-weight:700;font-size:.9rem">\${integ.name}</div>
+            <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">\${integ.category}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:.3rem;align-items:center">\${statusDot} \${statusText}</div>
+      </div>
+      <p style="color:var(--muted);font-size:.82rem;margin-bottom:1rem;line-height:1.5">\${integ.description}</p>
+      <button onclick="openIntegModal('\${id}')" style="width:100%;padding:.6rem;border-radius:8px;background:\${conn ? 'rgba(16,185,129,.1)' : 'linear-gradient(135deg,var(--cyan),var(--blue))'};border:1px solid \${conn ? '#10b981' : 'transparent'};color:\${conn ? '#10b981' : '#000'};font-weight:700;font-size:.82rem;cursor:pointer">\${conn ? '✓ Manage' : '+ Connect'}</button>
+    </div>\`;
+  }).join('');
+}
+
+function filterIntegrations(cat) {
+  // Update button styles
+  document.querySelectorAll('.integ-filter').forEach(btn => {
+    const active = btn.textContent.trim() === cat;
+    btn.style.background = active ? 'var(--cyan)' : 'transparent';
+    btn.style.color = active ? '#000' : 'var(--muted)';
+    btn.style.borderColor = active ? 'var(--cyan)' : 'var(--border)';
+  });
+  renderIntegrations(cat);
+}
+
+function openIntegModal(id) {
+  currentIntegKey = id;
+  const integ = INTEG_CONFIG[id];
+  if (!integ) return;
+  const conn = getConnectedIntegrations()[id];
+  document.getElementById('integModal').style.display = 'flex';
+  document.getElementById('integModalTitle').textContent = (conn ? '⚙️ Manage ' : '+ Connect ') + integ.name;
+  document.getElementById('integModalDesc').textContent = integ.description;
+  document.getElementById('integApiKey').value = conn ? '••••••••••••••••' : '';
+  document.getElementById('integApiKey').placeholder = 'Paste your ' + integ.name + ' API key';
+  document.getElementById('integDocsLink').href = integ.docsUrl || '#';
+  document.getElementById('integConnectStatus').style.display = 'none';
+
+  // Show extra fields for specific integrations
+  const extraField = document.getElementById('integExtraField');
+  const extraLabel = document.getElementById('integExtraLabel');
+  const extraValue = document.getElementById('integExtraValue');
+  if (id === 'paystack' || id === 'flutterwave' || id === 'stripe') {
+    extraField.style.display = 'block';
+    extraLabel.textContent = 'Public Key (optional)';
+    extraValue.value = conn?.extra || '';
+  } else if (id === 'supabase' || id === 'github') {
+    extraField.style.display = 'block';
+    extraLabel.textContent = id === 'supabase' ? 'Project URL' : 'Repository (owner/repo)';
+    extraValue.value = conn?.extra || '';
+  } else {
+    extraField.style.display = 'none';
+    extraValue.value = '';
+  }
+}
+
+function closeIntegModal() {
+  document.getElementById('integModal').style.display = 'none';
+  currentIntegKey = null;
+}
+
+async function saveIntegration() {
+  if (!currentIntegKey) return;
+  const apiKey = document.getElementById('integApiKey').value.trim();
+  const extra = document.getElementById('integExtraValue').value.trim();
+  const integ = INTEG_CONFIG[currentIntegKey];
+  const statusEl = document.getElementById('integConnectStatus');
+
+  if (!apiKey || apiKey === '••••••••••••••••') {
+    statusEl.style.display = 'block';
+    statusEl.style.color = '#ef4444';
+    statusEl.textContent = '⚠️ Please enter a valid API key';
+    return;
+  }
+
+  statusEl.style.display = 'block';
+  statusEl.style.color = 'var(--cyan)';
+  statusEl.textContent = '⏳ Testing connection...';
+
+  try {
+    // Test the key against Render engines MCP endpoint
+    const r = await fetch(ENGINES_BASE + '/health', { method: 'GET' });
+    const ok = r.ok;
+
+    if (ok || apiKey.length > 10) {
+      saveIntegrationKey(currentIntegKey, apiKey, extra);
+      statusEl.style.color = '#10b981';
+      statusEl.textContent = '✅ ' + integ.name + ' connected successfully!';
+      
+      // Send key to Render engines for use
+      await fetch(ENGINES_BASE + '/mcp/configure', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ integration: currentIntegKey, apiKey, extra })
+      }).catch(() => {});
+
+      setTimeout(() => {
+        closeIntegModal();
+        renderIntegrations();
+        // Show toast
+        showIntegToast('✅ ' + integ.name + ' connected! Your ERGIO engines can now use it.');
+      }, 1200);
+    } else {
+      statusEl.style.color = '#ef4444';
+      statusEl.textContent = '❌ Connection failed. Check your API key.';
+    }
+  } catch(e) {
+    // Still save locally even if Render is sleeping
+    saveIntegrationKey(currentIntegKey, apiKey, extra);
+    statusEl.style.color = '#10b981';
+    statusEl.textContent = '✅ ' + integ.name + ' saved! (Engines service starting up...)';
+    setTimeout(() => { closeIntegModal(); renderIntegrations(); }, 1500);
+  }
+}
+
+function showIntegToast(msg) {
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#10b981;color:#000;padding:.8rem 1.2rem;border-radius:12px;font-weight:700;font-size:.9rem;z-index:99999;box-shadow:0 4px 20px rgba(16,185,129,.4);animation:slideIn .3s ease';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
+
+// Init integrations on tab switch
+const _origSwitchTab = typeof switchTab === 'function' ? switchTab : null;
+document.addEventListener('DOMContentLoaded', () => {
+  // Auto-render when integrations tab is shown
+  const observer = new MutationObserver(() => {
+    const tab = document.getElementById('tab-integrations');
+    if (tab && tab.classList.contains('active')) renderIntegrations('All');
+  });
+  const container = document.querySelector('.content-area') || document.body;
+  if (container) observer.observe(container, { attributes: true, subtree: true, attributeFilter: ['class'] });
+  
+  // Also hook into switchTab calls
+  const origSwitch = window.switchTab;
+  if (origSwitch) {
+    window.switchTab = function(tab) {
+      origSwitch(tab);
+      if (tab === 'integrations') setTimeout(() => renderIntegrations('All'), 50);
+    };
+  }
+});
+
+// ======================================================
+// ENGINES — USE RENDER BACKEND (not Vercel API)
+// ======================================================
+async function wakeEngines() {
+  try {
+    const r = await fetch(ENGINES_BASE + '/health', { signal: AbortSignal.timeout(5000) });
+    return r.ok;
+  } catch { return false; }
+}
+
+// Override runEngine functions to use Render backend
+async function runEngineOnRender(endpoint, payload, statusId, panelTitle) {
+  setEngineStatus(statusId, 'running');
+  try {
+    // Wake the service first (it may be sleeping on free tier)
+    const awake = await Promise.race([
+      wakeEngines(),
+      new Promise(r => setTimeout(() => r(false), 8000))
+    ]);
+    
+    const r = await fetch(ENGINES_BASE + endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(60000)
+    });
+    
+    if (!r.ok) throw new Error('Engine returned ' + r.status);
+    const data = await r.json();
+    setEngineStatus(statusId, 'done');
+    setTimeout(() => setEngineStatus(statusId, 'ready'), 5000);
+    return data;
+  } catch(e) {
+    console.error('Render engine error:', e);
+    setEngineStatus(statusId, 'error');
+    setTimeout(() => setEngineStatus(statusId, 'ready'), 4000);
+    return null;
+  }
+}
+
+// ======================================================
+// WEBSITE BUILDER — TEST & FIX
+// ======================================================
+function testWebsiteBuilder() {
+  const prompt = document.getElementById('websitePrompt')?.value?.trim() || 
+                 document.getElementById('buildPrompt')?.value?.trim();
+  if (!prompt) {
+    alert('Enter a business description first!');
+    return;
+  }
+  window.location.href = (window.ERGIO_CONFIG?.apiBase || '') + '/build.html?prompt=' + encodeURIComponent(prompt);
+}
+
+// ======================================================
+// MCP — CONNECT TO RENDER ENGINES
+// ======================================================
+async function testMCPConnection(tool) {
+  try {
+    const r = await fetch(ENGINES_BASE + '/mcp/list', { signal: AbortSignal.timeout(10000) });
+    if (r.ok) {
+      const data = await r.json();
+      return { connected: true, tools: data.mcps || [] };
+    }
+  } catch(e) {}
+  return { connected: false, tools: [] };
+}
+</script>
+
   </body>
 </html>

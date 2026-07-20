@@ -282,6 +282,47 @@ async def social_content(request: Request):
     )
     return result
 
+
+# ════════════════════════════════════════
+# MCP CONFIGURE (save integration keys)
+# ════════════════════════════════════════
+
+@app.post("/mcp/configure")
+async def mcp_configure(request: Request):
+    """Accept integration API keys from the frontend dashboard."""
+    body = await request.json()
+    integration = body.get("integration")
+    api_key = body.get("apiKey")
+    extra = body.get("extra")
+    
+    if not integration or not api_key:
+        raise HTTPException(status_code=400, detail="integration and apiKey required")
+    
+    # In production, store in Supabase or env. For now, log and confirm.
+    log.info(f"Integration configured: {integration} (key length: {len(api_key)})")
+    
+    # Update in-memory config
+    import os
+    key_map = {
+        "paystack": "PAYSTACK_SECRET_KEY",
+        "stripe": "STRIPE_API_KEY", 
+        "resend": "RESEND_API_KEY",
+        "twilio": "TWILIO_AUTH_TOKEN",
+        "groq": "GROQ_API_KEY",
+        "github": "GITHUB_TOKEN",
+        "openai": "OPENAI_API_KEY",
+        "flutterwave": "FLUTTERWAVE_SECRET_KEY",
+    }
+    env_key = key_map.get(integration)
+    if env_key:
+        os.environ[env_key] = api_key
+    
+    return {
+        "configured": True,
+        "integration": integration,
+        "message": f"{integration} integration configured successfully"
+    }
+
 @app.get("/businesses")
 async def list_businesses():
     businesses = await get_businesses()

@@ -1082,7 +1082,8 @@ async function buildWebsite(prompt) {
   addProgressMsg();
   
   try {
-    const response = await fetch('/api/generate', {
+    const API_BASE = window.ERGIO_CONFIG?.apiBase || window.location.origin;
+    const response = await fetch(API_BASE + '/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt })
