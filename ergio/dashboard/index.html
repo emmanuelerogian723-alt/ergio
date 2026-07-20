@@ -645,73 +645,70 @@
 
       <!-- MCP & PLUGINS TAB -->
       <div class="tab-content" id="tab-plugins">
-        <div style="margin-bottom:1.5rem">
-          <h2 style="font-size:1.5rem;margin-bottom:.5rem">🔌 MCP Servers & Plugins</h2>
-          <p style="color:var(--muted)">Connect any MCP (Model Context Protocol) server to extend your AI agents with external tools. Browse the marketplace or add a custom server.</p>
-        </div>
-
-        <!-- Tab switcher -->
-        <div style="display:flex;gap:.5rem;margin-bottom:1.5rem;border-bottom:1px solid var(--border);padding-bottom:.5rem">
-          <button class="btn" id="pluginTabMarketplace" onclick="switchPluginTab('marketplace')" style="border:none;background:var(--cyan);color:#000;font-weight:600">🏪 Marketplace</button>
-          <button class="btn" id="pluginTabMyServers" onclick="switchPluginTab('myservers')" style="border:none;background:transparent;color:var(--muted)">🔌 My Servers</button>
-        </div>
-
-        <!-- Marketplace View -->
-        <div id="pluginMarketplace">
-          <!-- Search -->
-          <input type="text" id="pluginSearch" placeholder="Search plugins..." oninput="filterPlugins()" style="width:100%;padding:.7rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:.9rem;margin-bottom:1rem">
-          <!-- Plugin Grid -->
-          <div id="pluginGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem"></div>
-        </div>
-
-        <!-- My Servers View -->
-        <div id="pluginMyServers" style="display:none">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-            <h3 style="font-size:1.1rem">Configured MCP Servers</h3>
-            <button class="btn btn-primary" onclick="showAddCustomServer()">+ Add Custom Server</button>
+        <div style="margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem">
+          <div>
+            <h2 style="font-size:1.5rem;margin-bottom:.3rem">🔌 MCP Servers &amp; Plugins</h2>
+            <p style="color:var(--muted);font-size:.9rem">36 MCP servers · 30 plugins — connect external tools to your AI agents</p>
           </div>
-          <div id="myServersList" style="display:grid;gap:.8rem">
-            <div style="background:var(--surface);border:1px dashed var(--border);border-radius:12px;padding:2rem;text-align:center;color:var(--muted)">
-              No MCP servers configured yet. Browse the marketplace to add one.
-            </div>
-          </div>
+          <button class="btn btn-primary" onclick="showAddCustomServer()" style="flex-shrink:0">+ Custom Server</button>
         </div>
 
-        <!-- Add Custom Server Modal -->
-        <div id="customServerModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center">
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2rem;max-width:500px;width:90%;max-height:80vh;overflow-y:auto">
-            <h3 style="font-size:1.2rem;margin-bottom:1rem">🔌 Add Custom MCP Server</h3>
+        <!-- Category filter -->
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.2rem" id="mcpCategoryBar">
+          <button onclick="filterMCP('all')" class="mcp-cat active" style="padding:.35rem .9rem;border-radius:20px;border:1px solid var(--cyan);background:var(--cyan);color:#000;font-size:.8rem;font-weight:600;cursor:pointer">All</button>
+          <button onclick="filterMCP('mcp')" class="mcp-cat" style="padding:.35rem .9rem;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer">🌐 MCP Servers</button>
+          <button onclick="filterMCP('payment')" class="mcp-cat" style="padding:.35rem .9rem;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer">💳 Payments</button>
+          <button onclick="filterMCP('communication')" class="mcp-cat" style="padding:.35rem .9rem;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer">📣 Communication</button>
+          <button onclick="filterMCP('ai')" class="mcp-cat" style="padding:.35rem .9rem;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer">🤖 AI</button>
+          <button onclick="filterMCP('social')" class="mcp-cat" style="padding:.35rem .9rem;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer">📱 Social</button>
+          <button onclick="filterMCP('infra')" class="mcp-cat" style="padding:.35rem .9rem;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer">⚙️ Infra</button>
+          <button onclick="filterMCP('voice')" class="mcp-cat" style="padding:.35rem .9rem;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer">🎙️ Voice</button>
+        </div>
+        <!-- Search -->
+        <input type="text" id="mcpSearchInput" placeholder="Search MCP servers and plugins..." oninput="searchMCP()" style="width:100%;padding:.7rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:.9rem;margin-bottom:1.2rem;box-sizing:border-box">
+        <!-- Stats bar -->
+        <div style="display:flex;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap">
+          <div style="font-size:.82rem;color:var(--muted)">🌐 <b style="color:var(--cyan)" id="mcpCount">36</b> MCP Servers</div>
+          <div style="font-size:.82rem;color:var(--muted)">🔌 <b style="color:#a78bfa" id="pluginCount">30</b> Plugins</div>
+          <div style="font-size:.82rem;color:var(--muted)">✅ <b style="color:#22c55e" id="connectedCount">0</b> Connected</div>
+        </div>
+        <!-- Grid -->
+        <div id="mcpPluginGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem"></div>
+
+        <!-- Custom Server Modal -->
+        <div id="customServerModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center">
+          <div style="background:#0f172a;border:1px solid var(--border);border-radius:20px;padding:2rem;max-width:480px;width:92%;max-height:85vh;overflow-y:auto">
+            <h3 style="font-size:1.1rem;margin-bottom:1.2rem">🔌 Add Custom MCP Server</h3>
             <div style="display:grid;gap:.8rem">
-              <div>
-                <label style="font-size:.85rem;color:var(--muted);display:block;margin-bottom:.3rem">Server Name</label>
-                <input type="text" id="mcpName" placeholder="My MCP Server" style="width:100%;padding:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
-              </div>
-              <div>
-                <label style="font-size:.85rem;color:var(--muted);display:block;margin-bottom:.3rem">Transport Type</label>
+              <div><label style="font-size:.82rem;color:var(--muted);display:block;margin-bottom:.3rem">Server Name</label>
+                <input type="text" id="mcpName" placeholder="My MCP Server" style="width:100%;padding:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);box-sizing:border-box"></div>
+              <div><label style="font-size:.82rem;color:var(--muted);display:block;margin-bottom:.3rem">Transport</label>
                 <select id="mcpTransport" style="width:100%;padding:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
                   <option value="sse">SSE (Server-Sent Events)</option>
                   <option value="stdio">Stdio (Local Process)</option>
                   <option value="websocket">WebSocket</option>
-                </select>
-              </div>
-              <div id="mcpUrlField">
-                <label style="font-size:.85rem;color:var(--muted);display:block;margin-bottom:.3rem">Server URL</label>
-                <input type="text" id="mcpUrl" placeholder="https://my-mcp-server.com/v1" style="width:100%;padding:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
-              </div>
-              <div id="mcpCommandField" style="display:none">
-                <label style="font-size:.85rem;color:var(--muted);display:block;margin-bottom:.3rem">Command</label>
-                <input type="text" id="mcpCommand" placeholder="npx" style="width:100%;padding:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
-                <label style="font-size:.85rem;color:var(--muted);display:block;margin-bottom:.3rem;margin-top:.5rem">Arguments (comma-separated)</label>
-                <input type="text" id="mcpArgs" placeholder="@modelcontextprotocol/server-gmail" style="width:100%;padding:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
-              </div>
-              <div>
-                <label style="font-size:.85rem;color:var(--muted);display:block;margin-bottom:.3rem">Environment Variables (JSON)</label>
-                <textarea id="mcpEnv" placeholder='{"API_KEY":"your-key"}' style="width:100%;padding:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);min-height:60px;font-family:monospace;font-size:.8rem"></textarea>
-              </div>
-              <div style="display:flex;gap:.5rem;margin-top:.5rem">
+                </select></div>
+              <div><label style="font-size:.82rem;color:var(--muted);display:block;margin-bottom:.3rem">Server URL</label>
+                <input type="text" id="mcpUrl" placeholder="https://my-mcp-server.com/sse" style="width:100%;padding:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);box-sizing:border-box"></div>
+              <div><label style="font-size:.82rem;color:var(--muted);display:block;margin-bottom:.3rem">API Key (optional)</label>
+                <input type="password" id="mcpApiKey" placeholder="sk-..." style="width:100%;padding:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);box-sizing:border-box"></div>
+              <div style="display:flex;gap:.5rem;margin-top:.3rem">
                 <button class="btn btn-primary" onclick="addCustomServer()" style="flex:1">Add Server</button>
                 <button class="btn btn-ghost" onclick="document.getElementById('customServerModal').style.display='none'">Cancel</button>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connect Modal -->
+        <div id="mcpConnectModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center">
+          <div style="background:#0f172a;border:1px solid var(--border);border-radius:20px;padding:2rem;max-width:420px;width:92%">
+            <h3 id="mcpConnectTitle" style="font-size:1.1rem;margin-bottom:.5rem"></h3>
+            <p id="mcpConnectDesc" style="font-size:.85rem;color:var(--muted);margin-bottom:1rem"></p>
+            <div id="mcpConnectFields" style="display:grid;gap:.7rem;margin-bottom:1rem"></div>
+            <div style="display:flex;gap:.5rem">
+              <button class="btn btn-primary" onclick="saveMCPConnection()" style="flex:1">Connect</button>
+              <button class="btn btn-ghost" onclick="document.getElementById('mcpConnectModal').style.display='none'">Cancel</button>
             </div>
           </div>
         </div>
@@ -928,6 +925,7 @@ function switchTab(tab) {
   const titleEl = document.getElementById('pageTitle');
   if (titleEl) titleEl.textContent = titles[tab] || tab.charAt(0).toUpperCase() + tab.slice(1);
   if (tab === 'integrations') { loadPluginsGrid(); loadConnectedIntegrations(); }
+  if (tab === 'plugins') { loadMCPPlugins(); }
   if (tab === 'skills') { loadSkillsMarketplace(); }
   if (tab === 'agents') { loadAgentFrameworks(); }
   if (tab === 'leads') { scanLeads(); }
@@ -1760,6 +1758,246 @@ setTimeout(function() {
     initDashboard();
   }
 }, 500);
-  </script>
+  
+// ============================================================
+// MCP & PLUGINS SYSTEM — 36 MCPs + 30 Plugins (fully hardcoded)
+// ============================================================
+var MCP_DATA = [
+  // ── MCP SERVERS ──
+  {id:'stripe',name:'Stripe',icon:'💳',cat:'payment',type:'mcp',desc:'Accept global payments, subscriptions, invoicing and refunds.',url:'https://stripe.com/docs/api',env:['STRIPE_SECRET_KEY'],free:false,status:'official'},
+  {id:'paystack',name:'Paystack',icon:'🏦',cat:'payment',type:'mcp',desc:'African payments — cards, bank transfer, USSD, mobile money.',url:'https://paystack.com',env:['PAYSTACK_SECRET_KEY'],free:false,status:'official'},
+  {id:'flutterwave',name:'Flutterwave',icon:'🦋',cat:'payment',type:'mcp',desc:'Pan-African payments across 35+ African countries.',url:'https://flutterwave.com',env:['FLW_SECRET_KEY'],free:false,status:'official'},
+  {id:'resend',name:'Resend',icon:'📧',cat:'communication',type:'mcp',desc:'Transactional emails — 3,000 free/month. No spam filters.',url:'https://resend.com',env:['RESEND_API_KEY'],free:true,status:'official'},
+  {id:'twilio',name:'Twilio',icon:'📱',cat:'communication',type:'mcp',desc:'SMS, WhatsApp, voice calls. 1,000 free WhatsApp conversations/month.',url:'https://twilio.com',env:['TWILIO_SID','TWILIO_AUTH'],free:true,status:'official'},
+  {id:'whatsapp_business',name:'WhatsApp Business',icon:'💬',cat:'communication',type:'mcp',desc:'Official Meta WhatsApp Business API for bulk messaging.',url:'https://developers.facebook.com/products/whatsapp/',env:['WA_TOKEN','WA_PHONE_ID'],free:false,status:'official'},
+  {id:'postmark',name:'Postmark',icon:'📮',cat:'communication',type:'mcp',desc:'Transactional email with guaranteed delivery and analytics.',url:'https://postmarkapp.com',env:['POSTMARK_TOKEN'],free:false,status:'official'},
+  {id:'slack',name:'Slack',icon:'💼',cat:'communication',type:'mcp',desc:'Team notifications, alerts, and business updates via Slack.',url:'https://slack.com',env:['SLACK_BOT_TOKEN'],free:true,status:'official'},
+  {id:'groq',name:'Groq',icon:'⚡',cat:'ai',type:'mcp',desc:'Llama 3.3 70B at 200 tokens/sec — fastest free AI inference.',url:'https://groq.com',env:['GROQ_API_KEY'],free:true,status:'active'},
+  {id:'openai',name:'OpenAI',icon:'🤖',cat:'ai',type:'mcp',desc:'GPT-4o, GPT-4 Turbo, embeddings, DALL-E 3 image generation.',url:'https://openai.com',env:['OPENAI_API_KEY'],free:false,status:'official'},
+  {id:'openrouter',name:'OpenRouter',icon:'🔀',cat:'ai',type:'mcp',desc:'Access 100+ AI models (Claude, Gemini, Llama) via one API.',url:'https://openrouter.ai',env:['OPENROUTER_API_KEY'],free:true,status:'active'},
+  {id:'huggingface',name:'HuggingFace',icon:'🤗',cat:'ai',type:'mcp',desc:'500,000+ open-source models for text, images, audio and more.',url:'https://huggingface.co',env:['HF_TOKEN'],free:true,status:'official'},
+  {id:'tavily',name:'Tavily',icon:'🔍',cat:'ai',type:'mcp',desc:'AI-powered web search optimized for LLM agents and RAG.',url:'https://tavily.com',env:['TAVILY_API_KEY'],free:true,status:'official'},
+  {id:'supabase',name:'Supabase',icon:'🗄️',cat:'infra',type:'mcp',desc:'PostgreSQL database, auth, storage, realtime subscriptions.',url:'https://supabase.com',env:['SUPABASE_URL','SUPABASE_SERVICE_KEY'],free:true,status:'active'},
+  {id:'cloudflare',name:'Cloudflare',icon:'🌩️',cat:'infra',type:'mcp',desc:'CDN, DNS, Workers, R2 storage, DDoS protection.',url:'https://cloudflare.com',env:['CF_API_TOKEN'],free:true,status:'official'},
+  {id:'vercel',name:'Vercel',icon:'▲',cat:'infra',type:'mcp',desc:'Deploy serverless functions, edge functions, and static sites.',url:'https://vercel.com',env:['VERCEL_TOKEN'],free:true,status:'active'},
+  {id:'sentry',name:'Sentry',icon:'🛡️',cat:'infra',type:'mcp',desc:'Real-time error monitoring and performance tracking.',url:'https://sentry.io',env:['SENTRY_DSN'],free:true,status:'official'},
+  {id:'pinecone',name:'Pinecone',icon:'🌲',cat:'infra',type:'mcp',desc:'Vector database for AI memory, semantic search, and RAG.',url:'https://pinecone.io',env:['PINECONE_API_KEY'],free:true,status:'official'},
+  {id:'github',name:'GitHub',icon:'🐙',cat:'infra',type:'mcp',desc:'Source code management, CI/CD, issue tracking.',url:'https://github.com',env:['GITHUB_TOKEN'],free:true,status:'official'},
+  {id:'notion',name:'Notion',icon:'📔',cat:'infra',type:'mcp',desc:'Knowledge base, project management, and documentation.',url:'https://notion.so',env:['NOTION_TOKEN'],free:true,status:'official'},
+  {id:'apify',name:'Apify',icon:'🕷️',cat:'ai',type:'mcp',desc:'Web scraping platform — 1,500+ scrapers for any website.',url:'https://apify.com',env:['APIFY_TOKEN'],free:true,status:'official'},
+  {id:'google_maps',name:'Google Maps',icon:'🗺️',cat:'infra',type:'mcp',desc:'Maps, places search, geocoding, directions, business info.',url:'https://developers.google.com/maps',env:['GOOGLE_MAPS_KEY'],free:false,status:'official'},
+  {id:'google_ads',name:'Google Ads',icon:'🎯',cat:'communication',type:'mcp',desc:'Create and manage Google Ads campaigns automatically.',url:'https://ads.google.com',env:['GOOGLE_ADS_TOKEN'],free:false,status:'official'},
+  {id:'meta_ads',name:'Meta Ads',icon:'📢',cat:'communication',type:'mcp',desc:'Facebook & Instagram advertising via Meta Business API.',url:'https://developers.facebook.com',env:['META_ACCESS_TOKEN'],free:false,status:'official'},
+  {id:'cal',name:'Cal.com',icon:'📅',cat:'communication',type:'mcp',desc:'Open-source scheduling — booking links, calendar sync.',url:'https://cal.com',env:['CAL_API_KEY'],free:true,status:'official'},
+  {id:'vapi',name:'Vapi AI',icon:'🎙️',cat:'voice',type:'mcp',desc:'AI phone agents — build voice assistants that call customers.',url:'https://vapi.ai',env:['VAPI_API_KEY'],free:true,status:'official'},
+  {id:'retell',name:'Retell AI',icon:'📞',cat:'voice',type:'mcp',desc:'Human-like AI voice calls with sub-second latency.',url:'https://retellai.com',env:['RETELL_API_KEY'],free:true,status:'official'},
+  {id:'bland',name:'Bland AI',icon:'🤙',cat:'voice',type:'mcp',desc:'Make and receive AI phone calls at scale — $0.09/min.',url:'https://bland.ai',env:['BLAND_API_KEY'],free:false,status:'official'},
+  {id:'composio',name:'Composio',icon:'🧩',cat:'ai',type:'mcp',desc:'250+ app integrations for AI agents — Gmail, Slack, Salesforce.',url:'https://composio.dev',env:['COMPOSIO_API_KEY'],free:true,status:'official'},
+  {id:'hermes',name:'Hermes Agent',icon:'🪽',cat:'ai',type:'mcp',desc:'Self-improving AI agent that learns from every interaction.',url:'https://hermes.ai',env:['HERMES_API_KEY'],free:false,status:'official'},
+  {id:'openclaw',name:'OpenClaw',icon:'🦅',cat:'ai',type:'mcp',desc:'Multi-agent orchestration — run parallel AI agent networks.',url:'https://openclaw.ai',env:['OPENCLAW_API_KEY'],free:false,status:'official'},
+  {id:'glama',name:'Glama',icon:'🦙',cat:'ai',type:'mcp',desc:'Access 1,000+ MCP servers through one gateway.',url:'https://glama.ai',env:['GLAMA_API_KEY'],free:true,status:'official'},
+  {id:'synthflow',name:'Synthflow',icon:'🔊',cat:'voice',type:'mcp',desc:'No-code AI phone receptionist — handles inbound calls 24/7.',url:'https://synthflow.ai',env:['SYNTHFLOW_KEY'],free:false,status:'official'},
+  {id:'agentcall',name:'AgentCall',icon:'📲',cat:'voice',type:'mcp',desc:'AI outbound calling platform for sales and follow-ups.',url:'https://agentcall.io',env:['AGENTCALL_KEY'],free:false,status:'official'},
+  {id:'clay',name:'Clay',icon:'🏺',cat:'communication',type:'mcp',desc:'AI-powered lead enrichment, outreach automation and CRM.',url:'https://clay.com',env:['CLAY_API_KEY'],free:false,status:'official'},
+  {id:'instantly',name:'Instantly',icon:'⚡',cat:'communication',type:'mcp',desc:'Cold email automation — send 1000s of emails per day safely.',url:'https://instantly.ai',env:['INSTANTLY_API_KEY'],free:false,status:'official'},
+  // ── PLUGINS ──
+  {id:'p_wa_crm',name:'WhatsApp CRM',icon:'💬',cat:'communication',type:'plugin',desc:'Auto-reply, broadcast messages, and manage WhatsApp conversations as a CRM.',env:['WA_TOKEN'],free:true,status:'official'},
+  {id:'p_email_mkt',name:'Email Marketing',icon:'📧',cat:'communication',type:'plugin',desc:'Build email lists, create campaigns, and track open/click rates.',env:['RESEND_API_KEY'],free:true,status:'official'},
+  {id:'p_ga',name:'Google Analytics',icon:'📊',cat:'social',type:'plugin',desc:'Track website traffic, conversions, and user behavior in real-time.',env:['GA_TRACKING_ID'],free:true,status:'official'},
+  {id:'p_calendly',name:'Calendly',icon:'📅',cat:'communication',type:'plugin',desc:'Booking links that sync with your calendar and send reminders.',env:['CALENDLY_TOKEN'],free:true,status:'official'},
+  {id:'p_insta',name:'Instagram',icon:'📸',cat:'social',type:'plugin',desc:'Auto-post content, respond to DMs, and track follower growth.',env:['IG_ACCESS_TOKEN'],free:false,status:'official'},
+  {id:'p_fb',name:'Facebook',icon:'👍',cat:'social',type:'plugin',desc:'Manage Facebook page, auto-post, and run lead gen ads.',env:['FB_ACCESS_TOKEN'],free:false,status:'official'},
+  {id:'p_twitter',name:'Twitter / X',icon:'🐦',cat:'social',type:'plugin',desc:'Auto-tweet, schedule posts, and monitor brand mentions.',env:['TWITTER_API_KEY','TWITTER_SECRET'],free:false,status:'official'},
+  {id:'p_linkedin',name:'LinkedIn',icon:'💼',cat:'social',type:'plugin',desc:'Post company updates, connect with leads, and track engagement.',env:['LINKEDIN_TOKEN'],free:false,status:'official'},
+  {id:'p_tiktok',name:'TikTok',icon:'🎵',cat:'social',type:'plugin',desc:'Upload videos, track analytics, and run TikTok ads.',env:['TIKTOK_TOKEN'],free:false,status:'official'},
+  {id:'p_youtube',name:'YouTube',icon:'▶️',cat:'social',type:'plugin',desc:'Upload videos, manage comments, and track video performance.',env:['YOUTUBE_API_KEY'],free:true,status:'official'},
+  {id:'p_push',name:'Push Notifications',icon:'🔔',cat:'communication',type:'plugin',desc:'Web push notifications — re-engage visitors even after they leave.',env:['PUSH_APP_ID'],free:true,status:'official'},
+  {id:'p_livechat',name:'AI Live Chat',icon:'🤖',cat:'ai',type:'plugin',desc:'Embeddable AI chatbot — answers questions 24/7 using your business data.',env:[],free:true,status:'active'},
+  {id:'p_gbp',name:'Google Business',icon:'🗺️',cat:'social',type:'plugin',desc:'Manage Google Business Profile — posts, reviews, Q&A, hours.',env:['GOOGLE_API_KEY'],free:true,status:'official'},
+  {id:'p_wa_catalog',name:'WhatsApp Catalog',icon:'🛒',cat:'communication',type:'plugin',desc:'Showcase products/services in WhatsApp catalog for easy ordering.',env:['WA_TOKEN'],free:false,status:'official'},
+  {id:'p_paystack_pos',name:'Paystack POS',icon:'💰',cat:'payment',type:'plugin',desc:'Accept in-person payments with Paystack POS terminal.',env:['PAYSTACK_SECRET_KEY'],free:false,status:'official'},
+  {id:'p_telegram',name:'Telegram Bot',icon:'✈️',cat:'communication',type:'plugin',desc:'Send alerts, get orders, and automate via your Telegram bot.',env:['TELEGRAM_BOT_TOKEN'],free:true,status:'official'},
+  {id:'p_shopify',name:'Shopify',icon:'🛍️',cat:'payment',type:'plugin',desc:'Sync Shopify orders, products, and customers with ERGIO.',env:['SHOPIFY_TOKEN'],free:false,status:'official'},
+  {id:'p_discord',name:'Discord',icon:'🎮',cat:'communication',type:'plugin',desc:'Community management, support tickets, and automated alerts.',env:['DISCORD_BOT_TOKEN'],free:true,status:'official'},
+  {id:'p_reddit',name:'Reddit',icon:'🔴',cat:'social',type:'plugin',desc:'Monitor brand mentions, post content, and engage communities.',env:['REDDIT_TOKEN'],free:true,status:'official'},
+  {id:'p_pinterest',name:'Pinterest',icon:'📌',cat:'social',type:'plugin',desc:'Auto-pin products, create boards, and drive traffic.',env:['PINTEREST_TOKEN'],free:false,status:'official'},
+  {id:'p_snapchat',name:'Snapchat Ads',icon:'👻',cat:'social',type:'plugin',desc:'Create and manage Snapchat advertising campaigns.',env:['SNAPCHAT_TOKEN'],free:false,status:'official'},
+  {id:'p_gdrive',name:'Google Drive',icon:'📁',cat:'infra',type:'plugin',desc:'Store files, share documents, and sync data with Google Drive.',env:['GOOGLE_API_KEY'],free:true,status:'official'},
+  {id:'p_zoom',name:'Zoom',icon:'📹',cat:'communication',type:'plugin',desc:'Schedule and join Zoom meetings automatically from bookings.',env:['ZOOM_TOKEN'],free:true,status:'official'},
+  {id:'p_hubspot',name:'HubSpot CRM',icon:'🧡',cat:'communication',type:'plugin',desc:'Sync leads and customers to HubSpot CRM automatically.',env:['HUBSPOT_TOKEN'],free:true,status:'official'},
+  {id:'p_gcal',name:'Google Calendar',icon:'📆',cat:'communication',type:'plugin',desc:'Sync bookings, set reminders, and block availability.',env:['GOOGLE_API_KEY'],free:true,status:'official'},
+  {id:'p_notion',name:'Notion',icon:'📔',cat:'infra',type:'plugin',desc:'Log leads, bookings, and notes to your Notion workspace.',env:['NOTION_TOKEN'],free:true,status:'official'},
+  {id:'p_canva',name:'Canva',icon:'🎨',cat:'ai',type:'plugin',desc:'Generate social media graphics using Canva templates.',env:['CANVA_TOKEN'],free:true,status:'official'},
+  {id:'p_mailchimp',name:'Mailchimp',icon:'🐵',cat:'communication',type:'plugin',desc:'Email marketing campaigns, audience management, automation.',env:['MAILCHIMP_KEY'],free:true,status:'official'},
+  {id:'p_hotjar',name:'Hotjar',icon:'🔥',cat:'social',type:'plugin',desc:'Heatmaps, session recordings, and user feedback forms.',env:['HOTJAR_ID'],free:true,status:'official'},
+  {id:'p_mixpanel',name:'Mixpanel',icon:'📈',cat:'social',type:'plugin',desc:'Product analytics — track user journeys and retention.',env:['MIXPANEL_TOKEN'],free:true,status:'official'},
+];
+
+var _mcpFilter = 'all';
+var _mcpSearch = '';
+
+function loadMCPPlugins() {
+  var saved = JSON.parse(localStorage.getItem('ergio_mcp_connected') || '{}');
+  var connected = Object.keys(saved).length;
+  var countEl = document.getElementById('connectedCount');
+  if (countEl) countEl.textContent = connected;
+  renderMCPGrid();
+}
+
+function filterMCP(cat) {
+  _mcpFilter = cat;
+  document.querySelectorAll('.mcp-cat').forEach(function(b) {
+    var isActive = b.textContent.trim().toLowerCase().includes(cat) || (cat === 'all' && b.textContent.includes('All'));
+    b.style.background = isActive ? 'var(--cyan)' : 'transparent';
+    b.style.color = isActive ? '#000' : 'var(--muted)';
+    b.style.borderColor = isActive ? 'var(--cyan)' : 'var(--border)';
+    b.style.fontWeight = isActive ? '600' : '400';
+  });
+  renderMCPGrid();
+}
+
+function searchMCP() {
+  _mcpSearch = (document.getElementById('mcpSearchInput') || {value:''}).value.toLowerCase();
+  renderMCPGrid();
+}
+
+function renderMCPGrid() {
+  var grid = document.getElementById('mcpPluginGrid');
+  if (!grid) return;
+  var saved = JSON.parse(localStorage.getItem('ergio_mcp_connected') || '{}');
+  var items = MCP_DATA.filter(function(m) {
+    var catMatch = _mcpFilter === 'all' || m.cat === _mcpFilter || (_mcpFilter === 'mcp' && m.type === 'mcp');
+    var search = _mcpSearch ? (m.name + m.desc + m.cat).toLowerCase().includes(_mcpSearch) : true;
+    return catMatch && search;
+  });
+  if (items.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:3rem">No results for "' + _mcpSearch + '"</div>';
+    return;
+  }
+  grid.innerHTML = items.map(function(m) {
+    var isConnected = !!saved[m.id];
+    var typeBadge = m.type === 'mcp'
+      ? '<span style="font-size:.65rem;padding:.15rem .5rem;border-radius:10px;background:rgba(0,217,255,.12);color:var(--cyan);font-weight:600">MCP</span>'
+      : '<span style="font-size:.65rem;padding:.15rem .5rem;border-radius:10px;background:rgba(167,139,250,.12);color:#a78bfa;font-weight:600">PLUGIN</span>';
+    var freeBadge = m.free
+      ? '<span style="font-size:.65rem;padding:.15rem .5rem;border-radius:10px;background:rgba(34,197,94,.1);color:#22c55e;font-weight:600">FREE</span>'
+      : '';
+    var statusDot = isConnected
+      ? '<span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;margin-right:4px"></span>'
+      : '';
+    var btnStyle = isConnected
+      ? 'width:100%;padding:.45rem;font-size:.8rem;border-radius:8px;border:1px solid #22c55e;background:rgba(34,197,94,.1);color:#22c55e;cursor:pointer;font-weight:600'
+      : 'width:100%;padding:.45rem;font-size:.8rem;border-radius:8px;border:none;background:var(--cyan);color:#000;cursor:pointer;font-weight:600';
+    var btnText = isConnected ? '✅ Connected' : '+ Connect';
+    var envReq = m.env && m.env.length > 0 ? '<div style="margin-top:.4rem;font-size:.7rem;color:var(--muted)">Needs: ' + m.env.join(', ') + '</div>' : '<div style="margin-top:.4rem;font-size:.7rem;color:#22c55e">No API key needed</div>';
+    return '<div style="background:var(--surface);border:1px solid ' + (isConnected ? '#22c55e44' : 'var(--border)') + ';border-radius:14px;padding:1.1rem;display:flex;flex-direction:column;gap:.5rem">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between">' +
+        '<div style="font-size:1.8rem">' + m.icon + '</div>' +
+        '<div style="display:flex;gap:.3rem;align-items:center">' + typeBadge + freeBadge + '</div>' +
+      '</div>' +
+      '<div>' +
+        '<div style="font-weight:700;font-size:.92rem">' + statusDot + m.name + '</div>' +
+        '<div style="font-size:.78rem;color:var(--muted);margin-top:.2rem;line-height:1.4">' + m.desc + '</div>' +
+      '</div>' +
+      envReq +
+      '<button onclick="openMCPConnect('' + m.id + '')" style="' + btnStyle + '">' + btnText + '</button>' +
+    '</div>';
+  }).join('');
+}
+
+function openMCPConnect(id) {
+  var saved = JSON.parse(localStorage.getItem('ergio_mcp_connected') || '{}');
+  if (saved[id]) {
+    if (confirm('Disconnect ' + id + '?')) {
+      delete saved[id];
+      localStorage.setItem('ergio_mcp_connected', JSON.stringify(saved));
+      loadMCPPlugins();
+    }
+    return;
+  }
+  var m = MCP_DATA.find(function(x) { return x.id === id; });
+  if (!m) return;
+  // If no env required — connect instantly
+  if (!m.env || m.env.length === 0) {
+    saved[id] = { name: m.name, connected_at: new Date().toISOString() };
+    localStorage.setItem('ergio_mcp_connected', JSON.stringify(saved));
+    loadMCPPlugins();
+    showToast('✅ ' + m.name + ' connected!', 'success');
+    return;
+  }
+  // Show connect modal
+  var modal = document.getElementById('mcpConnectModal');
+  document.getElementById('mcpConnectTitle').textContent = m.icon + ' Connect ' + m.name;
+  document.getElementById('mcpConnectDesc').textContent = m.desc;
+  var fields = document.getElementById('mcpConnectFields');
+  fields.innerHTML = m.env.map(function(e) {
+    return '<div><label style="font-size:.82rem;color:var(--muted);display:block;margin-bottom:.25rem">' + e + '</label>' +
+      '<input type="password" id="mcp_env_' + e + '" placeholder="Enter ' + e + '" style="width:100%;padding:.55rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);box-sizing:border-box"></div>';
+  }).join('');
+  fields.setAttribute('data-mcp-id', id);
+  modal.style.display = 'flex';
+}
+
+function saveMCPConnection() {
+  var modal = document.getElementById('mcpConnectModal');
+  var fields = document.getElementById('mcpConnectFields');
+  var id = fields.getAttribute('data-mcp-id');
+  var m = MCP_DATA.find(function(x) { return x.id === id; });
+  if (!m) return;
+  var creds = {};
+  var ok = true;
+  (m.env || []).forEach(function(e) {
+    var el = document.getElementById('mcp_env_' + e);
+    var val = el ? el.value.trim() : '';
+    if (!val) { ok = false; showToast('Please enter ' + e, 'error'); }
+    else creds[e] = val;
+  });
+  if (!ok) return;
+  var saved = JSON.parse(localStorage.getItem('ergio_mcp_connected') || '{}');
+  saved[id] = { name: m.name, connected_at: new Date().toISOString(), creds: creds };
+  localStorage.setItem('ergio_mcp_connected', JSON.stringify(saved));
+  modal.style.display = 'none';
+  loadMCPPlugins();
+  showToast('✅ ' + m.name + ' connected!', 'success');
+}
+
+function showAddCustomServer() {
+  document.getElementById('customServerModal').style.display = 'flex';
+}
+
+function addCustomServer() {
+  var name = (document.getElementById('mcpName') || {value:''}).value.trim();
+  var url = (document.getElementById('mcpUrl') || {value:''}).value.trim();
+  var transport = (document.getElementById('mcpTransport') || {value:'sse'}).value;
+  var apiKey = (document.getElementById('mcpApiKey') || {value:''}).value.trim();
+  if (!name || !url) { showToast('Name and URL are required', 'error'); return; }
+  // Add to MCP_DATA dynamically
+  var custom = { id: 'custom_' + Date.now(), name: name, icon: '🔌', cat: 'infra', type: 'mcp',
+    desc: url, env: apiKey ? ['API_KEY'] : [], free: true, status: 'custom', url: url };
+  MCP_DATA.push(custom);
+  var saved = JSON.parse(localStorage.getItem('ergio_mcp_connected') || '{}');
+  saved[custom.id] = { name: name, connected_at: new Date().toISOString(), url: url, transport: transport, apiKey: apiKey };
+  localStorage.setItem('ergio_mcp_connected', JSON.stringify(saved));
+  document.getElementById('customServerModal').style.display = 'none';
+  document.getElementById('mcpName').value = '';
+  document.getElementById('mcpUrl').value = '';
+  if (document.getElementById('mcpApiKey')) document.getElementById('mcpApiKey').value = '';
+  loadMCPPlugins();
+  showToast('✅ ' + name + ' added as MCP server!', 'success');
+}
+
+function showToast(msg, type) {
+  var existing = document.getElementById('ergio_toast');
+  if (existing) existing.remove();
+  var t = document.createElement('div');
+  t.id = 'ergio_toast';
+  t.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;padding:.7rem 1.2rem;border-radius:10px;font-size:.9rem;font-weight:600;z-index:99999;animation:fadeIn .2s;' +
+    (type==='error' ? 'background:#ef4444;color:#fff' : 'background:#22c55e;color:#000');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function() { t.remove(); }, 3000);
+}
+// ============================================================
+</script>
 </body>
 </html>
