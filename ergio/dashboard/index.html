@@ -118,6 +118,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../lib/engines-api.js"></script>
   <script src="../lib/ergio-command.js"></script>
+  <script src="../lib/connector-system.js"></script>
 </head>
 <body>
   <!-- SIDEBAR -->
@@ -1293,6 +1294,27 @@ function renderIntegrationsGrid() {
 }
 
 async function connectIntegration(id, name) {
+  // Use the new ErgioConnectors system for proper frontend connection
+  if (window.ErgioConnectors && window.ErgioConnectors.getConnectors) {
+    var connectors = window.ErgioConnectors.getConnectors();
+    // Map old integration IDs to new connector IDs
+    var connectorId = id;
+    if (!connectors[id]) {
+      // Try to find a matching connector by name
+      var found = Object.entries(connectors).find(function([cid, c]) {
+        return c.name && c.name.toLowerCase() === name.toLowerCase();
+      });
+      if (found) connectorId = found[0];
+    }
+    if (connectors[connectorId]) {
+      // Use the new connector modal system
+      var userId = (window.currentUser && window.currentUser.id) || 'anonymous';
+      window.ErgioConnectors.showConnectorForm(connectorId, userId);
+      return;
+    }
+  }
+  
+  // Fallback: old prompt-based system
   var integration = INTEGRATIONS_CATALOG.find(function(i) { return i.id === id; });
   if (!integration) return;
   var envVars = {};
@@ -1308,11 +1330,10 @@ async function connectIntegration(id, name) {
       loadConnectedIntegrations();
     } catch(e) { alert('❌ Failed to connect: ' + e.message); }
   } else {
-    // Save locally as fallback
     var saved = JSON.parse(localStorage.getItem('ergio_integrations') || '{}');
     saved[id] = { name: name, envVars: envVars, connected_at: new Date().toISOString() };
     localStorage.setItem('ergio_integrations', JSON.stringify(saved));
-    alert('✅ ' + name + ' connected (saved locally — deploy engine backend for full integration)');
+    alert('✅ ' + name + ' connected (saved locally)');
     loadConnectedIntegrations();
   }
 }
