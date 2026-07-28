@@ -469,7 +469,7 @@ const user=JSON.parse(localStorage.getItem('ergio_user')||'{}');
 const email=user.email||'emmanuelerogian723@gmail.com';
 showToast('Redirecting to secure Paystack checkout...','info');
 try{
-const resp=await fetch('https://ergio-engines.onrender.com/paystack/initialize',{
+const resp=await fetch('/api/paystack',{
 method:'POST',
 headers:{'Content-Type':'application/json'},
 body:JSON.stringify({plan_id:planId,plan_name:planName,amount:price,email:email})
