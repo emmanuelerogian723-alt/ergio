@@ -1,13 +1,11 @@
 {
   "name": "ergio",
   "version": "5.0.0",
-  "description": "ERGIO — AI Business Operating System for Africa",
+  "description": "ERGIO \u2014 AI Business Operating System for Africa",
   "type": "module",
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
     "cheerio": "^1.0.0",
-    "pg": "^8.22.0",
-    "playwright": "^1.61.1",
-    "puppeteer": "^24.43.1"
+    "pg": "^8.22.0"
   }
 }
