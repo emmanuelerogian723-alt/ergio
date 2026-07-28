@@ -84,7 +84,7 @@ window.ErgioEngines = (function () {
     scrape: (url, useBrowser) => request('/scrape', { method: 'POST', body: { url, use_browser: useBrowser } }),
     crawl: (urls) => request('/crawl', { method: 'POST', body: { urls } }),
     search: (q, count, cat) => request('/search', { method: 'POST', body: { query: q, count, category: cat } }),
-    ai: (prompt, system, jsonMode) => request('/ai', { method: 'POST', body: { prompt, system, json_mode: jsonMode !== false } }),
+    ai: (prompt, system, jsonMode) => request('/ai', { method: 'POST', body: { prompt, system, json_mode: jsonMode === true } }),
     socialContent: (p) => request('/social-content', { method: 'POST', body: p }),
     // MCP management
     listMcps: () => request('/mcp/list'),

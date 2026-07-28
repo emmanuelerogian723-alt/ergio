@@ -248,13 +248,14 @@ async function sendChatMessage(){
   let usedStreaming=false;
   if(ENGINES&&ENGINES.streamConductor){
     try{
-      await ENGINES.streamConductor(text,bizId,uid,function(type,data){
+      const streamPromise=ENGINES.streamConductor(text,bizId,uid,function(type,data){
         usedStreaming=true;
         renderStreamEvent(bubble,type,data);
         chat.scrollTop=chat.scrollHeight;
       });
+      const timeoutPromise=new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),8000));
+      await Promise.race([streamPromise,timeoutPromise]);
       if(!bubble.innerHTML||bubble.innerHTML.indexOf('Thinking')>=0){
-        // No events received, try fallback
         usedStreaming=false;
       }
     }catch(e){
@@ -263,25 +264,29 @@ async function sendChatMessage(){
     }
   }
   if(!usedStreaming){
-    // Fallback: try conductor, then AI, then demo
+    // Fallback: try AI with timeout, then demo
     bubble.innerHTML='<div class="chat-typing"><span></span><span></span><span></span></div>';
     let resp='';
     if(ENGINES){
       try{
-        const r=await ENGINES.conductor(text,bizId,uid);
-        resp=r.summary||r.message||JSON.stringify(r);
-        // Show as a simulated stream
+        // Try AI endpoint with explicit json_mode=false and timeout
+        const aiPromise=fetch(ENGINES.BASE+'/ai',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({prompt:text,system:'You are ERGIO Conductor, an AI business assistant. Be concise and helpful. Respond in plain text.',json_mode:false})
+        });
+        const aiTimeout=new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),12000));
+        const aiResp=await Promise.race([aiPromise,aiTimeout]);
+        if(!aiResp.ok)throw new Error('HTTP '+aiResp.status);
+        const a=await aiResp.json();
+        resp=a.response||a.text||a.message||'Done';
         bubble.innerHTML='';
         renderSimulatedStream(bubble,resp);
       }catch(e1){
-        try{
-          const a=await ENGINES.ai(text,'You are ERGIO Conductor, an AI business assistant. Be concise and helpful.');
-          resp=a.response||a.text||'Done';
-          bubble.innerHTML='';
-          renderSimulatedStream(bubble,resp);
-        }catch(e2){
-          bubble.innerHTML='<span style="color:var(--red)">❌ '+e2.message+'</span>';
-        }
+        console.log('AI failed, using demo:',e1.message);
+        resp=genDemo(text);
+        bubble.innerHTML='';
+        renderSimulatedStream(bubble,resp);
       }
     }else{
       resp=genDemo(text);
