@@ -225,7 +225,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
     <div class="tab-content" id="tab-leads"><div class="panel"><div class="panel-header"><div><div class="panel-title">Lead CRM</div><div class="panel-sub">Leads from Supabase + ERGIO discovery engine</div></div><div style="display:flex;gap:.5rem"><button class="btn btn-ghost btn-sm" onclick="loadLeadsSupabase()">Load from DB</button><button class="btn btn-primary btn-sm" onclick="scanLeadsEngine()">🔍 Scan New</button></div></div><div id="leadsTable"><div class="empty"><div class="icon">🎯</div><h3>No leads yet</h3><p>Scan for leads using the discovery engine.</p><button class="btn btn-primary" onclick="scanLeadsEngine()">🔍 Start Scan</button></div></div></div></div>
     <div class="tab-content" id="tab-bookings"><div class="panel"><div class="panel-header"><div><div class="panel-title">Bookings</div><div class="panel-sub">Customer bookings from Supabase</div></div><button class="btn btn-ghost btn-sm" onclick="loadBookings()">Refresh</button></div><div id="bookingsList"><div class="empty"><div class="icon">📅</div><h3>No bookings yet</h3><p>Bookings appear when customers book through your website.</p></div></div></div></div>
     <div class="tab-content" id="tab-outreach"><div class="panel"><div class="panel-header"><div><div class="panel-title">Outreach Campaigns</div><div class="panel-sub">AI-powered email and WhatsApp outreach</div></div><button class="btn btn-primary btn-sm" onclick="createCampaign()">+ New Campaign</button></div><div class="form-group" style="max-width:600px;margin-bottom:1rem"><label class="form-label">Campaign Goal</label><textarea class="form-textarea" id="outreachGoal" placeholder="e.g. Reach out to 20 restaurants in Lagos about our service"></textarea></div><button class="btn btn-primary" onclick="runOutreach()">🚀 Run AI Outreach</button><div id="outreachResult" style="margin-top:1rem"></div></div></div>
-    <div class="tab-content" id="tab-conductor"><div class="chat-wrap"><div class="chat-header"><div class="avatar">🤖</div><div style="flex:1"><div class="title">ERGIO Conductor</div><div class="sub">Your AI business agent — finds leads, builds websites, sends outreach, and more</div></div><div class="status" id="conductorStatus">Checking...</div></div><div class="chat-messages" id="chatMessages"><div class="chat-msg ai"><div class="av">🤖</div><div class="bubble">Hi! I'm the ERGIO Conductor — your AI business operating system.<br><br>I have access to *10 engines*, *18 MCP servers*, *12 plugins*, and *6 agent frameworks*. I can:<br>🔍 Find leads and scan for demand<br>🌐 Build websites<br>📤 Send personalized outreach<br>📊 Analyze competitors<br>✍️ Generate content & social posts<br>💳 Process payments<br>🗄️ Manage your database<br><br>I'll show you exactly what I'm doing step by step. What would you like me to do? You can also upload files with the 📎 button.</div></div></div><div class="chat-attached" id="chatAttached" style="display:none"></div><div class="chat-input-wrap"><div class="chat-input-row"><div class="chat-tools"><button class="chat-tool-btn" onclick="document.getElementById('fileUpload').click()" title="Upload file"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></button><input type="file" class="file-input" id="fileUpload" multiple onchange="handleFileUpload(event)"><button class="chat-tool-btn" onclick="insertQuickPrompt('Find 10 potential clients for my business in Lagos')" title="Quick prompt"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></button></div><textarea class="chat-input" id="chatInput" placeholder="Ask the Conductor to do anything..." rows="1" onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea><button class="chat-send" id="chatSendBtn" onclick="sendChatMessage()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div><div class="chat-hint">Press Enter to send · Shift+Enter for new line · Upload files with 📎</div></div></div></div>
+    <div class="tab-content" id="tab-conductor"><div class="chat-wrap"><div class="chat-header"><div class="avatar">🤖</div><div style="flex:1"><div class="title">ERGIO Conductor</div><div class="sub">Your AI business agent — finds leads, builds websites, sends outreach, and more</div></div><div class="status" id="conductorStatus">Checking...</div></div><div class="chat-messages" id="chatMessages"><div class="chat-msg ai"><div class="av">🤖</div><div class="bubble">Hi! I'm the ERGIO Conductor — your AI business operating system.<br><br>I have access to *10 engines*, *25 MCP servers*, *12 plugins*, and *6 agent frameworks*. I can:<br>🔍 Find leads and scan for demand<br>🌐 Build websites<br>📤 Send personalized outreach<br>📊 Analyze competitors<br>✍️ Generate content and social posts<br>💳 Process payments (Paystack, Stripe)<br>🗄️ Manage your database<br>📱 Send WhatsApp messages<br>📧 Send email campaigns<br><br>I check which tools are connected before I act. If something I need isn't connected, I'll tell you how to connect it.<br><br>What would you like me to do? You can also upload files with the 📎 button.</div></div></div><div class="chat-attached" id="chatAttached" style="display:none"></div><div class="chat-input-wrap"><div class="chat-input-row"><div class="chat-tools"><button class="chat-tool-btn" onclick="document.getElementById('fileUpload').click()" title="Upload file"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></button><input type="file" class="file-input" id="fileUpload" multiple onchange="handleFileUpload(event)"><button class="chat-tool-btn" onclick="insertQuickPrompt('Find 10 potential clients for my business in Lagos')" title="Quick prompt"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></button></div><textarea class="chat-input" id="chatInput" placeholder="Ask the Conductor to do anything..." rows="1" onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea><button class="chat-send" id="chatSendBtn" onclick="sendChatMessage()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div><div class="chat-hint">Press Enter to send · Shift+Enter for new line · Upload files with 📎</div><div class="chat-chips" style="display:flex;gap:.4rem;padding:.4rem 1rem;flex-wrap:wrap"><button class="chip" onclick="insertQuickPrompt('Find 10 potential clients for my business in Enugu')" style="padding:.3rem .7rem;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--muted);font-size:.72rem;cursor:pointer">🔍 Find clients</button><button class="chip" onclick="insertQuickPrompt('Build a website for a gym in Lagos')" style="padding:.3rem .7rem;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--muted);font-size:.72rem;cursor:pointer">🌐 Build website</button><button class="chip" onclick="insertQuickPrompt('Draft outreach emails for 10 leads')" style="padding:.3rem .7rem;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--muted);font-size:.72rem;cursor:pointer">📧 Draft outreach</button><button class="chip" onclick="insertQuickPrompt('What tools are connected?')" style="padding:.3rem .7rem;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--muted);font-size:.72rem;cursor:pointer">🔌 Check status</button><button class="chip" onclick="insertQuickPrompt('Generate social media content for my business')" style="padding:.3rem .7rem;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--muted);font-size:.72rem;cursor:pointer">✍️ Create content</button><button class="chip" onclick="insertQuickPrompt('Analyze my competitors in the salon space')" style="padding:.3rem .7rem;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--muted);font-size:.72rem;cursor:pointer">📊 Analyze</button></div></div></div></div>
     <div class="tab-content" id="tab-engines"><div class="panel"><div class="panel-header"><div><div class="panel-title">ERGIO Engines</div><div class="panel-sub">Backend AI engines on Render</div></div><button class="btn btn-ghost btn-sm" onclick="loadEngineStatus()">Refresh</button></div><div class="engine-grid" id="engineGrid"><div class="empty"><div class="icon">⚙️</div><h3>Loading engines...</h3><p>Fetching from Render backend.</p></div></div></div></div>
     <div class="tab-content" id="tab-agents"><div class="panel"><div class="panel-header"><div class="panel-title">AI Agent Frameworks</div><div class="panel-sub">Connect external AI agent systems</div></div><div class="int-grid" id="agentsGrid"></div></div></div>
     <div class="tab-content" id="tab-plugins"><div class="panel"><div class="panel-header"><div><div class="panel-title">MCP Servers and Plugins</div><div class="panel-sub">Model Context Protocol integrations</div></div><button class="btn btn-primary btn-sm" onclick="showAddMCP()">+ Add Custom MCP</button></div><div id="mcpAddForm" style="display:none;margin-bottom:1rem;padding:1rem;background:var(--card2);border:1px solid var(--border);border-radius:10px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.6rem"><input class="form-input" id="mcpName" placeholder="MCP Name"><input class="form-input" id="mcpUrl" placeholder="https://mcp-url.com"></div><div style="display:flex;gap:.6rem"><select class="form-select" id="mcpTransport" style="width:auto"><option value="http">HTTP</option><option value="sse">SSE</option><option value="ws">WebSocket</option></select><input class="form-input" id="mcpApiKey" placeholder="API Key (optional)" style="flex:1"><button class="btn btn-primary" onclick="connectMCP()">Connect</button></div></div><div class="engine-grid" id="mcpGrid"></div></div><div class="panel"><div class="panel-header"><div class="panel-title">Available Plugins</div><div class="panel-sub">Extend ERGIO capabilities</div></div><div class="int-grid" id="pluginsGrid"></div></div></div>
@@ -249,12 +249,85 @@ async function scanLeadsEngine(){const c=document.getElementById('leadsTable');c
 async function loadBookings(){const c=document.getElementById('bookingsList');if(!c)return;if(sbClient){try{const{data}=await sbClient.from('bookings').select('*').order('created_at',{ascending:false}).limit(20);if(data&&data.length>0){c.innerHTML=data.map(b=>'<div style="display:flex;align-items:center;gap:1rem;padding:.8rem;border:1px solid var(--border);border-radius:10px;margin-bottom:.5rem"><div style="width:50px;text-align:center"><div style="font-size:1.3rem;font-weight:800">'+new Date(b.booking_date||b.created_at).getDate()+'</div><div style="font-size:.65rem;color:var(--muted);text-transform:uppercase">'+new Date(b.booking_date||b.created_at).toLocaleString('en',{month:'short'})+'</div></div><div style="flex:1"><div style="font-weight:600;font-size:.9rem">'+(b.customer_name||'Booking')+'</div><div style="font-size:.78rem;color:var(--muted)">'+(b.service||'')+'</div></div><span class="badge badge-'+(b.status==='confirmed'?'green':b.status==='completed'?'cyan':'yellow')+'">'+(b.status||'pending')+'</span></div>').join('');return}}catch(e){}}c.innerHTML='<div class="empty"><div class="icon">📅</div><h3>No bookings yet</h3><p>Bookings appear when customers book through your website.</p></div>'}
 async function runOutreach(){const g=document.getElementById('outreachGoal').value.trim(),r=document.getElementById('outreachResult');if(!g){showToast('Enter a campaign goal','error');return}r.innerHTML='<div style="color:var(--cyan);padding:1rem">🚀 Running AI outreach...</div>';if(ENGINES){try{const res=await ENGINES.outreach({goal:g,count:10,channel:'email'});r.innerHTML='<div style="padding:1rem"><div style="font-weight:700;color:var(--green)">✅ Campaign Complete!</div><div style="font-size:.85rem;color:var(--muted)">'+(res.summary||'Outreach sent')+'</div></div>';showToast('Outreach sent!','success')}catch(e){r.innerHTML='<div style="padding:1rem;color:var(--red)">❌ '+e.message+'</div>'}}else{r.innerHTML='<div style="padding:1rem;color:var(--yellow)">⚠️ Engine backend not connected. Deploy on Render to use AI outreach.</div>'}}
 function createCampaign(){switchTab('outreach');setTimeout(()=>document.getElementById('outreachGoal')?.focus(),300)}
-function checkConductorStatus(){const s=document.getElementById('conductorStatus');if(!s)return;if(ENGINES){ENGINES.health().then(()=>{s.textContent='🟢 Online';s.style.color='var(--green)';s.style.background='rgba(0,255,157,.1)'}).catch(()=>{s.textContent='🔴 Offline';s.style.color='var(--red)';s.style.background='rgba(255,71,87,.1)'})}else{s.textContent='⚠️ Not loaded';s.style.color='var(--yellow)'}}
+function checkConductorStatus(){
+  const s=document.getElementById('conductorStatus');if(!s)return;
+  if(ENGINES){
+    ENGINES.health().then(()=>{
+      s.textContent='🟢 Online';s.style.color='var(--green)';s.style.background='rgba(0,255,157,.1)';
+      // Also fetch connected tools count for the badge
+      ENGINES.status().then(st=>{
+        const mc=Object.values(st.mcps||{}).filter(m=>m.configured).length;
+        const tc=(st.engines||[]).length;
+        const sub=document.getElementById('conductorStatus');
+        if(sub){sub.title=tc+' engines, '+mc+' MCPs connected'}
+      }).catch(()=>{});
+    }).catch(()=>{
+      s.textContent='🔴 Offline';s.style.color='var(--red)';s.style.background='rgba(255,71,87,.1)'
+    })
+  }else{
+    s.textContent='⚠️ Not loaded';s.style.color='var(--yellow)'
+  }
+}
 function handleChatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChatMessage()}}
 function autoResize(e){e.style.height='auto';e.style.height=Math.min(e.scrollHeight,120)+'px'}
 function handleFileUpload(e){Array.from(e.target.files).forEach(f=>{attachedFiles.push(f);const c=document.getElementById('chatAttached');c.style.display='flex';c.innerHTML+='<div class="chat-attach-item"><span>📎</span>'+f.name+'<span style="cursor:pointer;color:var(--red);font-weight:700" onclick="this.parentElement.remove()">×</span></div>'});e.target.value=''}
 function insertQuickPrompt(t){const i=document.getElementById('chatInput');i.value=t;i.focus();autoResize(i)}
 let activityLog=[];
+// Cache conductor context to avoid fetching /status on every message
+let conductorContextCache=null,conductorContextTime=0;
+async function buildConductorContext(){
+  // Cache for 60 seconds to avoid hammering the API
+  if(conductorContextCache&&Date.now()-conductorContextTime<60000)return conductorContextCache;
+  if(!ENGINES){conductorContextCache=null;return null;}
+  try{
+    const s=await Promise.race([
+      ENGINES.status(),
+      new Promise((_,r)=>setTimeout(()=>r('timeout'),5000))
+    ]);
+    const connectedMcps=[],disconnectedMcps=[],connectedPlugins=[];
+    if(s.mcps){Object.entries(s.mcps).forEach(([id,v])=>{
+      if(v.configured){
+        connectedMcps.push({id,capabilities:v.capabilities||[]});
+      }else{
+        disconnectedMcps.push({id,capabilities:v.capabilities||[]});
+      }
+    })}
+    if(s.plugins){Object.entries(s.plugins).forEach(([id,v])=>{
+      connectedPlugins.push({id,capabilities:v.capabilities||[],requires_approval:v.requires_approval,type:v.type});
+    })}
+    conductorContextCache={engines:s.engines||[],connectedMcps,disconnectedMcps,connectedPlugins,circuits:s.circuit_breaker_status||{}};
+    conductorContextTime=Date.now();
+    return conductorContextCache;
+  }catch(e){conductorContextCache=null;return null}
+}
+function buildConductorSystemPrompt(ctx){
+  let p='You are ERGIO Conductor, an AI Business Operating System for African businesses. You orchestrate engines, MCP servers, and plugins to help businesses find clients, build websites, send outreach, process payments, and more.\n\n';
+  p+='BEHAVIOR RULES:\n';
+  p+='1. Always check what tools are connected before attempting tasks. Tell the user what you can and cannot do.\n';
+  p+='2. If a required MCP or plugin is NOT connected, say so clearly and suggest how to connect it (go to MCP and Plugins tab).\n';
+  p+='3. For external actions (sending emails, WhatsApp, social posts, payments), mention that approval is needed.\n';
+  p+='4. Think in Nigerian/African business context: Naira, Paystack, WhatsApp, local directories.\n';
+  p+='5. Be proactive — suggest next steps after completing tasks.\n';
+  p+='6. When the user asks for something complex, break it down into steps and explain your plan.\n\n';
+  if(ctx){
+    p+='CONNECTED ENGINES ('+ctx.engines.length+'):\n';
+    ctx.engines.forEach(e=>p+=' - '+e+'\n');
+    p+='\nCONNECTED MCP SERVERS ('+ctx.connectedMcps.length+'):\n';
+    if(ctx.connectedMcps.length===0){p+=' - None connected. All MCPs are available but not configured.\n'}
+    ctx.connectedMcps.forEach(m=>p+=' - '+m.id+' (capabilities: '+m.capabilities.join(', ')+')\n');
+    p+='\nAVAILABLE BUT NOT CONNECTED MCPs ('+ctx.disconnectedMcps.length+'):\n';
+    ctx.disconnectedMcps.forEach(m=>p+=' - '+m.id+' (can: '+m.capabilities.join(', ')+') — connect via MCP tab\n');
+    p+='\nPLUGINS ('+ctx.connectedPlugins.length+'):\n';
+    ctx.connectedPlugins.forEach(pl=>{
+      p+=' - '+pl.id+' ['+pl.type+'] (capabilities: '+pl.capabilities.join(', ')+')'+(pl.requires_approval?' [needs approval]':'')+'\n';
+    });
+  }else{
+    p+='TOOL STATUS: Unable to fetch system status. You have 10 engines, 25 MCP servers, and 12 plugins available. Some may not be connected.\n';
+  }
+  p+='\nWhen the user asks for something that requires an unconnected MCP (e.g. sending emails requires Resend, sending WhatsApp requires Twilio), tell them: "I need the [MCP name] MCP to do this. It is not connected yet. Go to the MCP and Plugins tab to connect it."\n';
+  p+='Respond in plain text. Be concise, helpful, and specific.';
+  return p;
+}
 async function sendChatMessage(){
   const i=document.getElementById('chatInput'),chat=document.getElementById('chatMessages'),btn=document.getElementById('chatSendBtn');
   const text=i.value.trim();
@@ -269,25 +342,24 @@ async function sendChatMessage(){
   btn.disabled=true;chat.scrollTop=chat.scrollHeight;
   const bizId=localStorage.getItem('ergio_business_id')||null;
   const uid=currentUser?.uid||null;
-  // Create AI message container for streaming
   const aiMsg=document.createElement('div');aiMsg.className='chat-msg ai';
   aiMsg.innerHTML='<div class="av">🤖</div><div class="bubble stream-bubble" id="streamBubble"></div>';
   chat.appendChild(aiMsg);
   const bubble=document.getElementById('streamBubble');
-  // Start thinking indicator
   bubble.innerHTML='<div class="stream-thinking"><div class="pulse"></div> Thinking...</div>';
   let resp='';
   if(ENGINES&&ENGINES.aiChat){
-    // Use fast AI chat (reliable, ~0.3s on free Render plan)
+    // Fetch conductor context (cached for 60s) to build awareness prompt
+    const ctx=await buildConductorContext();
+    const systemPrompt=buildConductorSystemPrompt(ctx);
     try{
-      const chatPromise=ENGINES.aiChat(text,'You are ERGIO Conductor, an AI business assistant for African businesses. Be helpful, concise, and actionable.');
+      const chatPromise=ENGINES.aiChat(text,systemPrompt);
       const timeoutPromise=new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),15000));
       resp=await Promise.race([chatPromise,timeoutPromise]);
       bubble.innerHTML='';
       renderSimulatedStream(bubble,resp);
     }catch(e){
       console.log('AI chat failed, trying conductor:',e.message);
-      // Try conductor endpoint with shorter timeout
       try{
         const condPromise=fetch(ENGINES.BASE+'/conductor',{
           method:'POST',
@@ -301,22 +373,19 @@ async function sendChatMessage(){
           resp=c.summary||c.report||c.response||JSON.stringify(c,null,2);
           bubble.innerHTML='';
           renderSimulatedStream(bubble,resp);
-        }else{
-          throw new Error('HTTP '+condResp.status);
-        }
+        }else{throw new Error('HTTP '+condResp.status)}
       }catch(e2){
         console.log('Conductor failed, using demo:',e2.message);
-        resp=genDemo(text);
+        resp=genDemo(text,ctx);
         bubble.innerHTML='';
         renderSimulatedStream(bubble,resp);
       }
     }
   }else{
-    resp=genDemo(text);
+    resp=genDemo(text,null);
     bubble.innerHTML='';
     renderSimulatedStream(bubble,resp);
   }
-  // Handle file uploads
   if(files.length>0){
     const fm=document.createElement('div');fm.className='chat-msg ai';
     fm.innerHTML='<div class="av">🤖</div><div class="bubble">📎 Received: '+files.map(f=>f.name).join(', ')+'<br>I can analyze documents, extract data from CSVs, and process images. Upload them to the ERGIO Engines backend for full processing.</div>';
@@ -399,7 +468,43 @@ function renderActivityLog(){
   return html;
 }
 function fmtResp(t){if(!t)return'Done';let f=t.replace(/</g,'&lt;').replace(/>/g,'&gt;');f=f.replace(/`([^`]+)`/g,'<code>$1</code>');f=f.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');f=f.replace(/\n/g,'<br>');return f}
-function genDemo(t){const l=t.toLowerCase();if(l.includes('lead')||l.includes('client'))return"I can help you find leads!\n\n1. **Scan your market** using the discovery engine\n2. **Score leads** based on fit\n3. **Generate outreach** messages\n\nGo to the **Leads** tab and click 'Scan New', or I can run the full pipeline now.";if(l.includes('website')||l.includes('build'))return"I can build a website! Go to the **Website Builder** tab, enter your business details, and I'll generate a complete website with live preview. You can save it to Supabase.";if(l.includes('email')||l.includes('outreach'))return"Let's set up an outreach campaign! Go to the **Outreach** tab, describe your goal, and I'll use AI to generate and send personalized messages.";if(l.includes('hello')||l.includes('hi')||l.includes('hey'))return"Hi! I'm the ERGIO Conductor. I can:\n\n* Find and score leads\n* Build professional websites\n* Send AI-powered outreach\n* Analyze competitors\n* Upload and process files\n\nWhat would you like to do?";return"I can help you:\n\n* **Find leads** — Scan for potential clients\n* **Build websites** — Generate business websites\n* **Send outreach** — AI email campaigns\n* **Analyze data** — Upload files for processing\n\nConnect the ERGIO Engines backend on Render for full autonomous capabilities."}
+function genDemo(t,ctx){
+  const l=t.toLowerCase();
+  // Build awareness text based on connected tools
+  const connected=(ctx&&ctx.connectedMcps||[]).map(m=>m.id).join(', ')||'none';
+  const totalMcps=(ctx?ctx.connectedMcps.length+ctx.disconnectedMcps.length:25);
+  const connectedCount=(ctx?ctx.connectedMcps.length:0);
+  const awareness='\n\n---\n_Connected: '+connectedCount+' of '+totalMcps+' MCPs ('+connected+'). '+ctx?.connectedPlugins?.length+' plugins available._';
+  if(l.includes('lead')||l.includes('client')){
+    return"I can help you find leads!\n\n1. Scan your market using the discovery engine\n2. Score leads based on fit\n3. Generate outreach messages\n\nGo to the Leads tab and click 'Scan New', or tell me your business type and location and I'll run the full pipeline."+awareness;
+  }
+  if(l.includes('website')||l.includes('build')){
+    return"I can build a website! Go to the Website Builder tab, enter your business details, and I'll generate a complete website with live preview. You can save it to Supabase."+awareness;
+  }
+  if(l.includes('email')||l.includes('outreach')){
+    const hasResend=(ctx?ctx.disconnectedMcps.some(m=>m.id==='resend'):true);
+    let r="Let's set up an outreach campaign! Tell me your target audience and I'll draft personalized messages.";
+    if(hasResend&&ctx)r+='\n\nNote: The Resend MCP (for sending emails) is not connected yet. Go to the MCP and Plugins tab to connect it. I can still draft the messages for you.';
+    return r+awareness;
+  }
+  if(l.includes('whatsapp')||l.includes('message')){
+    const hasTwilio=(ctx?ctx.connectedMcps.some(m=>m.id==='twilio'):false);
+    let r="I can help with WhatsApp messaging.";
+    if(!hasTwilio)r+='\n\nNote: The Twilio MCP (for WhatsApp/SMS) is not connected. Go to MCP and Plugins tab to connect it. Once connected, I can send messages for you.';
+    else r+=' Twilio is connected — I can send WhatsApp messages. Tell me who to contact and what to say.';
+    return r+awareness;
+  }
+  if(l.includes('payment')||l.includes('pay')||l.includes('invoice')){
+    return"I can handle payments and invoices! ERGIO supports Paystack and Stripe. Go to the Billing and Plans tab to see pricing tiers, or tell me what you need charged."+awareness;
+  }
+  if(l.includes('hello')||l.includes('hi')||l.includes('hey')){
+    return"Hi! I'm the ERGIO Conductor — your AI business operating system.\n\nI can:\n1. Find and score leads\n2. Build professional websites\n3. Send AI-powered outreach (email, WhatsApp)\n4. Process payments (Paystack, Stripe)\n5. Analyze competitors\n6. Generate content and social posts\n7. Manage your database\n\nWhat would you like to do?"+awareness;
+  }
+  if(l.includes('status')||l.includes('connect')||l.includes('what can you')){
+    return"Here's my current status:\n\nEngines: "+(ctx?ctx.engines.length:10)+" operational\nMCPs: "+connectedCount+" of "+totalMcps+" connected ("+connected+")\nPlugins: "+(ctx?ctx.connectedPlugins.length:12)+" available\n\nDisconnected MCPs I can use once connected: "+(ctx?ctx.disconnectedMcps.map(m=>m.id).join(', '):'checking...')+"\n\nGo to the MCP and Plugins tab to connect more tools.";
+  }
+  return"I can help you:\n\n1. Find leads — Scan for potential clients\n2. Build websites — Generate business websites\n3. Send outreach — AI email and WhatsApp campaigns\n4. Process payments — Paystack and Stripe\n5. Analyze data — Upload files for processing\n\nConnect the ERGIO Engines backend on Render for full autonomous capabilities."+awareness;
+}
 async function loadEngineStatus(){const c=document.getElementById('engineGrid');if(!c)return;if(ENGINES){try{const s=await ENGINES.status();const eg=s.engines||[];if(eg.length>0){c.innerHTML=eg.map(e=>'<div class="engine-card"><div class="header"><div class="name">'+(e.name||e)+'</div><div class="engine-dot online"></div></div><div class="desc">'+(e.description||e.type||'Operational')+'</div><button class="engine-btn" onclick="runEngine(\''+(e.name||e)+'\')">▶ Run</button></div>').join('');document.getElementById('kpiEngines').textContent=eg.length;return}}catch(e){}}const demo=[{n:'Local Discovery',d:'Find businesses in your area',i:'🔍'},{n:'Demand Matching',d:'Match services to needs',i:'🎯'},{n:'AI Outreach',d:'Send personalized emails',i:'📤'},{n:'Repeat Client',d:'Follow up with customers',i:'🔄'},{n:'Conductor',d:'Orchestrate all engines',i:'🤖'},{n:'Scraping',d:'Scrape web pages',i:'🌐'},{n:'Search',d:'Multi-engine search',i:'🔎'},{n:'AI Chat',d:'Groq-powered AI',i:'💬'},{n:'Memory',d:'Store business facts',i:'🧠'},{n:'Social Content',d:'Generate social posts',i:'📱'}];c.innerHTML=demo.map(e=>'<div class="engine-card"><div class="header"><div class="name">'+e.i+' '+e.n+'</div><div class="engine-dot '+(ENGINES?'online':'offline')+'"></div></div><div class="desc">'+e.d+'</div><button class="engine-btn" onclick="runEngine(\''+e.n+'\')">▶ Run</button></div>').join('')}
 async function runEngine(n){showToast('Running '+n+'...','info');if(ENGINES){try{let r;if(n==='Local Discovery')r=await ENGINES.discovery({location:'Lagos',count:5});else if(n==='Search')r=await ENGINES.search('businesses in Lagos',5);else if(n==='AI Chat')r=await ENGINES.ai('Top business opportunities in Nigeria?');else r=await ENGINES.conductor('Run '+n,null,null);showToast('✅ '+n+' completed','success')}catch(e){showToast('❌ '+e.message,'error')}}else{showToast('Engine not connected','error')}}
 const agentFW=[{id:'hermes',name:'Hermes Agent',icon:'🧠',color:'#8b5cf6',type:'Self-Improving',badge:'RECOMMENDED',desc:'AI agent that learns and improves. Creates skills from experience.',env:'HERMES_API_KEY',caps:['Memory','Skill scanner','Browser automation','Multi-agent','Self-improving']},{id:'openclaw',name:'OpenClaw',icon:'🐾',color:'#00d9ff',type:'Multi-Agent',badge:'OPEN SOURCE',desc:'Multi-agent with messaging and browser automation.',env:'OPENCLAW_API_KEY',caps:['Specialized agents','WhatsApp/Slack','Browser','Memory']},{id:'composio',name:'Composio',icon:'🔗',color:'#00ff9d',type:'Integration Layer',badge:'250+ APPS',desc:'Connect 250+ apps through a single API.',env:'COMPOSIO_API_KEY',caps:['250+ apps','Auto auth','Rate limiting','Webhooks']},{id:'glama',name:'Glama MCP',icon:'🏪',color:'#f59e0b',type:'MCP Marketplace',badge:'1000+ SERVERS',desc:'Discover and connect 1000+ MCP servers.',env:'GLAMA_API_KEY',caps:['1000+ servers','One-click install']},{id:'kimi',name:'Kimi K2.5',icon:'🐝',color:'#f97316',type:'Agent Swarm',badge:'100 AGENTS',desc:'Up to 100 parallel sub-agents.',env:'KIMI_API_KEY',caps:['100 sub-agents','Hierarchical','Multimodal']},{id:'crewai',name:'CrewAI',icon:'👥',color:'#06b6d4',type:'Agent Crews',badge:'COLLABORATIVE',desc:'Collaborative multi-agent crews.',env:'CREWAI_API_KEY',caps:['Team agents','Role assignment','Task delegation']}];
