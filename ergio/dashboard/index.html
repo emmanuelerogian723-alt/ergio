@@ -276,54 +276,45 @@ async function sendChatMessage(){
   const bubble=document.getElementById('streamBubble');
   // Start thinking indicator
   bubble.innerHTML='<div class="stream-thinking"><div class="pulse"></div> Thinking...</div>';
-  let usedStreaming=false;
-  if(ENGINES&&ENGINES.streamConductor){
+  let resp='';
+  if(ENGINES&&ENGINES.aiChat){
+    // Use fast AI chat (reliable, ~0.3s on free Render plan)
     try{
-      const streamPromise=ENGINES.streamConductor(text,bizId,uid,function(type,data){
-        usedStreaming=true;
-        renderStreamEvent(bubble,type,data);
-        chat.scrollTop=chat.scrollHeight;
-      });
-      const timeoutPromise=new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),8000));
-      await Promise.race([streamPromise,timeoutPromise]);
-      if(!bubble.innerHTML||bubble.innerHTML.indexOf('Thinking')>=0){
-        usedStreaming=false;
-      }
+      const chatPromise=ENGINES.aiChat(text,'You are ERGIO Conductor, an AI business assistant for African businesses. Be helpful, concise, and actionable.');
+      const timeoutPromise=new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),15000));
+      resp=await Promise.race([chatPromise,timeoutPromise]);
+      bubble.innerHTML='';
+      renderSimulatedStream(bubble,resp);
     }catch(e){
-      console.log('Stream failed, falling back:',e.message);
-      usedStreaming=false;
-    }
-  }
-  if(!usedStreaming){
-    // Fallback: try AI with timeout, then demo
-    bubble.innerHTML='<div class="chat-typing"><span></span><span></span><span></span></div>';
-    let resp='';
-    if(ENGINES){
+      console.log('AI chat failed, trying conductor:',e.message);
+      // Try conductor endpoint with shorter timeout
       try{
-        // Try AI endpoint with explicit json_mode=false and timeout
-        const aiPromise=fetch(ENGINES.BASE+'/ai',{
+        const condPromise=fetch(ENGINES.BASE+'/conductor',{
           method:'POST',
           headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({prompt:text,system:'You are ERGIO Conductor, an AI business assistant. Be concise and helpful. Respond in plain text.',json_mode:false})
+          body:JSON.stringify({request:text,business_id:bizId,user_id:uid})
         });
-        const aiTimeout=new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),12000));
-        const aiResp=await Promise.race([aiPromise,aiTimeout]);
-        if(!aiResp.ok)throw new Error('HTTP '+aiResp.status);
-        const a=await aiResp.json();
-        resp=a.response||a.text||a.message||'Done';
-        bubble.innerHTML='';
-        renderSimulatedStream(bubble,resp);
-      }catch(e1){
-        console.log('AI failed, using demo:',e1.message);
+        const condTimeout=new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),20000));
+        const condResp=await Promise.race([condPromise,condTimeout]);
+        if(condResp.ok){
+          const c=await condResp.json();
+          resp=c.summary||c.report||c.response||JSON.stringify(c,null,2);
+          bubble.innerHTML='';
+          renderSimulatedStream(bubble,resp);
+        }else{
+          throw new Error('HTTP '+condResp.status);
+        }
+      }catch(e2){
+        console.log('Conductor failed, using demo:',e2.message);
         resp=genDemo(text);
         bubble.innerHTML='';
         renderSimulatedStream(bubble,resp);
       }
-    }else{
-      resp=genDemo(text);
-      bubble.innerHTML='';
-      renderSimulatedStream(bubble,resp);
     }
+  }else{
+    resp=genDemo(text);
+    bubble.innerHTML='';
+    renderSimulatedStream(bubble,resp);
   }
   // Handle file uploads
   if(files.length>0){

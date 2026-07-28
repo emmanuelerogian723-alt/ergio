@@ -31,7 +31,7 @@ window.ErgioEngines = (function () {
    * onEvent(type, data) is called for each SSE event.
    */
   async function streamConductor(request_text, bid, uid, onEvent) {
-    const url = BASE + '/conductor/stream';
+    const url = BASE + '/conductor/run';
     try {
       const resp = await fetch(url, {
         method: 'POST',
@@ -70,6 +70,50 @@ window.ErgioEngines = (function () {
     }
   }
 
+  /**
+   * Fast chat using /ai endpoint (reliable, ~0.3s)
+   * Uses json_mode=true and returns parsed text.
+   */
+  async function aiChat(prompt, system) {
+    const url = BASE + '/ai';
+    const sys = system || 'You are ERGIO Conductor, an AI business assistant for African businesses. Be helpful, concise, and actionable. Respond in plain text (not JSON).';
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: prompt + '\n\nRespond in plain text, not JSON.',
+          system: sys + '\nYou must include the word json in your response.',
+          json_mode: true
+        }),
+      });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const data = await resp.json();
+      // The response is a JSON object — extract the text field
+      let text = '';
+      if (typeof data === 'string') text = data;
+      else if (data.response) text = data.response;
+      else if (data.text) text = data.text;
+      else if (data.message) text = data.message;
+      else if (data.answer) text = data.answer;
+      else if (data.content) text = data.content;
+      else {
+        // Try to find any string value in the JSON
+        for (const key of Object.keys(data)) {
+          if (typeof data[key] === 'string' && data[key].length > 10) {
+            text = data[key];
+            break;
+          }
+        }
+        if (!text) text = JSON.stringify(data);
+      }
+      return text;
+    } catch (e) {
+      console.error('[ErgioEngines] aiChat failed:', e.message);
+      throw e;
+    }
+  }
+
   return {
     BASE,
     health: () => request('/health'),
@@ -85,6 +129,7 @@ window.ErgioEngines = (function () {
     crawl: (urls) => request('/crawl', { method: 'POST', body: { urls } }),
     search: (q, count, cat) => request('/search', { method: 'POST', body: { query: q, count, category: cat } }),
     ai: (prompt, system, jsonMode) => request('/ai', { method: 'POST', body: { prompt, system, json_mode: jsonMode === true } }),
+    aiChat,
     socialContent: (p) => request('/social-content', { method: 'POST', body: p }),
     // MCP management
     listMcps: () => request('/mcp/list'),
