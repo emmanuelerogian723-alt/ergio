@@ -1,5 +1,6 @@
 // ERGIO Client-Side Configuration
-// Security: Firebase config is now loaded from /api/firebase-config.js (env vars)
+// Security: Firebase config is loaded from /api/firebase-config.js (env vars)
+// Auth pages include /api/firebase-config.js script tag before Firebase init
 window.ERGIO_CONFIG = {
   // API Base URL
   apiBase: window.location.origin.includes('github.io') 
@@ -11,8 +12,8 @@ window.ERGIO_CONFIG = {
     ? 'http://localhost:8000'  // Local dev
     : 'https://ergio-engines.onrender.com',  // Render production
 
-  // Firebase Auth — loaded dynamically from /api/firebase-config.js (env vars)
-  // Default empty; patched at runtime by firebase-config.js endpoint
+  // Firebase Auth — loaded from /api/firebase-config.js (env vars)
+  // Auth pages include this script tag before Firebase init
   firebase: {},
 
   // Supabase (database — anon key is safe for frontend)
@@ -37,13 +38,3 @@ window.ERGIO_CONFIG = {
   whatsappEnabled: true,
   analyticsEnabled: true,
 };
-
-// Load Firebase config from env vars via API endpoint (security best practice)
-(function() {
-  var script = document.createElement('script');
-  script.src = (window.ERGIO_CONFIG.apiBase || '') + '/api/firebase-config.js';
-  script.onerror = function() {
-    console.warn('Firebase config endpoint unavailable — auth features will be limited');
-  };
-  document.head.appendChild(script);
-})();

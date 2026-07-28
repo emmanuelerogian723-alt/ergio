@@ -13,6 +13,7 @@
   <link rel="icon" href="../favicon.ico">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="../config.js"></script>
+  <script src="/api/firebase-config.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <style>
@@ -59,7 +60,17 @@
     .metric{text-align:center}
     .metric .num{font-size:1.5rem;font-weight:800;color:var(--cyan)}
     .metric .label{font-size:.8rem;color:var(--muted);margin-top:.2rem}
-  </style>
+  
+/* ===== RESPONSIVE + ACCESSIBILITY ENHANCEMENTS ===== */
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #00d9ff;outline-offset:2px}
+button,a[role="button"]{min-height:44px;min-width:44px}
+img,video,canvas{max-width:100%;height:auto}
+*,*::before,*::after{max-width:100%}
+@media(max-width:480px){.auth-card{padding:1.5rem;border-radius:20px}.auth-wrap{padding:1rem}input,textarea,select{font-size:16px!important}}
+@media(max-width:374px){.auth-card{padding:1.2rem}.auth-title{font-size:1.3rem}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+</style>
 </head>
 <body>
   <div class="particles" id="particles"></div>
