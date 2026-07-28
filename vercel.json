@@ -38,6 +38,14 @@
     {
       "source": "/guide.html",
       "destination": "/ergio/guide.html"
+    },
+    {
+      "source": "/lib/:path*",
+      "destination": "/ergio/lib/:path*"
+    },
+    {
+      "source": "/config.js",
+      "destination": "/ergio/config.js"
     }
   ]
 }
