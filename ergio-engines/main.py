@@ -115,6 +115,10 @@ async def root():
             "POST /search": "SearXNG meta search",
             "POST /ai": "Direct Groq AI call",
             "POST /social-content": "Generate social media content kit",
+            "POST /conductor": "ERGIO Conductor — AI agent orchestrator",
+            "POST /conductor/stream": "Conductor with SSE streaming",
+            "POST /paystack/initialize": "Initialize Paystack payment",
+            "GET /paystack/verify/{ref}": "Verify Paystack payment",
             "GET /businesses": "List active businesses from Supabase",
         },
     }
@@ -546,6 +550,107 @@ async def trigger_scan_all():
     """Manually trigger a scheduled scan of all businesses."""
     result = await run_scheduled_scan()
     return result
+
+
+# ════════════════════════════════════════
+# PAYSTACK PAYMENT GATEWAY
+# ════════════════════════════════════════
+
+@app.post("/paystack/initialize")
+async def paystack_initialize(request: Request):
+    """Initialize a Paystack transaction and return the authorization URL."""
+    import os
+    body = await request.json()
+    plan_id = body.get("plan_id", "")
+    plan_name = body.get("plan_name", plan_id)
+    amount = body.get("amount", 0)
+    email = body.get("email", "demo@ergio.app")
+
+    if not amount:
+        raise HTTPException(status_code=400, detail="amount required")
+
+    secret_key = os.environ.get("PAYSTACK_SECRET_KEY", settings.PAYSTACK_SECRET_KEY if hasattr(settings, 'PAYSTACK_SECRET_KEY') else "")
+    if not secret_key:
+        raise HTTPException(status_code=500, detail="Paystack key not configured on server")
+
+    import urllib.request
+    reference = f"ergio_{plan_id}_{int(asyncio.get_event_loop().time() * 1000)}"
+
+    payload = json.dumps({
+        "email": email,
+        "amount": int(amount) * 100,
+        "currency": "NGN",
+        "reference": reference,
+        "callback_url": "https://ergio.vercel.app/dashboard/index.html",
+        "metadata": {
+            "custom_fields": [
+                {"display_name": "Plan", "variable_name": "plan", "value": plan_id},
+                {"display_name": "Platform", "variable_name": "platform", "value": "ERGIO"},
+                {"display_name": "Plan Name", "variable_name": "plan_name", "value": plan_name}
+            ]
+        }
+    })
+
+    try:
+        req = urllib.request.Request(
+            "https://api.paystack.co/transaction/initialize",
+            data=payload.encode("utf-8"),
+            headers={
+                "Authorization": f"Bearer {secret_key}",
+                "Content-Type": "application/json"
+            },
+            method="POST"
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+
+        if data.get("status"):
+            return {
+                "authorization_url": data["data"]["authorization_url"],
+                "reference": data["data"]["reference"],
+                "access_code": data["data"]["access_code"]
+            }
+        else:
+            raise HTTPException(status_code=400, detail=data.get("message", "Paystack initialization failed"))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/paystack/verify/{reference}")
+async def paystack_verify(reference: str):
+    """Verify a Paystack transaction by reference."""
+    import os
+    secret_key = os.environ.get("PAYSTACK_SECRET_KEY", settings.PAYSTACK_SECRET_KEY if hasattr(settings, 'PAYSTACK_SECRET_KEY') else "")
+
+    if not secret_key:
+        raise HTTPException(status_code=500, detail="Paystack key not configured")
+
+    import urllib.request
+    try:
+        req = urllib.request.Request(
+            f"https://api.paystack.co/transaction/verify/{reference}",
+            headers={"Authorization": f"Bearer {secret_key}"},
+            method="GET"
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+
+        if data.get("status") and data["data"].get("status") == "success":
+            return {
+                "status": "success",
+                "reference": data["data"]["reference"],
+                "amount": data["data"]["amount"] / 100,
+                "currency": data["data"]["currency"],
+                "customer": data["data"].get("customer", {}).get("email"),
+                "plan": data["data"].get("metadata", {}).get("custom_fields", [{}])[0].get("value", "")
+            }
+        else:
+            return {"status": "failed", "reference": reference}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 # ── Startup ──
 if __name__ == "__main__":
