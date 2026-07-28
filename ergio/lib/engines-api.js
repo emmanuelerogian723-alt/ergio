@@ -99,13 +99,33 @@ window.ErgioEngines = (function () {
       else if (data.content) text = data.content;
       else {
         // Try to find any string value in the JSON
+        let found = false;
         for (const key of Object.keys(data)) {
           if (typeof data[key] === 'string' && data[key].length > 10) {
             text = data[key];
+            found = true;
             break;
           }
         }
-        if (!text) text = JSON.stringify(data);
+        if (!found) {
+          // If no string field found, format the JSON as readable text
+          const parts = [];
+          for (const [key, val] of Object.entries(data)) {
+            if (typeof val === 'string') parts.push(key + ': ' + val);
+            else if (Array.isArray(val)) {
+              if (val.length > 0 && val.every(v => typeof v === 'string')) {
+                parts.push(key + ': ' + val.join(', '));
+              } else if (val.length > 0) {
+                parts.push(key + ': ' + JSON.stringify(val).slice(0, 200));
+              }
+            } else if (typeof val === 'object' && val !== null) {
+              parts.push(key + ': ' + JSON.stringify(val).slice(0, 200));
+            } else {
+              parts.push(key + ': ' + String(val));
+            }
+          }
+          text = parts.join('\n') || JSON.stringify(data, null, 2);
+        }
       }
       return text;
     } catch (e) {

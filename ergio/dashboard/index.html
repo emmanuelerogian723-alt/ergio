@@ -325,7 +325,8 @@ function buildConductorSystemPrompt(ctx){
     p+='TOOL STATUS: Unable to fetch system status. You have 10 engines, 25 MCP servers, and 12 plugins available. Some may not be connected.\n';
   }
   p+='\nWhen the user asks for something that requires an unconnected MCP (e.g. sending emails requires Resend, sending WhatsApp requires Twilio), tell them: "I need the [MCP name] MCP to do this. It is not connected yet. Go to the MCP and Plugins tab to connect it."\n';
-  p+='Respond in plain text. Be concise, helpful, and specific.';
+  p+='IMPORTANT: Your response will be parsed as JSON. Always wrap your answer in a JSON object with a single key "response" containing your text answer as a string value. Example: {"response": "I found 5 leads in Lagos..."}. Never use arrays or nested objects — just a string.\n';
+  p+='Be concise, helpful, and specific.';
   return p;
 }
 async function sendChatMessage(){
