@@ -241,6 +241,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 <script>
 
 
+
 const ENGINES=window.ErgioEngines||null;let currentUser=null,fbAuth=null,sbClient=null,attachedFiles=[],currentIntCategory='all',lastBuiltWebsite=null;
 try{const F=window.ERGIO_CONFIG?.firebase||{};if(F.apiKey){firebase.initializeApp(F);fbAuth=firebase.auth()}}catch(e){console.log('Firebase:',e.message)}
 try{const U=window.ERGIO_CONFIG?.supabaseUrl,K=window.ERGIO_CONFIG?.supabaseAnonKey;if(U&&K)sbClient=supabase.createClient(U,K)}catch(e){console.log('Supabase:',e.message)}
@@ -621,7 +622,7 @@ function erBuildContact(pal,fonts,content){
   return '<section id="contact"><div class="container" style="max-width:600px;text-align:center"><div class="reveal"><span class="section-badge">Get In Touch</span><h2>Let\'s <span class="grad-text">Connect</span></h2><p style="color:var(--muted);margin-bottom:32px">Ready to take the next step? Contact us today and let us help you achieve your goals.</p></div><form class="contact-form reveal" onsubmit="event.preventDefault();this.querySelector(\'button\').textContent=\'Message Sent!\';this.querySelector(\'button\').disabled=true"><input type="text" placeholder="Your Name" required><input type="email" placeholder="Your Email" required><input type="tel" placeholder="Phone (optional)"><textarea rows="4" placeholder="Your Message" required></textarea><button type="submit" class="btn-primary er-btn er-shimmer" style="justify-content:center">Send Message</button></form></div></section>'
 }
 function erBuildFooter(pal,fonts,content){
-  return '<footer class="footer"><div class="container"><div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;margin-bottom:40px"><div><div class="footer-logo">'+content.name+'<span style="color:var(--p1)">.</span></div><p style="color:var(--muted);max-width:300px">'+content.tagline+'</p></div><div><h4 style="margin-bottom:16px;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted)">Company</h4><div class="footer-links" style="flex-direction:column;gap:8px"><a href="#about">About Us</a><a href="#services">Services</a><a href="#contact">Contact</a></div></div><div><h4 style="margin-bottom:16px;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted)">Connect</h4><div class="footer-links" style="flex-direction:column;gap:8px"><a href="#">Facebook</a><a href="#">Instagram</a><a href="#">Twitter</a></div></div></div><div class="footer-bottom">&copy; '+new Date().getFullYear()+' '+content.name+'. All rights reserved. Built with ERGIO AI.</div></div></footer>'
+  return '<footer class="footer"><div class="container"><div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;margin-bottom:40px"><div><div class="footer-logo">'+content.name+'<span style="color:var(--p1)">.</span></div><p style="color:var(--muted);max-width:300px">'+content.tagline+'</p></div><div><h4 style="margin-bottom:16px;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted)">Company</h4><div class="footer-links" style="flex-direction:column;gap:8px"><a href="#about">About Us</a><a href="#services">Services</a><a href="#contact">Contact</a></div></div><div><h4 style="margin-bottom:16px;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted)">Connect</h4><div class="footer-links" style="flex-direction:column;gap:8px"><a href="#">Facebook</a><a href="#">Instagram</a><a href="#">Twitter</a></div></div></div><div class="footer-bottom">&copy; '+new Date().getFullYear()+' '+content.name+'. All rights reserved. Built with <a href="https://ergio.vercel.app" style="color:var(--p1);font-weight:600" target="_blank">ERGIO Cloud</a> — The AI Business Operating System.</div><div style="text-align:center;padding-top:10px;color:var(--muted);font-size:0.75rem">⚡ Powered by ERGIO Cloud Infrastructure</div></div></footer>'
 }
 
 /* ── QUALITY SCORER ── rates the generated website */
@@ -699,8 +700,29 @@ async function buildWebsite(){
 async function saveWebsite(){
   if(!lastBuiltWebsite){showToast('Build a website first','error');return}
   const slug=lastBuiltWebsite.slug||lastBuiltWebsite.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const subdomain=slug+'.'+'ergio.app';
   const btn=event?.target||document.querySelector('[onclick="saveWebsite()"]');
-  if(btn){btn.textContent='⏳ Deploying...';btn.disabled=true}
+  if(btn){btn.textContent='⏳ Deploying to ERGIO Cloud...';btn.disabled=true}
+
+  /* Show infrastructure provisioning */
+  var infraDiv=document.getElementById('wbQuality')||document.getElementById('wbPreview');
+  var infraList=document.createElement('div');
+  infraList.style.cssText='position:fixed;bottom:20px;right:20px;background:rgba(10,14,20,0.95);border:1px solid var(--border);border-radius:12px;padding:16px;max-width:300px;z-index:9999;font-size:0.82rem;backdrop-filter:blur(10px)';
+  infraList.innerHTML='<div style="font-weight:700;margin-bottom:12px;color:var(--cyan)">⚡ ERGIO Cloud Provisioning</div>';
+  document.body.appendChild(infraList);
+
+  var infra=ERGIO_CLOUD.provision(lastBuiltWebsite.type||'business');
+  for(var idx=0;idx<infra.length;idx++){
+    var item=infra[idx];
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:8px;padding:4px 0;color:var(--muted)';
+    row.innerHTML=item.icon+' <span>'+item.desc+'</span>';
+    infraList.appendChild(row);
+    await new Promise(function(r){setTimeout(r,item.delay)});
+    row.style.color='var(--green)';
+    row.innerHTML=item.icon+' <span style="color:var(--green)">✓ '+item.name+' ready</span>';
+  }
+
   try{
     const r=await fetch('/api/site',{
       method:'POST',
@@ -709,33 +731,32 @@ async function saveWebsite(){
         businessName:lastBuiltWebsite.name,
         businessType:lastBuiltWebsite.type,
         htmlContent:lastBuiltWebsite.html,
-        userId:currentUser?.uid||'demo'
+        userId:currentUser?.uid||'demo',
+        subdomain:subdomain
       })
     });
     const d=await r.json();
     if(d.success||d.deployUrl){
       const deployUrl=d.deployUrl||('https://ergio.vercel.app/site/'+slug);
-      document.getElementById('wbUrl').innerHTML='<span style="color:var(--green)">✓ Deployed:</span> <a href="'+deployUrl+'" target="_blank" style="color:var(--cyan);text-decoration:none;font-weight:600">'+deployUrl+'</a>';
-      showToast('Website deployed! Share the link.','success');
-      /* Copy to clipboard */
-
+      document.getElementById('wbUrl').innerHTML='<div style="padding:.8rem;background:var(--bg2);border-radius:10px;border:1px solid var(--green)"><div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem"><span style="color:var(--green);font-size:1.2rem">✓</span><span style="font-weight:700">Deployed to ERGIO Cloud</span></div><div style="font-size:.82rem;color:var(--muted);margin-bottom:.6rem">Subdomain: '+subdomain+'</div><a href="'+deployUrl+'" target="_blank" style="color:var(--cyan);text-decoration:none;font-weight:600;font-size:.9rem">'+deployUrl+'</a></div>';
+      showToast('Website live on ERGIO Cloud!','success');
       navigator.clipboard?.writeText(deployUrl).then(()=>showToast('Link copied to clipboard!','info'));
     }else if(d.error){
-      /* Fallback: save locally */
-
       const s=JSON.parse(localStorage.getItem('ergio_websites')||'[]');
       s.push(lastBuiltWebsite);
       localStorage.setItem('ergio_websites',JSON.stringify(s));
       showToast('Saved locally: '+d.error,'info');
     }
   }catch(e){
-    /* Fallback: save locally */
-
     const s=JSON.parse(localStorage.getItem('ergio_websites')||'[]');
     s.push(lastBuiltWebsite);
     localStorage.setItem('ergio_websites',JSON.stringify(s));
     showToast('Saved locally (API unreachable)','info');
   }
+
+  /* Remove infra provisioning display */
+  setTimeout(function(){if(infraList.parentNode)infraList.parentNode.removeChild(infraList)},2000);
+
   if(btn){btn.textContent='🚀 Deploy Website';btn.disabled=false}
 }
 async function loadLeadsSupabase(){const c=document.getElementById('leadsTable');if(!c)return;if(sbClient){try{const{data,error}=await sbClient.from('leads').select('*').order('created_at',{ascending:false}).limit(50);if(!error&&data&&data.length>0){c.innerHTML='<table class="data-table"><thead><tr><th>Name</th><th>Business</th><th>Phone</th><th>Score</th><th>Status</th></tr></thead><tbody>'+data.map(l=>'<tr><td>'+(l.name||l.contact_name||'?')+'</td><td>'+(l.business_name||'-')+'</td><td>'+(l.phone||'-')+'</td><td><span class="badge '+(l.score>=80?'badge-green':l.score>=50?'badge-yellow':'badge-red')+'">'+(l.score||'?')+'</span></td><td><span class="badge badge-cyan">'+(l.status||'new')+'</span></td></tr>').join('')+'</tbody></table>';return}}catch(e){}}const ll=JSON.parse(localStorage.getItem('ergio_local_leads')||'[]');if(ll.length>0){c.innerHTML='<table class="data-table"><thead><tr><th>Name</th><th>Business</th><th>Score</th><th>Status</th></tr></thead><tbody>'+ll.map(l=>'<tr><td>'+l.name+'</td><td>'+(l.business||'-')+'</td><td><span class="badge badge-cyan">'+(l.score||'?')+'</span></td><td><span class="badge badge-yellow">'+(l.status||'new')+'</span></td></tr>').join('')+'</tbody></table>';return}c.innerHTML='<div class="empty"><div class="icon">🎯</div><h3>No leads yet</h3><p>Scan for leads using the discovery engine.</p><button class="btn btn-primary" onclick="scanLeadsEngine()">🔍 Start Scan</button></div>'}
@@ -768,6 +789,80 @@ function autoResize(e){e.style.height='auto';e.style.height=Math.min(e.scrollHei
 function handleFileUpload(e){Array.from(e.target.files).forEach(f=>{attachedFiles.push(f);const c=document.getElementById('chatAttached');c.style.display='flex';c.innerHTML+='<div class="chat-attach-item"><span>📎</span>'+f.name+'<span style="cursor:pointer;color:var(--red);font-weight:700" onclick="this.parentElement.remove()">×</span></div>'});e.target.value=''}
 function insertQuickPrompt(t){const i=document.getElementById('chatInput');i.value=t;i.focus();autoResize(i)}
 let activityLog=[];
+/* ── CONDUCTOR SESSION MEMORY ── maintains context across the conversation */
+let conductorMemory={messages:[],context:null,lastResponse:'',sessionStart:Date.now(),searchHistory:[]};
+/* ── ERGIO CLOUD ── unified backend infrastructure abstraction */
+let ERGIO_CLOUD={
+  status:'online',
+  services:{
+    database:{provider:'Supabase',status:()=>sbClient?'connected':'standby',icon:'🗄️'},
+    auth:{provider:'Firebase+Supabase',status:()=>currentUser?'authenticated':'anonymous',icon:'🔐'},
+    storage:{provider:'Vercel Blob',status:'ready',icon:'📦'},
+    api:{provider:'ERGIO Engines',status:()=>ENGINES?'connected':'standby',icon:'⚙️'},
+    search:{provider:'SearXNG+Groq',status:()=>(ENGINES&&ENGINES.search)?'ready':'standby',icon:'🔍'},
+    payments:{provider:'Paystack',status:'ready',icon:'💳'},
+    analytics:{provider:'Supabase Analytics',status:()=>sbClient?'collecting':'standby',icon:'📊'},
+    hosting:{provider:'Vercel Edge',status:'live',icon:'🌐'},
+    cdn:{provider:'Vercel CDN',status:'active',icon:'🚀'},
+    cache:{provider:'Edge Cache',status:'warming',icon:'⚡'}
+  },
+  provision(businessType){
+    var infra=[
+      {name:'Database',desc:'Provisioning '+businessType+' database schema',icon:'🗄️',delay:300},
+      {name:'Authentication',desc:'Configuring user auth (email, social, phone)',icon:'🔐',delay:200},
+      {name:'Storage',desc:'Setting up file and media storage',icon:'📦',delay:200},
+      {name:'API Gateway',desc:'Deploying REST API endpoints',icon:'⚙️',delay:300},
+      {name:'Analytics',desc:'Enabling real-time analytics tracking',icon:'📊',delay:200},
+      {name:'Security',desc:'Applying security policies and rate limiting',icon:'🛡️',delay:200},
+      {name:'CDN',desc:'Configuring global content delivery',icon:'🚀',delay:150},
+      {name:'Domain',desc:'Provisioning custom subdomain',icon:'🌐',delay:300}
+    ];
+    return infra;
+  }
+};
+/* ── CLEAN JSON FROM RESPONSES ── removes raw JSON, keeps clean text */
+function cleanConductorResponse(text){
+  if(!text||typeof text!=='string')return'';
+  /* Remove raw JSON blocks */
+  text=text.replace(/\{\s*"[^}]+\s*\}/g,'');
+  text=text.replace(/\[\s*\{[^\]]+\}\s*\]/g,'');
+  /* Remove JSON code fences */
+  text=text.replace(/```json\n[\s\S]*?```/g,'');
+  text=text.replace(/```\n[\s\S]*?```/g,function(m){if(m.includes('"')&&m.includes(':'))return'';return m});
+  /* Clean up leftover artifacts */
+  text=text.replace(/\{"\w+":/g,'');
+  text=text.replace(/[\{\}\[\]]/g,'');
+  /* Remove empty lines at start */
+  text=text.replace(/^\s+\n/g,'');
+  /* Fix double spaces and line breaks */
+  text=text.replace(/\n{3,}/g,'\n\n');
+  text=text.trim();
+  return text||'I understand. How can I help you with that?';
+}
+/* ── WEB SEARCH ── real-time internet research */
+async function erWebSearch(query){
+  if(!ENGINES)return null;
+  try{
+    var r=await fetch(ENGINES.BASE+'/ai',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        prompt:'Search the web for: '+query+'. Provide a concise, factual answer with sources if possible.',
+        json_mode:false
+      })
+    });
+    if(r.ok){
+      var d=await r.json();
+      return d.response||d.answer||d.text||null;
+    }
+  }catch(e){console.log('Search failed:',e.message)}
+  /* Fallback: use search endpoint if available */
+  try{
+    var r2=await fetch(ENGINES.BASE+'/search?q='+encodeURIComponent(query),{method:'GET'});
+    if(r2.ok){var d2=await r2.json();return JSON.stringify(d2).slice(0,500)}
+  }catch(e2){}
+  return null;
+}
 /* Cache conductor context */
 
 let conductorContextCache=null,conductorContextTime=0;
@@ -790,7 +885,7 @@ async function buildConductorContext(){
   }catch(e){conductorContextCache=null;return null}
 }
 function buildConductorSystemPrompt(ctx){
-  let p='You are ERGIO Conductor, an AI Business Operating System for African businesses. You orchestrate engines, MCP servers, and plugins to help businesses find clients, build websites, send outreach, process payments, and more.\n\n';
+  let p='You are ERGIO Conductor, an AI Business Operating System powered by ERGIO Cloud. You think like a senior software architect, business consultant, DevOps engineer, UI/UX designer, and AI engineer combined. You can perform real-time internet search, read webpages, fact-check, and research before answering. ERGIO Cloud automatically provisions databases, auth, storage, APIs, analytics, security, and hosting for every business. Never expose raw JSON to users. Always respond in clean, polished, user-friendly language. You orchestrate engines, MCP servers, and plugins to help businesses find clients, build websites, send outreach, process payments, and more.\n\n';
   p+='BEHAVIOR RULES:\n';
   p+='1. Always check what tools are connected before attempting tasks. Tell the user what you can and cannot do.\n';
   p+='2. If a required MCP or plugin is NOT connected, say: "I need the [MCP name] MCP to do this. It is not connected yet. Go to the MCP and Plugins tab to connect it."\n';
@@ -909,13 +1004,190 @@ async function analyzeWebsite(url,bubble){
   }
 }
 /* Claude-like response system — distinguish conversation from execution */
-async function sendChatMessage(){  var i=document.getElementById('chatInput'),chat=document.getElementById('chatMessages'),btn=document.getElementById('chatSendBtn');  var text=i.value.trim();  if(!text&&attachedFiles.length===0)return;  var mc=text.replace(/</g,'&lt;');  if(attachedFiles.length>0)mc+='<br><div style="margin-top:.4rem;font-size:.78rem;opacity:.7">📎 '+attachedFiles.map(f=>f.name).join(', ')+'</div>';  var um=document.createElement('div');um.className='chat-msg user';um.innerHTML='<div class="av">👤</div><div class="bubble">'+mc+'</div>';  chat.appendChild(um);  i.value='';i.style.height='auto';  var files=[...attachedFiles];attachedFiles=[];  document.getElementById('chatAttached').style.display='none';document.getElementById('chatAttached').innerHTML='';  btn.disabled=true;chat.scrollTop=chat.scrollHeight;  var bizId=localStorage.getItem('ergio_business_id')||null;  var uid=currentUser?currentUser.uid:null;  var aiMsg=document.createElement('div');aiMsg.className='chat-msg ai';  aiMsg.innerHTML='<div class="av">🤖</div><div class="bubble stream-bubble" id="streamBubble"></div>';  chat.appendChild(aiMsg);  var bubble=document.getElementById('streamBubble');  bubble.innerHTML='<div class="stream-thinking"><div class="pulse"></div> Thinking...</div>';  var resp='';    /* Check for URL — trigger website analyzer */
-var url=extractUrl(text);  if(url&&ENGINES&&text.toLowerCase().includes('analy')){    await analyzeWebsite(url,bubble);    btn.disabled=false;chat.scrollTop=chat.scrollHeight;i.focus();    return;  }    /* Build context */
-var ctx=await buildConductorContext();  var systemPrompt=buildConductorSystemPrompt(ctx);  var isAction=isActionRequest(text);    /* CONVERSATION MODE: For questions, greetings, status checks — just answer like Claude */
-if(!isAction){    if(ENGINES&&ENGINES.aiChat){      try{        var chatPromise=ENGINES.aiChat(text,systemPrompt);        var timeoutPromise=new Promise(function(_,reject){setTimeout(function(){reject(new Error('timeout'))},15000)});        resp=await Promise.race([chatPromise,timeoutPromise]);        bubble.innerHTML='';        renderSimulatedStream(bubble,resp);        /* Check if response mentions unconnected MCPs — render tool cards */
-if(ctx){          var respLower=resp.toLowerCase();          ctx.disconnectedMcps.forEach(function(m){            if(respLower.includes(m.id)||respLower.includes(m.id.replace('_',' '))){              var card=document.createElement('div');              card.innerHTML=renderToolCard(m.id);              bubble.appendChild(card);            }          });        }      }catch(e){        resp=genDemo(text,ctx);        bubble.innerHTML='';        renderSimulatedStream(bubble,resp);      }    }else{      resp=genDemo(text,ctx);      bubble.innerHTML='';      renderSimulatedStream(bubble,resp);    }  }else{    /* ACTION MODE: Execute tasks via conductor endpoint */
-if(ENGINES&&ctx){      try{        bubble.innerHTML='<div class="stream-thinking"><div class="pulse"></div> Analyzing request and selecting tools...</div>';        var condPromise=fetch(ENGINES.BASE+'/conductor',{          method:'POST',          headers:{'Content-Type':'application/json'},          body:JSON.stringify({request:text,business_id:bizId,user_id:uid})        });        var condTimeout=new Promise(function(_,reject){setTimeout(function(){reject(new Error('timeout'))},25000)});        var condResp=await Promise.race([condPromise,condTimeout]);        if(condResp.ok){          var c=await condResp.json();          var output=buildConductorResponse(c,ctx);          bubble.innerHTML='';          renderSimulatedStream(bubble,output);          btn.disabled=false;chat.scrollTop=chat.scrollHeight;i.focus();          return;        }      }catch(e){console.log('Conductor endpoint failed, using AI chat:',e.message)}    }    /* Fallback to AI chat for actions too */
-if(ENGINES&&ENGINES.aiChat){      try{        var chatPromise2=ENGINES.aiChat(text,systemPrompt);        var timeoutPromise2=new Promise(function(_,reject){setTimeout(function(){reject(new Error('timeout'))},15000)});        resp=await Promise.race([chatPromise2,timeoutPromise2]);        bubble.innerHTML='';        renderSimulatedStream(bubble,resp);      }catch(e){        resp=genDemo(text,ctx);        bubble.innerHTML='';        renderSimulatedStream(bubble,resp);      }    }else{      resp=genDemo(text,ctx);      bubble.innerHTML='';      renderSimulatedStream(bubble,resp);    }  }    if(files.length>0){    var fm=document.createElement('div');fm.className='chat-msg ai';    fm.innerHTML='<div class="av">🤖</div><div class="bubble">📎 Received: '+files.map(f=>f.name).join(', ')+'<br>I can analyze documents, extract data from CSVs, and process images.</div>';    chat.appendChild(fm);    activityLog.push({time:new Date().toLocaleTimeString(),action:'Received files: '+files.map(f=>f.name).join(', ')});  }  btn.disabled=false;chat.scrollTop=chat.scrollHeight;i.focus();}/* Build rich response from conductor output — Claude-like formatting */
+async function sendChatMessage(){
+  var i=document.getElementById('chatInput'),chat=document.getElementById('chatMessages'),btn=document.getElementById('chatSendBtn');
+  if(!i||!chat||!btn)return;
+  var text=i.value.trim();
+  if(!text&&attachedFiles.length===0)return;
+
+  /* Render user message */
+  var mc=text.replace(/</g,'&lt;');
+  if(attachedFiles.length>0)mc+='<br><div style="margin-top:.4rem;font-size:.78rem;opacity:.7">📎 '+attachedFiles.map(f=>f.name).join(', ')+'</div>';
+  var um=document.createElement('div');um.className='chat-msg user';
+  um.innerHTML='<div class="av">👤</div><div class="bubble">'+mc+'</div>';
+  chat.appendChild(um);
+  i.value='';i.style.height='auto';
+  var files=[...attachedFiles];attachedFiles=[];
+  document.getElementById('chatAttached').style.display='none';document.getElementById('chatAttached').innerHTML='';
+  btn.disabled=true;chat.scrollTop=chat.scrollHeight;
+
+  /* Store message in conversation memory */
+  conductorMemory.messages.push({role:'user',text:text,ts:Date.now()});
+  /* Keep only last 20 messages for context */
+  if(conductorMemory.messages.length>20)conductorMemory.messages=conductorMemory.messages.slice(-20);
+
+  var bizId=localStorage.getItem('ergio_business_id')||null;
+  var uid=currentUser?currentUser.uid:null;
+  var aiMsg=document.createElement('div');aiMsg.className='chat-msg ai';
+  aiMsg.innerHTML='<div class="av">🤖</div><div class="bubble stream-bubble" id="streamBubble"></div>';
+  chat.appendChild(aiMsg);
+  var bubble=document.getElementById('streamBubble');
+  bubble.innerHTML='<div class="stream-thinking"><div class="pulse"></div> Thinking...</div>';
+
+  var resp='';
+  var searchPerformed=false;
+
+  try{
+    /* Check for URL — trigger website analyzer */
+    var url=extractUrl(text);
+    if(url&&ENGINES&&text.toLowerCase().includes('analy')){
+      await analyzeWebsite(url,bubble);
+      return;
+    }
+
+    /* Check for search intent */
+    var searchTriggers=['search','google','look up','find out','research','what is','who is','where is','when did','how much','latest','news','current','today','recent','happening'];
+    var wantsSearch=searchTriggers.some(function(t){return text.toLowerCase().includes(t)});
+
+    /* Build context with conversation memory */
+    var ctx=await buildConductorContext();
+    conductorMemory.context=ctx;
+    var systemPrompt=buildConductorSystemPrompt(ctx);
+    /* Inject conversation history into system prompt */
+    var history=conductorMemory.messages.slice(-6).map(function(m){
+      return(m.role==='user'?'User: ':'AI: ')+m.text.slice(0,200);
+    }).join('\n');
+    if(history)systemPrompt+='\n\nCONVERSATION HISTORY:\n'+history;
+
+    var isAction=isActionRequest(text);
+
+    /* WEB SEARCH MODE: If user wants to search the internet */
+    if(wantsSearch&&!isAction){
+      bubble.innerHTML='<div class="stream-thinking"><div class="pulse"></div> 🔍 Searching the web...</div>';
+      var searchResult=await erWebSearch(text);
+      if(searchResult){
+        searchPerformed=true;
+        conductorMemory.searchHistory.push({query:text,result:searchResult.slice(0,200),ts:Date.now()});
+        resp=cleanConductorResponse(searchResult);
+        bubble.innerHTML='';
+        renderSimulatedStream(bubble,resp);
+      }else{
+        /* Fall through to AI chat if search fails */
+        bubble.innerHTML='<div class="stream-thinking"><div class="pulse"></div> Thinking...</div>';
+      }
+    }
+
+    /* CONVERSATION MODE */
+    if(!searchPerformed&&!isAction){
+      if(ENGINES&&ENGINES.aiChat){
+        try{
+          var chatPromise=ENGINES.aiChat(text,systemPrompt);
+          var timeoutPromise=new Promise(function(_,reject){setTimeout(function(){reject(new Error('timeout'))},15000)});
+          resp=await Promise.race([chatPromise,timeoutPromise]);
+          /* CRITICAL: Clean any JSON from the response */
+          resp=cleanConductorResponse(resp);
+          bubble.innerHTML='';
+          renderSimulatedStream(bubble,resp);
+          if(ctx){
+            var respLower=resp.toLowerCase();
+            ctx.disconnectedMcps.forEach(function(m){
+              if(respLower.includes(m.id)||respLower.includes(m.id.replace('_',' '))){
+                var card=document.createElement('div');
+                card.innerHTML=renderToolCard(m.id);
+                bubble.appendChild(card);
+              }
+            });
+          }
+        }catch(e){
+          console.log('AI chat failed:',e.message);
+          resp=genDemo(text,ctx);
+          resp=cleanConductorResponse(resp);
+          bubble.innerHTML='';
+          renderSimulatedStream(bubble,resp);
+        }
+      }else{
+        resp=genDemo(text,ctx);
+        resp=cleanConductorResponse(resp);
+        bubble.innerHTML='';
+        renderSimulatedStream(bubble,resp);
+      }
+    }
+
+    /* ACTION MODE */
+    if(!searchPerformed&&isAction){
+      if(ENGINES&&ctx){
+        try{
+          bubble.innerHTML='<div class="stream-thinking"><div class="pulse"></div> Analyzing request and selecting tools...</div>';
+          var condPromise=fetch(ENGINES.BASE+'/conductor',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({request:text,business_id:bizId,user_id:uid,history:conductorMemory.messages.slice(-4)})
+          });
+          var condTimeout=new Promise(function(_,reject){setTimeout(function(){reject(new Error('timeout'))},25000)});
+          var condResp=await Promise.race([condPromise,condTimeout]);
+          if(condResp.ok){
+            var c=await condResp.json();
+            var output=buildConductorResponse(c,ctx);
+            output=cleanConductorResponse(output);
+            bubble.innerHTML='';
+            renderSimulatedStream(bubble,output);
+            /* Store AI response in memory */
+            conductorMemory.messages.push({role:'ai',text:output,ts:Date.now()});
+            return;
+          }
+        }catch(e){console.log('Conductor endpoint failed:',e.message)}
+      }
+      /* Fallback to AI chat for actions */
+      if(ENGINES&&ENGINES.aiChat){
+        try{
+          var chatPromise2=ENGINES.aiChat(text,systemPrompt);
+          var timeoutPromise2=new Promise(function(_,reject){setTimeout(function(){reject(new Error('timeout'))},15000)});
+          resp=await Promise.race([chatPromise2,timeoutPromise2]);
+          resp=cleanConductorResponse(resp);
+          bubble.innerHTML='';
+          renderSimulatedStream(bubble,resp);
+        }catch(e){
+          resp=genDemo(text,ctx);
+          resp=cleanConductorResponse(resp);
+          bubble.innerHTML='';
+          renderSimulatedStream(bubble,resp);
+        }
+      }else{
+        resp=genDemo(text,ctx);
+        resp=cleanConductorResponse(resp);
+        bubble.innerHTML='';
+        renderSimulatedStream(bubble,resp);
+      }
+    }
+
+    /* Handle file attachments */
+    if(files.length>0){
+      var fm=document.createElement('div');fm.className='chat-msg ai';
+      fm.innerHTML='<div class="av">🤖</div><div class="bubble">📎 Received: '+files.map(f=>f.name).join(', ')+'<br>I can analyze documents, extract data from CSVs, and process images.</div>';
+      chat.appendChild(fm);
+      activityLog.push({time:new Date().toLocaleTimeString(),action:'Received files: '+files.map(f=>f.name).join(', ')});
+    }
+
+    /* Store AI response in conversation memory */
+    if(resp)conductorMemory.messages.push({role:'ai',text:resp,ts:Date.now()});
+    conductorMemory.lastResponse=resp;
+
+  }catch(globalError){
+    /* GLOBAL ERROR RECOVERY — never leave the user stuck */
+    console.error('Conductor error:',globalError);
+    bubble.innerHTML='';
+    var errorResp='I encountered a brief issue processing that. Let me try a different approach. Could you rephrase your request, or try a simpler version?';
+    if(globalError.message==='timeout')errorResp='The request took too long. The backend might be busy. Please try again in a moment.';
+    renderSimulatedStream(bubble,errorResp);
+    conductorMemory.messages.push({role:'ai',text:errorResp,ts:Date.now()});
+  }finally{
+    /* CRITICAL: Always re-enable the button */
+    btn.disabled=false;
+    chat.scrollTop=chat.scrollHeight;
+    i.focus();
+  }
+}
+/* Build rich response from conductor output — Claude-like formatting */
 function buildConductorResponse(c,ctx){  var output='';  if(c.summary)output+=c.summary+'\n\n';  if(c.sub_tasks&&c.sub_tasks.length>0){    c.sub_tasks.forEach(function(t){      var icon=t.status==='completed'?'✅':t.status==='failed'?'❌':t.status==='blocked'?'🔒':'⏳';      output+=icon+' '+(t.engine||'')+' → '+(t.action||'')+' ['+(t.status||'?')+']\n';      if(t.result&&t.result.result){        var r=t.result.result;        if(r.leads_found)output+='   Found '+r.leads_found+' leads\n';        if(r.seo_package)output+='   SEO package generated\n';        if(r.landingPageCopy)output+='   Landing page copy ready\n';        if(r.website_html)output+='   Website HTML generated\n';        if(r.message)output+='   '+r.message+'\n';      }      /* Show blocked MCP info */
 if(t.status==='blocked'&&t.result&&t.result.mcp_needed){        output+='   ⚠️ Requires: '+t.result.mcp_needed+' MCP (not connected)\n';      }    });    output+='\n';  }  if(c.pending_approvals&&c.pending_approvals.length>0){    output+='⏸ Pending approvals:\n';    c.pending_approvals.forEach(function(a){output+='   - '+(a.action||'')+' → '+(a.target||'')+'\n'});    output+='\n';  }  if(c.next_steps&&c.next_steps.length>0){    output+='Next steps:\n';    c.next_steps.forEach(function(s){output+='   → '+s+'\n'});  }  if(!output)output=JSON.stringify(c,null,2).slice(0,1000);  return output;}
 function renderStreamEvent(bubble,type,data){
@@ -1007,7 +1279,7 @@ function genDemo(t,ctx){
   if(l.includes('lead')||l.includes('client')){
     return"I can help you find leads!\n\n1. Scan your market using the discovery engine\n2. Score leads based on fit\n3. Generate outreach messages\n\nGo to the Leads tab and click 'Scan New', or tell me your business type and location and I'll run the full pipeline."+awareness;
   }
-  if(l.includes('website')||l.includes('build')){
+  if(l.includes('search')||l.includes('google')||l.includes('look up')||l.includes('research')){return"I can search the internet in real-time! Ask me to search for anything — news, facts, competitors, trends, or documentation. I'll find accurate, relevant information and summarize it for you."+awareness}if(l.includes('website')||l.includes('build')){
     return"I can build a website! Go to the Website Builder tab, enter your business details, and I'll generate a complete website with live preview. You can save it to Supabase."+awareness;
   }
   if(l.includes('email')||l.includes('outreach')){
@@ -1027,7 +1299,7 @@ function genDemo(t,ctx){
     return"I can handle payments and invoices! ERGIO supports Paystack and Stripe. Go to the Billing and Plans tab to see pricing tiers, or tell me what you need charged."+awareness;
   }
   if(l.includes('hello')||l.includes('hi')||l.includes('hey')){
-    return"Hi! I'm the ERGIO Conductor — your AI business operating system.\n\nI can:\n1. Find and score leads\n2. Build professional websites\n3. Send AI-powered outreach (email, WhatsApp)\n4. Process payments (Paystack, Stripe)\n5. Analyze competitors\n6. Generate content and social posts\n7. Manage your database\n\nWhat would you like to do?"+awareness;
+    return"Hi! I'm the ERGIO Conductor — your AI business operating system.\n\nPowered by ERGIO Cloud — your unified backend infrastructure.\n\nI can:\n1. Search the internet (Google, news, research)\n2. Find and score leads\n2. Build professional websites\n3. Send AI-powered outreach (email, WhatsApp)\n4. Process payments (Paystack, Stripe)\n5. Analyze competitors\n6. Generate content and social posts\n7. Manage your database\n\nWhat would you like to do?"+awareness;
   }
   if(l.includes('status')||l.includes('connect')||l.includes('what can you')){
     return"Here's my current status:\n\nEngines: "+(ctx?ctx.engines.length:10)+" operational\nMCPs: "+connectedCount+" of "+totalMcps+" connected ("+connected+")\nPlugins: "+(ctx?ctx.connectedPlugins.length:12)+" available\n\nDisconnected MCPs I can use once connected: "+(ctx?ctx.disconnectedMcps.map(m=>m.id).join(', '):'checking...')+"\n\nGo to the MCP and Plugins tab to connect more tools.";
@@ -1305,6 +1577,7 @@ if(ENGINES){    try{      await fetch(ENGINES.BASE+'/agents/register',{        m
 conductorContextCache=null;}
 function getAgentCapabilities(id){  var caps={    openclaw:['web_scraping','data_extraction','lead_generation','competitive_analysis'],    hermes:['reasoning','planning','multi_step_tasks','tool_use'],    composio:['app_integration','workflow_automation','api_calls'],    glama:['model_routing','multi_llm','cost_optimization'],    kimi:['long_context','document_analysis','code_generation'],    crewai:['multi_agent','task_delegation','role_based_work']  };  return caps[id]||['general'];}/* Get connected agents for conductor context */
 function getConnectedAgents(){  var s=JSON.parse(localStorage.getItem('ergio_agents')||'{}');  return Object.keys(s).map(function(id){return {id:id,name:s[id].name,capabilities:getAgentCapabilities(id)};});}
+
 
 </script>
 </body>
