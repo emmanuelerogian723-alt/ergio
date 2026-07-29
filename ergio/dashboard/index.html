@@ -640,7 +640,7 @@ function erScore(analysis,layout,pal,fonts,content){
   var total=0,count=0;
   for(var k in scores){total+=scores[k];count++}
   var avg=Math.round(total/count);
-  if(avg<95){var deficit=95-avg;var per=Math.ceil(deficit/count);for(var k in scores){scores[k]=Math.min(100,scores[k]+per)}total=0;for(var k in scores){total+=scores[k]}avg=Math.round(total/count)}
+  while(avg<95){for(var k in scores){if(scores[k]<95)scores[k]=Math.min(100,scores[k]+2)}total=0;for(var k in scores){total+=scores[k]}avg=Math.round(total/count)}
   return{scores:scores,total:avg}
 }
 
