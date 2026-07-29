@@ -31,13 +31,14 @@ import advisor from '../ergio/api/advisor.js';
 import logo from '../ergio/api/logo.js';
 import critique from '../ergio/api/critique.js';
 import paystack from '../ergio/api/paystack.js';
+import site from '../ergio/api/site.js';
 
 const handlers = {
   auth, engines, business, bookings, payments, generate,
   leads, outreach, reviews, referrals, seo, analytics,
   notifications, card, expenses, invoices,
   'smart-pricing': smartPricing, social, upload, whatsapp, refine,
-  transform, agents, mcp, advisor, logo, critique, paystack
+  transform, agents, mcp, advisor, logo, critique, paystack, site
 };
 
 export default async function handler(req, res) {
@@ -46,7 +47,6 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // The endpoint is extracted by Vercel's dynamic routing from [endpoint].js
   const endpoint = req.query.endpoint || '';
   
   const handler = handlers[endpoint];
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
 
   return res.status(200).json({
     name: 'ERGIO API',
-    version: '3.0',
+    version: '3.1',
     endpoints: Object.keys(handlers).map(e => `/api/${e}`),
     requested: endpoint || '(none)',
   });
