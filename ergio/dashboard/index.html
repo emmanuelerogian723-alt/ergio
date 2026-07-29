@@ -378,27 +378,39 @@ async function analyzeWebsite(url,bubble){
   bubble.innerHTML='<div class="stream-thinking"><div class="pulse"></div> Analyzing '+url+'...</div>';
   try{
     // Step 1: Scrape the website
+    bubble.innerHTML='<div class="stream-thinking"><div class="pulse"></div> 1/2 Scraping '+url+'...</div>';
     const scrapeResp=await fetch(ENGINES.BASE+'/scrape',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url,use_browser:false})});
     const scrapeData=await scrapeResp.json();
-    const pageContent=JSON.stringify(scrapeData).slice(0,4000);
+    const pageContent=JSON.stringify(scrapeData).slice(0,3000);
     
     // Step 2: Analyze with AI
-    const analysisPrompt='Analyze this website and provide a detailed audit. Check: SEO (title, meta, headings, alt text), performance issues, mobile responsiveness, content quality, conversion elements (CTAs, contact forms, phone), trust signals (testimonials, social proof), and specific improvement recommendations for an African business.\n\nURL: '+url+'\n\nPage content: '+pageContent+'\n\nProvide your analysis as a structured report with specific actionable recommendations.';
-    const aiResp=await fetch(ENGINES.BASE+'/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:analysisPrompt+'\n\nRespond in plain text.',system:'You are a web design and SEO auditor for African businesses. Provide specific, actionable feedback.\nYou must include the word json in your response.',json_mode:true})});
+    bubble.innerHTML='<div class="stream-thinking"><div class="pulse"></div> 2/2 Analyzing content and generating report...</div>';
+    const analysisPrompt='You are auditing the website at '+url+'. Based on the page content below, provide a detailed website audit report.\n\nCover these areas (give a score out of 10 for each):\n1. SEO (meta tags, title, headings, alt text)\n2. Performance (page size, scripts, load issues)\n3. Mobile Responsiveness\n4. Content Quality (clarity, grammar, structure)\n5. Conversion Elements (CTAs, contact forms, phone numbers)\n6. Trust Signals (testimonials, reviews, social proof)\n7. Overall Score (average)\n\nThen list the TOP 5 specific improvements to make, ordered by priority.\n\nPage content: '+pageContent+'\n\nFormat as a clear report with sections. Be specific about what is missing or broken.';
+    const aiResp=await fetch(ENGINES.BASE+'/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:analysisPrompt+'\n\nWrap your entire response in a JSON object with key "response" containing the report text as a string.',system:'You are a web design and SEO auditor for African businesses. Provide specific, actionable feedback. You must include the word json in your response.',json_mode:true})});
     const aiData=await aiResp.json();
     let analysis='';
     if(aiData.response)analysis=aiData.response;
     else if(aiData.text)analysis=aiData.text;
-    else analysis=JSON.stringify(aiData);
+    else if(aiData.content)analysis=aiData.content;
+    else{
+      // Format structured JSON as readable text
+      const parts=[];
+      for(const [k,v] of Object.entries(aiData)){
+        if(typeof v==='string')parts.push(k+': '+v);
+        else if(Array.isArray(v))parts.push(k+': '+v.join(', '));
+        else if(typeof v==='number')parts.push(k+': '+v+'/10');
+        else if(typeof v==='object'&&v!==null)parts.push(k+': '+JSON.stringify(v).slice(0,200));
+      }
+      analysis=parts.join('\n')||JSON.stringify(aiData,null,2);
+    }
     
     bubble.innerHTML='';
-    renderSimulatedStream(bubble,'🌐 Website Analysis for '+url+'\n\n'+analysis);
+    renderSimulatedStream(bubble,'🌐 Website Audit Report\nURL: '+url+'\n\n'+analysis);
   }catch(e){
     bubble.innerHTML='';
     renderSimulatedStream(bubble,'❌ Could not analyze '+url+'. Error: '+e.message+'\n\nMake sure the URL is accessible and try again.');
   }
 }
-
 async function sendChatMessage(){
   const i=document.getElementById('chatInput'),chat=document.getElementById('chatMessages'),btn=document.getElementById('chatSendBtn');
   const text=i.value.trim();
