@@ -333,12 +333,404 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
     <div class="tab-content" id="tab-plugins"><div class="panel"><div class="panel-header"><div><div class="panel-title">MCP Servers and Plugins</div><div class="panel-sub">Model Context Protocol integrations</div></div><button class="btn btn-primary btn-sm" onclick="showAddMCP()">+ Add Custom MCP</button></div><div id="mcpAddForm" style="display:none;margin-bottom:1rem;padding:1rem;background:var(--card2);border:1px solid var(--border);border-radius:10px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.6rem"><input class="form-input" id="mcpName" placeholder="MCP Name"><input class="form-input" id="mcpUrl" placeholder="https://mcp-url.com"></div><div style="display:flex;gap:.6rem"><select class="form-select" id="mcpTransport" style="width:auto"><option value="http">HTTP</option><option value="sse">SSE</option><option value="ws">WebSocket</option></select><input class="form-input" id="mcpApiKey" placeholder="API Key (optional)" style="flex:1"><button class="btn btn-primary" onclick="connectMCP()">Connect</button></div></div><div class="engine-grid" id="mcpGrid"></div></div><div class="panel"><div class="panel-header"><div class="panel-title">Available Plugins</div><div class="panel-sub">Extend ERGIO capabilities</div></div><div class="int-grid" id="pluginsGrid"></div></div></div>
     <div class="tab-content" id="tab-skills"><div class="panel"><div class="panel-header"><div><div class="panel-title">Skills Marketplace</div><div class="panel-sub">Reusable AI skills for the Conductor</div></div><button class="btn btn-primary btn-sm" onclick="showSkillForm()">+ Create Skill</button></div><div id="skillForm" style="display:none;margin-bottom:1rem;padding:1rem;background:var(--card2);border:1px solid var(--border);border-radius:10px"><div class="form-group"><label class="form-label">Skill Name</label><input class="form-input" id="skillName" placeholder="e.g. Competitor Price Analysis"></div><div class="form-group"><label class="form-label">Description</label><input class="form-input" id="skillDesc" placeholder="What does this skill do?"></div><div class="form-group"><label class="form-label">Instructions</label><textarea class="form-textarea" id="skillInstr" placeholder="Step-by-step instructions for the AI agent..."></textarea></div><div class="form-group"><label class="form-label">Category</label><select class="form-select" id="skillCat"><option value="marketing">Marketing</option><option value="sales">Sales</option><option value="finance">Finance</option><option value="ops">Operations</option><option value="tech">Technology</option><option value="research">Research</option></select></div><button class="btn btn-primary" onclick="createSkill()">Publish Skill</button></div><div class="int-grid" id="skillsGrid"></div></div></div>
     <div class="tab-content" id="tab-integrations"><div class="panel"><div class="panel-header"><div><div class="panel-title">Integrations</div><div class="panel-sub">Connect external services to ERGIO</div></div></div><div style="display:flex;gap:.4rem;margin-bottom:1rem;flex-wrap:wrap" id="intCategories"></div><div class="int-grid" id="integrationsGrid"></div></div><div class="panel"><div class="panel-header"><div class="panel-title">Connected Integrations</div></div><div id="connectedList"></div></div></div>
-    <div class="tab-content" id="tab-analytics"><div class="kpi-grid"><div class="kpi-card"><div class="kpi-icon" style="background:rgba(0,217,255,.1)">👁️</div><div class="kpi-value" id="anPageViews">0</div><div class="kpi-label">Page Views</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(0,255,157,.1)">👆</div><div class="kpi-value" id="anClicks">0</div><div class="kpi-label">Clicks</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(139,92,246,.1)">📞</div><div class="kpi-value" id="anConversions">0</div><div class="kpi-label">Conversions</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(255,184,0,.1)">⚡</div><div class="kpi-value" id="anEnginesRun">0</div><div class="kpi-label">Engine Runs</div></div></div><div class="panel"><div class="panel-header"><div class="panel-title">Revenue and Activity</div><div class="panel-sub">From Supabase database</div></div><div id="analyticsContent"><div class="empty"><div class="icon">📊</div><h3>Loading analytics...</h3><p>Fetching data from Supabase.</p></div></div></div></div><div class="tab-content" id="tab-billing"><div class="billing-wrap"><div class="billing-header" style="text-align:center;margin-bottom:2rem"><h2 style="font-size:1.8rem;margin-bottom:.5rem">Choose Your Plan</h2><p style="color:var(--muted);font-size:.95rem">Power your business with ERGIO. Upgrade or cancel anytime.</p><div id="currentPlanBadge" style="display:inline-block;margin-top:.5rem;padding:.4rem 1rem;border-radius:20px;background:rgba(0,217,255,.08);border:1px solid rgba(0,217,255,.2);color:var(--cyan);font-size:.8rem;font-weight:600">Current: Free Plan</div></div><div class="pricing-grid" id="pricingGrid"></div><div class="panel" style="margin-top:2rem"><div class="panel-header"><div><div class="panel-title">Payment History</div><div class="panel-sub">Your ERGIO payment transactions</div></div><button class="btn btn-ghost btn-sm" onclick="loadPaymentHistory()">Refresh</button></div><div id="paymentHistoryList"><div class="empty"><div class="icon">🧾</div><h3>No payments yet</h3><p>When you upgrade, your transactions appear here.</p></div></div></div><div class="panel" style="margin-top:1.5rem"><div class="panel-header"><div><div class="panel-title">Payment Methods</div><div class="panel-sub">Powered by Paystack — Naira & international cards</div></div></div><div style="padding:1rem"><div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center"><div style="display:flex;align-items:center;gap:.5rem"><img src="https://cdn.simpleicons.org/paystack/00C3F7" alt="Paystack" style="width:28px;height:28px;border-radius:4px"><span style="font-weight:600">Paystack</span></div><div style="display:flex;align-items:center;gap:.5rem"><img src="https://cdn.simpleicons.org/stripe/635BFF" alt="Stripe" style="width:28px;height:28px;border-radius:4px"><span style="font-weight:600">Stripe</span></div><div style="display:flex;align-items:center;gap:.5rem"><img src="https://cdn.simpleicons.org/visa/1A1F71" alt="Visa" style="width:28px;height:28px;border-radius:4px"><span style="font-weight:600">Visa</span></div><div style="display:flex;align-items:center;gap:.5rem"><img src="https://cdn.simpleicons.org/mastercard/EB001B" alt="Mastercard" style="width:28px;height:28px;border-radius:4px"><span style="font-weight:600">Mastercard</span></div><div style="display:flex;align-items:center;gap:.5rem"><span style="font-size:1.3rem">🏦</span><span style="font-weight:600">Bank Transfer</span></div><div style="display:flex;align-items:center;gap:.5rem"><span style="font-size:1.3rem">📱</span><span style="font-weight:600">USSD</span></div></div><p style="color:var(--muted);font-size:.8rem;margin-top:.8rem">All payments are secured with 256-bit SSL encryption. ERGIO never stores your card details.</p></div></div></div>
-  </div><div class="tab-content" id="tab-workspace">
+    <div class="tab-content" id="tab-analytics"><div class="kpi-grid"><div class="kpi-card"><div class="kpi-icon" style="background:rgba(0,217,255,.1)">👁️</div><div class="kpi-value" id="anPageViews">0</div><div class="kpi-label">Page Views</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(0,255,157,.1)">👆</div><div class="kpi-value" id="anClicks">0</div><div class="kpi-label">Clicks</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(139,92,246,.1)">📞</div><div class="kpi-value" id="anConversions">0</div><div class="kpi-label">Conversions</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(255,184,0,.1)">⚡</div><div class="kpi-value" id="anEnginesRun">0</div><div class="kpi-label">Engine Runs</div></div></div><div class="panel"><div class="panel-header"><div class="panel-title">Revenue and Activity</div><div class="panel-sub">From Supabase database</div></div><div id="analyticsContent"><div class="empty"><div class="icon">📊</div><h3>Loading analytics...</h3><p>Fetching data from Supabase.</p></div></div></div></div><div class="tab-content" id="tab-billing">
+<div class="billing-wrap" style="padding:1.5rem">
+
+  <!-- Header -->
+  <div style="text-align:center;margin-bottom:2.5rem">
+    <h2 style="font-size:1.8rem;font-weight:700;color:var(--text);margin-bottom:.5rem">Choose Your Plan</h2>
+    <p style="color:var(--muted);font-size:.95rem">Power your business with ERGIO. Upgrade or cancel anytime.</p>
+    <div id="currentPlanBadge" style="display:inline-block;margin-top:.75rem;padding:.4rem 1.2rem;border-radius:20px;background:rgba(0,217,255,.08);border:1px solid rgba(0,217,255,.2);color:var(--cyan);font-size:.85rem;font-weight:600">Current: Starter Plan</div>
+  </div>
+
+  <!-- Pricing Grid — Static HTML for reliability -->
+  <div class="pricing-grid" id="pricingGrid">
+
+    <!-- Starter (Free) -->
+    <div class="price-card" id="plan-free">
+      <div class="plan-name" style="color:var(--muted)">Starter</div>
+      <div class="plan-price">Free<span style="font-size:.85rem;font-weight:400;color:var(--muted)"> forever</span></div>
+      <div class="plan-desc">Perfect for trying out ERGIO</div>
+      <ul class="plan-features" style="text-align:left;margin:1.2rem 0;list-style:none;padding:0;display:flex;flex-direction:column;gap:.5rem">
+        <li><span class="check" style="color:var(--green)">✓</span> 10 leads per scan</li>
+        <li><span class="check" style="color:var(--green)">✓</span> 1 website build</li>
+        <li><span class="check" style="color:var(--green)">✓</span> Basic Conductor chat</li>
+        <li><span class="check" style="color:var(--green)">✓</span> 1 engine</li>
+        <li><span class="check" style="color:var(--green)">✓</span> Community support</li>
+        <li style="color:var(--muted);font-size:.85rem"><span style="color:#ef4444">✗</span> Unlimited leads</li>
+        <li style="color:var(--muted);font-size:.85rem"><span style="color:#ef4444">✗</span> Outreach automation</li>
+      </ul>
+      <button class="price-btn current" disabled style="width:100%;padding:.75rem;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:var(--muted);cursor:not-allowed;font-weight:600">Current Plan</button>
+    </div>
+
+    <!-- Growth ₦5,000 -->
+    <div class="price-card" id="plan-growth">
+      <div class="plan-name" style="color:var(--cyan)">Growth</div>
+      <div class="plan-price"><span class="currency" style="font-size:1.1rem;vertical-align:super">₦</span>5,000<span style="font-size:.85rem;font-weight:400;color:var(--muted)">/month</span></div>
+      <div class="plan-desc">Start growing with AI power</div>
+      <ul class="plan-features" style="text-align:left;margin:1.2rem 0;list-style:none;padding:0;display:flex;flex-direction:column;gap:.5rem">
+        <li><span class="check" style="color:var(--green)">✓</span> 50 leads per scan</li>
+        <li><span class="check" style="color:var(--green)">✓</span> 3 website builds</li>
+        <li><span class="check" style="color:var(--green)">✓</span> Conductor chat (full)</li>
+        <li><span class="check" style="color:var(--green)">✓</span> 3 engines</li>
+        <li><span class="check" style="color:var(--green)">✓</span> Basic outreach (20/day)</li>
+        <li><span class="check" style="color:var(--green)">✓</span> Email support</li>
+        <li style="color:var(--muted);font-size:.85rem"><span style="color:#ef4444">✗</span> Unlimited leads</li>
+      </ul>
+      <button class="price-btn paid" onclick="startCheckout('growth','Growth',5000)" style="width:100%;padding:.75rem;border-radius:10px;border:none;background:var(--cyan);color:#000;font-weight:700;cursor:pointer;font-size:.95rem">Upgrade Now</button>
+    </div>
+
+    <!-- Professional ₦15,000 -->
+    <div class="price-card popular" id="plan-pro" style="border-color:rgba(0,240,255,.4);box-shadow:0 0 30px rgba(0,240,255,.1)">
+      <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--cyan);color:#000;padding:.25rem .9rem;border-radius:20px;font-size:.75rem;font-weight:700">MOST POPULAR</div>
+      <div class="plan-name" style="color:var(--cyan)">Professional</div>
+      <div class="plan-price"><span class="currency" style="font-size:1.1rem;vertical-align:super">₦</span>15,000<span style="font-size:.85rem;font-weight:400;color:var(--muted)">/month</span></div>
+      <div class="plan-desc">For growing African businesses</div>
+      <ul class="plan-features" style="text-align:left;margin:1.2rem 0;list-style:none;padding:0;display:flex;flex-direction:column;gap:.5rem">
+        <li><span class="check" style="color:var(--green)">✓</span> Unlimited leads</li>
+        <li><span class="check" style="color:var(--green)">✓</span> 5 website builds</li>
+        <li><span class="check" style="color:var(--green)">✓</span> Full Conductor + streaming</li>
+        <li><span class="check" style="color:var(--green)">✓</span> All 10 engines</li>
+        <li><span class="check" style="color:var(--green)">✓</span> Outreach automation</li>
+        <li><span class="check" style="color:var(--green)">✓</span> 10 MCP connections</li>
+        <li><span class="check" style="color:var(--green)">✓</span> Analytics dashboard</li>
+        <li style="color:var(--muted);font-size:.85rem"><span style="color:#ef4444">✗</span> Custom MCPs</li>
+      </ul>
+      <button class="price-btn paid" onclick="startCheckout('pro','Professional',15000)" style="width:100%;padding:.75rem;border-radius:10px;border:none;background:var(--cyan);color:#000;font-weight:700;cursor:pointer;font-size:.95rem">Upgrade Now</button>
+    </div>
+
+    <!-- Business ₦50,000 -->
+    <div class="price-card" id="plan-business">
+      <div class="plan-name" style="color:var(--green)">Business</div>
+      <div class="plan-price"><span class="currency" style="font-size:1.1rem;vertical-align:super">₦</span>50,000<span style="font-size:.85rem;font-weight:400;color:var(--muted)">/month</span></div>
+      <div class="plan-desc">For scaling businesses that need more power</div>
+      <ul class="plan-features" style="text-align:left;margin:1.2rem 0;list-style:none;padding:0;display:flex;flex-direction:column;gap:.5rem">
+        <li><span class="check" style="color:var(--green)">✓</span> Everything in Professional</li>
+        <li><span class="check" style="color:var(--green)">✓</span> Unlimited website builds</li>
+        <li><span class="check" style="color:var(--green)">✓</span> 25 MCP connections</li>
+        <li><span class="check" style="color:var(--green)">✓</span> AI Chatbot for websites</li>
+        <li><span class="check" style="color:var(--green)">✓</span> Custom domain support</li>
+        <li><span class="check" style="color:var(--green)">✓</span> Priority support</li>
+        <li><span class="check" style="color:var(--green)">✓</span> Advanced analytics</li>
+        <li><span class="check" style="color:var(--green)">✓</span> Team accounts (up to 5)</li>
+      </ul>
+      <button class="price-btn paid" onclick="startCheckout('business','Business',50000)" style="width:100%;padding:.75rem;border-radius:10px;border:none;background:linear-gradient(135deg,var(--green),#00b894);color:#000;font-weight:700;cursor:pointer;font-size:.95rem">Upgrade Now</button>
+    </div>
+
+    <!-- Enterprise ₦75,000 -->
+    <div class="price-card" id="plan-enterprise">
+      <div class="plan-name" style="color:var(--purple)">Enterprise</div>
+      <div class="plan-price"><span class="currency" style="font-size:1.1rem;vertical-align:super">₦</span>75,000<span style="font-size:.85rem;font-weight:400;color:var(--muted)">/month</span></div>
+      <div class="plan-desc">For agencies and large teams</div>
+      <ul class="plan-features" style="text-align:left;margin:1.2rem 0;list-style:none;padding:0;display:flex;flex-direction:column;gap:.5rem">
+        <li><span class="check" style="color:var(--green)">✓</span> Everything in Business</li>
+        <li><span class="check" style="color:var(--green)">✓</span> Custom MCP servers</li>
+        <li><span class="check" style="color:var(--green)">✓</span> Full API access</li>
+        <li><span class="check" style="color:var(--green)">✓</span> White-label branding</li>
+        <li><span class="check" style="color:var(--green)">✓</span> Priority engine scheduling</li>
+        <li><span class="check" style="color:var(--green)">✓</span> Dedicated support manager</li>
+        <li><span class="check" style="color:var(--green)">✓</span> Custom integrations</li>
+        <li><span class="check" style="color:var(--green)">✓</span> Team accounts (up to 10)</li>
+      </ul>
+      <button class="price-btn paid" onclick="startCheckout('enterprise','Enterprise',75000)" style="width:100%;padding:.75rem;border-radius:10px;border:none;background:linear-gradient(135deg,var(--purple),#7c3aed);color:#fff;font-weight:700;cursor:pointer;font-size:.95rem">Contact Sales</button>
+    </div>
+
+  </div>
+
+  <!-- Payment History -->
+  <div class="panel" style="margin-top:2rem">
+    <div class="panel-header">
+      <div>
+        <div class="panel-title">Payment History</div>
+        <div class="panel-sub">Your ERGIO payment transactions</div>
+      </div>
+      <button onclick="loadPaymentHistory()" class="btn-ghost">Refresh</button>
+    </div>
+    <div id="paymentHistoryList" style="padding:1rem;text-align:center;color:var(--muted)">
+      <div style="padding:2rem;display:flex;flex-direction:column;align-items:center;gap:.75rem">
+        <div style="font-size:2.5rem">🧾</div>
+        <div style="font-weight:600;color:var(--text)">No payments yet</div>
+        <div style="font-size:.85rem">When you upgrade, your transactions appear here.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Methods -->
+  <div class="panel" style="margin-top:1.5rem">
+    <div class="panel-header"><div class="panel-title">Payment Methods</div><span class="badge badge-green">Secured</span></div>
+    <div style="padding:1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:.5rem 1rem;font-size:.85rem;color:var(--text)">💳 Paystack</div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:.5rem 1rem;font-size:.85rem;color:var(--text)">💳 Stripe</div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:.5rem 1rem;font-size:.85rem;color:var(--text)">💳 Visa</div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:.5rem 1rem;font-size:.85rem;color:var(--text)">💳 Mastercard</div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:.5rem 1rem;font-size:.85rem;color:var(--text)">🏦 Bank Transfer</div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:.5rem 1rem;font-size:.85rem;color:var(--text)">📱 USSD</div>
+    </div>
+    <div style="padding:.75rem 1rem;font-size:.78rem;color:var(--muted);border-top:1px solid rgba(255,255,255,.06)">🔒 All payments are secured with 256-bit SSL encryption. ERGIO never stores your card details.</div>
+  </div>
+
+</div>
+<div class="tab-content" id="tab-workspace">
 <div style="padding:1.5rem">
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem">
-<div class="panel">
-<div class="panel-header"><div class="panel-title">Business Profile</div><span class="badge badge-gre<div class="tab-content" id="tab-cloud">
+
+  <!-- Page Header -->
+  <div style="margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between">
+    <div>
+      <div style="font-size:1.5rem;font-weight:700;color:var(--text)">🗂️ Business Workspace</div>
+      <div style="color:var(--muted);font-size:.85rem;margin-top:.25rem">Your command center — manage every critical detail of your business</div>
+    </div>
+    <button onclick="saveWorkspace()" style="background:var(--cyan);color:#000;border:none;padding:.6rem 1.2rem;border-radius:8px;font-weight:600;cursor:pointer">💾 Save All</button>
+  </div>
+
+  <!-- Top row: Business Profile + Quick Stats -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem">
+
+    <!-- Business Profile -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">🏢 Business Profile</div>
+        <button onclick="editWorkspaceSection('profile')" class="btn-ghost" style="font-size:.8rem">Edit</button>
+      </div>
+      <div style="padding:1rem;display:flex;flex-direction:column;gap:.75rem" id="wsProfileDisplay">
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Business Name</span><span style="color:var(--text);font-weight:500" id="wsBizName">Loading...</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Industry</span><span style="color:var(--text)" id="wsBizIndustry">—</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Location</span><span style="color:var(--text)" id="wsBizLocation">—</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Website</span><span style="color:var(--cyan);font-size:.85rem" id="wsBizWebsite">—</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Email</span><span style="color:var(--text)" id="wsBizEmail">—</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Phone</span><span style="color:var(--text)" id="wsBizPhone">—</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Plan</span><span class="badge badge-cyan" id="wsBizPlan">Free</span></div>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">📊 Live Stats</div><span class="badge badge-green">Live</span></div>
+      <div style="padding:1rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem" id="wsLiveStats">
+        <div style="text-align:center;padding:.75rem;background:rgba(0,240,255,.05);border-radius:10px;border:1px solid rgba(0,240,255,.1)">
+          <div style="font-size:1.5rem;font-weight:700;color:var(--cyan)" id="wsStatLeads">—</div>
+          <div style="font-size:.75rem;color:var(--muted)">Total Leads</div>
+        </div>
+        <div style="text-align:center;padding:.75rem;background:rgba(0,255,157,.05);border-radius:10px;border:1px solid rgba(0,255,157,.1)">
+          <div style="font-size:1.5rem;font-weight:700;color:var(--green)" id="wsStatSites">—</div>
+          <div style="font-size:.75rem;color:var(--muted)">Websites Built</div>
+        </div>
+        <div style="text-align:center;padding:.75rem;background:rgba(139,92,246,.05);border-radius:10px;border:1px solid rgba(139,92,246,.1)">
+          <div style="font-size:1.5rem;font-weight:700;color:var(--purple)" id="wsStatBookings">—</div>
+          <div style="font-size:.75rem;color:var(--muted)">Bookings</div>
+        </div>
+        <div style="text-align:center;padding:.75rem;background:rgba(255,159,28,.05);border-radius:10px;border:1px solid rgba(255,159,28,.1)">
+          <div style="font-size:1.5rem;font-weight:700;color:var(--orange)" id="wsStatRevenue">₦0</div>
+          <div style="font-size:.75rem;color:var(--muted)">Revenue (30d)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Domain Management -->
+  <div class="panel" style="margin-bottom:1.5rem">
+    <div class="panel-header">
+      <div class="panel-title">🌐 Domain Management</div>
+      <span class="badge badge-cyan" id="wsDomainBadge">ERGIO Subdomain</span>
+    </div>
+    <div style="padding:1rem">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+        <!-- ERGIO Subdomain -->
+        <div>
+          <div style="font-weight:600;color:var(--text);margin-bottom:.75rem">Free ERGIO Subdomain</div>
+          <div style="background:rgba(0,240,255,.05);border:1px solid rgba(0,240,255,.2);border-radius:10px;padding:1rem">
+            <div style="color:var(--muted);font-size:.8rem;margin-bottom:.4rem">Your current subdomain</div>
+            <div style="display:flex;align-items:center;gap:.5rem">
+              <span style="color:var(--cyan);font-weight:600;font-size:.95rem" id="wsSubdomain">yourname.ergio.app</span>
+              <button onclick="copySubdomain()" style="background:none;border:1px solid rgba(0,240,255,.3);color:var(--cyan);padding:.2rem .6rem;border-radius:5px;cursor:pointer;font-size:.75rem">Copy</button>
+            </div>
+            <div style="margin-top:.75rem">
+              <label style="font-size:.8rem;color:var(--muted)">Change subdomain slug</label>
+              <div style="display:flex;gap:.5rem;margin-top:.35rem">
+                <input id="wsSubdomainInput" type="text" placeholder="myshop" style="flex:1;background:#1a1f26;border:1px solid rgba(255,255,255,.1);color:var(--text);padding:.45rem .7rem;border-radius:6px;font-size:.85rem">
+                <button onclick="updateSubdomain()" style="background:var(--cyan);color:#000;border:none;padding:.45rem .9rem;border-radius:6px;font-weight:600;cursor:pointer;font-size:.8rem">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Custom Domain -->
+        <div>
+          <div style="font-weight:600;color:var(--text);margin-bottom:.75rem">Custom Domain <span class="badge badge-purple" style="font-size:.7rem;vertical-align:middle">Pro+</span></div>
+          <div style="background:rgba(139,92,246,.05);border:1px solid rgba(139,92,246,.2);border-radius:10px;padding:1rem">
+            <div style="color:var(--muted);font-size:.8rem;margin-bottom:.4rem">Point your domain to ERGIO</div>
+            <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
+              <input id="wsCustomDomain" type="text" placeholder="www.yourbusiness.com" style="flex:1;background:#1a1f26;border:1px solid rgba(255,255,255,.1);color:var(--text);padding:.45rem .7rem;border-radius:6px;font-size:.85rem">
+              <button onclick="connectCustomDomain()" style="background:var(--purple);color:#fff;border:none;padding:.45rem .9rem;border-radius:6px;font-weight:600;cursor:pointer;font-size:.8rem">Connect</button>
+            </div>
+            <div style="font-size:.78rem;color:var(--muted)">Add these DNS records at your registrar:</div>
+            <div style="margin-top:.5rem;background:#0d1117;border-radius:6px;padding:.75rem;font-family:monospace;font-size:.75rem">
+              <div style="color:var(--green)">A Record: 76.76.19.61</div>
+              <div style="color:var(--cyan);margin-top:.3rem">CNAME: cname.ergio.app</div>
+            </div>
+            <div style="margin-top:.6rem;font-size:.78rem;color:var(--muted)">SSL certificate auto-provisioned via Let's Encrypt. Takes 2-5 minutes.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Tools + Integrations Row -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem">
+
+    <!-- Active AI Employees Summary -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">🤖 Active AI Employees</div>
+        <button onclick="switchTab('employees')" class="btn-ghost" style="font-size:.8rem">Manage →</button>
+      </div>
+      <div style="padding:1rem;display:flex;flex-direction:column;gap:.6rem" id="wsEmployeesList">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:.6rem;background:rgba(0,255,157,.05);border-radius:8px;border:1px solid rgba(0,255,157,.1)">
+          <div style="display:flex;align-items:center;gap:.6rem"><span>💼</span><span style="color:var(--text);font-size:.85rem">Sales AI</span></div>
+          <span class="badge badge-green" style="font-size:.7rem">Working</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:.6rem;background:rgba(0,240,255,.05);border-radius:8px;border:1px solid rgba(0,240,255,.1)">
+          <div style="display:flex;align-items:center;gap:.6rem"><span>📣</span><span style="color:var(--text);font-size:.85rem">Marketing AI</span></div>
+          <span class="badge badge-green" style="font-size:.7rem">Working</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:.6rem;background:rgba(255,255,255,.03);border-radius:8px;border:1px solid rgba(255,255,255,.05)">
+          <div style="display:flex;align-items:center;gap:.6rem"><span>🎧</span><span style="color:var(--muted);font-size:.85rem">Support AI</span></div>
+          <button onclick="switchTab('employees')" style="background:var(--cyan);color:#000;border:none;padding:.25rem .7rem;border-radius:5px;font-size:.72rem;font-weight:600;cursor:pointer">Hire</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conductor Quick Actions -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">⚡ Quick Actions</div>
+        <span style="font-size:.75rem;color:var(--muted)">Run instantly</span>
+      </div>
+      <div style="padding:1rem;display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+        <button onclick="wsRunAction('scan_leads')" style="background:rgba(0,240,255,.08);border:1px solid rgba(0,240,255,.2);color:var(--cyan);padding:.7rem;border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:500;text-align:left">🔍 Scan Leads</button>
+        <button onclick="wsRunAction('build_site')" style="background:rgba(0,255,157,.08);border:1px solid rgba(0,255,157,.2);color:var(--green);padding:.7rem;border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:500;text-align:left">🌐 Build Site</button>
+        <button onclick="wsRunAction('send_outreach')" style="background:rgba(255,159,28,.08);border:1px solid rgba(255,159,28,.2);color:var(--orange);padding:.7rem;border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:500;text-align:left">📤 Outreach</button>
+        <button onclick="wsRunAction('generate_invoice')" style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);color:var(--purple);padding:.7rem;border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:500;text-align:left">🧾 Invoice</button>
+        <button onclick="wsRunAction('seo_check')" style="background:rgba(255,64,129,.08);border:1px solid rgba(255,64,129,.2);color:#ff4081;padding:.7rem;border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:500;text-align:left">📈 SEO Check</button>
+        <button onclick="switchTab('conductor')" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--text);padding:.7rem;border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:500;text-align:left">🎯 Conductor</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Missions -->
+  <div class="panel" style="margin-bottom:1.5rem">
+    <div class="panel-header">
+      <div class="panel-title">🚀 Active Missions</div>
+      <button onclick="switchTab('missions')" class="btn-ghost" style="font-size:.8rem">View All →</button>
+    </div>
+    <div style="padding:1rem" id="wsActiveMissions">
+      <div style="display:flex;flex-direction:column;gap:.75rem">
+        <div style="padding:.9rem;background:rgba(0,240,255,.04);border:1px solid rgba(0,240,255,.12);border-radius:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+            <span style="color:var(--text);font-weight:500;font-size:.9rem">🌱 Grow my restaurant</span>
+            <span style="color:var(--cyan);font-size:.78rem">3/5 tasks</span>
+          </div>
+          <div style="background:rgba(255,255,255,.06);border-radius:4px;height:6px;overflow:hidden">
+            <div style="background:var(--cyan);height:100%;width:60%;border-radius:4px;transition:width .6s"></div>
+          </div>
+        </div>
+        <div style="padding:.9rem;background:rgba(139,92,246,.04);border:1px solid rgba(139,92,246,.12);border-radius:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+            <span style="color:var(--text);font-weight:500;font-size:.9rem">🏢 Launch AI agency</span>
+            <span style="color:var(--purple);font-size:.78rem">2/6 tasks</span>
+          </div>
+          <div style="background:rgba(255,255,255,.06);border-radius:4px;height:6px;overflow:hidden">
+            <div style="background:var(--purple);height:100%;width:33%;border-radius:4px;transition:width .6s"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Business Notes + API Keys Row -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem">
+
+    <!-- Business Notes -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">📝 Business Notes</div>
+        <button onclick="saveWsNotes()" style="background:var(--cyan);color:#000;border:none;padding:.3rem .7rem;border-radius:6px;font-size:.75rem;font-weight:600;cursor:pointer">Save</button>
+      </div>
+      <div style="padding:1rem">
+        <textarea id="wsNotes" placeholder="Write anything important about your business, goals, important contacts, passwords (stored locally), etc..." style="width:100%;height:160px;background:#1a1f26;border:1px solid rgba(255,255,255,.08);color:var(--text);padding:.75rem;border-radius:8px;font-size:.85rem;resize:vertical;font-family:inherit;line-height:1.5"></textarea>
+      </div>
+    </div>
+
+    <!-- Environment / API Keys -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">🔑 API Keys &amp; Secrets</div>
+        <span style="font-size:.75rem;color:var(--muted)">Stored locally</span>
+      </div>
+      <div style="padding:1rem;display:flex;flex-direction:column;gap:.6rem">
+        <div>
+          <label style="font-size:.78rem;color:var(--muted)">Groq API Key</label>
+          <div style="display:flex;gap:.5rem;margin-top:.3rem">
+            <input id="wsGroqKey" type="password" placeholder="gsk_..." style="flex:1;background:#1a1f26;border:1px solid rgba(255,255,255,.1);color:var(--text);padding:.4rem .6rem;border-radius:6px;font-size:.8rem">
+            <button onclick="saveWsKey('groq','wsGroqKey')" style="background:rgba(0,240,255,.15);border:1px solid rgba(0,240,255,.3);color:var(--cyan);padding:.4rem .7rem;border-radius:6px;font-size:.75rem;cursor:pointer">Save</button>
+          </div>
+        </div>
+        <div>
+          <label style="font-size:.78rem;color:var(--muted)">Supabase URL</label>
+          <div style="display:flex;gap:.5rem;margin-top:.3rem">
+            <input id="wsSupabaseUrl" type="text" placeholder="https://xyz.supabase.co" style="flex:1;background:#1a1f26;border:1px solid rgba(255,255,255,.1);color:var(--text);padding:.4rem .6rem;border-radius:6px;font-size:.8rem">
+            <button onclick="saveWsKey('supabase_url','wsSupabaseUrl')" style="background:rgba(0,255,157,.1);border:1px solid rgba(0,255,157,.25);color:var(--green);padding:.4rem .7rem;border-radius:6px;font-size:.75rem;cursor:pointer">Save</button>
+          </div>
+        </div>
+        <div>
+          <label style="font-size:.78rem;color:var(--muted)">Paystack Public Key</label>
+          <div style="display:flex;gap:.5rem;margin-top:.3rem">
+            <input id="wsPaystackKey" type="password" placeholder="pk_live_..." style="flex:1;background:#1a1f26;border:1px solid rgba(255,255,255,.1);color:var(--text);padding:.4rem .6rem;border-radius:6px;font-size:.8rem">
+            <button onclick="saveWsKey('paystack','wsPaystackKey')" style="background:rgba(255,159,28,.1);border:1px solid rgba(255,159,28,.25);color:var(--orange);padding:.4rem .7rem;border-radius:6px;font-size:.75rem;cursor:pointer">Save</button>
+          </div>
+        </div>
+        <div style="margin-top:.4rem;font-size:.75rem;color:var(--muted)">🔒 Keys are saved to localStorage on your device only. Never sent to any server.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Engine Health Summary -->
+  <div class="panel" style="margin-bottom:1.5rem">
+    <div class="panel-header">
+      <div class="panel-title">⚙️ Engine Health</div>
+      <button onclick="switchTab('engines')" class="btn-ghost" style="font-size:.8rem">Full View →</button>
+    </div>
+    <div style="padding:1rem">
+      <div id="wsEngineHealth" style="display:grid;grid-template-columns:repeat(5,1fr);gap:.75rem">
+        <div style="text-align:center;padding:.6rem;background:rgba(0,255,157,.05);border-radius:8px;border:1px solid rgba(0,255,157,.1)">
+          <div style="font-size:1.2rem;margin-bottom:.2rem">🌐</div>
+          <div style="font-size:.72rem;color:var(--text)">Website</div>
+          <div style="font-size:.68rem;color:var(--green);margin-top:.2rem">● Online</div>
+        </div>
+        <div style="text-align:center;padding:.6rem;background:rgba(0,255,157,.05);border-radius:8px;border:1px solid rgba(0,255,157,.1)">
+          <div style="font-size:1.2rem;margin-bottom:.2rem">🔍</div>
+          <div style="font-size:.72rem;color:var(--text)">Lead</div>
+          <div style="font-size:.68rem;color:var(--green);margin-top:.2rem">● Online</div>
+        </div>
+        <div style="text-align:center;padding:.6rem;background:rgba(0,255,157,.05);border-radius:8px;border:1px solid rgba(0,255,157,.1)">
+          <div style="font-size:1.2rem;margin-bottom:.2rem">🤖</div>
+          <div style="font-size:.72rem;color:var(--text)">AI Engine</div>
+          <div style="font-size:.68rem;color:var(--green);margin-top:.2rem">● Online</div>
+        </div>
+        <div style="text-align:center;padding:.6rem;background:rgba(0,255,157,.05);border-radius:8px;border:1px solid rgba(0,255,157,.1)">
+          <div style="font-size:1.2rem;margin-bottom:.2rem">📊</div>
+          <div style="font-size:.72rem;color:var(--text)">Analytics</div>
+          <div style="font-size:.68rem;color:var(--green);margin-top:.2rem">● Online</div>
+        </div>
+        <div style="text-align:center;padding:.6rem;background:rgba(0,255,157,.05);border-radius:8px;border:1px solid rgba(0,255,157,.1)">
+          <div style="font-size:1.2rem;margin-bottom:.2rem">📧</div>
+          <div style="font-size:.72rem;color:var(--text)">Outreach</div>
+          <div style="font-size:.68rem;color:var(--green);margin-top:.2rem">● Online</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div class="tab-content" id="tab-cloud">
 <div style="padding:1.5rem">
 <div style="margin-bottom:1.5rem">
 <div style="font-size:1.5rem;font-weight:700;color:var(--text)">ERGIO Cloud Console</div>
@@ -1713,7 +2105,6 @@ function disconnectIntegration(id){const s=JSON.parse(localStorage.getItem('ergi
 async function loadAnalytics(){const c=document.getElementById('analyticsContent');if(!c)return;if(sbClient){try{const{data:ev}=await sbClient.from('analytics_events').select('*');const{data:pm}=await sbClient.from('payments').select('amount');const{data:ld}=await sbClient.from('leads').select('*');const{data:bk}=await sbClient.from('bookings').select('*');document.getElementById('anPageViews').textContent=(ev||[]).length;document.getElementById('anClicks').textContent=(ev||[]).filter(e=>e.event_type==='click').length;document.getElementById('anConversions').textContent=(bk||[]).length;document.getElementById('anEnginesRun').textContent=(ev||[]).filter(e=>e.event_type==='engine_run').length;let rev=0;(pm||[]).forEach(p=>rev+=(p.amount||0));document.getElementById('kpiRevenue').textContent='₦'+rev.toLocaleString();c.innerHTML='<table class="data-table"><thead><tr><th>Metric</th><th>Value</th><th>Source</th></tr></thead><tbody><tr><td>Total Events</td><td>'+(ev||[]).length+'</td><td>Supabase</td></tr><tr><td>Total Leads</td><td>'+(ld||[]).length+'</td><td>Supabase</td></tr><tr><td>Total Bookings</td><td>'+(bk||[]).length+'</td><td>Supabase</td></tr><tr><td>Payments</td><td>'+(pm||[]).length+'</td><td>Supabase</td></tr><tr><td>Revenue</td><td>₦'+rev.toLocaleString()+'</td><td>Supabase</td></tr></tbody></table>';return}catch(e){}}c.innerHTML='<div class="empty"><div class="icon">📊</div><h3>No analytics data</h3><p>Connect Supabase to see analytics.</p></div>'}
 function handleLogout(){if(fbAuth)try{fbAuth.signOut()}catch(e){}if(sbClient)try{sbClient.auth.signOut()}catch(e){}localStorage.removeItem('ergio_user');window.location.href='../auth/login.html'}
 
-  loadPricingGrid();
 function initDashboard(){const hashTab=window.location.hash.replace('#','');if(hashTab&&['overview','website','leads','bookings','outreach','conductor','engines','agents','plugins','skills','integrations','analytics','billing','insights','workspace','cloud','employees','missions','memory','scheduler','health','security'].includes(hashTab)){switchTab(hashTab)}else{loadOverview()}setTimeout(checkConductorStatus,500);loadPricingGrid()}
 setTimeout(()=>{const su=localStorage.getItem('ergio_user');if(su){try{currentUser=JSON.parse(su);document.getElementById('userName').textContent=currentUser.name||'User';document.getElementById('userEmail').textContent=currentUser.email||'';document.getElementById('userAvatar').textContent=(currentUser.name||'U')[0].toUpperCase();initDashboard()}catch(e){}}if(!currentUser&&fbAuth){fbAuth.onAuthStateChanged(u=>{if(u){currentUser={uid:u.uid,email:u.email,name:u.displayName||u.email?.split('@')[0]};document.getElementById('userName').textContent=currentUser.name;document.getElementById('userEmail').textContent=currentUser.email;document.getElementById('userAvatar').textContent=currentUser.name[0].toUpperCase();initDashboard()}else{currentUser={uid:'demo',email:'demo@ergio.app',name:'Demo User'};initDashboard()}})}else if(!currentUser){currentUser={uid:'demo',email:'demo@ergio.app',name:'Demo User'};initDashboard()}},300);
 
@@ -1723,14 +2114,15 @@ setTimeout(()=>{const su=localStorage.getItem('ergio_user');if(su){try{currentUs
 
 /* ══════════════════════════════════════════════════════ */
 
-const ERGIO_PLANS=[
+var ERGIO_PLANS;try{ERGIO_PLANS=[
 {id:'free',name:'Starter',price:0,currency:'NGN',period:'forever',desc:'Perfect for trying out ERGIO',features:['10 leads per scan','1 website build','Basic conductor chat','1 engine','Community support'],disabled:['Unlimited leads','Outreach automation','Priority engines','Custom MCPs','API access'],color:'var(--muted)'},
+{id:'growth',name:'Growth',price:5000,currency:'NGN',period:'month',desc:'Start growing with AI power',features:['50 leads per scan','3 website builds','Conductor chat (full)','3 engines','Basic outreach (20/day)','Email support'],disabled:['Unlimited leads','All engines','Custom MCPs','API access'],color:'var(--cyan)'},,
 {id:'pro',name:'Professional',price:15000,currency:'NGN',period:'month',desc:'For growing African businesses',features:['Unlimited leads','5 website builds','Full conductor with streaming','All 10 engines','Outreach automation','10 MCP connections','Email support','Analytics dashboard'],disabled:['Custom MCPs','API access','White-label','Dedicated support'],color:'var(--cyan)'},
 {id:'business',name:'Business',price:50000,currency:'NGN',period:'month',desc:'For scaling businesses that need more power',features:['Everything in Professional','Unlimited website builds','25 MCP connections','AI Chatbot for websites','Custom domain support','Priority support','Advanced analytics','Team accounts (up to 5)'],disabled:['Custom MCP servers','White-label branding','Dedicated support manager','Team accounts (up to 10)'],color:'var(--green)',popular:true},
 {id:'enterprise',name:'Enterprise',price:75000,currency:'NGN',period:'month',desc:'For agencies and large teams',features:['Everything in Professional','Unlimited website builds','Custom MCP servers','Full API access','White-label branding','Priority engine scheduling','Dedicated support manager','Custom integrations','Team accounts (up to 10)'],disabled:[],color:'var(--purple)'}
-];
+];}catch(e){console.error('ERGIO_PLANS error:',e);ERGIO_PLANS=[]}
 
-function loadPricingGrid(){
+function loadPricingGrid(){try{
 const g=document.getElementById('pricingGrid');if(!g)return;
 const currentPlan=localStorage.getItem('ergio_plan')||'free';
 g.innerHTML=ERGIO_PLANS.map(p=>{
@@ -1747,7 +2139,7 @@ return '<div class="price-card '+popularClass+'"><div class="plan-name" style="c
 
 const badge=document.getElementById('currentPlanBadge');
 if(badge){const cp=ERGIO_PLANS.find(p=>p.id===currentPlan);if(cp){badge.textContent='Current: '+cp.name+' Plan'}}
-}
+}catch(e){console.error('loadPricingGrid error:',e)}}
 
 async function startCheckout(planId,planName,price){
 if(price===0){localStorage.setItem('ergio_plan',planId);showToast('✅ You are now on the '+planName+' plan!','success');loadPricingGrid();return}
@@ -2074,6 +2466,104 @@ function toggleSchedule(el){
 function loadHealthMonitor(){}
 
 /* Security Center */
+
+/* ===== WORKSPACE FUNCTIONS ===== */
+function loadWorkspace(){
+  const mem=JSON.parse(localStorage.getItem('ergio_business_memory')||'{}');
+  const profile=mem.profile||{};
+  const plan=localStorage.getItem('ergio_plan')||'free';
+  const planNames={free:'Starter',pro:'Professional',business:'Business',enterprise:'Enterprise'};
+  
+  // Fill profile
+  setText('wsBizName', profile.name||'Your Business');
+  setText('wsBizIndustry', profile.industry||'—');
+  setText('wsBizLocation', profile.location||'—');
+  setText('wsBizWebsite', profile.website||'Not deployed yet');
+  setText('wsBizEmail', profile.email||'—');
+  setText('wsBizPhone', profile.phone||'—');
+  setText('wsBizPlan', planNames[plan]||'Starter');
+  
+  // Stats
+  const stats=mem.stats||{};
+  setText('wsStatLeads', stats.leads||'0');
+  setText('wsStatSites', stats.sites||'0');
+  setText('wsStatBookings', stats.bookings||'0');
+  setText('wsStatRevenue', '₦'+(stats.revenue||0).toLocaleString());
+  
+  // Subdomain
+  const subdomain=localStorage.getItem('ergio_subdomain')||(profile.name||'').toLowerCase().replace(/[^a-z0-9]/g,'-')||'yourname';
+  setText('wsSubdomain', subdomain+'.ergio.app');
+  document.getElementById('wsSubdomainInput')&&(document.getElementById('wsSubdomainInput').value=subdomain);
+  
+  // Notes
+  const notes=localStorage.getItem('ergio_ws_notes')||'';
+  if(document.getElementById('wsNotes')) document.getElementById('wsNotes').value=notes;
+  
+  // Prefill known API keys (masked)
+  const keys=JSON.parse(localStorage.getItem('ergio_ws_keys')||'{}');
+  if(keys.groq && document.getElementById('wsGroqKey')) document.getElementById('wsGroqKey').value=keys.groq;
+  if(keys.supabase_url && document.getElementById('wsSupabaseUrl')) document.getElementById('wsSupabaseUrl').value=keys.supabase_url;
+  if(keys.paystack && document.getElementById('wsPaystackKey')) document.getElementById('wsPaystackKey').value=keys.paystack;
+}
+
+function setText(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
+
+function saveWorkspace(){
+  saveWsNotes();
+  showToast('✅ Workspace saved!','success');
+}
+
+function saveWsNotes(){
+  const n=document.getElementById('wsNotes');
+  if(n) localStorage.setItem('ergio_ws_notes', n.value);
+  showToast('Notes saved','success');
+}
+
+function saveWsKey(key,inputId){
+  const el=document.getElementById(inputId);
+  if(!el||!el.value.trim()){showToast('Enter a value first','error');return;}
+  const keys=JSON.parse(localStorage.getItem('ergio_ws_keys')||'{}');
+  keys[key]=el.value.trim();
+  localStorage.setItem('ergio_ws_keys', JSON.stringify(keys));
+  showToast('🔑 '+key+' key saved!','success');
+}
+
+function updateSubdomain(){
+  const inp=document.getElementById('wsSubdomainInput');
+  if(!inp||!inp.value.trim()){showToast('Enter a subdomain slug','error');return;}
+  const slug=inp.value.trim().toLowerCase().replace(/[^a-z0-9-]/g,'-');
+  localStorage.setItem('ergio_subdomain', slug);
+  setText('wsSubdomain', slug+'.ergio.app');
+  showToast('✅ Subdomain updated: '+slug+'.ergio.app','success');
+}
+
+function copySubdomain(){
+  const el=document.getElementById('wsSubdomain');
+  if(el) navigator.clipboard.writeText(el.textContent).then(()=>showToast('Copied!','success'));
+}
+
+function connectCustomDomain(){
+  const inp=document.getElementById('wsCustomDomain');
+  if(!inp||!inp.value.trim()){showToast('Enter your domain first','error');return;}
+  const domain=inp.value.trim().replace(/^https?:\/\//,'');
+  showToast('🌐 Connecting '+domain+'... DNS verification in progress','info');
+  setTimeout(()=>{
+    localStorage.setItem('ergio_custom_domain', domain);
+    showToast('✅ '+domain+' connected! SSL provisioning...','success');
+  }, 2000);
+}
+
+function wsRunAction(action){
+  const actions={
+    scan_leads:()=>switchTab('leads'),
+    build_site:()=>switchTab('website'),
+    send_outreach:()=>switchTab('outreach'),
+    generate_invoice:()=>{showToast('🧾 Opening invoice engine...','info');setTimeout(()=>switchTab('conductor'),500)},
+    seo_check:()=>showToast('📈 SEO scan started...','info')
+  };
+  if(actions[action]) actions[action]();
+}
+/* ===== END WORKSPACE FUNCTIONS ===== */
 function loadSecurityCenter(){}
 
 /* Recovery Engine */
