@@ -306,6 +306,77 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .onboard-mini-icon{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:1.1rem}
 .onboard-mini-text{font-size:.8rem;color:#8b949e}
 .onboard-mini-text strong{color:#fff;font-size:.85rem;display:block}
+
+/* ── PROFILE PAGE ─────────────────────────────────────── */
+.profile-wrap{max-width:900px;margin:0 auto;padding-bottom:4rem}
+.profile-cover{position:relative;height:220px;border-radius:20px;overflow:hidden;background:linear-gradient(135deg,#0d1117 0%,#161b22 40%,#0d1117 100%);margin-bottom:0;cursor:pointer}
+.profile-cover img{width:100%;height:100%;object-fit:cover}
+.profile-cover-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.7) 100%)}
+.profile-cover-edit{position:absolute;top:.8rem;right:.8rem;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);color:#fff;padding:.4rem .9rem;border-radius:10px;font-size:.75rem;cursor:pointer;display:flex;align-items:center;gap:.4rem;transition:all .2s}
+.profile-cover-edit:hover{background:rgba(255,255,255,.1);border-color:var(--cyan)}
+.profile-cover-gradient{position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,255,157,.15) 0%,rgba(168,85,247,.15) 50%,rgba(59,130,246,.15) 100%);animation:gradientShift 6s ease infinite alternate}
+@keyframes gradientShift{from{opacity:.6}to{opacity:1}}
+.profile-avatar-wrap{position:relative;margin:-56px 0 0 2rem;display:inline-block;z-index:10}
+.profile-avatar{width:112px;height:112px;border-radius:50%;border:4px solid #0b0e14;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:2.5rem;font-weight:700;color:#fff;overflow:hidden;cursor:pointer;position:relative;transition:transform .2s}
+.profile-avatar:hover .profile-avatar-hover{opacity:1}
+.profile-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.profile-avatar-hover{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;border-radius:50%;opacity:0;transition:opacity .2s;font-size:.7rem;color:#fff;flex-direction:column;gap:.2rem}
+.profile-avatar-ring{position:absolute;inset:-3px;border-radius:50%;border:2px solid transparent;background:linear-gradient(#0b0e14,#0b0e14) padding-box,linear-gradient(135deg,var(--cyan),var(--purple)) border-box}
+.profile-header-row{display:flex;justify-content:space-between;align-items:flex-start;padding:.6rem 0 1.2rem 0;flex-wrap:wrap;gap:.8rem}
+.profile-info-main{flex:1;min-width:200px}
+.profile-name{font-size:1.5rem;font-weight:700;color:#fff;line-height:1.2}
+.profile-username{font-size:.85rem;color:var(--cyan);margin:.15rem 0}
+.profile-business{font-size:.8rem;color:var(--muted);margin:.1rem 0}
+.profile-role{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .7rem;border-radius:20px;background:rgba(0,255,157,.08);border:1px solid rgba(0,255,157,.2);font-size:.72rem;color:var(--green);margin:.3rem 0}
+.profile-verified{display:inline-flex;align-items:center;gap:.3rem;color:var(--cyan);font-size:.72rem;margin-left:.4rem}
+.profile-actions{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+.profile-edit-btn{background:linear-gradient(135deg,var(--cyan),var(--blue));color:#fff;border:none;padding:.55rem 1.2rem;border-radius:10px;font-weight:600;font-size:.82rem;cursor:pointer;display:flex;align-items:center;gap:.4rem;transition:all .2s}
+.profile-edit-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,255,157,.25)}
+.profile-share-btn{background:transparent;color:var(--muted);border:1px solid var(--border);padding:.55rem 1.2rem;border-radius:10px;font-size:.82rem;cursor:pointer;display:flex;align-items:center;gap:.4rem;transition:all .2s}
+.profile-share-btn:hover{color:#fff;border-color:var(--cyan)}
+.profile-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:1.5rem;overflow-x:auto}
+.profile-tab{padding:.65rem 1.2rem;font-size:.82rem;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s;font-weight:500}
+.profile-tab.active{color:#fff;border-bottom-color:var(--cyan)}
+.profile-tab:hover{color:#fff}
+.profile-section{display:none}
+.profile-section.active{display:block;animation:fadeIn .3s}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:600px){.profile-grid{grid-template-columns:1fr}}
+.profile-field{display:flex;flex-direction:column;gap:.4rem}
+.profile-field.full{grid-column:1/-1}
+.profile-label{font-size:.72rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.profile-input{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:.65rem .9rem;color:#fff;font-size:.88rem;width:100%;outline:none;transition:border-color .2s;font-family:inherit}
+.profile-input:focus{border-color:var(--cyan)}
+.profile-input::placeholder{color:var(--muted2)}
+.profile-textarea{resize:vertical;min-height:90px}
+.profile-social-row{display:flex;align-items:center;gap:.6rem;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:.5rem .8rem}
+.profile-social-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+.profile-social-input{background:none;border:none;color:#fff;font-size:.85rem;width:100%;outline:none}
+.profile-social-input::placeholder{color:var(--muted2)}
+.profile-save-bar{position:sticky;bottom:0;background:rgba(11,14,20,.9);backdrop-filter:blur(12px);border-top:1px solid var(--border);padding:1rem 0;display:flex;justify-content:flex-end;gap:.6rem;margin-top:1.5rem}
+.photo-drop-zone{border:2px dashed var(--border);border-radius:14px;padding:2rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg2)}
+.photo-drop-zone:hover,.photo-drop-zone.drag-over{border-color:var(--cyan);background:rgba(0,255,157,.04)}
+.photo-drop-zone-icon{font-size:2.5rem;margin-bottom:.6rem}
+.photo-drop-zone-text{font-size:.85rem;color:var(--muted);line-height:1.5}
+.photo-crop-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:9000;display:none;align-items:center;justify-content:center}
+.photo-crop-modal.open{display:flex}
+.photo-crop-box{background:#0d1117;border:1px solid var(--border);border-radius:20px;padding:1.5rem;max-width:500px;width:90%}
+.photo-crop-preview{width:200px;height:200px;border-radius:50%;overflow:hidden;margin:0 auto 1rem;border:3px solid var(--cyan);background:#000}
+.photo-crop-preview img{width:100%;height:100%;object-fit:cover;transform-origin:center}
+.crop-controls{display:flex;gap:.6rem;align-items:center;justify-content:center;margin:.8rem 0}
+.crop-slider{width:160px;accent-color:var(--cyan)}
+.pref-row{display:flex;justify-content:space-between;align-items:center;padding:.9rem 0;border-bottom:1px solid var(--border)}
+.pref-row:last-child{border-bottom:none}
+.pref-label{font-weight:600;color:#fff;font-size:.88rem}
+.pref-sub{font-size:.75rem;color:var(--muted);margin-top:.15rem}
+.pref-toggle{width:44px;height:24px;border-radius:12px;background:var(--border);position:relative;cursor:pointer;transition:background .2s;border:none;flex-shrink:0}
+.pref-toggle.on{background:var(--cyan)}
+.pref-toggle::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.pref-toggle.on::after{left:23px}
+.pref-select{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:.4rem .8rem;color:#fff;font-size:.82rem;outline:none;cursor:pointer}
+.security-item{display:flex;justify-content:space-between;align-items:center;padding:1rem;background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:.8rem}
+.security-item-left{display:flex;align-items:center;gap:.8rem}
+.security-item-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
 </style>
 </head>
 <body>
@@ -380,6 +451,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
     <div class="nav-item" data-tab="integrations" onclick="switchTab('integrations')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg><span>Integrations</span></div>
     <div class="nav-item" data-tab="analytics" onclick="switchTab('analytics')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg><span>Analytics</span></div>
     <div class="nav-item" data-tab="billing" onclick="switchTab('billing')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg><span>Billing & Plans</span></div>
+    <div class="nav-item" data-tab="profile" onclick="switchTab('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></div>
     <div class="nav-item" data-tab="insights" onclick="switchTab('insights')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg><span>AI Insights</span></div>
     <div style="border-top:1px solid var(--border);margin:.3rem 0"></div>
     <div class="nav-item" data-tab="workspace" onclick="switchTab('workspace')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg><span>Workspace</span></div>
@@ -393,7 +465,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
     <div class="nav-item" data-tab="security" onclick="switchTab('security')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Security Center</span></div>
 
   </div>
-  <div class="sidebar-footer"><div class="user-badge" onclick="handleLogout()"><div class="user-avatar" id="userAvatar">E</div><div class="user-info"><div class="user-name" id="userName">Demo User</div><div class="user-email" id="userEmail">demo@ergio.app</div></div></div></div>
+  <div class="sidebar-footer"><div class="user-badge" onclick="switchTab('profile')" title="Open Profile"><div class="user-avatar" id="userAvatar" style="position:relative"><span id="userAvatarText">E</span><img id="userAvatarImg" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;inset:0"/></div><div class="user-info"><div class="user-name" id="userName">Demo User</div><div class="user-email" id="userEmail">demo@ergio.app</div></div><div style="margin-left:auto;opacity:.4;font-size:.8rem">›</div></div></div>
 </div>
 <div class="main">
   <div class="topbar"><div><h1 id="pageTitle">Overview</h1></div><div class="topbar-right"><span id="engineStatusBadge" style="font-size:.72rem;padding:.25rem .6rem;border-radius:8px;background:rgba(255,255,255,.04);color:var(--muted)">Checking...</span><button class="btn btn-ghost btn-sm" onclick="window.open('../index.html','_blank')">View Site</button><button class="btn btn-primary btn-sm" onclick="switchTab('conductor')">Conductor</button></div></div>
@@ -925,8 +997,346 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 <div class="panel"><div class="panel-header"><div class="panel-title">Audit Log</div><span class="badge badge-cyan">Last 7 Days</span></div><div style="padding:1rem"><div class="audit-row"><div class="audit-icon" style="background:rgba(0,255,157,.1);color:var(--green)">OK</div><div><div style="color:var(--text);font-size:.8rem;font-weight:500">Website deployed successfully</div><div style="color:var(--muted);font-size:.7rem">2 hours ago</div></div></div><div class="audit-row"><div class="audit-icon" style="background:rgba(0,240,255,.1);color:var(--cyan)">AI</div><div><div style="color:var(--text);font-size:.8rem;font-weight:500">Conductor executed lead scan</div><div style="color:var(--muted);font-size:.7rem">5 hours ago</div></div></div><div class="audit-row"><div class="audit-icon" style="background:rgba(139,92,246,.1);color:var(--purple)">UP</div><div><div style="color:var(--text);font-size:.8rem;font-weight:500">Security settings updated</div><div style="color:var(--muted);font-size:.7rem">1 day ago</div></div></div><div class="audit-row"><div class="audit-icon" style="background:rgba(255,159,28,.1);color:var(--orange)">BK</div><div><div style="color:var(--text);font-size:.8rem;font-weight:500">Automatic backup completed</div><div style="color:var(--muted);font-size:.7rem">2 days ago</div></div></div><div class="audit-row"><div class="audit-icon" style="background:rgba(255,0,110,.1);color:var(--pink)">!</div><div><div style="color:var(--text);font-size:.8rem;font-weight:500">API rate limit warning</div><div style="color:var(--muted);font-size:.7rem">3 days ago</div></div></div></div></div>
 </div>
 <div class="panel"><div class="panel-header"><div class="panel-title">Disaster Recovery</div><span class="badge badge-green">Ready</span></div><div style="padding:1rem"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem"><div style="text-align:center;padding:1rem;background:rgba(0,255,157,.05);border-radius:.75rem;border:1px solid rgba(0,255,157,.15)"><div style="font-size:1.5rem;font-weight:700;color:var(--green)">Daily</div><div style="font-size:.75rem;color:var(--muted)">Backup Frequency</div></div><div style="text-align:center;padding:1rem;background:rgba(0,240,255,.05);border-radius:.75rem;border:1px solid rgba(0,240,255,.15)"><div style="font-size:1.5rem;font-weight:700;color:var(--cyan)">30 days</div><div style="font-size:.75rem;color:var(--muted)">Retention</div></div><div style="text-align:center;padding:1rem;background:rgba(139,92,246,.05);border-radius:.75rem;border:1px solid rgba(139,92,246,.15)"><div style="font-size:1.5rem;font-weight:700;color:var(--purple)">5 min</div><div style="font-size:.75rem;color:var(--muted)">Recovery Time</div></div></div><div style="margin-top:.75rem;padding:.75rem;background:rgba(0,240,255,.05);border-radius:.5rem;font-size:.75rem;color:var(--muted)">Recovery Engine: If ERGIO stops during work, checkpoints are saved and work resumes from the last completed step. Never restarts an entire workflow unnecessarily.</div></div></div>
-</div></div>
 
+<div class="tab-content" id="tab-profile">
+  <div class="profile-wrap">
+
+    <!-- Cover Photo -->
+    <div class="profile-cover" id="profileCoverWrap">
+      <div class="profile-cover-gradient"></div>
+      <img id="profileCoverImg" src="" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover"/>
+      <div class="profile-cover-overlay"></div>
+      <button class="profile-cover-edit" onclick="triggerCoverUpload()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Change Cover
+      </button>
+      <input type="file" id="coverUpload" accept="image/*" style="display:none" onchange="handleCoverUpload(event)"/>
+    </div>
+
+    <!-- Avatar row -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;padding:0 0 0 0">
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar" id="profileAvatarCircle" onclick="openAvatarCrop()">
+          <span id="profileAvatarInitial">E</span>
+          <img id="profileAvatarImg" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;inset:0"/>
+          <div class="profile-avatar-hover">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            <span style="font-size:.6rem">Change</span>
+          </div>
+        </div>
+        <div class="profile-avatar-ring"></div>
+      </div>
+      <div class="profile-actions" style="padding:1rem 0 0 0">
+        <button class="profile-edit-btn" onclick="saveProfile()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save Profile
+        </button>
+        <button class="profile-share-btn" onclick="shareProfile()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share
+        </button>
+      </div>
+    </div>
+
+    <!-- Name block -->
+    <div class="profile-header-row">
+      <div class="profile-info-main">
+        <div class="profile-name" id="profileDisplayName">Demo User</div>
+        <div class="profile-username" id="profileDisplayUsername">@ergiouser</div>
+        <div class="profile-business" id="profileDisplayBusiness">EROGIAN Studio</div>
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:.4rem;margin-top:.3rem">
+          <span class="profile-role" id="profileDisplayRole">Founder</span>
+          <span class="profile-verified" id="profileVerifiedBadge" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--cyan)"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+            Verified
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Tabs -->
+    <div class="profile-tabs">
+      <div class="profile-tab active" data-ptab="info" onclick="switchProfileTab('info')">Personal Info</div>
+      <div class="profile-tab" data-ptab="photo" onclick="switchProfileTab('photo')">Profile Photo</div>
+      <div class="profile-tab" data-ptab="social" onclick="switchProfileTab('social')">Social Links</div>
+      <div class="profile-tab" data-ptab="prefs" onclick="switchProfileTab('prefs')">Preferences</div>
+      <div class="profile-tab" data-ptab="security" onclick="switchProfileTab('security')">Security</div>
+    </div>
+
+    <!-- SECTION: Personal Info -->
+    <div class="profile-section active" id="psec-info">
+      <div class="profile-grid">
+        <div class="profile-field">
+          <label class="profile-label">Full Name</label>
+          <input class="profile-input" id="pf-name" placeholder="Emmanuel Erog" oninput="updateProfilePreview()"/>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label">Username</label>
+          <input class="profile-input" id="pf-username" placeholder="@ergiouser" oninput="updateProfilePreview()"/>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label">Email Address</label>
+          <input class="profile-input" id="pf-email" type="email" placeholder="you@example.com"/>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label">Phone Number</label>
+          <input class="profile-input" id="pf-phone" type="tel" placeholder="+234 800 000 0000"/>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label">Country</label>
+          <select class="profile-input profile-select" id="pf-country">
+            <option value="">Select country...</option>
+            <option value="NG" selected>Nigeria</option>
+            <option value="GH">Ghana</option>
+            <option value="KE">Kenya</option>
+            <option value="ZA">South Africa</option>
+            <option value="ET">Ethiopia</option>
+            <option value="EG">Egypt</option>
+            <option value="TZ">Tanzania</option>
+            <option value="UG">Uganda</option>
+            <option value="SN">Senegal</option>
+            <option value="CI">Côte d'Ivoire</option>
+            <option value="GB">United Kingdom</option>
+            <option value="US">United States</option>
+            <option value="CA">Canada</option>
+            <option value="OTHER">Other</option>
+          </select>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label">State / City</label>
+          <input class="profile-input" id="pf-city" placeholder="Enugu, Nigeria"/>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label">Occupation / Role</label>
+          <select class="profile-input" id="pf-role" oninput="updateProfilePreview()">
+            <option value="Founder">Founder</option>
+            <option value="Designer">Designer</option>
+            <option value="Developer">Developer</option>
+            <option value="Marketer">Marketer</option>
+            <option value="Consultant">Consultant</option>
+            <option value="Freelancer">Freelancer</option>
+            <option value="Product Manager">Product Manager</option>
+            <option value="Creative Director">Creative Director</option>
+            <option value="CEO">CEO</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label">Company / Business Name</label>
+          <input class="profile-input" id="pf-company" placeholder="EROGIAN Studio" oninput="updateProfilePreview()"/>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label">Website</label>
+          <input class="profile-input" id="pf-website" type="url" placeholder="https://yourbusiness.com"/>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label" style="display:flex;align-items:center;gap:.4rem">
+            Verified Account
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--cyan)"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+          </label>
+          <div style="display:flex;align-items:center;gap:.8rem;padding:.5rem .9rem;background:var(--bg2);border:1px solid var(--border);border-radius:10px">
+            <button class="pref-toggle" id="pf-verified-toggle" onclick="toggleVerified()"></button>
+            <span id="pf-verified-text" style="font-size:.82rem;color:var(--muted)">Not verified</span>
+          </div>
+        </div>
+        <div class="profile-field full">
+          <label class="profile-label">Bio (About Me)</label>
+          <textarea class="profile-input profile-textarea" id="pf-bio" placeholder="Tell the world what you're building..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: Profile Photo -->
+    <div class="profile-section" id="psec-photo">
+      <div style="max-width:480px;margin:0 auto">
+        <div class="photo-drop-zone" id="photoDropZone" onclick="triggerAvatarUpload()" ondragover="e=>{e.preventDefault();this.classList.add('drag-over')}" ondragleave="document.getElementById('photoDropZone').classList.remove('drag-over')" ondrop="handleAvatarDrop(event)">
+          <div class="photo-drop-zone-icon">📸</div>
+          <div class="photo-drop-zone-text"><strong style="color:#fff">Click to upload</strong> or drag & drop your photo<br><span style="font-size:.75rem">PNG, JPG, WEBP up to 5MB</span></div>
+        </div>
+        <input type="file" id="avatarUpload" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)"/>
+        <div style="margin-top:1rem;display:flex;gap:.6rem;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="triggerAvatarUpload()">📁 Upload photo</button>
+          <button class="btn btn-ghost btn-sm" onclick="removeAvatar()">🗑️ Remove photo</button>
+        </div>
+        <div id="cropModal" class="photo-crop-modal">
+          <div class="photo-crop-box">
+            <div style="font-weight:600;color:#fff;margin-bottom:1rem;font-size:1rem">Crop Profile Photo</div>
+            <div class="photo-crop-preview"><img id="cropPreviewImg" src="" alt=""/></div>
+            <div class="crop-controls">
+              <span style="font-size:.75rem;color:var(--muted)">🔍</span>
+              <input type="range" class="crop-slider" id="cropZoom" min="50" max="200" value="100" oninput="updateCropZoom(this.value)"/>
+              <span style="font-size:.75rem;color:var(--muted)">🔎</span>
+            </div>
+            <div style="display:flex;gap:.6rem;justify-content:flex-end;margin-top:1rem">
+              <button class="btn btn-ghost btn-sm" onclick="closeCropModal()">Cancel</button>
+              <button class="btn btn-primary btn-sm" onclick="applyCrop()">Apply & Save</button>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:1.5rem;padding:1rem;background:var(--bg2);border:1px solid var(--border);border-radius:12px">
+          <div style="font-size:.78rem;color:var(--muted);margin-bottom:.5rem">Preview</div>
+          <div style="display:flex;align-items:center;gap:1rem">
+            <div style="width:64px;height:64px;border-radius:50%;overflow:hidden;border:2px solid var(--cyan);background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.3rem;color:#fff;flex-shrink:0" id="photoPreviewCircle"><span id="photoPreviewInitial">E</span><img id="photoPreviewImg" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%"/></div>
+            <div>
+              <div style="font-weight:600;color:#fff" id="photoPreviewName">Demo User</div>
+              <div style="font-size:.78rem;color:var(--muted)" id="photoPreviewRole">Founder · EROGIAN Studio</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: Social Links -->
+    <div class="profile-section" id="psec-social">
+      <div style="display:flex;flex-direction:column;gap:.7rem">
+        <div class="profile-social-row">
+          <div class="profile-social-icon" style="background:rgba(0,0,0,.4)">🐦</div>
+          <span style="font-size:.78rem;color:var(--muted);min-width:70px">X (Twitter)</span>
+          <input class="profile-social-input" id="pf-twitter" placeholder="https://x.com/username"/>
+        </div>
+        <div class="profile-social-row">
+          <div class="profile-social-icon" style="background:rgba(10,102,194,.2)">💼</div>
+          <span style="font-size:.78rem;color:var(--muted);min-width:70px">LinkedIn</span>
+          <input class="profile-social-input" id="pf-linkedin" placeholder="https://linkedin.com/in/username"/>
+        </div>
+        <div class="profile-social-row">
+          <div class="profile-social-icon" style="background:rgba(225,48,108,.2)">📸</div>
+          <span style="font-size:.78rem;color:var(--muted);min-width:70px">Instagram</span>
+          <input class="profile-social-input" id="pf-instagram" placeholder="https://instagram.com/username"/>
+        </div>
+        <div class="profile-social-row">
+          <div class="profile-social-icon" style="background:rgba(24,119,242,.2)">📘</div>
+          <span style="font-size:.78rem;color:var(--muted);min-width:70px">Facebook</span>
+          <input class="profile-social-input" id="pf-facebook" placeholder="https://facebook.com/username"/>
+        </div>
+        <div class="profile-social-row">
+          <div class="profile-social-icon" style="background:rgba(0,0,0,.4)">🎵</div>
+          <span style="font-size:.78rem;color:var(--muted);min-width:70px">TikTok</span>
+          <input class="profile-social-input" id="pf-tiktok" placeholder="https://tiktok.com/@username"/>
+        </div>
+        <div class="profile-social-row">
+          <div class="profile-social-icon" style="background:rgba(255,0,0,.15)">▶️</div>
+          <span style="font-size:.78rem;color:var(--muted);min-width:70px">YouTube</span>
+          <input class="profile-social-input" id="pf-youtube" placeholder="https://youtube.com/@channel"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: Preferences -->
+    <div class="profile-section" id="psec-prefs">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:0 1.2rem">
+        <div class="pref-row">
+          <div><div class="pref-label">Dark Mode</div><div class="pref-sub">Toggle dark/light interface theme</div></div>
+          <button class="pref-toggle on" id="pref-darkmode" onclick="togglePref(this,'darkmode')"></button>
+        </div>
+        <div class="pref-row">
+          <div><div class="pref-label">Language</div><div class="pref-sub">Display language</div></div>
+          <select class="pref-select" id="pref-lang" onchange="savePref('lang',this.value)">
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="sw">Swahili</option>
+            <option value="yo">Yoruba</option>
+            <option value="ha">Hausa</option>
+            <option value="ig">Igbo</option>
+            <option value="pt">Português</option>
+          </select>
+        </div>
+        <div class="pref-row">
+          <div><div class="pref-label">Timezone</div><div class="pref-sub">Used for scheduling and analytics</div></div>
+          <select class="pref-select" id="pref-tz" onchange="savePref('tz',this.value)">
+            <option value="Africa/Lagos" selected>Lagos (WAT, UTC+1)</option>
+            <option value="Africa/Accra">Accra (GMT, UTC+0)</option>
+            <option value="Africa/Nairobi">Nairobi (EAT, UTC+3)</option>
+            <option value="Africa/Cairo">Cairo (EET, UTC+2)</option>
+            <option value="Africa/Johannesburg">Johannesburg (SAST, UTC+2)</option>
+            <option value="Europe/London">London (GMT/BST)</option>
+            <option value="America/New_York">New York (ET)</option>
+            <option value="America/Los_Angeles">Los Angeles (PT)</option>
+          </select>
+        </div>
+        <div class="pref-row">
+          <div><div class="pref-label">Email Notifications</div><div class="pref-sub">Receive updates and reports by email</div></div>
+          <button class="pref-toggle on" id="pref-emailnotif" onclick="togglePref(this,'emailnotif')"></button>
+        </div>
+        <div class="pref-row">
+          <div><div class="pref-label">Push Notifications</div><div class="pref-sub">In-app alerts for engine activity</div></div>
+          <button class="pref-toggle" id="pref-pushnotif" onclick="togglePref(this,'pushnotif')"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: Security -->
+    <div class="profile-section" id="psec-security">
+      <div class="security-item">
+        <div class="security-item-left">
+          <div class="security-item-icon" style="background:rgba(0,255,157,.1)">🔑</div>
+          <div>
+            <div style="font-weight:600;color:#fff;font-size:.88rem">Password</div>
+            <div style="font-size:.75rem;color:var(--muted)">Last changed: Set up account</div>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="showChangePassword()">Change</button>
+      </div>
+      <div class="security-item">
+        <div class="security-item-left">
+          <div class="security-item-icon" style="background:rgba(59,130,246,.1)">📱</div>
+          <div>
+            <div style="font-weight:600;color:#fff;font-size:.88rem">Two-Factor Authentication</div>
+            <div style="font-size:.75rem;color:var(--muted)">Add an extra layer of security</div>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="showToast('2FA setup coming soon','info')">Enable</button>
+      </div>
+      <div class="security-item">
+        <div class="security-item-left">
+          <div class="security-item-icon" style="background:rgba(168,85,247,.1)">📋</div>
+          <div>
+            <div style="font-weight:600;color:#fff;font-size:.88rem">Active Sessions</div>
+            <div style="font-size:.75rem;color:var(--muted)">Current browser session active</div>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="showToast('Session management coming soon','info')">Manage</button>
+      </div>
+      <div class="security-item">
+        <div class="security-item-left">
+          <div class="security-item-icon" style="background:rgba(245,158,11,.1)">🗃️</div>
+          <div>
+            <div style="font-weight:600;color:#fff;font-size:.88rem">Export My Data</div>
+            <div style="font-size:.75rem;color:var(--muted)">Download all your ERGIO data</div>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="exportProfileData()">Export</button>
+      </div>
+      <div class="security-item" style="border-color:rgba(248,81,73,.2)">
+        <div class="security-item-left">
+          <div class="security-item-icon" style="background:rgba(248,81,73,.1)">⚠️</div>
+          <div>
+            <div style="font-weight:600;color:#f85149;font-size:.88rem">Delete Account</div>
+            <div style="font-size:.75rem;color:var(--muted)">Permanently remove your ERGIO account</div>
+          </div>
+        </div>
+        <button class="btn btn-sm" style="background:rgba(248,81,73,.1);color:#f85149;border:1px solid rgba(248,81,73,.3)" onclick="confirmDeleteAccount()">Delete</button>
+      </div>
+      <!-- Change Password Panel -->
+      <div id="changePasswordPanel" style="display:none;margin-top:1.5rem;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:1.5rem">
+        <div style="font-weight:600;color:#fff;margin-bottom:1rem">Change Password</div>
+        <div class="profile-grid">
+          <div class="profile-field full"><label class="profile-label">Current Password</label><input class="profile-input" type="password" id="sec-curr-pw" placeholder="••••••••"/></div>
+          <div class="profile-field"><label class="profile-label">New Password</label><input class="profile-input" type="password" id="sec-new-pw" placeholder="Min 8 characters"/></div>
+          <div class="profile-field"><label class="profile-label">Confirm Password</label><input class="profile-input" type="password" id="sec-conf-pw" placeholder="Repeat new password"/></div>
+        </div>
+        <div style="display:flex;gap:.6rem;justify-content:flex-end;margin-top:1rem">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('changePasswordPanel').style.display='none'">Cancel</button>
+          <button class="btn btn-primary btn-sm" onclick="changePassword()">Update Password</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /profile-wrap -->
+</div><!-- /tab-profile -->
+
+</div>
+</div>
 </div>
 </div>
 <script>
@@ -943,7 +1353,7 @@ const ENGINES=window.ErgioEngines||null;let currentUser=null,fbAuth=null,sbClien
 try{const F=window.ERGIO_CONFIG?.firebase||{};if(F.apiKey){firebase.initializeApp(F);fbAuth=firebase.auth()}}catch(e){console.log('Firebase:',e.message)}
 try{const U=window.ERGIO_CONFIG?.supabaseUrl,K=window.ERGIO_CONFIG?.supabaseAnonKey;if(U&&K)sbClient=supabase.createClient(U,K)}catch(e){console.log('Supabase:',e.message)}
 function showToast(m,t='info'){const e=document.createElement('div');e.className='toast '+t;e.textContent=m;document.body.appendChild(e);setTimeout(()=>e.remove(),3000)}
-function switchTab(t){document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));const e=document.getElementById('tab-'+t);if(e)e.classList.add('active');if(t==='workspace')loadWorkspace();if(t==='billing')loadPricingGrid();document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));document.querySelector('[data-tab="'+t+'"]')?.classList.add('active');const titles={overview:'Overview',website:'Website Builder',leads:'Leads CRM',bookings:'Bookings',outreach:'Outreach',conductor:'Conductor Agent',engines:'Engines',agents:'Agent Frameworks',plugins:'MCP and Plugins',skills:'Skills Marketplace',integrations:'Integrations',analytics:'Analytics',billing:'Billing & Plans',insights:'AI Insights',workspace:'Workspace',cloud:'Cloud Console',employees:'AI Employees',missions:'Missions',memory:'Business Memory',scheduler:'Scheduler',health:'Health Monitor',security:'Security Center'};document.getElementById('pageTitle').textContent=titles[t]||t;if(t==='overview')handlePaystackCallback();loadOverview();if(t==='leads')loadLeadsSupabase();if(t==='bookings')loadBookings();if(t==='engines')loadEngineStatus();if(t==='plugins'){loadMCPGrid();loadPluginsGrid()}if(t==='skills')loadSkillsGrid();if(t==='agents')loadAgentFrameworks();if(t==='integrations')loadIntegrations();if(t==='analytics')loadAnalytics();if(t==='conductor')handlePaystackCallback();checkConductorStatus();initOnboarding();if(t==='billing'){loadPricingGrid();loadPaymentHistory()}if(t==='cloud')loadCloudConsole();if(t==='employees')loadEmployees();if(t==='missions')loadMissions();if(t==='memory')loadBusinessMemory();if(t==='scheduler')loadScheduler();if(t==='health')loadHealthMonitor();if(t==='security')loadSecurityCenter();if(t==='insights'){/* lazy load */}}
+function switchTab(t){document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));const e=document.getElementById('tab-'+t);if(e)e.classList.add('active');if(t==='workspace')loadWorkspace();if(t==='billing')loadPricingGrid();document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));document.querySelector('[data-tab="'+t+'"]')?.classList.add('active');const titles={overview:'Overview',website:'Website Builder',leads:'Leads CRM',bookings:'Bookings',outreach:'Outreach',conductor:'Conductor Agent',engines:'Engines',agents:'Agent Frameworks',plugins:'MCP and Plugins',skills:'Skills Marketplace',integrations:'Integrations',analytics:'Analytics',billing:'Billing & Plans',insights:'AI Insights',workspace:'Workspace',cloud:'Cloud Console',employees:'AI Employees',missions:'Missions',memory:'Business Memory',scheduler:'Scheduler',health:'Health Monitor',security:'Security Center',profile:'My Profile'};document.getElementById('pageTitle').textContent=titles[t]||t;if(t==='overview')handlePaystackCallback();loadOverview();if(t==='leads')loadLeadsSupabase();if(t==='bookings')loadBookings();if(t==='engines')loadEngineStatus();if(t==='plugins'){loadMCPGrid();loadPluginsGrid()}if(t==='skills')loadSkillsGrid();if(t==='agents')loadAgentFrameworks();if(t==='integrations')loadIntegrations();if(t==='analytics')loadAnalytics();if(t==='conductor')handlePaystackCallback();checkConductorStatus();initOnboarding();if(t==='billing'){loadPricingGrid();loadPaymentHistory()}if(t==='cloud')loadCloudConsole();if(t==='employees')loadEmployees();if(t==='missions')loadMissions();if(t==='memory')loadBusinessMemory();if(t==='scheduler')loadScheduler();if(t==='health')loadHealthMonitor();if(t==='security')loadSecurityCenter();if(t==='insights'){/* lazy load */}}
 async function loadOverview(){if(ENGINES){try{const h=await ENGINES.health();if(h.status==='healthy'){const b=document.getElementById('engineStatusBadge');b.textContent='🟢 Engine Online';b.style.color='var(--green)';b.style.background='rgba(0,255,157,.08)'}const s=await ENGINES.status();document.getElementById('kpiEngines').textContent=(s.engines||[]).length;document.getElementById('kpiEnginesTrend').textContent='All operational'}catch(e){document.getElementById('engineStatusBadge').textContent='🔴 Engine Offline';document.getElementById('engineStatusBadge').style.color='var(--red)'}}if(sbClient){try{const{count:l}=await sbClient.from('leads').select('*',{count:'exact',head:true});document.getElementById('kpiLeads').textContent=l||0;document.getElementById('kpiLeadsTrend').textContent='In CRM';const{count:b}=await sbClient.from('bookings').select('*',{count:'exact',head:true});document.getElementById('kpiBookings').textContent=b||0;document.getElementById('kpiBookingsTrend').textContent='Total';const{data:pmts}=await sbClient.from('payments').select('amount');let rev=0;(pmts||[]).forEach(p=>rev+=(p.amount||0));document.getElementById('kpiRevenue').textContent='₦'+rev.toLocaleString();document.getElementById('kpiRevTrend').textContent='From payments'}catch(e){document.getElementById('kpiLeadsTrend').textContent='DB not accessible';document.getElementById('kpiBookingsTrend').textContent='DB not accessible';document.getElementById('kpiRevTrend').textContent='DB not accessible'}}loadActivity()}
 async function loadActivity(){const c=document.getElementById('activityFeed');if(!c)return;if(sbClient){try{const{data}=await sbClient.from('analytics_events').select('*').order('created_at',{ascending:false}).limit(10);if(data&&data.length>0){c.innerHTML=data.map(e=>'<div style="display:flex;align-items:center;gap:.8rem;padding:.7rem;border:1px solid var(--border);border-radius:10px;margin-bottom:.5rem"><div style="font-size:1.2rem">'+(e.icon||'📋')+'</div><div style="flex:1"><div style="font-weight:600;font-size:.85rem">'+(e.event_type||'Event')+'</div><div style="font-size:.72rem;color:var(--muted)">'+(e.description||'')+'</div></div><span class="badge badge-cyan">'+(e.category||'system')+'</span></div>').join('');return}}catch(e){}}if(ENGINES){try{const r=await fetch(ENGINES.BASE+'/activity/history');const d=await r.json();const ev=d.events||[];if(ev.length>0){c.innerHTML=ev.map(e=>'<div style="display:flex;align-items:center;gap:.8rem;padding:.7rem;border:1px solid var(--border);border-radius:10px;margin-bottom:.5rem"><div style="font-size:1.2rem">⚡</div><div style="flex:1"><div style="font-weight:600;font-size:.85rem">'+(e.engine||e.action||'Activity')+'</div><div style="font-size:.72rem;color:var(--muted)">'+(e.action||'')+'</div></div><span class="badge badge-green">completed</span></div>').join('');return}}catch(e){}}c.innerHTML='<div class="empty"><div class="icon">📋</div><h3>No activity yet</h3><p>Run the Conductor agent or scan for leads to see activity.</p></div>'}
 /* ═════════════════════════════════════════════════════════════════════
@@ -2971,6 +3381,305 @@ function showOnboardStep(n){
 function nextOnboardStep(){
   if(onStep<ONBOARD_STEPS-1){showOnboardStep(onStep+1);}else{closeOnboarding(true);switchTab('conductor');}
 }
+
+/* ══════════════════════════════════════════════════════════
+   ERGIO PROFILE — Full JS
+══════════════════════════════════════════════════════════ */
+var profileData={};
+var profileAvatarDataUrl=null;
+var profileCoverDataUrl=null;
+var cropSrc=null;
+var cropZoomVal=100;
+
+/* Load profile from localStorage + Firebase/Supabase */
+function loadProfile(){
+  var saved=JSON.parse(localStorage.getItem('ergio_profile')||'{}');
+  profileData=saved;
+  /* Fill fields */
+  var fields=['name','username','email','phone','country','city','role','company','website','bio',
+              'twitter','linkedin','instagram','facebook','tiktok','youtube'];
+  fields.forEach(function(f){
+    var el=document.getElementById('pf-'+f);
+    if(el&&saved[f])el.value=saved[f];
+  });
+  /* Avatar */
+  if(saved.avatarUrl){
+    setAvatarImage(saved.avatarUrl);
+  }
+  /* Cover */
+  if(saved.coverUrl){
+    var ci=document.getElementById('profileCoverImg');
+    if(ci){ci.src=saved.coverUrl;ci.style.display='block';}
+  }
+  /* Verified badge */
+  if(saved.verified){
+    var t=document.getElementById('pref-verified-toggle')||document.getElementById('pf-verified-toggle');
+    if(t)t.classList.add('on');
+    var badge=document.getElementById('profileVerifiedBadge');
+    if(badge)badge.style.display='inline-flex';
+    var txt=document.getElementById('pf-verified-text');
+    if(txt)txt.textContent='Verified ✓';
+  }
+  /* Preferences */
+  var prefs=JSON.parse(localStorage.getItem('ergio_prefs')||'{}');
+  if(prefs.lang){var el=document.getElementById('pref-lang');if(el)el.value=prefs.lang;}
+  if(prefs.tz){var el=document.getElementById('pref-tz');if(el)el.value=prefs.tz;}
+  if(prefs.emailnotif===false){var t=document.getElementById('pref-emailnotif');if(t)t.classList.remove('on');}
+  if(prefs.pushnotif===true){var t=document.getElementById('pref-pushnotif');if(t)t.classList.add('on');}
+  /* Sync from Firebase user if logged in */
+  if(fbAuth&&fbAuth.currentUser){
+    var u=fbAuth.currentUser;
+    if(!saved.email&&u.email){var el=document.getElementById('pf-email');if(el)el.value=u.email;}
+    if(!saved.name&&u.displayName){
+      var el=document.getElementById('pf-name');if(el)el.value=u.displayName;
+    }
+    if(!saved.avatarUrl&&u.photoURL){setAvatarImage(u.photoURL);}
+  }
+  updateProfilePreview();
+}
+
+function updateProfilePreview(){
+  var name=document.getElementById('pf-name');
+  var username=document.getElementById('pf-username');
+  var role=document.getElementById('pf-role');
+  var company=document.getElementById('pf-company');
+  var nameVal=name?name.value:'Demo User';
+  var usernameVal=username?username.value:'ergiouser';
+  var roleVal=role?role.value:'Founder';
+  var companyVal=company?company.value:'EROGIAN Studio';
+  if(!usernameVal.startsWith('@'))usernameVal='@'+usernameVal;
+  var el;
+  el=document.getElementById('profileDisplayName');if(el&&nameVal)el.textContent=nameVal;
+  el=document.getElementById('profileDisplayUsername');if(el&&usernameVal)el.textContent=usernameVal;
+  el=document.getElementById('profileDisplayRole');if(el)el.textContent=roleVal;
+  el=document.getElementById('profileDisplayBusiness');if(el&&companyVal)el.textContent=companyVal;
+  el=document.getElementById('profileAvatarInitial');if(el&&nameVal)el.textContent=nameVal[0].toUpperCase();
+  el=document.getElementById('photoPreviewName');if(el&&nameVal)el.textContent=nameVal;
+  el=document.getElementById('photoPreviewRole');if(el)el.textContent=roleVal+' · '+companyVal;
+  el=document.getElementById('photoPreviewInitial');if(el&&nameVal)el.textContent=nameVal[0].toUpperCase();
+  /* Update sidebar */
+  var sName=document.getElementById('userName');if(sName&&nameVal)sName.textContent=nameVal;
+  var sAvatar=document.getElementById('userAvatarText');if(sAvatar&&nameVal)sAvatar.textContent=nameVal[0].toUpperCase();
+}
+
+function saveProfile(){
+  var fields=['name','username','email','phone','country','city','role','company','website','bio',
+              'twitter','linkedin','instagram','facebook','tiktok','youtube'];
+  var data={};
+  fields.forEach(function(f){
+    var el=document.getElementById('pf-'+f);
+    if(el)data[f]=el.value;
+  });
+  /* Verified toggle */
+  var vt=document.getElementById('pf-verified-toggle');
+  if(vt)data.verified=vt.classList.contains('on');
+  if(profileAvatarDataUrl)data.avatarUrl=profileAvatarDataUrl;
+  if(profileCoverDataUrl)data.coverUrl=profileCoverDataUrl;
+  localStorage.setItem('ergio_profile',JSON.stringify(data));
+  profileData=data;
+  updateProfilePreview();
+  showToast('Profile saved successfully!','success');
+}
+
+function shareProfile(){
+  var name=document.getElementById('pf-name');
+  var company=document.getElementById('pf-company');
+  var text='Check out '+(name?name.value:'my')+' profile on ERGIO'+(company&&company.value?' — '+company.value:'')+'!';
+  if(navigator.share){
+    navigator.share({title:'ERGIO Profile',text:text,url:window.location.href}).catch(function(){});
+  }else{
+    navigator.clipboard.writeText(window.location.href).then(function(){
+      showToast('Profile link copied to clipboard!','success');
+    }).catch(function(){showToast('Share: '+window.location.href,'info');});
+  }
+}
+
+/* ── Profile sub-tabs ── */
+function switchProfileTab(tab){
+  document.querySelectorAll('.profile-tab').forEach(function(t){t.classList.toggle('active',t.dataset.ptab===tab)});
+  document.querySelectorAll('.profile-section').forEach(function(s){s.classList.remove('active')});
+  var sec=document.getElementById('psec-'+tab);
+  if(sec)sec.classList.add('active');
+}
+
+/* ── Avatar Upload + Crop ── */
+function triggerAvatarUpload(){document.getElementById('avatarUpload').click();}
+function handleAvatarUpload(e){
+  var file=e.target.files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){openCropModal(ev.target.result);};
+  reader.readAsDataURL(file);
+}
+function handleAvatarDrop(e){
+  e.preventDefault();
+  document.getElementById('photoDropZone').classList.remove('drag-over');
+  var file=e.dataTransfer.files[0];
+  if(!file||!file.type.startsWith('image/'))return;
+  var reader=new FileReader();
+  reader.onload=function(ev){openCropModal(ev.target.result);};
+  reader.readAsDataURL(file);
+}
+function openAvatarCrop(){triggerAvatarUpload();}
+function openCropModal(src){
+  cropSrc=src;cropZoomVal=100;
+  var img=document.getElementById('cropPreviewImg');
+  if(img){img.src=src;img.style.transform='scale(1)';}
+  var zoomEl=document.getElementById('cropZoom');if(zoomEl)zoomEl.value=100;
+  var modal=document.getElementById('cropModal');
+  if(modal)modal.classList.add('open');
+}
+function closeCropModal(){
+  var modal=document.getElementById('cropModal');
+  if(modal)modal.classList.remove('open');
+}
+function updateCropZoom(val){
+  cropZoomVal=val;
+  var img=document.getElementById('cropPreviewImg');
+  if(img)img.style.transform='scale('+val/100+')';
+}
+function applyCrop(){
+  /* Canvas crop — use the preview img src as the avatar */
+  var img=document.getElementById('cropPreviewImg');
+  if(!img||!img.src)return;
+  var canvas=document.createElement('canvas');
+  canvas.width=200;canvas.height=200;
+  var ctx=canvas.getContext('2d');
+  ctx.beginPath();ctx.arc(100,100,100,0,Math.PI*2);ctx.clip();
+  /* Draw with zoom */
+  var scale=cropZoomVal/100;
+  var size=200/scale;
+  var offset=(200-size)/2;
+  var tempImg=new Image();
+  tempImg.onload=function(){
+    ctx.drawImage(tempImg,offset,offset,size,size,0,0,200,200);
+    var dataUrl=canvas.toDataURL('image/png');
+    profileAvatarDataUrl=dataUrl;
+    setAvatarImage(dataUrl);
+    closeCropModal();
+    showToast('Profile photo updated!','success');
+  };
+  tempImg.src=img.src;
+}
+function setAvatarImage(src){
+  var img=document.getElementById('profileAvatarImg');
+  var initial=document.getElementById('profileAvatarInitial');
+  if(img){img.src=src;img.style.display='block';}
+  if(initial)initial.style.display='none';
+  var previewImg=document.getElementById('photoPreviewImg');
+  var previewInitial=document.getElementById('photoPreviewInitial');
+  if(previewImg){previewImg.src=src;previewImg.style.display='block';}
+  if(previewInitial)previewInitial.style.display='none';
+  var sidebarImg=document.getElementById('userAvatarImg');
+  var sidebarText=document.getElementById('userAvatarText');
+  if(sidebarImg){sidebarImg.src=src;sidebarImg.style.display='block';}
+  if(sidebarText)sidebarText.style.display='none';
+}
+function removeAvatar(){
+  profileAvatarDataUrl=null;
+  var img=document.getElementById('profileAvatarImg');
+  if(img){img.src='';img.style.display='none';}
+  var initial=document.getElementById('profileAvatarInitial');
+  if(initial)initial.style.display='';
+  var previewImg=document.getElementById('photoPreviewImg');
+  if(previewImg){previewImg.src='';previewImg.style.display='none';}
+  var previewInitial=document.getElementById('photoPreviewInitial');
+  if(previewInitial)previewInitial.style.display='';
+  var sidebarImg=document.getElementById('userAvatarImg');
+  if(sidebarImg){sidebarImg.src='';sidebarImg.style.display='none';}
+  var sidebarText=document.getElementById('userAvatarText');
+  if(sidebarText)sidebarText.style.display='';
+  showToast('Profile photo removed','info');
+}
+
+/* ── Cover Upload ── */
+function triggerCoverUpload(){document.getElementById('coverUpload').click();}
+function handleCoverUpload(e){
+  var file=e.target.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    profileCoverDataUrl=ev.target.result;
+    var ci=document.getElementById('profileCoverImg');
+    if(ci){ci.src=ev.target.result;ci.style.display='block';}
+    showToast('Cover photo updated!','success');
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ── Preferences ── */
+function togglePref(btn,key){
+  btn.classList.toggle('on');
+  var val=btn.classList.contains('on');
+  savePref(key,val);
+  if(key==='darkmode'){
+    showToast(val?'Dark mode on':'Light mode on (dark is default for now)','info');
+  }
+}
+function savePref(key,val){
+  var prefs=JSON.parse(localStorage.getItem('ergio_prefs')||'{}');
+  prefs[key]=val;
+  localStorage.setItem('ergio_prefs',JSON.stringify(prefs));
+}
+
+/* ── Verified toggle ── */
+function toggleVerified(){
+  var btn=document.getElementById('pf-verified-toggle');
+  if(!btn)return;
+  btn.classList.toggle('on');
+  var isOn=btn.classList.contains('on');
+  var txt=document.getElementById('pf-verified-text');
+  if(txt)txt.textContent=isOn?'Verified ✓':'Not verified';
+  var badge=document.getElementById('profileVerifiedBadge');
+  if(badge)badge.style.display=isOn?'inline-flex':'none';
+}
+
+/* ── Security ── */
+function showChangePassword(){
+  var panel=document.getElementById('changePasswordPanel');
+  if(panel)panel.style.display=panel.style.display==='none'?'block':'none';
+}
+function changePassword(){
+  var curr=document.getElementById('sec-curr-pw');
+  var newPw=document.getElementById('sec-new-pw');
+  var conf=document.getElementById('sec-conf-pw');
+  if(!curr||!newPw||!conf)return;
+  if(!curr.value){showToast('Enter your current password','error');return;}
+  if(newPw.value.length<8){showToast('New password must be at least 8 characters','error');return;}
+  if(newPw.value!==conf.value){showToast('Passwords do not match','error');return;}
+  if(fbAuth&&fbAuth.currentUser){
+    fbAuth.currentUser.updatePassword(newPw.value).then(function(){
+      showToast('Password updated successfully!','success');
+      document.getElementById('changePasswordPanel').style.display='none';
+      curr.value='';newPw.value='';conf.value='';
+    }).catch(function(e){showToast('Error: '+e.message,'error');});
+  }else{
+    showToast('Password change requires Firebase authentication. Log in first.','info');
+  }
+}
+function exportProfileData(){
+  var data={profile:JSON.parse(localStorage.getItem('ergio_profile')||'{}'),prefs:JSON.parse(localStorage.getItem('ergio_prefs')||'{}'),leads_count:JSON.parse(localStorage.getItem('ergio_leads')||'[]').length,employees:JSON.parse(localStorage.getItem('ergio_employees')||'[]').length,missions:JSON.parse(localStorage.getItem('ergio_missions')||'[]').length};
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download='ergio-profile-export.json';a.click();
+  URL.revokeObjectURL(url);
+  showToast('Profile data exported!','success');
+}
+function confirmDeleteAccount(){
+  if(confirm('Are you sure you want to delete your ERGIO account? This action cannot be undone.')){
+    if(confirm('This will erase all your data permanently. This cannot be undone. Press OK to proceed.')){
+      localStorage.clear();
+      showToast('Account data cleared. Redirecting...','error');
+      setTimeout(function(){window.location.href='/';},2000);
+    }
+  }
+}
+
+/* ── Load profile when tab opens ── */
+var _origSwitchTab=switchTab;
+switchTab=function(t){
+  _origSwitchTab(t);
+  if(t==='profile')loadProfile();
+};
 </script>
 
 </body>
