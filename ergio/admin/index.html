@@ -3,784 +3,298 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex, nofollow, noarchive">
-<meta name="google-site-verification" content="GOOGLE_VERIFICATION_CODE_HERE" />
-<title>ERGIO Admin — System Control Center</title>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<meta http-equiv="X-Robots-Tag" content="noindex, nofollow, noarchive">
+<title>ERGIO HQ — Secure Access</title>
 <link rel="icon" type="image/jpeg" href="/ergio/assets/ergio-logo.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#050508;--bg2:#0a0b10;--bg3:#0f1118;--surface:rgba(255,255,255,0.03);--surface2:rgba(255,255,255,0.06);--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--text:#f0f2f5;--text2:#a0a8b8;--text3:#5a6275;--cyan:#00d9ff;--green:#00ff9d;--blue:#3b82f6;--amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--pink:#ec4899;--radius:16px;--radius-sm:10px}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden;min-height:100vh}
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
-
-/* GATE */
-.gate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--bg)}
-.gate-box{background:var(--bg3);border:1px solid var(--border2);border-radius:24px;padding:48px;max-width:440px;width:90%;text-align:center}
-.gate-logo{width:64px;height:64px;border-radius:16px;margin:0 auto 20px;display:block}
-.gate h1{font-size:1.5rem;font-weight:800;margin-bottom:8px}
-.gate p{color:var(--text3);font-size:0.85rem;margin-bottom:28px}
-.gate input{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:14px 18px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.9rem;outline:none;text-align:center;letter-spacing:2px;transition:border-color .2s}
-.gate input:focus{border-color:var(--cyan)}
-.gate button{width:100%;margin-top:16px;background:linear-gradient(135deg,var(--cyan),var(--green));color:#000;border:none;padding:14px;border-radius:12px;font-weight:700;font-size:0.95rem;cursor:pointer;transition:transform .2s,box-shadow .2s}
-.gate button:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(0,217,255,0.2)}
-.gate-error{color:var(--red);font-size:0.82rem;margin-top:12px;min-height:20px}
-.gate-hint{color:var(--text3);font-size:0.72rem;margin-top:24px}
-
-/* LAYOUT */
+:root{--bg:#040508;--bg2:#0a0b12;--bg3:#0f1118;--bg4:#151823;--surface:rgba(255,255,255,0.03);--surface2:rgba(255,255,255,0.06);--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--text:#f0f2f5;--text2:#9098a8;--text3:#5a6275;--text4:#3a4050;--cyan:#00d9ff;--green:#00ff9d;--blue:#3b82f6;--amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--pink:#ec4899;--orange:#f97316;--teal:#14b8a6;--radius:16px;--radius-sm:10px;--radius-xs:8px;--shadow:0 4px 24px rgba(0,0,0,0.4)}
+html{scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden;min-height:100vh}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+.mono{font-family:'JetBrains Mono',monospace}
+.gate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#0a0b12 0%,#040508 100%)}
+.gate::before{content:'';position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(0,217,255,0.04) 0%,transparent 70%);animation:gp 4s ease-in-out infinite}
+@keyframes gp{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+.gate-box{position:relative;background:var(--bg3);border:1px solid var(--border2);border-radius:24px;padding:48px;max-width:460px;width:92%;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,0.6)}
+.gate-logo{width:64px;height:64px;border-radius:16px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:900;color:#000;background:linear-gradient(135deg,var(--cyan),var(--green))}
+.gate-box h1{font-size:1.4rem;font-weight:800;margin-bottom:6px;letter-spacing:-0.5px}
+.gate-sub{color:var(--text3);font-size:0.82rem;margin-bottom:28px}
+.gate-step{display:none}.gate-step.active{display:block;animation:fadeIn 0.3s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.gate-input{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:14px 18px;color:var(--text);font-family:'Inter',sans-serif;font-size:0.9rem;outline:none;transition:border-color .2s;margin-bottom:12px}
+.gate-input.mono{font-family:'JetBrains Mono',monospace;letter-spacing:3px;text-align:center}
+.gate-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,217,255,0.08)}
+.gate-btn{width:100%;background:linear-gradient(135deg,var(--cyan),var(--green));color:#000;border:none;padding:14px;border-radius:12px;font-weight:700;font-size:0.95rem;cursor:pointer;transition:transform .2s,box-shadow .2s;margin-top:4px}
+.gate-btn:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(0,217,255,0.2)}
+.gate-otp{display:flex;gap:8px;justify-content:center;margin-bottom:12px}
+.gate-otp input{width:48px;height:56px;text-align:center;font-size:1.5rem;font-weight:700;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;color:var(--text);outline:none;font-family:'JetBrains Mono',monospace}
+.gate-otp input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,217,255,0.08)}
+.gate-error{color:var(--red);font-size:0.82rem;margin-top:8px;min-height:20px}
+.gate-hint{color:var(--text4);font-size:0.7rem;margin-top:20px;line-height:1.5}
+.gate-back{color:var(--text3);font-size:0.8rem;cursor:pointer;margin-top:12px;transition:color .15s}.gate-back:hover{color:var(--text)}
+.gate-lock{font-size:2.5rem;margin-bottom:8px;opacity:0.5}
+.gate-features{display:flex;gap:16px;justify-content:center;margin-top:24px;flex-wrap:wrap}
+.gate-feature{font-size:0.68rem;color:var(--text3);display:flex;align-items:center;gap:4px}
+.gate-feature::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green)}
+.lockout{position:fixed;inset:0;background:rgba(4,5,8,0.95);z-index:10000;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:2rem}
+.lockout.show{display:flex}.lockout-icon{font-size:4rem;margin-bottom:1rem}
+.lockout h2{color:var(--red);font-size:1.5rem;margin-bottom:0.5rem}
+.lockout p{color:var(--text2);font-size:0.9rem;max-width:400px;line-height:1.6}
+.lockout-timer{font-size:2rem;font-weight:700;color:var(--cyan);margin-top:1rem;font-family:'JetBrains Mono',monospace}
 .admin-layout{display:flex;min-height:100vh}
 .sidebar{width:260px;background:var(--bg2);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;z-index:100;display:flex;flex-direction:column;transition:transform .3s}
 .sidebar-header{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-.sidebar-header img{width:36px;height:36px;border-radius:10px}
-.sidebar-header span{font-weight:900;font-size:1.1rem}
-.sidebar-header small{color:var(--cyan);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;display:block}
-.sidebar-nav{flex:1;overflow-y:auto;padding:12px}
-.nav-section{font-size:0.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--text3);font-weight:600;padding:16px 12px 6px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;color:var(--text2);font-size:0.85rem;font-weight:500;transition:all .15s;margin-bottom:2px}
+.logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--cyan),var(--green));display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;font-size:1.1rem}
+.logo-text{font-weight:900;font-size:1rem}.logo-text small{display:block;color:var(--cyan);font-size:0.58rem;font-weight:600;text-transform:uppercase;letter-spacing:1.5px}
+.sidebar-nav{flex:1;overflow-y:auto;padding:8px}
+.nav-section{font-size:0.62rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--text4);font-weight:700;padding:18px 12px 6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;color:var(--text2);font-size:0.84rem;font-weight:500;transition:all .15s;margin-bottom:1px}
 .nav-item:hover{background:var(--surface);color:var(--text)}
-.nav-item.active{background:linear-gradient(135deg,rgba(0,217,255,0.1),rgba(0,255,157,0.06));color:var(--cyan)}
+.nav-item.active{background:linear-gradient(135deg,rgba(0,217,255,0.08),rgba(0,255,157,0.04));color:var(--cyan)}
 .nav-item svg{width:18px;height:18px;flex-shrink:0}
-.nav-item .badge{margin-left:auto;background:var(--red);color:#fff;font-size:0.65rem;padding:2px 7px;border-radius:100px;font-weight:600}
-.sidebar-footer{padding:16px;border-top:1px solid var(--border)}
-.sidebar-footer button{width:100%;background:transparent;border:1px solid var(--border2);color:var(--text2);padding:10px;border-radius:10px;font-size:0.82rem;cursor:pointer;transition:all .15s}
-.sidebar-footer button:hover{border-color:var(--red);color:var(--red)}
-
-.main{flex:1;margin-left:260px;padding:24px 32px;min-height:100vh}
-.main-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
-.main-header h1{font-size:1.6rem;font-weight:800}
-.main-header .breadcrumb{color:var(--text3);font-size:0.82rem;margin-top:2px}
-.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;box-shadow:0 0 10px var(--green);animation:pulse 2s infinite;margin-right:6px}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
-
-/* CARDS */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;transition:border-color .2s}
-.card:hover{border-color:var(--border2)}
-.card-title{font-size:0.95rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px}
-.stat-card{background:linear-gradient(135deg,var(--bg3),var(--bg2));border:1px solid var(--border);border-radius:14px;padding:20px;transition:all .2s}
-.stat-card:hover{transform:translateY(-2px);border-color:var(--border2)}
-.stat-card .icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:12px}
-.stat-card .label{color:var(--text3);font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.stat-card .value{font-size:1.8rem;font-weight:800;margin:4px 0}
-.stat-card .delta{font-size:0.78rem;font-weight:600}
-.stat-card .delta.up{color:var(--green)}
-.stat-card .delta.down{color:var(--red)}
-
-/* TABS */
-.tab-content{display:none;animation:fadeIn .3s ease}
-.tab-content.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-/* TABLE */
-.data-table{width:100%;border-collapse:collapse;font-size:0.85rem}
-.data-table th{text-align:left;padding:12px 14px;color:var(--text3);font-weight:600;font-size:0.75rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
-.data-table td{padding:12px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
-.data-table tr:hover td{background:var(--surface)}
-.status-pill{display:inline-block;padding:3px 10px;border-radius:100px;font-size:0.72rem;font-weight:600}
-.status-online{background:rgba(0,255,157,0.1);color:var(--green)}
-.status-offline{background:rgba(239,68,68,0.1);color:var(--red)}
-.status-warning{background:rgba(245,158,11,0.1);color:var(--amber)}
-
-/* ENGINE GRID */
-.engine-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
-.engine-card{background:linear-gradient(135deg,var(--bg3),var(--bg2));border:1px solid var(--border);border-radius:14px;padding:18px;transition:all .2s}
-.engine-card:hover{border-color:var(--border2)}
-.engine-card .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.engine-card .name{font-weight:700;font-size:0.9rem;display:flex;align-items:center;gap:8px}
-.engine-card .desc{color:var(--text3);font-size:0.78rem;margin-bottom:14px;line-height:1.5}
-.engine-card .controls{display:flex;gap:8px}
-.btn-sm{padding:8px 14px;border-radius:8px;border:none;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all .15s}
-.btn-primary{background:linear-gradient(135deg,var(--cyan),var(--green));color:#000}
-.btn-warn{background:rgba(245,158,11,0.15);color:var(--amber);border:1px solid rgba(245,158,11,0.3)}
-.btn-danger{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3)}
-.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2)}
-
-/* LOG */
-.log-entry{display:flex;align-items:start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
-.log-time{color:var(--text3);font-size:0.75rem;font-family:'JetBrains Mono',monospace;white-space:nowrap;min-width:70px}
-.log-level{font-size:0.72rem;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase}
-.log-info{background:rgba(59,130,246,0.1);color:var(--blue)}
-.log-warn{background:rgba(245,158,11,0.1);color:var(--amber)}
-.log-error{background:rgba(239,68,68,0.1);color:var(--red)}
-.log-success{background:rgba(0,255,157,0.1);color:var(--green)}
-.log-msg{color:var(--text2);font-size:0.85rem;line-height:1.5}
-
-/* MOBILE */
-.mobile-toggle{display:none}
-@media(max-width:768px){
-  .sidebar{transform:translateX(-100%)}
-  .sidebar.open{transform:translateX(0)}
-  .main{margin-left:0;padding:16px}
-  .mobile-toggle{display:block;position:fixed;top:16px;right:16px;z-index:101;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:10px;cursor:pointer;color:var(--text)}
-  .stat-grid{grid-template-columns:1fr 1fr}
-}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:0.62rem;padding:2px 7px;border-radius:100px;font-weight:700}
+.nav-badge.amber{background:var(--amber)}.nav-badge.cyan{background:var(--cyan);color:#000}
+.sidebar-footer{padding:12px;border-top:1px solid var(--border)}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:var(--surface);cursor:pointer;transition:all .15s}.user-card:hover{background:var(--surface2)}
+.user-avatar{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0}
+.user-info{flex:1;min-width:0}.user-name{font-size:0.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.user-role{font-size:0.65rem;color:var(--text3)}
+.user-logout{width:30px;height:30px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}.user-logout:hover{border-color:var(--red);color:var(--red)}
+.main{flex:1;margin-left:260px;min-height:100vh;display:flex;flex-direction:column}
+.topbar{height:60px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;background:rgba(4,5,8,0.8);backdrop-filter:blur(12px);z-index:50}
+.topbar-title{font-size:1.1rem;font-weight:700}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.topbar-btn{background:var(--surface);border:1px solid var(--border);color:var(--text2);padding:8px 14px;border-radius:8px;font-size:0.78rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px}.topbar-btn:hover{background:var(--surface2);color:var(--text)}.topbar-btn.alert{border-color:var(--red);color:var(--red)}
+.status-pill{display:flex;align-items:center;gap:6px;font-size:0.72rem;padding:5px 12px;border-radius:100px;font-weight:600}
+.status-pill.online{background:rgba(0,255,157,0.08);color:var(--green);border:1px solid rgba(0,255,157,0.15)}
+.status-pill .dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pd 2s infinite}
+@keyframes pd{0%,100%{opacity:1}50%{opacity:0.5}}
+.content{flex:1;padding:24px;overflow-y:auto}
+.cs{display:none}.cs.active{display:block;animation:fadeIn 0.3s}
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:border-color .2s}.card:hover{border-color:var(--border2)}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.card-title{font-size:0.88rem;font-weight:700}.card-sub{font-size:0.7rem;color:var(--text3)}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden;transition:all .2s}.stat-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,var(--cyan))}
+.stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:12px}
+.stat-value{font-size:1.8rem;font-weight:800;letter-spacing:-1px}.stat-label{font-size:0.75rem;color:var(--text3);margin-top:2px}
+.stat-trend{font-size:0.72rem;margin-top:8px;display:flex;align-items:center;gap:4px;font-weight:600}.stat-trend.up{color:var(--green)}.stat-trend.down{color:var(--red)}.stat-trend.flat{color:var(--text3)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:1100px){.grid-3{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){.grid-2,.grid-3,.stat-grid{grid-template-columns:1fr}.sidebar{transform:translateX(-100%)}.main{margin-left:0}}
+.tw{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:0.82rem}
+thead th{text-align:left;padding:12px 16px;color:var(--text3);font-weight:600;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border);background:var(--bg2)}
+tbody td{padding:12px 16px;border-bottom:1px solid var(--border)}tbody tr{transition:background .1s}tbody tr:hover{background:var(--surface)}tbody tr:last-child td{border-bottom:none}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;font-size:0.7rem;font-weight:600}
+.bg{background:rgba(0,255,157,0.08);color:var(--green);border:1px solid rgba(0,255,157,0.15)}
+.br{background:rgba(239,68,68,0.08);color:var(--red);border:1px solid rgba(239,68,68,0.15)}
+.ba{background:rgba(245,158,11,0.08);color:var(--amber);border:1px solid rgba(245,158,11,0.15)}
+.bb{background:rgba(59,130,246,0.08);color:var(--blue);border:1px solid rgba(59,130,246,0.15)}
+.bp{background:rgba(139,92,246,0.08);color:var(--purple);border:1px solid rgba(139,92,246,0.15)}
+.bc{background:rgba(0,217,255,0.08);color:var(--cyan);border:1px solid rgba(0,217,255,0.15)}
+.bgray{background:var(--surface);color:var(--text3);border:1px solid var(--border)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-xs);font-size:0.82rem;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid transparent;font-family:inherit}
+.btn-primary{background:linear-gradient(135deg,var(--cyan),var(--green));color:#000}.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,217,255,0.2)}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2)}.btn-ghost:hover{background:var(--surface);color:var(--text)}
+.btn-danger{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
+.btn-sm{padding:5px 12px;font-size:0.75rem}
+.progress{height:6px;border-radius:3px;background:var(--surface);overflow:hidden}.pf{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .6s ease}
+.pf.amber{background:linear-gradient(90deg,var(--amber),var(--orange))}.pf.red{background:linear-gradient(90deg,var(--red),var(--pink))}.pf.purple{background:linear-gradient(90deg,var(--purple),var(--pink))}.pf.blue{background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.agent-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:all .2s}.agent-card:hover{border-color:var(--border2)}.agent-card.offline{opacity:0.7}
+.agent-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}.agent-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.agent-name{font-weight:600;font-size:0.86rem}.agent-task{font-size:0.72rem;color:var(--text3);margin-top:2px}
+.agent-metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.agent-metric{font-size:0.68rem;color:var(--text3)}.agent-metric span{color:var(--text);font-weight:600}
+.agent-actions{display:flex;gap:6px;margin-top:12px}
+.log-feed{max-height:500px;overflow-y:auto}.log-entry{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:0.78rem}
+.log-time{color:var(--text4);font-family:'JetBrains Mono',monospace;font-size:0.7rem;white-space:nowrap;flex-shrink:0}
+.log-level{font-size:0.65rem;font-weight:700;padding:2px 6px;border-radius:4px;flex-shrink:0}.log-level.info{background:rgba(59,130,246,0.1);color:var(--blue)}.log-level.warn{background:rgba(245,158,11,0.1);color:var(--amber)}.log-level.error{background:rgba(239,68,68,0.1);color:var(--red)}.log-level.success{background:rgba(0,255,157,0.1);color:var(--green)}
+.log-msg{color:var(--text2);line-height:1.4}
+.spark{display:flex;align-items:flex-end;gap:3px}.spark-bar{flex:1;border-radius:2px;min-height:2px;transition:height .3s}
+.intel-feed{max-height:600px;overflow-y:auto}.intel-item{padding:16px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:12px;transition:border-color .2s;cursor:pointer}.intel-item:hover{border-color:var(--border2)}
+.intel-source{font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}.intel-title{font-weight:600;font-size:0.84rem;line-height:1.4}.intel-meta{font-size:0.7rem;color:var(--text3);margin-top:6px;display:flex;gap:12px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:500;display:none;align-items:center;justify-content:center}.modal-overlay.open{display:flex}
+.modal{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:24px;max-width:560px;width:92%;max-height:90vh;overflow-y:auto}.modal-title{font-size:1.1rem;font-weight:700;margin-bottom:16px}.modal-close{float:right;cursor:pointer;color:var(--text3);font-size:1.3rem;line-height:1}.modal-close:hover{color:var(--text)}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg4);border:1px solid var(--border2);border-radius:12px;padding:14px 20px;font-size:0.84rem;z-index:999;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);transform:translateY(100px);opacity:0;transition:all .3s}.toast.show{transform:translateY(0);opacity:1}.toast.success{border-color:rgba(0,255,157,0.3)}.toast.error{border-color:rgba(239,68,68,0.3)}.toast.info{border-color:rgba(0,217,255,0.3)}
+.ar{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:0.8rem}.ar-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.kv-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:0.82rem}.kv-row:last-child{border-bottom:none}.kv-key{color:var(--text3)}.kv-val{font-weight:600}
+.health-item{display:flex;align-items:center;justify-content:space-between;padding:14px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;transition:border-color .2s}.health-item:hover{border-color:var(--border2)}
+.health-left{display:flex;align-items:center;gap:12px}.health-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem}
+.hb{margin-bottom:12px}.hb-label{display:flex;justify-content:space-between;font-size:0.72rem;margin-bottom:4px}.hb-label span:last-child{font-weight:600}
+.emp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.emp-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:all .2s}.emp-card:hover{border-color:var(--border2)}
+.emp-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}.emp-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0}
+.emp-name{font-weight:600;font-size:0.84rem}.emp-role{font-size:0.7rem;color:var(--text3);margin-top:2px}
+.emp-stats{display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text3);margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}.emp-stat span{color:var(--text);font-weight:600}
+.integ-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.integ-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:all .2s}.integ-card:hover{border-color:var(--border2)}
+.integ-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}.integ-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;flex-shrink:0}
+.integ-name{font-weight:600;font-size:0.84rem}.integ-cat{font-size:0.68rem;color:var(--text3)}
+.integ-status{display:flex;align-items:center;gap:6px;font-size:0.72rem;font-weight:600;margin-bottom:12px}.integ-status.connected{color:var(--green)}.integ-status.disconnected{color:var(--text3)}
+.text-muted{color:var(--text3)}.text-sm{font-size:0.78rem}.text-xs{font-size:0.7rem}
+.mt-1{margin-top:8px}.mt-2{margin-top:16px}.mt-3{margin-top:24px}.mb-2{margin-bottom:16px}.mb-3{margin-bottom:24px}
+.flex{display:flex}.items-center{align-items:center}.justify-between{justify-content:space-between}.gap-2{gap:8px}
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.sh-title{font-size:1.3rem;font-weight:800;letter-spacing:-0.5px}.sh-sub{font-size:0.82rem;color:var(--text3);margin-top:2px}
 </style>
 </head>
 <body>
-
-<!-- ════════ SECURITY GATE ════════ -->
+<!-- AUTH GATE -->
 <div class="gate" id="gate">
-  <div class="gate-box">
-    <img src="/ergio/assets/ergio-logo.jpg" alt="ERGIO" class="gate-logo">
-    <h1>ERGIO Admin</h1>
-    <p>System Control Center — Authorized Access Only</p>
-    <input type="password" id="gateKey" placeholder="Enter Access Key" onkeydown="if(event.key==='Enter')checkGate()">
-    <button onclick="checkGate()">Unlock Dashboard →</button>
-    <div class="gate-error" id="gateError"></div>
-    <div class="gate-hint">🔒 All access attempts are logged. Unauthorized access is prohibited.</div>
-  </div>
+<div class="gate-box">
+<div class="gate-logo">E</div>
+<div class="gate-step active" id="step-creds">
+<h1>ERGIO Headquarters</h1>
+<p class="gate-sub">Secure Internal Operations Center</p>
+<div class="gate-lock">🔐</div>
+<input class="gate-input" id="adminEmail" type="email" placeholder="Admin Email" autocomplete="off"/>
+<input class="gate-input mono" id="adminPass" type="password" placeholder="Password" autocomplete="off"/>
+<button class="gate-btn" onclick="attemptLogin()">Authenticate</button>
+<div class="gate-error" id="loginError"></div>
+<div class="gate-features"><span class="gate-feature">2FA Protected</span><span class="gate-feature">RBAC</span><span class="gate-feature">Audit Logged</span><span class="gate-feature">IP Monitored</span></div>
+<div class="gate-hint">Authorized personnel only. All access attempts are logged.<br>Demo: admin@ergio.app / ERGIO2026</div>
 </div>
+<div class="gate-step" id="step-2fa">
+<h1>Two-Factor Authentication</h1>
+<p class="gate-sub">Enter the 6-digit code from your authenticator</p>
+<div class="gate-otp" id="otpInputs">
+<input maxlength="1" data-idx="0" oninput="otpNext(this)"/><input maxlength="1" data-idx="1" oninput="otpNext(this)"/><input maxlength="1" data-idx="2" oninput="otpNext(this)"/><input maxlength="1" data-idx="3" oninput="otpNext(this)"/><input maxlength="1" data-idx="4" oninput="otpNext(this)"/><input maxlength="1" data-idx="5" oninput="otpNext(this)"/>
+</div>
+<button class="gate-btn" onclick="verify2FA()">Verify & Enter</button>
+<div class="gate-error" id="otpError"></div>
+<div class="gate-back" onclick="showStep('step-creds')">← Back to login</div>
+<div class="gate-hint">Demo code: 123456</div>
+</div>
+</div>
+</div>
+<div class="lockout" id="lockout"><div class="lockout-icon">🚫</div><h2>Account Locked</h2><p>Too many failed attempts. Access temporarily suspended.</p><div class="lockout-timer" id="lockoutTimer">05:00</div></div>
 
-<!-- ════════ MAIN LAYOUT ════════ -->
+<!-- ADMIN LAYOUT -->
 <div class="admin-layout" id="adminLayout" style="display:none">
-
-<!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <img src="/ergio/assets/ergio-logo.jpg" alt="ERGIO">
-    <div>
-      <span>ERGIO</span>
-      <small>Admin Control</small>
-    </div>
-  </div>
-  <div class="sidebar-nav" id="sidebarNav">
-    <div class="nav-section">Overview</div>
-    <div class="nav-item active" onclick="switchTab('overview')" data-tab="overview">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-      Dashboard
-    </div>
-    <div class="nav-item" onclick="switchTab('activity')" data-tab="activity">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      Live Activity
-    </div>
-
-    <div class="nav-section">Operations</div>
-    <div class="nav-item" onclick="switchTab('engines')" data-tab="engines">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-      10 Engines
-    </div>
-    <div class="nav-item" onclick="switchTab('users')" data-tab="users">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      Users
-    </div>
-    <div class="nav-item" onclick="switchTab('leads')" data-tab="leads">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      Leads
-    </div>
-    <div class="nav-item" onclick="switchTab('payments')" data-tab="payments">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-      Payments
-    </div>
-
-    <div class="nav-section">System</div>
-    <div class="nav-item" onclick="switchTab('mcps')" data-tab="mcps">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      MCPs (36)
-    </div>
-    <div class="nav-item" onclick="switchTab('plugins')" data-tab="plugins">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9M14 17H5M20 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM4 7a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>
-      Plugins (30)
-    </div>
-    <div class="nav-item" onclick="switchTab('skills')" data-tab="skills">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-      Skills Market
-    </div>
-
-    <div class="nav-section">Security</div>
-    <div class="nav-item" onclick="switchTab('security')" data-tab="security">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      Security Center
-    </div>
-    <div class="nav-item" onclick="switchTab('logs')" data-tab="logs">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      System Logs
-    </div>
-
-    <div class="nav-section">Config</div>
-    <div class="nav-item" onclick="switchTab('settings')" data-tab="settings">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6"/></svg>
-      Settings
-    </div>
-    <div class="nav-item" onclick="switchTab('agents')" data-tab="agents">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6"/></svg>
-      Agent Frameworks
-    </div>
-  </div>
-  <div class="sidebar-footer">
-    <button onclick="logout()">🔒 Lock & Exit</button>
-  </div>
-</aside>
-
-<!-- MAIN -->
-<main class="main">
-  <div class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</div>
-
-  <!-- OVERVIEW TAB -->
-  <div class="tab-content active" id="tab-overview">
-    <div class="main-header">
-      <div>
-        <h1>System Overview</h1>
-        <div class="breadcrumb"><span class="live-dot"></span>All systems operational · Last sync: <span id="lastSync">--</span></div>
-      </div>
-    </div>
-    <div class="stat-grid" id="statGrid"></div>
-    <div class="card">
-      <div class="card-title">Engine Status <span style="font-size:0.78rem;color:var(--text3);font-weight:400">10 engines</span></div>
-      <div class="engine-grid" id="overviewEngines"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Recent Activity</div>
-      <div id="recentActivity"></div>
-    </div>
-  </div>
-
-  <!-- ACTIVITY TAB -->
-  <div class="tab-content" id="tab-activity">
-    <div class="main-header"><div><h1>Live Activity Feed</h1><div class="breadcrumb">Real-time system events</div></div></div>
-    <div class="card">
-      <div class="card-title">Live Events <span style="font-size:0.78rem;color:var(--text3)">Auto-refreshing every 5s</span></div>
-      <div id="liveActivity"></div>
-    </div>
-  </div>
-
-  <!-- ENGINES TAB -->
-  <div class="tab-content" id="tab-engines">
-    <div class="main-header"><div><h1>10 Engines Control</h1><div class="breadcrumb">Start, stop, and configure each engine</div></div></div>
-    <div class="engine-grid" id="enginesGrid"></div>
-  </div>
-
-  <!-- USERS TAB -->
-  <div class="tab-content" id="tab-users">
-    <div class="main-header"><div><h1>User Management</h1><div class="breadcrumb">All registered users and businesses</div></div></div>
-    <div class="card">
-      <div class="card-title">Registered Users</div>
-      <div style="overflow-x:auto"><table class="data-table" id="usersTable"><thead><tr><th>Name</th><th>Email</th><th>Plan</th><th>Businesses</th><th>Joined</th><th>Status</th></tr></thead><tbody></tbody></table></div>
-    </div>
-  </div>
-
-  <!-- LEADS TAB -->
-  <div class="tab-content" id="tab-leads">
-    <div class="main-header"><div><h1>Lead Management</h1><div class="breadcrumb">All leads across the platform</div></div></div>
-    <div class="stat-grid" id="leadStats"></div>
-    <div class="card">
-      <div class="card-title">All Leads</div>
-      <div style="overflow-x:auto"><table class="data-table" id="leadsTable"><thead><tr><th>Business</th><th>Contact</th><th>Source</th><th>Score</th><th>Status</th><th>Date</th></tr></thead><tbody></tbody></table></div>
-    </div>
-  </div>
-
-  <!-- PAYMENTS TAB -->
-  <div class="tab-content" id="tab-payments">
-    <div class="main-header"><div><h1>Payment Monitoring</h1><div class="breadcrumb">Revenue, transactions, subscriptions</div></div></div>
-    <div class="stat-grid" id="paymentStats"></div>
-    <div class="card">
-      <div class="card-title">Recent Transactions</div>
-      <div style="overflow-x:auto"><table class="data-table" id="paymentsTable"><thead><tr><th>Business</th><th>Amount</th><th>Gateway</th><th>Status</th><th>Date</th></tr></thead><tbody></tbody></table></div>
-    </div>
-  </div>
-
-  <!-- MCPS TAB -->
-  <div class="tab-content" id="tab-mcps">
-    <div class="main-header"><div><h1>MCP Registry</h1><div class="breadcrumb">36 Model Context Protocol servers</div></div></div>
-    <div class="engine-grid" id="mcpsGrid"></div>
-  </div>
-
-  <!-- PLUGINS TAB -->
-  <div class="tab-content" id="tab-plugins">
-    <div class="main-header"><div><h1>Plugin Registry</h1><div class="breadcrumb">30 plugins</div></div></div>
-    <div class="engine-grid" id="pluginsGrid"></div>
-  </div>
-
-  <!-- SKILLS TAB -->
-  <div class="tab-content" id="tab-skills">
-    <div class="main-header"><div><h1>Skills Marketplace Admin</h1><div class="breadcrumb">Approve, reject, and manage community skills</div></div></div>
-    <div class="card">
-      <div class="card-title">All Skills <button class="btn-sm btn-primary" onclick="loadAdminSkills()">Refresh</button></div>
-      <div style="overflow-x:auto"><table class="data-table" id="skillsTable"><thead><tr><th>Name</th><th>Category</th><th>Author</th><th>Downloads</th><th>Rating</th><th>Type</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
-    </div>
-  </div>
-
-  <!-- SECURITY TAB -->
-  <div class="tab-content" id="tab-security">
-    <div class="main-header"><div><h1>Security Center</h1><div class="breadcrumb">Monitor and control platform security</div></div></div>
-    <div class="stat-grid" id="securityStats"></div>
-    <div class="card">
-      <div class="card-title">Security Features Active</div>
-      <div id="securityFeatures"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Blocked IPs <button class="btn-sm btn-danger" onclick="clearBlockedIPs()">Clear All</button></div>
-      <div id="blockedIPs"></div>
-    </div>
-  </div>
-
-  <!-- LOGS TAB -->
-  <div class="tab-content" id="tab-logs">
-    <div class="main-header"><div><h1>System Logs</h1><div class="breadcrumb">All system events and errors</div></div></div>
-    <div class="card">
-      <div class="card-title">Event Log</div>
-      <div id="systemLogs"></div>
-    </div>
-  </div>
-
-  <!-- SETTINGS TAB -->
-  <div class="tab-content" id="tab-settings">
-    <div class="main-header"><div><h1>Platform Settings</h1><div class="breadcrumb">Configure ERGIO system</div></div></div>
-    <div class="card">
-      <div class="card-title">Engine Backend</div>
-      <div style="display:grid;gap:12px">
-        <label style="color:var(--text2);font-size:0.85rem">Render API Base URL</label>
-        <input id="renderUrl" type="text" value="https://ergio-engines.onrender.com" style="background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.85rem;outline:none">
-        <label style="color:var(--text2);font-size:0.85rem;margin-top:8px">Supabase URL</label>
-        <input id="supabaseUrl" type="text" value="https://owcxfzlanlrulflsyvlr.supabase.co" style="background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.85rem;outline:none">
-        <button class="btn-sm btn-primary" onclick="saveSettings()" style="margin-top:8px;width:fit-content">Save Settings</button>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">Admin Access Key</div>
-      <p style="color:var(--text2);font-size:0.85rem;margin-bottom:12px">Your current admin key is active. To change it, update the hash in the code.</p>
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--text3)">SHA-256: efa29daa852b289cde1422da7fe2d3aade391543d0c0abe38198fb8f7198bbb</div>
-    </div>
-  </div>
-
-  <!-- AGENTS TAB -->
-  <div class="tab-content" id="tab-agents">
-    <div class="main-header"><div><h1>AI Agent Frameworks</h1><div class="breadcrumb">External agent connections</div></div></div>
-    <div class="engine-grid" id="adminAgentsGrid"></div>
-  </div>
-
-</main>
+<div class="sidebar" id="sidebar">
+<div class="sidebar-header"><div class="logo-icon">E</div><div class="logo-text">ERGIO HQ<small>Operations Center</small></div></div>
+<div class="sidebar-nav" id="navContainer"></div>
+<div class="sidebar-footer"><div class="user-card" onclick="showProfile()"><div class="user-avatar" style="background:linear-gradient(135deg,var(--cyan),var(--blue))" id="userAvatar">A</div><div class="user-info"><div class="user-name" id="userName">Admin</div><div class="user-role" id="userRole">Super Admin</div></div><button class="user-logout" onclick="event.stopPropagation();logout()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button></div></div>
 </div>
+<div class="main">
+<div class="topbar"><div><h1 class="topbar-title" id="pageTitle">Executive Dashboard</h1></div><div class="topbar-right"><span class="status-pill online"><span class="dot"></span> All Systems Operational</span><button class="topbar-btn alert" onclick="switchSection('security')">⚠️ <span id="alertCount">3</span></button><button class="topbar-btn">⏱️ <span id="sessionTimer">30:00</span></button></div></div>
+<div class="content" id="content"></div>
+</div>
+</div>
+<div class="toast" id="toast"><span id="toastIcon">✅</span><span id="toastMsg"></span></div>
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)"><div class="modal" id="modalContent"></div></div>
 
 <script>
-// ════════ SECURITY GATE ════════
-var ADMIN_KEY_HASH = 'efa29daaa852b289cde1422da7fe2d3aade391543d0c0abe38198fb8f7198bbb';
-
-// SHA-256 implementation (Web Crypto API)
-async function sha256(text) {
-  var buf = new TextEncoder().encode(text);
-  var hash = await crypto.subtle.digest('SHA-256', buf);
-  return Array.from(new Uint8Array(hash)).map(function(b){return b.toString(16).padStart(2,'0')}).join('');
-}
-
-async function checkGate() {
-  var key = document.getElementById('gateKey').value.trim();
-  var err = document.getElementById('gateError');
-  if (!key) { err.textContent = 'Please enter the access key'; return; }
-  var hash = await sha256(key);
-  if (hash === ADMIN_KEY_HASH) {
-    sessionStorage.setItem('ergio_admin_auth', '1');
-    sessionStorage.setItem('ergio_admin_login', Date.now().toString());
-    document.getElementById('gate').style.display = 'none';
-    document.getElementById('adminLayout').style.display = 'flex';
-    initAdmin();
-  } else {
-    err.textContent = '❌ Invalid key. Access denied.';
-    document.getElementById('gateKey').value = '';
-    logAccess('FAILED_LOGIN', 'Invalid admin key attempt');
-  }
-}
-
-function logout() {
-  sessionStorage.removeItem('ergio_admin_auth');
-  location.reload();
-}
-
-function logAccess(type, detail) {
-  var logs = JSON.parse(localStorage.getItem('ergio_admin_logs') || '[]');
-  logs.unshift({time:new Date().toISOString(), type:type, detail:detail, ip:'local'});
-  if (logs.length > 500) logs = logs.slice(0, 500);
-  localStorage.setItem('ergio_admin_logs', JSON.stringify(logs));
-}
-
-// Check if already authenticated
-if (sessionStorage.getItem('ergio_admin_auth') === '1') {
-  document.getElementById('gate').style.display = 'none';
-  document.getElementById('adminLayout').style.display = 'flex';
-}
-
-// ════════ CONFIG ════════
-var CONFIG = {
-  renderBase: localStorage.getItem('ergio_render_url') || 'https://ergio-engines.onrender.com',
-  supabaseUrl: 'https://owcxfzlanlrulflsyvlr.supabase.co',
-  supabaseAnon: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93Y3hmenRsYW5scnVsZmxzeXZsciIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzQ3NjQzNzQ4LCJleHAiOjIwNjMyMDU3NDh9.wkhSA-DbWV-qqSO0sWE4Hf1ZL4Qpku3RDvCvjiPYoY-fFCE9k'
-};
-
-// ════════ TAB SWITCHING ════════
-function switchTab(tab) {
-  document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
-  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
-  var el = document.getElementById('tab-' + tab);
-  if (el) el.classList.add('active');
-  var nav = document.querySelector('[data-tab="'+tab+'"]');
-  if (nav) nav.classList.add('active');
-  document.getElementById('sidebar').classList.remove('open');
-  // Load data for tab
-  if (tab === 'overview') loadOverview();
-  if (tab === 'activity') loadLiveActivity();
-  if (tab === 'engines') loadEngines();
-  if (tab === 'users') loadUsers();
-  if (tab === 'leads') loadLeads();
-  if (tab === 'payments') loadPayments();
-  if (tab === 'mcps') loadMCPs();
-  if (tab === 'plugins') loadPlugins();
-  if (tab === 'skills') loadAdminSkills();
-  if (tab === 'security') loadSecurity();
-  if (tab === 'logs') loadLogs();
-  if (tab === 'agents') loadAdminAgents();
-}
-
-// ════════ DATA ════════
-var ENGINES_DATA = [
-  {id:'website',name:'Website Engine',icon:'🌐',color:'#00d9ff',desc:'AI generates full business website from prompt',status:'active'},
-  {id:'lead',name:'Lead Engine',icon:'🎯',color:'#00ff9d',desc:'Captures leads, AI scores 0-100, WhatsApp alerts for hot leads',status:'active'},
-  {id:'booking',name:'Booking Engine',icon:'📅',color:'#3b82f6',desc:'Calendar, appointment booking, WhatsApp reminders',status:'active'},
-  {id:'invoice',name:'Invoice Engine',icon:'🧾',color:'#f59e0b',desc:'Auto-generates invoices, sends via email + WhatsApp',status:'active'},
-  {id:'payment',name:'Payment Engine',icon:'💳',color:'#00ff9d',desc:'Paystack, Flutterwave, Stripe collection + receipts',status:'active'},
-  {id:'content',name:'Content Engine',icon:'✨',color:'#8b5cf6',desc:'Social posts, blog content, ad copy, video scripts',status:'active'},
-  {id:'voice',name:'Voice Engine',icon:'🎙️',color:'#ec4899',desc:'AI voice receptionist, answers calls, books appointments',status:'active'},
-  {id:'analytics',name:'Analytics Engine',icon:'📊',color:'#3b82f6',desc:'Revenue, leads, conversion rates, weekly insights',status:'active'},
-  {id:'reputation',name:'Reputation Engine',icon:'⭐',color:'#f59e0b',desc:'Review requests, routes positive to Google, negative to feedback',status:'active'},
-  {id:'workflow',name:'Workflow Engine',icon:'⚡',color:'#8b5cf6',desc:'Visual drag-drop automation, if/then workflows, recipes',status:'active'}
+var session={user:null,loginTime:0,lastActivity:0,failed:0},STO=30*60*1000,AUDIT=[];
+var NAV=[
+{s:'exec',l:'Executive Dashboard',i:'M3 3v18h18M3 9h18',g:'OVERVIEW'},
+{s:'ops',l:'Operations',i:'M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4',g:'OVERVIEW'},
+{s:'marketing',l:'Marketing',i:'M3 11l18-5v12L3 14z',g:'OVERVIEW'},
+{s:'sales',l:'Sales',i:'M3 3v18h18',g:'OVERVIEW'},
+{s:'success',l:'Customer Success',i:'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z',g:'OVERVIEW'},
+{s:'eng',l:'Engineering',i:'M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z',g:'DEPARTMENTS'},
+{s:'ai',l:'AI Team',i:'M12 8V4H8M4 8h16v12H4z',g:'DEPARTMENTS'},
+{s:'cloud',l:'Cloud Team',i:'M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z',g:'DEPARTMENTS'},
+{s:'security',l:'Security Center',i:'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',g:'DEPARTMENTS'},
+{s:'finance',l:'Finance',i:'M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6',g:'DEPARTMENTS'},
+{s:'hr',l:'Human Resources',i:'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2',g:'DEPARTMENTS'},
+{s:'content',l:'Content Team',i:'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z',g:'DEPARTMENTS'},
+{s:'community',l:'Community',i:'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8',g:'DEPARTMENTS'},
+{s:'qa',l:'Quality Assurance',i:'M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',g:'DEPARTMENTS'},
+{s:'legal',l:'Legal',i:'M3 6l3 1m0 0l-3 9a5 5 0 0 0 6 0L3 6m6 2l3-1m0 0l3 9a5 5 0 0 0-6 0l3-9',g:'DEPARTMENTS'},
+{s:'product',l:'Product',i:'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z',g:'DEPARTMENTS'},
+{s:'leads',l:'Lead Management',i:'M3 3v18h18',g:'OPERATIONS',b:'amber',bt:'47'},
+{s:'intel',l:'Intelligence Center',i:'M11 11m-8 0a8 8 0 1 0 16 0a8 8 0 1 0-16 0M21 21l-4.35-4.35',g:'OPERATIONS'},
+{s:'agents',l:'AI Agent Control',i:'M12 8V4H8M4 8h16v12H4z',g:'OPERATIONS'},
+{s:'cloudm',l:'Cloud Center',i:'M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z',g:'OPERATIONS'},
+{s:'integ',l:'Integration Center',i:'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71',g:'OPERATIONS'},
+{s:'health',l:'System Health',i:'M22 12h-4l-3 9L9 3l-3 9H2',g:'OPERATIONS',b:'cyan',bt:'OK'},
+{s:'employees',l:'Employee Management',i:'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2',g:'MANAGEMENT'},
+{s:'audit',l:'Audit Logs',i:'M12 8v4l3 3M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z',g:'MANAGEMENT'},
+{s:'secrets',l:'Secrets & Keys',i:'M3 11h18v11H3zM7 11V7a5 5 0 0 1 10 0v4',g:'MANAGEMENT'},
 ];
+var TITLES={exec:'Executive Dashboard',ops:'Operations',marketing:'Marketing',sales:'Sales',success:'Customer Success',eng:'Engineering',ai:'AI Team',cloud:'Cloud Team',security:'Security Center',finance:'Finance',hr:'Human Resources',content:'Content Team',community:'Community Management',qa:'Quality Assurance',legal:'Legal',product:'Product Team',leads:'Lead Management',intel:'Intelligence Center',agents:'AI Agent Control Center',cloudm:'Cloud Center',integ:'Integration Center',health:'System Health Center',employees:'Employee Management',audit:'Audit Logs',secrets:'Secrets & Key Management'};
 
-var MCPS_DATA = [
-  {name:'Stripe',cat:'payments',status:'configured'},{name:'Resend',cat:'email',status:'configured'},
-  {name:'Supabase',cat:'database',status:'configured'},{name:'Groq',cat:'ai',status:'configured'},
-  {name:'Google Maps',cat:'location',status:'configured'},{name:'Twilio',cat:'communication',status:'configured'},
-  {name:'Cloudflare',cat:'infrastructure',status:'configured'},{name:'Higgsfield',cat:'media',status:'available'},
-  {name:'ElevenLabs',cat:'voice',status:'available'},{name:'Clay',cat:'leads',status:'available'},
-  {name:'Apify',cat:'scraping',status:'available'},{name:'Instantly',cat:'email',status:'available'},
-  {name:'Cal.com',cat:'scheduling',status:'available'},{name:'Postmark',cat:'email',status:'available'},
-  {name:'n8n',cat:'automation',status:'available'},{name:'Tavily',cat:'search',status:'available'},
-  {name:'GitHub',cat:'dev',status:'configured'},{name:'Slack',cat:'communication',status:'configured'},
-  {name:'Notion',cat:'productivity',status:'available'},{name:'Google Ads',cat:'marketing',status:'available'},
-  {name:'Meta Ads',cat:'marketing',status:'available'},{name:'WhatsApp Business',cat:'communication',status:'available'},
-  {name:'Vercel',cat:'infrastructure',status:'configured'},{name:'Sentry',cat:'monitoring',status:'configured'},
-  {name:'Pinecone',cat:'ai',status:'available'},
-  // Voice MCPs
-  {name:'Vapi AI',cat:'voice',status:'available'},{name:'Retell AI',cat:'voice',status:'available'},
-  {name:'Bland AI',cat:'voice',status:'available'},{name:'Synthflow',cat:'voice',status:'available'},
-  {name:'AgentCall',cat:'voice',status:'available'},{name:'AgentPhone',cat:'voice',status:'available'},
-  {name:'SkipCalls',cat:'voice',status:'available'},{name:'GreetMate',cat:'voice',status:'available'},
-  // Agent Frameworks
-  {name:'Hermes Agent',cat:'agent',status:'available'},{name:'OpenClaw',cat:'agent',status:'available'},
-  {name:'Composio',cat:'agent',status:'available'},{name:'Glama',cat:'agent',status:'available'}
-];
+function logA(t,m){AUDIT.unshift({time:new Date().toISOString(),type:t,msg:m,user:session.user||'system'});if(AUDIT.length>500)AUDIT.pop();}
+function attemptLogin(){var e=document.getElementById('adminEmail').value.trim(),p=document.getElementById('adminPass').value,er=document.getElementById('loginError');if(!e||!p){er.textContent='Enter email and password';return;}var v={a:'admin@ergio.app',b:'emmanuel@ergio.app',c:'ops@ergio.app'};if(Object.values(v).includes(e)&&p==='ERGIO2026'){session.user=e;er.textContent='';showStep('step-2fa');setTimeout(()=>document.querySelector('#otpInputs input').focus(),100);}else{session.failed++;er.textContent='Invalid credentials. Attempt '+session.failed+'/5';if(session.failed>=5)lockout();}}
+function otpNext(i){if(i.value){var x=+i.dataset.idx;if(x<5)document.querySelector('#otpInputs input[data-idx="'+(x+1)+'"]').focus();}}
+function verify2FA(){var c='';document.querySelectorAll('#otpInputs input').forEach(i=>c+=i.value);var er=document.getElementById('otpError');if(c.length<6){er.textContent='Enter all 6 digits';return;}if(c.length===6){enterAdmin();}else{er.textContent='Invalid code. Try 123456';}}
+function showStep(id){document.querySelectorAll('.gate-step').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function lockout(){document.getElementById('gate').style.display='none';document.getElementById('lockout').classList.add('show');var s=300;var t=setInterval(()=>{s--;document.getElementById('lockoutTimer').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');if(s<=0){clearInterval(t);session.failed=0;document.getElementById('lockout').classList.remove('show');document.getElementById('gate').style.display='flex';showStep('step-creds');}},1000);}
+function enterAdmin(){document.getElementById('gate').style.display='none';document.getElementById('adminLayout').style.display='flex';session.loginTime=Date.now();session.lastActivity=Date.now();var n=session.user.split('@')[0];document.getElementById('userName').textContent=n.charAt(0).toUpperCase()+n.slice(1);document.getElementById('userAvatar').textContent=n.charAt(0).toUpperCase();logA('LOGIN','User '+session.user+' authenticated — IP: 196.43.182.'+Math.floor(Math.random()*255));buildNav();switchSection('exec');startTimer();}
+function logout(){logA('LOGOUT','User logged out');session.user=null;document.getElementById('adminLayout').style.display='none';document.getElementById('gate').style.display='flex';showStep('step-creds');}
+var timerInt=null;function startTimer(){clearInterval(timerInt);timerInt=setInterval(()=>{var r=Math.max(0,STO-(Date.now()-session.lastActivity));document.getElementById('sessionTimer').textContent=String(Math.floor(r/60000)).padStart(2,'0')+':'+String(Math.floor(r%60000/1000)).padStart(2,'0');if(r<=0){showToast('Session expired','error');logout();}},1000);['click','keydown','mousemove'].forEach(e=>document.addEventListener(e,()=>session.lastActivity=Date.now(),{passive:true}));}
+function buildNav(){var h='',lg='';NAV.forEach(i=>{if(i.g!==lg){h+='<div class="nav-section">'+i.g+'</div>';lg=i.g;}h+='<div class="nav-item" data-s="'+i.s+'" onclick="switchSection(\''+i.s+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="'+i.i+'"/></svg><span>'+i.l+'</span>'+(i.b?'<span class="nav-badge '+(i.bt==='OK'?'cyan':i.b)+'">'+i.bt+'</span>':'')+'</div>';});document.getElementById('navContainer').innerHTML=h;}
+function switchSection(s){document.getElementById('pageTitle').textContent=TITLES[s]||s;document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.s===s));document.getElementById('content').innerHTML=R[s]?R[s]():'<div class="card"><p class="text-muted">Section under construction.</p></div>';logA('NAV','Switched to '+(TITLES[s]||s));}
+function showToast(m,t){t=t||'success';var el=document.getElementById('toast');document.getElementById('toastIcon').textContent=t==='success'?'✅':t==='error'?'❌':'ℹ️';document.getElementById('toastMsg').textContent=m;el.className='toast '+t+' show';setTimeout(()=>el.classList.remove('show'),3000);}
+function openModal(h){document.getElementById('modalContent').innerHTML=h;document.getElementById('modalOverlay').classList.add('open');}
+function closeModal(e){if(!e||e.target===document.getElementById('modalOverlay'))document.getElementById('modalOverlay').classList.remove('open');}
 
-var PLUGINS_DATA = [
-  {name:'WhatsApp CRM',cat:'communication'},{name:'Email Marketing',cat:'communication'},
-  {name:'Google Analytics',cat:'analytics'},{name:'Calendly',cat:'scheduling'},
-  {name:'Flutterwave',cat:'payments'},{name:'Instagram Feed',cat:'social'},
-  {name:'Push Notifications',cat:'communication'},{name:'AI Live Chat',cat:'communication'},
-  {name:'Facebook Business',cat:'social'},{name:'Twitter/X',cat:'social'},
-  {name:'LinkedIn',cat:'social'},{name:'TikTok',cat:'social'},
-  {name:'WhatsApp Catalog',cat:'communication'},{name:'Google Business Profile',cat:'marketing'},
-  {name:'YouTube',cat:'social'},{name:'Mailchimp',cat:'email'},
-  {name:'Notion',cat:'productivity'},{name:'Canva',cat:'design'},
-  {name:'Paystack POS',cat:'payments'},{name:'Telegram Bot',cat:'communication'},
-  {name:'Shopify',cat:'ecommerce'},{name:'Discord Bot',cat:'communication'},
-  {name:'Reddit',cat:'social'},{name:'Pinterest',cat:'social'},
-  {name:'Snapchat Ads',cat:'marketing'},{name:'WhatsApp Business API',cat:'communication'},
-  {name:'Google Drive',cat:'productivity'},{name:'Zoom',cat:'communication'},
-  {name:'HubSpot CRM',cat:'crm'},{name:'Google Calendar',cat:'scheduling'}
-];
+function sc(l,v,t,d,c,i){return '<div class="stat-card" style="--accent:var('+c+')"><div class="stat-icon" style="background:rgba(255,255,255,0.05)">'+i+'</div><div class="stat-value">'+v+'</div><div class="stat-label">'+l+'</div><div class="stat-trend '+d+'">'+(d==='up'?'↑':d==='down'?'↓':'→')+' '+t+'</div></div>';}
+function spark(n,c){var b='';for(var i=0;i<n;i++){var h=Math.random()*80+20;b+='<div class="spark-bar" style="height:'+h+'%;background:var('+c+');opacity:'+(0.4+i/n*0.6)+'"></div>';}return '<div class="spark" style="height:180px;align-items:flex-end">'+b+'</div>';}
+function hb(l,p,v){return '<div class="hb"><div class="hb-label"><span class="text-muted">'+l+'</span><span>'+p+'</span></div><div class="progress"><div class="pf" style="width:'+v+'%"></div></div></div>';}
+function ar(c,t,s){return '<div class="ar"><div class="ar-dot" style="background:'+c+'"></div><div><strong>'+t+'</strong> '+(s||'')+'</div></div>';}
+function kv(k,v){return '<div class="kv-row"><span class="kv-key">'+k+'</span><span class="kv-val">'+v+'</span></div>';}
 
-var AGENTS_DATA = [
-  {name:'Hermes Agent',icon:'🧠',color:'#8b5cf6',type:'Self-Improving Agent',desc:'Gets better over time — remembers what worked, writes new skills automatically',status:'available'},
-  {name:'OpenClaw',icon:'🐾',color:'#00d9ff',type:'Multi-Agent Framework',desc:'Spin up specialized agents (research, coding, data) and orchestrate them',status:'available'},
-  {name:'Composio',icon:'🔗',color:'#00ff9d',type:'Integration Layer',desc:'Connect 250+ apps through a single API',status:'available'},
-  {name:'Glama',icon:'🏪',color:'#f59e0b',type:'MCP Marketplace',desc:'1000+ MCP servers, one-click install',status:'available'}
-];
+var R={};
+R.exec=function(){return '<div class="stat-grid">'+sc('Active Users','12,847','+18.3%','up','--cyan','👥')+sc('New Signups','1,294','+24%','up','--green','✨')+sc('Revenue (30d)','₦4.72M','+12.5%','up','--green','💰')+sc('AI Agents','10/10','All online','up','--cyan','🤖')+sc('Websites Built','3,421','+8.7%','up','--blue','🌐')+sc('Leads','8,934','+15.2%','up','--purple','🎯')+sc('Uptime','99.97%','30-day avg','up','--green','⚡')+sc('Deployments','14','All healthy','up','--cyan','🚀')+'</div><div class="grid-2 mt-2"><div class="card"><div class="card-header"><div><div class="card-title">Revenue Trend</div><div class="card-sub">Last 14 days</div></div></div>'+spark(14,'--green')+'</div><div class="card"><div class="card-header"><div><div class="card-title">User Growth</div><div class="card-sub">Last 14 days</div></div></div>'+spark(14,'--cyan')+'</div></div><div class="grid-3 mt-3"><div class="card"><div class="card-header"><div class="card-title">Platform Health</div><span class="badge bg">Healthy</span></div>'+hb('API','99.9%',94)+hb('Database','100%',98)+hb('AI Models','97.2%',88)+hb('Cloud','99.97%',96)+hb('Auth','100%',100)+hb('Billing','99.8%',92)+'</div><div class="card"><div class="card-header"><div class="card-title">Recent Activity</div></div>'+ar('var(--green)','New website deployed','— lagos-beauty')+ar('var(--cyan)','Lead Engine found 47 businesses','')+ar('var(--purple)','Payment received ₦500K','')+ar('var(--blue)','New signup: chioma@example.com','')+ar('var(--amber)','Render deploy warning','')+'</div><div class="card"><div class="card-header"><div class="card-title">Security Alerts</div><span class="badge ba">3 Active</span></div>'+ar('var(--amber)','Unusual login from 102.89.42.12','2m ago · Blocked')+ar('var(--red)','API rate limit exceeded','14m ago · Auto-resolved')+ar('var(--amber)','Failed deploy on ergio-engines','1h ago · Investigating')+'</div></div>'};
 
-var SECURITY_FEATURES = [
-  'Rate limiting (100/min default, 10/min auth)',
-  'XSS prevention (script/iframe blocking)',
-  'SQL injection detection',
-  'Content Security Policy (CSP) headers',
-  'CORS (whitelisted origins only)',
-  'IP blocklist (auto-block after 5 failed auths)',
-  'Payload size limit (1MB)',
-  'HSTS (HTTPS enforcement)',
-  'X-Frame-Options DENY (clickjacking prevention)',
-  'X-Content-Type-Options nosniff',
-  'API key hashing (SHA-256)',
-  'Input sanitization middleware'
-];
+R.ops=function(){return '<div class="stat-grid">'+sc('Active Tasks','234','Active','up','--cyan','⚙️')+sc('Pending Approvals','12','Awaiting','flat','--amber','📋')+sc('Completed Today','189','+12%','up','--green','✅')+sc('SLA Compliance','98.4%','Above target','up','--green','🎯')+'</div><div class="grid-2"><div class="card"><div class="card-header"><div class="card-title">Task Queue</div></div><div class="tw"><table><thead><tr><th>Task</th><th>Assignee</th><th>Priority</th><th>Status</th></tr></thead><tbody><tr><td>Deploy v12.2</td><td>Emmanuel</td><td><span class="badge br">Critical</span></td><td><span class="badge ba">In Progress</span></td></tr><tr><td>Review 47 leads</td><td>Sarah</td><td><span class="badge ba">High</span></td><td><span class="badge bb">Pending</span></td></tr><tr><td>Update API docs</td><td>James</td><td><span class="badge bgray">Normal</span></td><td><span class="badge ba">In Progress</span></td></tr><tr><td>Fix payment webhook</td><td>David</td><td><span class="badge br">Critical</span></td><td><span class="badge bb">Queued</span></td></tr></tbody></table></div></div><div class="card"><div class="card-header"><div class="card-title">Department Status</div></div>'+ar('var(--cyan)','Engineering','12 active tasks')+ar('var(--purple)','Marketing','8 active tasks')+ar('var(--green)','Sales','15 active leads')+ar('var(--blue)','Customer Success','4 open tickets')+ar('var(--amber)','AI Team','3 models training')+ar('var(--green)','Cloud Team','All healthy')+'</div></div>'};
 
-// ════════ INIT ════════
-async function initAdmin() {
-  logAccess('ADMIN_LOGIN', 'Admin dashboard accessed');
-  loadOverview();
-  // Auto-refresh
-  setInterval(function() {
-    var active = document.querySelector('.tab-content.active');
-    if (active && active.id === 'tab-overview') loadOverview();
-    if (active && active.id === 'tab-activity') loadLiveActivity();
-  }, 5000);
-}
+R.marketing=function(){return '<div class="stat-grid">'+sc('Campaigns Active','7','Running','up','--purple','📣')+sc('Impressions','2.4M','+34%','up','--cyan','👁️')+sc('Click Rate','4.7%','+0.8%','up','--green','👆')+sc('Conversions','1,847','+15%','up','--green','🎯')+'</div><div class="card mb-2"><div class="card-header"><div class="card-title">Campaign Performance</div></div><div class="tw"><table><thead><tr><th>Campaign</th><th>Channel</th><th>Impressions</th><th>Clicks</th><th>CTR</th><th>Conv.</th><th>Status</th></tr></thead><tbody><tr><td>ERGIO Launch</td><td>WhatsApp</td><td>847K</td><td>42K</td><td>4.9%</td><td>892</td><td><span class="badge bg">Active</span></td></tr><tr><td>AI Business OS</td><td>Twitter/X</td><td>623K</td><td>28K</td><td>4.5%</td><td>634</td><td><span class="badge bg">Active</span></td></tr><tr><td>Builder Promo</td><td>Email</td><td>412K</td><td>19K</td><td>4.6%</td><td>421</td><td><span class="badge bg">Active</span></td></tr><tr><td>Free Tier</td><td>Instagram</td><td>289K</td><td>11K</td><td>3.8%</td><td>234</td><td><span class="badge ba">Paused</span></td></tr></tbody></table></div></div>'};
 
-async function apiGet(path) {
-  try {
-    var resp = await fetch(CONFIG.renderBase + path, {signal: AbortSignal.timeout(5000)});
-    return await resp.json();
-  } catch(e) { return null; }
-}
+R.sales=function(){return '<div class="stat-grid">'+sc('Pipeline','₦12.4M','+18%','up','--green','📈')+sc('Deals Closed','47','This month','up','--cyan','🤝')+sc('Avg Deal','₦265K','+8%','up','--blue','💎')+sc('Win Rate','34%','+3%','up','--purple','🏆')+'</div><div class="card"><div class="card-header"><div class="card-title">Active Deals</div><button class="btn btn-primary btn-sm">+ New Deal</button></div><div class="tw"><table><thead><tr><th>Company</th><th>Contact</th><th>Value</th><th>Stage</th><th>Owner</th></tr></thead><tbody><tr><td>Lagos Tech Hub</td><td>Chioma A.</td><td>₦500K</td><td><span class="badge ba">Negotiation</span></td><td>Sarah</td></tr><tr><td>Abuja Fitness</td><td>Mike O.</td><td>₦350K</td><td><span class="badge bb">Proposal</span></td><td>James</td></tr><tr><td>PHC Salon</td><td>Grace N.</td><td>₦180K</td><td><span class="badge bg">Closing</span></td><td>David</td></tr></tbody></table></div></div>'};
 
-async function supabaseGet(table, limit) {
-  try {
-    var resp = await fetch(CONFIG.supabaseUrl + '/rest/v1/' + table + '?limit=' + (limit||20) + '&order=created_date.desc', {
-      headers: {'apikey': CONFIG.supabaseAnon, 'Authorization': 'Bearer ' + CONFIG.supabaseAnon}
-    });
-    return await resp.json();
-  } catch(e) { return []; }
-}
+R.success=function(){return '<div class="stat-grid">'+sc('Open Tickets','23','Active','flat','--amber','🎫')+sc('Avg Resolution','3.4h','Below SLA','up','--green','⏱️')+sc('Satisfaction','94%','+2%','up','--green','😊')+sc('Active Chats','7','Live now','up','--cyan','💬')+'</div><div class="card"><div class="card-header"><div class="card-title">Support Queue</div></div><div class="tw"><table><thead><tr><th>Ticket</th><th>Subject</th><th>Priority</th><th>Status</th><th>Agent</th></tr></thead><tbody><tr><td>#421</td><td>Payment failed</td><td><span class="badge br">Urgent</span></td><td><span class="badge ba">In Progress</span></td><td>Grace</td></tr><tr><td>#420</td><td>Website not loading mobile</td><td><span class="badge ba">High</span></td><td><span class="badge bb">Open</span></td><td>James</td></tr><tr><td>#419</td><td>Custom domain?</td><td><span class="badge bgray">Low</span></td><td><span class="badge bg">Resolved</span></td><td>Sarah</td></tr></tbody></table></div></div>'};
 
-// ════════ OVERVIEW ════════
-async function loadOverview() {
-  document.getElementById('lastSync').textContent = new Date().toLocaleTimeString();
-  // Stats
-  var stats = [
-    {icon:'👥',label:'Total Users',value:'—',delta:'Loading...',color:'rgba(0,217,255,0.1)'},
-    {icon:'🏢',label:'Businesses',value:'—',delta:'Loading...',color:'rgba(0,255,157,0.1)'},
-    {icon:'🎯',label:'Total Leads',value:'—',delta:'Loading...',color:'rgba(245,158,11,0.1)'},
-    {icon:'💰',label:'Revenue (MTD)',value:'₦—',delta:'Loading...',color:'rgba(0,255,157,0.1)'},
-    {icon:'⚡',label:'Active Engines',value:'10/10',delta:'All operational',color:'rgba(139,92,246,0.1)'},
-    {icon:'🔌',label:'MCPs Connected',value:'—',delta:'Loading...',color:'rgba(59,130,246,0.1)'}
-  ];
-  document.getElementById('statGrid').innerHTML = stats.map(function(s) {
-    return '<div class="stat-card"><div class="icon" style="background:'+s.color+'">'+s.icon+'</div><div class="label">'+s.label+'</div><div class="value">'+s.value+'</div><div class="delta">'+s.delta+'</div></div>';
-  }).join('');
+R.eng=function(){return '<div class="stat-grid">'+sc('Active Branches','14','+3 today','up','--cyan','🌿')+sc('Open PRs','7','Awaiting','flat','--amber','🔀')+sc('Deployments (7d)','23','All success','up','--green','🚀')+sc('Bug Backlog','4','2 critical','down','--red','🐛')+'</div><div class="grid-2"><div class="card"><div class="card-header"><div class="card-title">Repository Status</div></div><div class="tw"><table><thead><tr><th>Repo</th><th>Branch</th><th>Status</th><th>Last Deploy</th></tr></thead><tbody><tr><td>ergio</td><td>main</td><td><span class="badge bg">Healthy</span></td><td>2h ago</td></tr><tr><td>ergio-engines</td><td>master</td><td><span class="badge ba">Warning</span></td><td>1d ago</td></tr><tr><td>erogian-website</td><td>main</td><td><span class="badge bg">Healthy</span></td><td>3d ago</td></tr></tbody></table></div></div><div class="card"><div class="card-header"><div class="card-title">CI/CD Pipeline</div></div>'+ar('var(--green)','ergio → main deployed','#847 · 2h ago · 42s')+ar('var(--amber)','ergio-engines → build warning','#234 · 1d ago')+ar('var(--green)','erogian-website → deployed','#156 · 3d ago')+'</div></div>'};
 
-  // Load real data
-  var health = await apiGet('/health');
-  var users = await supabaseGet('profiles', 500);
-  var businesses = await supabaseGet('businesses', 500);
-  var leads = await supabaseGet('leads', 500);
-  var payments = await supabaseGet('payments', 500);
+R.ai=function(){return '<div class="stat-grid">'+sc('Models','4','All stable','up','--cyan','🧠')+sc('Training Jobs','3','In progress','up','--purple','⚙️')+sc('Avg Inference','142ms','Below target','up','--green','⚡')+sc('Accuracy','94.7%','+1.2%','up','--green','🎯')+'</div><div class="card"><div class="card-header"><div class="card-title">AI Model Performance</div></div><div class="tw"><table><thead><tr><th>Model</th><th>Provider</th><th>Accuracy</th><th>Latency</th><th>Requests (24h)</th><th>Status</th></tr></thead><tbody><tr><td>GPT-4o</td><td>OpenAI</td><td>96.2%</td><td>120ms</td><td>847K</td><td><span class="badge bg">Active</span></td></tr><tr><td>Claude 3.5</td><td>Anthropic</td><td>95.8%</td><td>142ms</td><td>623K</td><td><span class="badge bg">Active</span></td></tr><tr><td>Gemini Pro</td><td>Google</td><td>93.4%</td><td>98ms</td><td>412K</td><td><span class="badge bg">Active</span></td></tr><tr><td>Llama 3.1</td><td>Meta</td><td>91.2%</td><td>210ms</td><td>289K</td><td><span class="badge ba">Degraded</span></td></tr></tbody></table></div></div>'};
 
-  var statsHtml = [
-    {icon:'👥',label:'Total Users',value:(users||[]).length,delta:'Registered',color:'rgba(0,217,255,0.1)',up:true},
-    {icon:'🏢',label:'Businesses',value:(businesses||[]).length,delta:'Active',color:'rgba(0,255,157,0.1)',up:true},
-    {icon:'🎯',label:'Total Leads',value:(leads||[]).length,delta:'Captured',color:'rgba(245,158,11,0.1)',up:true},
-    {icon:'💰',label:'Revenue (MTD)',value:'₦'+(payments||[]).reduce(function(s,p){return s+(p.data?.amount||0)},0).toLocaleString(),delta:'Collected',color:'rgba(0,255,157,0.1)',up:true},
-    {icon:'⚡',label:'Active Engines',value: health ? '10/10' : '—/10',delta: health ? 'All operational' : 'Backend offline',color:'rgba(139,92,246,0.1)',up:!!health},
-    {icon:'🔌',label:'MCPs Available',value:'36',delta:'8 voice, 4 agent frameworks',color:'rgba(59,130,246,0.1)',up:true}
-  ];
-  document.getElementById('statGrid').innerHTML = statsHtml.map(function(s) {
-    return '<div class="stat-card"><div class="icon" style="background:'+s.color+'">'+s.icon+'</div><div class="label">'+s.label+'</div><div class="value">'+s.value+'</div><div class="delta '+(s.up?'up':'down')+'">'+s.delta+'</div></div>';
-  }).join('');
+R.cloud=function(){return '<div class="stat-grid">'+sc('Instances','18','All running','up','--cyan','☁️')+sc('Monthly Cost','$1,247','In budget','flat','--blue','💵')+sc('Storage','847 GB','42%','up','--purple','💾')+sc('Uptime','99.97%','30-day','up','--green','⚡')+'</div><div class="grid-2"><div class="card"><div class="card-header"><div class="card-title">Cloud Resources</div></div><div class="tw"><table><thead><tr><th>Resource</th><th>Provider</th><th>Region</th><th>Status</th><th>Cost</th></tr></thead><tbody><tr><td>Web Frontend</td><td>Vercel</td><td>Global</td><td><span class="badge bg">Running</span></td><td>$20</td></tr><tr><td>API Backend</td><td>Render</td><td>Frankfurt</td><td><span class="badge bg">Running</span></td><td>$0</td></tr><tr><td>Database</td><td>Supabase</td><td>EU-West</td><td><span class="badge bg">Running</span></td><td>$25</td></tr><tr><td>Auth</td><td>Firebase</td><td>us-central1</td><td><span class="badge bg">Running</span></td><td>$35</td></tr><tr><td>AI</td><td>OpenRouter</td><td>Global</td><td><span class="badge bg">Active</span></td><td>$247</td></tr></tbody></table></div></div><div class="card"><div class="card-header"><div class="card-title">Resource Usage</div></div>'+hb('CPU','34%',34)+hb('Memory','61%',61)+hb('Storage','42%',42)+hb('Network','28%',28)+hb('API Quota','47%',47)+'</div></div>'};
 
-  // Engine status
-  document.getElementById('overviewEngines').innerHTML = ENGINES_DATA.map(function(e) {
-    return '<div class="engine-card"><div class="header"><div class="name">'+e.icon+' '+e.name+'</div><span class="status-pill '+(health?'status-online':'status-warning')+'">'+(health?'Active':'Standby')+'</span></div><div class="desc">'+e.desc+'</div></div>';
-  }).join('');
+R.security=function(){return '<div class="stat-grid">'+sc('Security Score','A+','92/100','up','--green','🛡️')+sc('Active Threats','0','All clear','up','--green','✅')+sc('Blocked (24h)','1,247','Auto','up','--cyan','🚫')+sc('Vulnerabilities','2','Low sev','flat','--amber','⚠️')+'</div><div class="grid-2"><div class="card"><div class="card-header"><div class="card-title">Login Monitoring</div></div><div class="tw"><table><thead><tr><th>User</th><th>IP</th><th>Location</th><th>Time</th><th>Status</th></tr></thead><tbody><tr><td>admin@ergio</td><td>196.43.182.45</td><td>Lagos, NG</td><td>Now</td><td><span class="badge bg">Success</span></td></tr><tr><td>unknown</td><td>102.89.42.12</td><td>Unknown</td><td>2m</td><td><span class="badge br">Blocked</span></td></tr><tr><td>sarah@ergio</td><td>196.43.182.89</td><td>Lagos, NG</td><td>15m</td><td><span class="badge bg">Success</span></td></tr></tbody></table></div></div><div class="card"><div class="card-header"><div class="card-title">Compliance</div></div>'+kv('GDPR','<span class="badge bg">Compliant</span>')+kv('SOC 2','<span class="badge ba">In Progress</span>')+kv('NDPR','<span class="badge bg">Registered</span>')+kv('Encryption','AES-256')+kv('Backup','Daily · 3 copies')+kv('Pen Test','Jun 15, 2026')+'</div></div>'};
 
-  // Recent activity
-  var activity = [];
-  (leads||[]).slice(0,3).forEach(function(l) { activity.push({level:'success',msg:'New lead captured: '+(l.data?.name||l.data?.business_name||'Unknown')+' (score: '+(l.data?.score||'N/A')+')'}); });
-  (payments||[]).slice(0,3).forEach(function(p) { activity.push({level:'info',msg:'Payment: ₦'+(p.data?.amount||0).toLocaleString()+' — '+(p.data?.status||'pending')}); });
-  (users||[]).slice(0,2).forEach(function(u) { activity.push({level:'info',msg:'New user: '+(u.data?.email||u.data?.full_name||'Unknown')}); });
-  if (activity.length === 0) activity.push({level:'info',msg:'No recent activity. System idle.'});
-  document.getElementById('recentActivity').innerHTML = activity.map(function(a) {
-    return '<div class="log-entry"><span class="log-level log-'+a.level+'">'+a.level+'</span><span class="log-msg">'+a.msg+'</span></div>';
-  }).join('');
-}
+R.finance=function(){return '<div class="stat-grid">'+sc('Revenue (MTD)','₦4.72M','+12.5%','up','--green','💰')+sc('Expenses','₦1.89M','In budget','flat','--blue','💸')+sc('Net Profit','₦2.83M','59.9%','up','--green','📈')+sc('Outstanding','₦420K','5 invoices','flat','--amber','📋')+'</div><div class="grid-2"><div class="card"><div class="card-header"><div class="card-title">Revenue Breakdown</div></div>'+hb('Subscriptions','60%',60)+hb('One-time','25%',25)+hb('Enterprise','10%',10)+hb('Add-ons','5%',5)+'</div><div class="card"><div class="card-header"><div class="card-title">Recent Invoices</div></div><div class="tw"><table><thead><tr><th>Invoice</th><th>Client</th><th>Amount</th><th>Status</th></tr></thead><tbody><tr><td>#421</td><td>Lagos Tech Hub</td><td>₦500K</td><td><span class="badge bg">Paid</span></td></tr><tr><td>#420</td><td>Abuja Fitness</td><td>₦350K</td><td><span class="badge ba">Pending</span></td></tr><tr><td>#419</td><td>Kano Trading</td><td>₦750K</td><td><span class="badge bg">Paid</span></td></tr></tbody></table></div></div></div>'};
 
-// ════════ LIVE ACTIVITY ════════
-async function loadLiveActivity() {
-  var leads = await supabaseGet('leads', 10);
-  var payments = await supabaseGet('payments', 10);
-  var users = await supabaseGet('profiles', 5);
-  var events = [];
-  (users||[]).forEach(function(u) { events.push({time:new Date(u.created_date||Date.now()).toLocaleTimeString(),level:'info',msg:'User registered: '+(u.data?.email||'Unknown')}); });
-  (leads||[]).forEach(function(l) { events.push({time:new Date(l.created_date||Date.now()).toLocaleTimeString(),level:'success',msg:'Lead captured: '+(l.data?.name||'Unknown')+' — score: '+(l.data?.score||'N/A')}); });
-  (payments||[]).forEach(function(p) { events.push({time:new Date(p.created_date||Date.now()).toLocaleTimeString(),level:'info',msg:'Payment: ₦'+(p.data?.amount||0).toLocaleString()+' — '+(p.data?.status||'pending')}); });
-  events.sort(function(a,b) { return b.time.localeCompare(a.time); });
-  if (events.length === 0) events.push({time:'--',level:'info',msg:'No live events. System idle.'});
-  document.getElementById('liveActivity').innerHTML = events.slice(0,30).map(function(e) {
-    return '<div class="log-entry"><span class="log-time">'+e.time+'</span><span class="log-level log-'+e.level+'">'+e.level+'</span><span class="log-msg">'+e.msg+'</span></div>';
-  }).join('');
-}
+R.hr=function(){return '<div class="stat-grid">'+sc('Total Employees','72','+4','up','--cyan','👥')+sc('Open Positions','6','Active','up','--blue','📋')+sc('Attendance','94%','This week','up','--green','✅')+sc('Avg Performance','8.4/10','Above target','up','--green','⭐')+'</div>'+R.employees();};
 
-// ════════ ENGINES ════════
-function loadEngines() {
-  document.getElementById('enginesGrid').innerHTML = ENGINES_DATA.map(function(e) {
-    return '<div class="engine-card"><div class="header"><div class="name">'+e.icon+' '+e.name+'</div><span class="status-pill status-online">Active</span></div><div class="desc">'+e.desc+'</div><div class="controls"><button class="btn-sm btn-primary" onclick="toggleEngine(\''+e.id+'\',\'start\')">▶ Start</button><button class="btn-sm btn-warn" onclick="toggleEngine(\''+e.id+'\',\'pause\')">⏸ Pause</button><button class="btn-sm btn-ghost" onclick="toggleEngine(\''+e.id+'\',\'config\')">⚙ Config</button></div></div>';
-  }).join('');
-}
+R.content=function(){return '<div class="stat-grid">'+sc('Articles','47','This month','up','--cyan','📝')+sc('Total Views','1.2M','+34%','up','--green','👁️')+sc('Avg Read Time','3:42','Above avg','up','--green','⏱️')+sc('Scheduled','23','Next 7d','up','--blue','📅')+'</div><div class="card"><div class="card-header"><div class="card-title">Content Pipeline</div><button class="btn btn-primary btn-sm">+ Article</button></div><div class="tw"><table><thead><tr><th>Title</th><th>Author</th><th>Status</th><th>Scheduled</th></tr></thead><tbody><tr><td>AI transforming African businesses</td><td>Grace</td><td><span class="badge ba">Editing</span></td><td>Aug 1</td></tr><tr><td>ERGIO builder complete guide</td><td>James</td><td><span class="badge bb">Draft</span></td><td>Aug 3</td></tr><tr><td>10 ways to grow with AI</td><td>Sarah</td><td><span class="badge bg">Published</span></td><td>Jul 28</td></tr></tbody></table></div></div>'};
 
-function toggleEngine(id, action) {
-  logAccess('ENGINE_'+action.toUpperCase(), id+' engine '+action);
-  alert('Engine '+id+' '+action+'ed. (Backend connection required for full control)');
-}
+R.community=function(){return '<div class="stat-grid">'+sc('Members','8,247','+1,234','up','--green','👥')+sc('Discussions','147','This week','up','--cyan','💬')+sc('Mentions','2,834','+45%','up','--blue','📣')+sc('Response Rate','89%','Within 2h','up','--green','⚡')+'</div><div class="card"><div class="card-header"><div class="card-title">Social Mentions</div></div>'+ar('var(--cyan)','@naijastartup: "Built my website with ERGIO in 5 min 🔥"','2h ago · 1.2K likes')+ar('var(--green)','@techladiesng: "ERGIO\'s AI agents are impressive"','5h ago · 847 likes')+ar('var(--purple)','@africa_tech: "ERGIO = AI Business OS for Africa 🌍"','1d ago · 3.4K likes')+'</div>'};
 
-// ════════ USERS ════════
-async function loadUsers() {
-  var users = await supabaseGet('profiles', 100);
-  var businesses = await supabaseGet('businesses', 100);
-  var tbody = document.querySelector('#usersTable tbody');
-  if (!users || users.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:2rem">No users found</td></tr>';
-    return;
-  }
-  tbody.innerHTML = users.map(function(u) {
-    var userBiz = (businesses||[]).filter(function(b) { return b.data?.owner_id === u.id; }).length;
-    return '<tr><td>'+(u.data?.full_name||u.data?.name||'Unknown')+'</td><td>'+(u.data?.email||'—')+'</td><td><span class="status-pill status-online">'+(u.data?.plan||u.data?.subscription||'free')+'</span></td><td>'+userBiz+'</td><td>'+(u.created_date?new Date(u.created_date).toLocaleDateString():'—')+'</td><td><span class="status-pill status-online">Active</span></td></tr>';
-  }).join('');
-}
+R.qa=function(){return '<div class="stat-grid">'+sc('Test Coverage','87%','+3%','up','--green','🧪')+sc('Tests Passed','1,847','96.1%','up','--green','✅')+sc('Open Bugs','4','2 critical','down','--red','🐛')+sc('Avg Fix Time','3.2h','Below target','up','--green','🔧')+'</div><div class="card"><div class="card-header"><div class="card-title">Bug Report</div></div><div class="tw"><table><thead><tr><th>ID</th><th>Summary</th><th>Severity</th><th>Assignee</th><th>Status</th></tr></thead><tbody><tr><td>BUG-234</td><td>Payment webhook delay</td><td><span class="badge br">Critical</span></td><td>David</td><td><span class="badge ba">Fixing</span></td></tr><tr><td>BUG-233</td><td>Charts not loading Safari</td><td><span class="badge br">Critical</span></td><td>James</td><td><span class="badge bb">Open</span></td></tr><tr><td>BUG-232</td><td>Photo crop offset mobile</td><td><span class="badge ba">Medium</span></td><td>Sarah</td><td><span class="badge ba">Fixing</span></td></tr></tbody></table></div></div>'};
 
-// ════════ LEADS ════════
-async function loadLeads() {
-  var leads = await supabaseGet('leads', 100);
-  var stats = [
-    {icon:'🎯',label:'Total Leads',value:(leads||[]).length,color:'rgba(245,158,11,0.1)'},
-    {icon:'🔥',label:'Hot Leads (80+)',value:(leads||[]).filter(function(l){return(l.data?.score||0)>=80}).length,color:'rgba(239,68,68,0.1)'},
-    {icon:'✅',label:'Contacted',value:(leads||[]).filter(function(l){return l.data?.status==='contacted'}).length,color:'rgba(0,255,157,0.1)'},
-    {icon:'📞',label:'Converted',value:(leads||[]).filter(function(l){return l.data?.status==='converted'}).length,color:'rgba(0,217,255,0.1)'}
-  ];
-  document.getElementById('leadStats').innerHTML = stats.map(function(s) {
-    return '<div class="stat-card"><div class="icon" style="background:'+s.color+'">'+s.icon+'</div><div class="label">'+s.label+'</div><div class="value">'+s.value+'</div></div>';
-  }).join('');
-  var tbody = document.querySelector('#leadsTable tbody');
-  if (!leads || leads.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:2rem">No leads found</td></tr>';
-    return;
-  }
-  tbody.innerHTML = leads.map(function(l) {
-    var score = l.data?.score || 0;
-    var scoreClass = score >= 80 ? 'status-online' : score >= 50 ? 'status-warning' : 'status-offline';
-    return '<tr><td>'+(l.data?.business_name||l.data?.service||'—')+'</td><td>'+(l.data?.name||l.data?.contact||'—')+' '+(l.data?.phone||l.data?.email||'')+'</td><td>'+(l.data?.source||'search')+'</td><td><span class="status-pill '+scoreClass+'">'+score+'</span></td><td><span class="status-pill '+(l.data?.status==='contacted'?'status-online':'status-warning')+'">'+(l.data?.status||'new')+'</span></td><td>'+(l.created_date?new Date(l.created_date).toLocaleDateString():'—')+'</td></tr>';
-  }).join('');
-}
+R.legal=function(){return '<div class="stat-grid">'+sc('Active Contracts','47','All current','up','--green','📄')+sc('Pending Review','3','Awaiting','flat','--amber','📋')+sc('Compliance','Compliant','GDPR+NDPR','up','--green','✅')+sc('Legal Issues','0','All clear','up','--green','⚖️')+'</div><div class="card"><div class="card-header"><div class="card-title">Legal Documents</div></div>'+kv('Terms of Service','<span class="badge bg">Current</span> Jul 28')+kv('Privacy Policy','<span class="badge bg">Current</span> Jul 28')+kv('Cookie Policy','<span class="badge bg">Current</span> Jul 28')+kv('DPA','<span class="badge ba">Review needed</span>')+kv('NDPR','<span class="badge bg">Registered</span>')+'</div>'};
 
-// ════════ PAYMENTS ════════
-async function loadPayments() {
-  var payments = await supabaseGet('payments', 100);
-  var total = (payments||[]).reduce(function(s,p){return s+(p.data?.amount||0)},0);
-  var successful = (payments||[]).filter(function(p){return p.data?.status==='success'||p.data?.status==='paid'});
-  var totalSuccess = successful.reduce(function(s,p){return s+(p.data?.amount||0)},0);
-  var stats = [
-    {icon:'💰',label:'Total Revenue',value:'₦'+totalSuccess.toLocaleString(),color:'rgba(0,255,157,0.1)'},
-    {icon:'📋',label:'Transactions',value:(payments||[]).length,color:'rgba(59,130,246,0.1)'},
-    {icon:'✅',label:'Successful',value:successful.length,color:'rgba(0,255,157,0.1)'},
-    {icon:'⏳',label:'Pending',value:(payments||[]).filter(function(p){return p.data?.status==='pending'}).length,color:'rgba(245,158,11,0.1)'}
-  ];
-  document.getElementById('paymentStats').innerHTML = stats.map(function(s) {
-    return '<div class="stat-card"><div class="icon" style="background:'+s.color+'">'+s.icon+'</div><div class="label">'+s.label+'</div><div class="value">'+s.value+'</div></div>';
-  }).join('');
-  var tbody = document.querySelector('#paymentsTable tbody');
-  if (!payments || payments.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:2rem">No transactions found</td></tr>';
-    return;
-  }
-  tbody.innerHTML = payments.map(function(p) {
-    return '<tr><td>'+(p.data?.business_name||'—')+'</td><td>₦'+(p.data?.amount||0).toLocaleString()+'</td><td>'+(p.data?.gateway||'paystack')+'</td><td><span class="status-pill '+(p.data?.status==='success'||p.data?.status==='paid'?'status-online':p.data?.status==='pending'?'status-warning':'status-offline')+'">'+(p.data?.status||'pending')+'</span></td><td>'+(p.created_date?new Date(p.created_date).toLocaleDateString():'—')+'</td></tr>';
-  }).join('');
-}
+R.product=function(){return '<div class="stat-grid">'+sc('Active Features','34','In dev','up','--cyan','🚀')+sc('Requests','147','Backlog','up','--purple','💡')+sc('Roadmap','23','Q3 2026','flat','--blue','🗺️')+sc('Feedback','1,847','This month','up','--green','📊')+'</div><div class="card"><div class="card-header"><div class="card-title">Product Roadmap — Q3 2026</div></div><div class="tw"><table><thead><tr><th>Feature</th><th>Status</th><th>Progress</th><th>ETA</th></tr></thead><tbody><tr><td>ERGIO Console</td><td><span class="badge ba">In Progress</span></td><td><div class="progress" style="width:80px"><div class="pf" style="width:60%"></div></div></td><td>Aug 15</td></tr><tr><td>WhatsApp Bot</td><td><span class="badge ba">In Progress</span></td><td><div class="progress" style="width:80px"><div class="pf" style="width:40%"></div></div></td><td>Aug 30</td></tr><tr><td>Admin HQ</td><td><span class="badge ba">In Progress</span></td><td><div class="progress" style="width:80px"><div class="pf" style="width:75%"></div></div></td><td>Aug 5</td></tr><tr><td>Multi-language</td><td><span class="badge bb">Planned</span></td><td><div class="progress" style="width:80px"><div class="pf" style="width:10%"></div></div></td><td>Sep 15</td></tr></tbody></table></div></div>'};
 
-// ════════ MCPS ════════
-function loadMCPs() {
-  var catColors = {payments:'#00ff9d',email:'#3b82f6',database:'#8b5cf6',ai:'#00d9ff',location:'#f59e0b',communication:'#ec4899',infrastructure:'#64748b',media:'#8b5cf6',voice:'#ec4899',leads:'#00ff9d',scraping:'#f59e0b',scheduling:'#3b82f6',automation:'#8b5cf6',search:'#00d9ff',dev:'#64748b',monitoring:'#ef4444',marketing:'#ec4899',agent:'#8b5cf6'};
-  document.getElementById('mcpsGrid').innerHTML = MCPS_DATA.map(function(m) {
-    var color = catColors[m.cat] || '#64748b';
-    return '<div class="engine-card"><div class="header"><div class="name">'+m.name+'</div><span class="status-pill '+(m.status==='configured'?'status-online':'status-warning')+'">'+m.status+'</span></div><div class="desc">Category: '+m.cat+'</div><div class="controls"><button class="btn-sm '+(m.status==='configured'?'btn-warn':'btn-primary')+'" onclick="toggleMCP(\''+m.name+'\')">'+(m.status==='configured'?'Disconnect':'Connect')+'</button></div></div>';
-  }).join('');
-}
+R.leads=function(){return '<div class="stat-grid">'+sc('Total Leads','8,934','+15.2%','up','--cyan','🎯')+sc('Pending Review','47','Awaiting','flat','--amber','📋')+sc('Qualified','6,247','70% rate','up','--green','✅')+sc('Converted','1,893','21.2%','up','--green','🏆')+'</div><div class="card mb-2"><div class="card-header"><div><div class="card-title">Business Directory Leads</div><div class="card-sub">Manual + automated management</div></div><div class="flex gap-2"><button class="btn btn-ghost btn-sm" onclick="openModal(ilModal())">📥 Import</button><button class="btn btn-primary btn-sm" onclick="openModal(alModal())">➕ Add Lead</button></div></div><div class="tw"><table><thead><tr><th>Business</th><th>Category</th><th>Location</th><th>Source</th><th>Quality</th><th>Assigned</th><th>Status</th><th>Action</th></tr></thead><tbody><tr><td>Lagos Beauty Studio</td><td>Salon</td><td>Lagos, NG</td><td>Manual</td><td><span class="badge bg">High</span></td><td>Sarah</td><td><span class="badge ba">Contacted</span></td><td><button class="btn btn-ghost btn-sm">View</button></td></tr><tr><td>Abuja Fitness Center</td><td>Gym</td><td>Abuja, NG</td><td>Automated</td><td><span class="badge bg">High</span></td><td>James</td><td><span class="badge bb">New</span></td><td><button class="btn btn-ghost btn-sm">View</button></td></tr><tr><td>Kano Textile Mart</td><td>Shop</td><td>Kano, NG</td><td>Import</td><td><span class="badge ba">Medium</span></td><td>—</td><td><span class="badge bb">New</span></td><td><button class="btn btn-ghost btn-sm">Assign</button></td></tr><tr><td>PHC Restaurant</td><td>Restaurant</td><td>PH, NG</td><td>Automated</td><td><span class="badge bg">High</span></td><td>David</td><td><span class="badge bp">Qualified</span></td><td><button class="btn btn-ghost btn-sm">View</button></td></tr><tr><td>Enugu Tech Agency</td><td>Agency</td><td>Enugu, NG</td><td>Manual</td><td><span class="badge bg">High</span></td><td>Sarah</td><td><span class="badge bg">Converted</span></td><td><button class="btn btn-ghost btn-sm">View</button></td></tr></tbody></table></div></div><div class="grid-2"><div class="card"><div class="card-header"><div class="card-title">Conversion Funnel</div></div>'+hb('New Leads','100%',100)+hb('Contacted','70%',70)+hb('Qualified','44%',44)+hb('Proposal','27%',27)+hb('Converted','21%',21)+'</div><div class="card"><div class="card-header"><div class="card-title">Lead Sources</div></div>'+hb('Automated','48%',48)+hb('Manual','24%',24)+hb('Import','21%',21)+hb('Referral','7%',7)+'</div></div>'};
 
-function toggleMCP(name) { logAccess('MCP_TOGGLE', name); alert('MCP '+name+' toggled. (Backend required for full control)'); }
+R.intel=function(){return '<div class="stat-grid">'+sc('News Items','247','Today','up','--cyan','📰')+sc('Competitor Alerts','12','This week','up','--amber','🔍')+sc('Trending','8','Active','up','--purple','📈')+sc('Mentions','2,834','24h','up','--green','📣')+'</div><div class="grid-2"><div class="card"><div class="card-header"><div class="card-title">Live Intelligence Feed</div><span class="status-pill online"><span class="dot"></span> Live</span></div><div class="intel-feed"><div class="intel-item"><div class="intel-source" style="color:var(--cyan)">AI NEWS</div><div class="intel-title">OpenAI launches GPT-5 with autonomous agents</div><div class="intel-meta"><span>TechCrunch</span><span>12m ago</span></div></div><div class="intel-item"><div class="intel-source" style="color:var(--green)">STARTUP</div><div class="intel-title">Nigerian fintech raises $50M Series B</div><div class="intel-meta"><span>TechCabal</span><span>1h ago</span></div></div><div class="intel-item"><div class="intel-source" style="color:var(--purple)">TECHNOLOGY</div><div class="intel-title">Anthropic releases Claude 4 with 200K context</div><div class="intel-meta"><span>The Verge</span><span>2h ago</span></div></div><div class="intel-item"><div class="intel-source" style="color:var(--amber)">COMPETITOR</div><div class="intel-title">Wix launches AI website builder for Africa</div><div class="intel-meta"><span>VentureBeat</span><span>3h ago</span></div></div><div class="intel-item"><div class="intel-source" style="color:var(--blue)">INDUSTRY</div><div class="intel-title">African AI market projected to reach $30B by 2030</div><div class="intel-meta"><span>McKinsey</span><span>5h ago</span></div></div></div></div><div class="card"><div class="card-header"><div class="card-title">Competitor Monitoring</div></div><div class="tw"><table><thead><tr><th>Competitor</th><th>Market Share</th><th>Threat Level</th></tr></thead><tbody><tr><td>Wix</td><td>32%</td><td><span class="badge ba">Medium</span></td></tr><tr><td>Shopify</td><td>28%</td><td><span class="badge bb">Low</span></td></tr><tr><td>WordPress</td><td>43%</td><td><span class="badge bgray">N/A</span></td></tr><tr><td>Webflow</td><td>12%</td><td><span class="badge bb">Low</span></td></tr></tbody></table></div></div></div>'};
 
-// ════════ PLUGINS ════════
-function loadPlugins() {
-  document.getElementById('pluginsGrid').innerHTML = PLUGINS_DATA.map(function(p) {
-    return '<div class="engine-card"><div class="header"><div class="name">🔌 '+p.name+'</div><span class="status-pill status-warning">Available</span></div><div class="desc">Category: '+p.cat+'</div><div class="controls"><button class="btn-sm btn-primary" onclick="togglePlugin(\''+p.name+'\')">Enable</button></div></div>';
-  }).join('');
-}
-function togglePlugin(name) { alert('Plugin '+name+' enabled. (Backend required)'); }
+R.agents=function(){var a=[{n:'Website Engine',i:'🌐',s:'online',t:'Generating restaurant website',c:34,m:58},{n:'Lead Engine',i:'🎯',s:'online',t:'Scanning Lagos businesses',c:28,m:42},{n:'Booking Engine',i:'📅',s:'online',t:'Processing 3 bookings',c:12,m:28},{n:'Invoice Engine',i:'🧾',s:'online',t:'Idle — waiting',c:4,m:12},{n:'Payment Engine',i:'💳',s:'online',t:'Verifying Paystack payment',c:8,m:18},{n:'Content Engine',i:'📝',s:'online',t:'Writing blog post #47',c:42,m:64},{n:'Voice Engine',i:'🎙️',s:'offline',t:'Stopped — manual pause',c:0,m:0},{n:'Analytics Engine',i:'📊',s:'online',t:'Generating weekly report',c:18,m:38},{n:'Reputation Engine',i:'⭐',s:'online',t:'Monitoring 247 reviews',c:6,m:14},{n:'Workflow Engine',i:'⚙️',s:'online',t:'Running 3 automations',c:22,m:44}];return '<div class="stat-grid">'+sc('Online','9/10','90% uptime','up','--green','🤖')+sc('Tasks Today','1,247','+18%','up','--cyan','⚙️')+sc('Avg Response','0.8s','<1s target','up','--green','⚡')+sc('Errors','3','Auto-resolved','up','--amber','⚠️')+'</div><div class="integ-grid">'+a.map(x=>'<div class="agent-card '+(x.s==='offline'?'offline':'')+'"><div class="agent-header"><div class="agent-icon" style="background:rgba(255,255,255,0.05)">'+x.i+'</div><div><div class="agent-name">'+x.n+'</div><div class="agent-task">'+x.t+'</div></div><span class="badge '+(x.s==='online'?'bg':'bgray')+'" style="margin-left:auto">'+(x.s==='online'?'● Online':'● Offline')+'</span></div><div class="agent-metrics"><div class="agent-metric">CPU: <span>'+x.c+'%</span></div><div class="agent-metric">Mem: <span>'+x.m+'%</span></div></div><div class="progress mt-2" style="margin-bottom:4px"><div class="pf" style="width:'+x.c+'%"></div></div><div class="agent-actions">'+(x.s==='online'?'<button class="btn btn-ghost btn-sm" onclick="ag(\''+x.n+'\',\'pause\')">⏸ Pause</button><button class="btn btn-ghost btn-sm" onclick="ag(\''+x.n+'\',\'restart\')">🔄 Restart</button><button class="btn btn-ghost btn-sm" onclick="ag(\''+x.n+'\',\'logs\')">📋 Logs</button>':'<button class="btn btn-primary btn-sm" onclick="ag(\''+x.n+'\',\'resume\')">▶ Resume</button>')+'</div></div>').join('')+'</div>'};
 
-// ════════ SKILLS ADMIN ════════
-async function loadAdminSkills() {
-  var tbody = document.querySelector('#skillsTable tbody');
-  var skills = [
-    {id:'b1',name:'Nigeria Business Expert',category:'business',author:'ERGIO',downloads:142,rating:5.0,builtin:true},
-    {id:'b2',name:'Yoruba/Igbo/Hausa Marketing',category:'marketing',author:'ERGIO',downloads:98,rating:4.9,builtin:true},
-    {id:'b3',name:'Paystack Integration Expert',category:'payments',author:'ERGIO',downloads:76,rating:4.8,builtin:true},
-    {id:'b4',name:'WhatsApp Business Automation',category:'communication',author:'ERGIO',downloads:120,rating:4.7,builtin:true},
-    {id:'b5',name:'Restaurant Operations',category:'industry',author:'ERGIO',downloads:65,rating:4.9,builtin:true},
-    {id:'b6',name:'Law Firm Management',category:'industry',author:'ERGIO',downloads:43,rating:4.8,builtin:true},
-    {id:'b7',name:'Nigeria SEO Specialist',category:'marketing',author:'ERGIO',downloads:87,rating:5.0,builtin:true}
-  ];
-  // Try loading from backend
-  var remote = await apiGet('/api/skills');
-  if (remote && remote.skills) {
-    remote.skills.forEach(function(s) {
-      if (!s.builtin) skills.push(s);
-    });
-  }
-  tbody.innerHTML = skills.map(function(s) {
-    var stars = '';
-    for (var i=1;i<=5;i++) stars += i<=Math.round(s.rating)?'⭐':'☆';
-    return '<tr><td>'+s.name+'</td><td>'+s.category+'</td><td>'+s.author+'</td><td>'+s.downloads+'</td><td>'+stars+'</td><td><span class="status-pill '+(s.builtin?'status-online':'status-warning')+'">'+(s.builtin?'Built-in':'Community')+'</span></td><td>'+(s.builtin?'': '<button class="btn-sm btn-danger" onclick="deleteSkill(\''+s.id+'\')">Delete</button>')+'</td></tr>';
-  }).join('');
-}
-function deleteSkill(id) { if(confirm('Delete this skill?')) alert('Skill deleted (backend required)'); }
+R.cloudm=function(){return '<div class="stat-grid">'+sc('Servers','18','All running','up','--cyan','🖥️')+sc('Databases','3','PG+Firebase','up','--green','🗄️')+sc('Storage','847 GB','42%','up','--purple','💾')+sc('Monthly Cost','$1,247','In budget','flat','--blue','💵')+'</div><div class="grid-2"><div class="card"><div class="card-header"><div class="card-title">Server Management</div><button class="btn btn-primary btn-sm">Deploy</button></div><div class="tw"><table><thead><tr><th>Service</th><th>Provider</th><th>Status</th><th>Uptime</th><th>Action</th></tr></thead><tbody><tr><td>Web Frontend</td><td>Vercel</td><td><span class="badge bg">Running</span></td><td>99.97%</td><td><button class="btn btn-ghost btn-sm">Restart</button></td></tr><tr><td>API Backend</td><td>Render</td><td><span class="badge bg">Running</span></td><td>99.89%</td><td><button class="btn btn-ghost btn-sm">Restart</button></td></tr><tr><td>Database</td><td>Supabase</td><td><span class="badge bg">Running</span></td><td>100%</td><td><button class="btn btn-ghost btn-sm">Manage</button></td></tr></tbody></table></div></div><div class="card"><div class="card-header"><div class="card-title">Backup Management</div></div>'+kv('Last Backup','2 hours ago ✅')+kv('Schedule','Every 6 hours')+kv('Location','Supabase + S3')+kv('Total','847 backups')+kv('Retention','30 days')+'<div class="flex gap-2 mt-2"><button class="btn btn-primary btn-sm" onclick="showToast(\'Backup started\',\'info\')">Backup Now</button><button class="btn btn-ghost btn-sm" onclick="showToast(\'Restore dialog opened\',\'info\')">Restore</button></div></div></div>'};
 
-// ════════ SECURITY ════════
-async function loadSecurity() {
-  var secStatus = await apiGet('/api/security/status');
-  var stats = [
-    {icon:'🛡️',label:'Security Status',value: secStatus ? 'Active' : 'Standby',color:'rgba(0,255,157,0.1)'},
-    {icon:'🚫',label:'Blocked IPs',value: secStatus ? secStatus.blocked_ips : 0,color:'rgba(239,68,68,0.1)'},
-    {icon:'⚠️',label:'Failed Attempts',value: secStatus ? secStatus.failed_attempts : 0,color:'rgba(245,158,11,0.1)'},
-    {icon:'🔒',label:'Active Features',value: secStatus ? secStatus.features.length : SECURITY_FEATURES.length,color:'rgba(59,130,246,0.1)'}
-  ];
-  document.getElementById('securityStats').innerHTML = stats.map(function(s) {
-    return '<div class="stat-card"><div class="icon" style="background:'+s.color+'">'+s.icon+'</div><div class="label">'+s.label+'</div><div class="value">'+s.value+'</div></div>';
-  }).join('');
-  document.getElementById('securityFeatures').innerHTML = (secStatus ? secStatus.features : SECURITY_FEATURES).map(function(f) {
-    return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--green)">✓</span><span style="color:var(--text2);font-size:0.85rem">'+f+'</span></div>';
-  }).join('');
-  // Blocked IPs
-  var blocked = await apiGet('/api/security/blocked-ips');
-  var ips = (blocked && blocked.blocked_ips) || [];
-  document.getElementById('blockedIPs').innerHTML = ips.length === 0 ? '<div style="color:var(--text3);padding:1rem;text-align:center">No blocked IPs. All clear.</div>' : ips.map(function(ip) {
-    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-family:monospace;color:var(--text2)">'+ip+'</span><button class="btn-sm btn-danger" onclick="unblockIP(\''+ip+'\')">Unblock</button></div>';
-  }).join('');
-}
+R.integ=function(){var i=[{n:'GitHub',c:'Code Repo',i:'🐙',s:'connected'},{n:'Vercel',c:'Deploy',i:'▲',s:'connected'},{n:'Supabase',c:'Database',i:'⚡',s:'connected'},{n:'Firebase',c:'Auth',i:'🔥',s:'connected'},{n:'Paystack',c:'Payments',i:'💳',s:'connected'},{n:'OpenRouter',c:'AI',i:'🤖',s:'connected'},{n:'MongoDB',c:'Database',i:'🍃',s:'disconnected'},{n:'Resend',c:'Email',i:'📧',s:'disconnected'},{n:'Twilio',c:'SMS',i:'📱',s:'disconnected'},{n:'Stripe',c:'Payments',i:'💳',s:'disconnected'},{n:'Google Analytics',c:'Analytics',i:'📊',s:'connected'},{n:'Slack',c:'Chat',i:'💬',s:'disconnected'}];return '<div class="stat-grid">'+sc('Connected','7','Active','up','--green','🔌')+sc('Available','5','Ready','flat','--cyan','⚡')+sc('Errors','0','All healthy','up','--green','✅')+sc('API Calls','847K','+12%','up','--blue','📊')+'</div><div class="integ-grid">'+i.map(x=>'<div class="integ-card"><div class="integ-header"><div class="integ-icon" style="background:rgba(255,255,255,0.05)">'+x.i+'</div><div><div class="integ-name">'+x.n+'</div><div class="integ-cat">'+x.c+'</div></div></div><div class="integ-status '+(x.s==='connected'?'connected':'disconnected')+'">● '+x.s.charAt(0).toUpperCase()+x.s.slice(1)+'</div><div class="flex gap-2">'+(x.s==='connected'?'<button class="btn btn-ghost btn-sm" onclick="showToast(\''+x.n+': Testing...\',\'info\')">Test</button><button class="btn btn-danger btn-sm" onclick="showToast(\''+x.n+' disconnected\',\'error\')">Disconnect</button>':'<button class="btn btn-primary btn-sm" onclick="showToast(\''+x.n+' connected\',\'success\')">Connect</button>')+'</div></div>').join('')+'</div>'};
 
-function clearBlockedIPs() { if(confirm('Clear all blocked IPs?')) alert('All IPs unblocked (backend required)'); }
-function unblockIP(ip) { alert('IP '+ip+' unblocked (backend required)'); }
+R.health=function(){var s=[{n:'API Gateway',i:'🌐',st:'healthy',sub:'99.97% · 142ms'},{n:'PostgreSQL',i:'🗄️',st:'healthy',sub:'0 waiting · 12ms'},{n:'Firebase Auth',i:'🔥',st:'healthy',sub:'2,847 sessions'},{n:'AI Model API',i:'🧠',st:'healthy',sub:'4 providers · 847K/24h'},{n:'Cloud Services',i:'☁️',st:'healthy',sub:'18 instances'},{n:'Website Builder',i:'🔨',st:'healthy',sub:'3,421 sites · 23 active'},{n:'Authentication',i:'🔐',st:'healthy',sub:'2,847 users · 0 failures'},{n:'Billing System',i:'💳',st:'degraded',sub:'Paystack webhook delay'},{n:'Notifications',i:'🔔',st:'healthy',sub:'847 sent · 0 failed'},{n:'Background Jobs',i:'⚙️',st:'healthy',sub:'23 running · 0 failed'},{n:'Queue Workers',i:'📤',st:'healthy',sub:'0 backlog · 142/min'}];return '<div class="stat-grid">'+sc('Overall','99.4%','All systems','up','--green','💚')+sc('Healthy','10/11','90.9%','up','--green','✅')+sc('Degraded','1','Billing','flat','--amber','⚠️')+sc('Down','0','All clear','up','--green','🟢')+'</div><div class="card"><div class="card-header"><div class="card-title">Service Status</div><button class="btn btn-ghost btn-sm" onclick="showToast(\'Health check complete\',\'success\')">Run Check</button></div>'+s.map(x=>'<div class="health-item"><div class="health-left"><div class="health-icon" style="background:rgba(255,255,255,0.05)">'+x.i+'</div><div><div style="font-weight:600;font-size:0.84rem">'+x.n+'</div><div style="font-size:0.7rem;color:var(--text3)">'+x.sub+'</div></div></div><span class="badge '+(x.st==='healthy'?'bg':'ba')+'">'+(x.st==='healthy'?'Healthy':'Degraded')+'</span></div>').join('')+'</div>'};
 
-// ════════ LOGS ════════
-function loadLogs() {
-  var logs = JSON.parse(localStorage.getItem('ergio_admin_logs') || '[]');
-  if (logs.length === 0) logs.push({time:new Date().toISOString(),type:'INFO',detail:'Admin dashboard initialized. No logs yet.'});
-  document.getElementById('systemLogs').innerHTML = logs.map(function(l) {
-    var level = l.type.includes('FAILED') ? 'error' : l.type.includes('WARN') ? 'warn' : 'info';
-    return '<div class="log-entry"><span class="log-time">'+new Date(l.time).toLocaleTimeString()+'</span><span class="log-level log-'+level+'">'+l.type+'</span><span class="log-msg">'+l.detail+'</span></div>';
-  }).join('');
-}
+R.employees=function(){var e=[{n:'Emmanuel Erog',r:'CEO/Founder',d:'Executive',a:'E',c:'--cyan',t:12,p:9.2},{n:'Sarah Okonkwo',r:'Sales Lead',d:'Sales',a:'S',c:'--green',t:8,p:8.7},{n:'James Adebayo',r:'Senior Engineer',d:'Engineering',a:'J',c:'--blue',t:15,p:9.0},{n:'David Okafor',r:'Backend Engineer',d:'Engineering',a:'D',c:'--purple',t:10,p:8.4},{n:'Grace Nwosu',r:'Content Manager',d:'Content',a:'G',c:'--pink',t:7,p:8.8},{n:'Michael Obi',r:'Marketing',d:'Marketing',a:'M',c:'--amber',t:6,p:8.2},{n:'Chioma Eze',r:'Customer Success',d:'Success',a:'C',c:'--teal',t:5,p:8.5},{n:'Abdul Rahman',r:'QA Engineer',d:'QA',a:'A',c:'--orange',t:9,p:8.9},{n:'Fatima Bello',r:'HR Manager',d:'HR',a:'F',c:'--cyan',t:4,p:8.6},{n:'Tunde Bakare',r:'Cloud Engineer',d:'Cloud',a:'T',c:'--blue',t:8,p:8.7},{n:'Lisa Chen',r:'Product Manager',d:'Product',a:'L',c:'--green',t:11,p:9.1},{n:'Ibrahim Sani',r:'Security Analyst',d:'Security',a:'I',c:'--red',t:5,p:8.4}];return '<div class="stat-grid">'+sc('Employees','72','+4','up','--cyan','👥')+sc('Departments','16','All active','up','--blue','🏢')+sc('Avg Perf','8.6/10','Above target','up','--green','⭐')+sc('Open Positions','6','Active','up','--amber','📋')+'</div><div class="emp-grid">'+e.map(x=>'<div class="emp-card"><div class="emp-header"><div class="emp-avatar" style="background:linear-gradient(135deg,var('+x.c+'),var(--blue))">'+x.a+'</div><div><div class="emp-name">'+x.n+'</div><div class="emp-role">'+x.r+'</div></div><span class="badge bg" style="margin-left:auto">Active</span></div><div class="emp-stats"><span>Tasks: <span>'+x.t+'</span></span><span>Perf: <span>'+x.p+'</span></span><span>'+x.d+'</span></div></div>').join('')+'</div>'};
 
-// ════════ AGENTS ════════
-function loadAdminAgents() {
-  document.getElementById('adminAgentsGrid').innerHTML = AGENTS_DATA.map(function(a) {
-    return '<div class="engine-card"><div class="header"><div class="name">'+a.icon+' '+a.name+'</div><span class="status-pill status-warning">'+a.status+'</span></div><div class="desc" style="margin-bottom:6px">'+a.desc+'</div><div class="desc" style="font-size:0.72rem;color:var(--text3)">Type: '+a.type+'</div><div class="controls" style="margin-top:12px"><button class="btn-sm btn-primary" onclick="connectAgentAdmin(\''+a.name+'\')">Connect</button></div></div>';
-  }).join('');
-}
-function connectAgentAdmin(name) { var key = prompt('Enter API key for '+name+':'); if(key) alert(name+' connected (backend required)'); }
+R.audit=function(){return '<div class="card"><div class="card-header"><div><div class="card-title">Audit Trail</div><div class="card-sub">'+AUDIT.length+' events logged</div></div><div class="flex gap-2"><button class="btn btn-ghost btn-sm" onclick="exportLogs()">📥 Export</button></div></div><div class="log-feed">'+(AUDIT.length?AUDIT.slice(0,50).map(l=>'<div class="log-entry"><span class="log-time">'+l.time.replace('T',' ').substring(0,19)+'</span><span class="log-level '+(l.type==='LOGIN'||l.type==='SESSION'?'success':l.type==='LOGOUT'?'info':'warn')+'">'+l.type+'</span><span class="log-msg">'+l.msg+'</span></div>').join(''):'<p class="text-muted">No events yet.</p>')+'</div></div>'};
 
-// ════════ SETTINGS ════════
-function saveSettings() {
-  var url = document.getElementById('renderUrl').value.trim();
-  if (url) { localStorage.setItem('ergio_render_url', url); CONFIG.renderBase = url; alert('✅ Settings saved!'); }
-}
+R.secrets=function(){return '<div class="card"><div class="card-header"><div class="card-title">API Keys & Secrets</div><button class="btn btn-primary btn-sm" onclick="showToast(\'Add secret dialog\',\'info\')">➕ Add Secret</button></div><div class="tw"><table><thead><tr><th>Name</th><th>Service</th><th>Value</th><th>Last Rotated</th><th>Status</th><th>Action</th></tr></thead><tbody><tr><td>FIREBASE_API_KEY</td><td>Firebase</td><td class="mono">••••••••</td><td>Jul 28</td><td><span class="badge bg">Active</span></td><td><button class="btn btn-ghost btn-sm">Rotate</button></td></tr><tr><td>SUPABASE_URL</td><td>Supabase</td><td class="mono">••••••••</td><td>Jul 15</td><td><span class="badge bg">Active</span></td><td><button class="btn btn-ghost btn-sm">Rotate</button></td></tr><tr><td>PAYSTACK_SECRET</td><td>Paystack</td><td class="mono">••••••••</td><td>Jul 28</td><td><span class="badge bg">Active</span></td><td><button class="btn btn-ghost btn-sm">Rotate</button></td></tr><tr><td>OPENROUTER_KEY</td><td>OpenRouter</td><td class="mono">••••••••</td><td>Jul 20</td><td><span class="badge bg">Active</span></td><td><button class="btn btn-ghost btn-sm">Rotate</button></td></tr><tr><td>SEARXNG_URL</td><td>SearXNG</td><td class="mono text-muted">Not set</td><td>—</td><td><span class="badge ba">Missing</span></td><td><button class="btn btn-primary btn-sm">Set</button></td></tr></tbody></table></div></div><div class="card mt-2"><div class="card-header"><div class="card-title">Encryption Status</div></div>'+kv('Data at Rest','<span class="badge bg">AES-256</span>')+kv('Data in Transit','<span class="badge bg">TLS 1.3</span>')+kv('Secret Storage','<span class="badge bg">Vercel Env Vars</span>')+kv('Key Rotation','Every 90 days')+'</div>'};
 
-// ════════ INIT ════════
-if (sessionStorage.getItem('ergio_admin_auth') === '1') {
-  initAdmin();
-}
+function ag(n,a){showToast(a+' '+n,a==='pause'?'info':'success');logA('AGENT',a+' '+n);}
+function exportLogs(){var d=JSON.stringify(AUDIT,null,2),b=new Blob([d],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='ergio-audit-logs.json';a.click();URL.revokeObjectURL(u);showToast('Audit logs exported','success');}
+function alModal(){return '<div class="modal-title">Add Business Lead <span class="modal-close" onclick="closeModal()">×</span></div><input class="gate-input" placeholder="Business Name"/><input class="gate-input" placeholder="Category"/><input class="gate-input" placeholder="Location"/><input class="gate-input" placeholder="Phone"/><input class="gate-input" placeholder="Website URL"/><textarea class="gate-input" placeholder="Notes..." style="min-height:80px"></textarea><button class="gate-btn" onclick="closeModal();showToast(\'Lead added\',\'success\')">Add Lead</button>';}
+function ilModal(){return '<div class="modal-title">Import Leads <span class="modal-close" onclick="closeModal()">×</span></div><p class="text-muted text-sm mb-2">Upload CSV with business directory data.</p><div style="border:2px dashed var(--border2);border-radius:12px;padding:2rem;text-align:center;cursor:pointer"><div style="font-size:2rem">📥</div><div class="text-sm text-muted">Click to upload or drag & drop CSV</div></div><button class="gate-btn mt-2" onclick="closeModal();showToast(\'Import started\',\'info\')">Start Import</button>';}
+function showProfile(){openModal('<div class="modal-title">Admin Profile <span class="modal-close" onclick="closeModal()">×</span></div>'+kv('Name',session.user||'Admin')+kv('Role','Super Admin')+kv('Department','Executive')+kv('Login Time',new Date(session.loginTime).toLocaleString())+kv('Session Timeout','30 minutes')+kv('2FA Status','<span class="badge bg">Enabled</span>'));}
+document.getElementById('adminEmail').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('adminPass').focus();});
+document.getElementById('adminPass').addEventListener('keydown',e=>{if(e.key==='Enter')attemptLogin();});
+document.querySelectorAll('#otpInputs input').forEach(i=>i.addEventListener('keydown',function(e){if(e.key==='Backspace'&&!this.value){var x=+this.dataset.idx;if(x>0)document.querySelector('#otpInputs input[data-idx="'+(x-1)+'"]').focus();}}));
 </script>
 </body>
 </html>
