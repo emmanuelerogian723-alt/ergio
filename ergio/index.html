@@ -1068,15 +1068,15 @@ Launch Business
 <div class="pricing-price"><span class="currency">₦</span>0<span class="period">/month</span></div>
 <p style="color:var(--text2);font-size:0.82rem;margin-bottom:1rem">Launch your first business</p>
 <ul class="pricing-features">
-<li>1 business website</li>
-<li>AI brand identity</li>
+<li>1 business website (lovable-style builder)</li>
+<li>AI brand identity + logo</li>
 <li>Contact form + WhatsApp</li>
 <li>ERGIO subdomain</li>
 <li>Lead capture forms</li>
 <li>Basic analytics</li>
+<li class="disabled">ERGIO Console (website manager)</li>
 <li class="disabled">AI engines (10)</li>
-<li class="disabled">CRM & dashboard</li>
-<li class="disabled">Payment collection</li>
+<li class="disabled">Admin HQ access</li>
 </ul>
 <button class="pricing-btn secondary" onclick="document.getElementById('prompt').focus();window.scrollTo({top:0,behavior:'smooth'})">Start Free</button>
 </div>
@@ -1088,14 +1088,14 @@ Launch Business
 <p style="color:var(--text2);font-size:0.82rem;margin-bottom:1rem">For solo entrepreneurs</p>
 <ul class="pricing-features">
 <li>Everything in Free</li>
-<li>2 business websites</li>
+<li>3 business websites</li>
+<li>ERGIO Console (1 connected site)</li>
 <li>Lead Engine (AI scoring)</li>
 <li>Basic CRM dashboard</li>
 <li>Booking management</li>
 <li>Invoice generation</li>
-<li>Email notifications (50/mo)</li>
 <li class="disabled">Payment collection</li>
-<li class="disabled">Content & Voice engines</li>
+<li class="disabled">Admin HQ access</li>
 </ul>
 <button class="pricing-btn secondary" onclick="document.getElementById('prompt').focus();window.scrollTo({top:0,behavior:'smooth'})">Get Started</button>
 </div>
@@ -1107,12 +1107,12 @@ Launch Business
 <p style="color:var(--text2);font-size:0.82rem;margin-bottom:1rem">For growing businesses</p>
 <ul class="pricing-features">
 <li>Everything in Starter</li>
-<li>5 business websites</li>
+<li>10 business websites</li>
+<li>ERGIO Console (3 connected sites)</li>
 <li>Paystack payment collection</li>
 <li>AI Outreach Engine (cold emails)</li>
 <li>Content Engine (social posts)</li>
 <li>WhatsApp automation</li>
-<li>Email notifications (500/mo)</li>
 <li>3 MCP integrations</li>
 <li class="disabled">Voice Engine</li>
 </ul>
@@ -1128,12 +1128,12 @@ Launch Business
 <li>Everything in Launch</li>
 <li>All 10 AI engines</li>
 <li>Unlimited business websites</li>
+<li>ERGIO Console (unlimited sites)</li>
 <li>Voice Engine (AI receptionist)</li>
 <li>Reputation Engine (reviews)</li>
-<li>Analytics dashboard</li>
+<li>Analytics Engine</li>
 <li>10 MCP integrations</li>
-<li>Email notifications (5,000/mo)</li>
-<li class="disabled">White-label</li>
+<li class="disabled">White-label + Admin HQ</li>
 </ul>
 <button class="pricing-btn primary" onclick="document.getElementById('prompt').focus();window.scrollTo({top:0,behavior:'smooth'})">Go Grow</button>
 </div>
@@ -1145,13 +1145,13 @@ Launch Business
 <p style="color:var(--text2);font-size:0.82rem;margin-bottom:1rem">For agencies & multi-business</p>
 <ul class="pricing-features">
 <li>Everything in Grow</li>
+<li>Admin HQ access (5 team seats)</li>
 <li>White-label branding</li>
 <li>Custom domain + branding</li>
 <li>Workflow automation builder</li>
 <li>20 MCP integrations</li>
 <li>Priority AI processing</li>
 <li>API access</li>
-<li>Team collaboration (5 seats)</li>
 <li class="disabled">Unlimited seats</li>
 </ul>
 <button class="pricing-btn secondary" onclick="document.getElementById('prompt').focus();window.scrollTo({top:0,behavior:'smooth'})">Scale Up</button>
@@ -1164,14 +1164,14 @@ Launch Business
 <p style="color:var(--text2);font-size:0.82rem;margin-bottom:1rem">White-label SaaS platform</p>
 <ul class="pricing-features">
 <li>Everything in Scale</li>
-<li>Unlimited team seats</li>
+<li>Admin HQ (unlimited seats)</li>
+<li>Training Academy (all courses)</li>
 <li>All 25 MCP integrations</li>
 <li>Clay lead enrichment</li>
 <li>Dedicated support (24/7)</li>
 <li>Custom AI training</li>
 <li>SLA guarantee (99.9%)</li>
 <li>On-premise deployment</li>
-<li>Custom integrations</li>
 </ul>
 <button class="pricing-btn secondary" onclick="document.getElementById('prompt').focus();window.scrollTo({top:0,behavior:'smooth'})">Go Enterprise</button>
 </div>
@@ -1720,24 +1720,7 @@ const stageLabels = [
 function startBuild(){
   const val = promptEl.value.trim();
   if(!val){promptEl.focus();return}
-  // Auth gate — check if user is logged in (Supabase OR Firebase/localStorage)
-  const session = localStorage.getItem('sb-owcxfzlanlrulflsyvlr-auth-token');
-  const ergioUser = localStorage.getItem('ergio_user');
-  let isLoggedIn = false;
-  try {
-    const parsed = session ? JSON.parse(session) : null;
-    isLoggedIn = !!(parsed && parsed.access_token && parsed.expires_at > Date.now()/1000);
-  } catch(e) {}
-  // Also check Firebase/localStorage auth (used by dashboard)
-  if (!isLoggedIn && ergioUser) {
-    try { const u = JSON.parse(ergioUser); isLoggedIn = !!(u && (u.uid || u.id || u.email)); } catch(e) {}
-  }
-  
-  if (!isLoggedIn) {
-    // Show sign-up modal instead of builder
-    showAuthGate(val);
-    return;
-  }
+  // Save prompt and go straight to builder — no auth gate for first try
   localStorage.setItem('ergio_initial_prompt', val);
   window.location.href = 'build.html';
 }

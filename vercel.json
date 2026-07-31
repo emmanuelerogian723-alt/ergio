@@ -46,6 +46,62 @@
     {
       "source": "/config.js",
       "destination": "/ergio/config.js"
+    },
+    {
+      "source": "/ergio/console",
+      "destination": "/ergio/console/index.html"
+    },
+    {
+      "source": "/ergio/console/",
+      "destination": "/ergio/console/index.html"
+    },
+    {
+      "source": "/ergio/admin",
+      "destination": "/ergio/admin/index.html"
+    },
+    {
+      "source": "/ergio/admin/",
+      "destination": "/ergio/admin/index.html"
+    },
+    {
+      "source": "/build.html",
+      "destination": "/ergio/build.html"
+    },
+    {
+      "source": "/s/:slug*",
+      "destination": "/ergio/site.html"
+    },
+    {
+      "source": "/match.html",
+      "destination": "/ergio/match.html"
+    },
+    {
+      "source": "/critique.html",
+      "destination": "/ergio/critique.html"
+    },
+    {
+      "source": "/refer.html",
+      "destination": "/ergio/refer.html"
+    },
+    {
+      "source": "/pay.html",
+      "destination": "/ergio/pay.html"
+    },
+    {
+      "source": "/guide-widget.js",
+      "destination": "/ergio/guide-widget.js"
+    },
+    {
+      "source": "/cinematic-build.js",
+      "destination": "/ergio/cinematic-build.js"
+    },
+    {
+      "source": "/assets/:path*",
+      "destination": "/ergio/assets/:path*"
+    },
+    {
+      "source": "/manifest.json",
+      "destination": "/ergio/manifest.json"
     }
   ]
 }

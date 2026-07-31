@@ -437,7 +437,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   <div class="nav-items">
     <div class="nav-section-label">Main</div>
     <div class="nav-item active" data-tab="overview" onclick="switchTab('overview')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Overview</span></div>
-    <div class="nav-item" data-tab="website" onclick="switchTab('website')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg><span>Website Builder</span></div>
+    <div class="nav-item" data-tab="website" onclick="window.open('/build.html','_blank')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg><span>Website Builder</span><span style="margin-left:auto;font-size:.6rem;background:var(--cyan);color:#000;padding:1px 6px;border-radius:100px;font-weight:700">NEW</span></div>
     <div class="nav-item" data-tab="leads" onclick="switchTab('leads')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>Leads CRM</span></div>
     <div class="nav-item" data-tab="bookings" onclick="switchTab('bookings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Bookings</span></div>
     <div class="nav-item" data-tab="outreach" onclick="switchTab('outreach')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg><span>Outreach</span></div>
@@ -472,7 +472,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   <div class="topbar"><div><h1 id="pageTitle">Overview</h1></div><div class="topbar-right"><span id="engineStatusBadge" style="font-size:.72rem;padding:.25rem .6rem;border-radius:8px;background:rgba(255,255,255,.04);color:var(--muted)">Checking...</span><button class="btn btn-ghost btn-sm" onclick="window.open('../index.html','_blank')">View Site</button><button class="btn btn-primary btn-sm" onclick="switchTab('conductor')">Conductor</button></div></div>
   <div class="content">
     <div class="tab-content active" id="tab-overview"><div class="kpi-grid"><div class="kpi-card"><div class="kpi-icon" style="background:rgba(0,217,255,.1)">🎯</div><div class="kpi-value" id="kpiLeads">0</div><div class="kpi-label">Total Leads</div><div class="kpi-trend" id="kpiLeadsTrend">Loading...</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(0,255,157,.1)">📅</div><div class="kpi-value" id="kpiBookings">0</div><div class="kpi-label">Bookings</div><div class="kpi-trend" id="kpiBookingsTrend">Loading...</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(139,92,246,.1)">🤖</div><div class="kpi-value" id="kpiEngines">0</div><div class="kpi-label">Active Engines</div><div class="kpi-trend" id="kpiEnginesTrend">Loading...</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(255,184,0,.1)">💰</div><div class="kpi-value" id="kpiRevenue">₦0</div><div class="kpi-label">Revenue (30d)</div><div class="kpi-trend" id="kpiRevTrend">Loading...</div></div></div><div class="qa-grid"><div class="qa-card" onclick="switchTab('website')"><div class="icon">🌐</div><div class="label">Build Website</div></div><div class="qa-card" onclick="switchTab('conductor')"><div class="icon">🤖</div><div class="label">Run Conductor</div></div><div class="qa-card" onclick="switchTab('leads')"><div class="icon">🎯</div><div class="label">Scan Leads</div></div><div class="qa-card" onclick="switchTab('outreach')"><div class="icon">📤</div><div class="label">Outreach</div></div><div class="qa-card" onclick="switchTab('plugins')"><div class="icon">🔌</div><div class="label">Add Plugin</div></div><div class="qa-card" onclick="switchTab('analytics')"><div class="icon">📊</div><div class="label">Analytics</div></div></div><div class="panel"><div class="panel-header"><div><div class="panel-title">Recent Activity</div><div class="panel-sub">Latest events from your ERGIO engines</div></div><button class="btn btn-ghost btn-sm" onclick="loadActivity()">Refresh</button></div><div id="activityFeed"><div class="empty"><div class="icon">📋</div><h3>Loading activity...</h3><p>Fetching data from Supabase and ERGIO Engines.</p></div></div></div></div>
-<div class="tab-content" id="tab-website"><div class="builder-wrap"><div class="panel" style="margin-bottom:0;max-height:calc(100vh - 6rem);overflow-y:auto"><div class="panel-header"><div class="panel-title">AI Website Builder</div><span class="badge badge-cyan">AI Business OS v10.0</span></div><div class="form-group"><label class="form-label">Describe your website</label><textarea class="form-textarea" id="wbPrompt" placeholder="e.g. Build a luxury restaurant website for The Palms Bistro in Lagos with dark gold theme and full animations. Or: Create a brutalist portfolio for a freelance designer. Every prompt generates a unique design!" style="min-height:60px"></textarea></div><button class="btn btn-primary" style="width:100%;margin-bottom:.8rem" onclick="buildWebsiteFromPrompt()" id="wbBuildBtn">⚡ Generate from Prompt</button><div id="wbQuality" style="display:none;margin-bottom:1rem;padding:1rem;background:var(--bg2);border-radius:12px;border:1px solid var(--border)"></div><div style="border-top:1px solid var(--border);padding-top:.8rem;margin-bottom:.8rem"><div style="font-size:.7rem;color:var(--muted);margin-bottom:.5rem">Or use manual options:</div><div class="form-group"><label class="form-label">Business Name</label><input class="form-input" id="wbName" placeholder="e.g. Lagos Fitness Studio"></div><div class="form-group"><label class="form-label">Business Type</label><select class="form-select" id="wbType"><option value="restaurant">Restaurant</option><option value="gym">Gym/Fitness</option><option value="salon">Salon/Spa</option><option value="agency">Agency/Studio</option><option value="shop">Online Shop</option><option value="consultant">Consultant</option><option value="startup">SaaS/Startup</option><option value="freelancer">Freelancer</option><option value="realestate">Real Estate</option><option value="healthcare">Healthcare</option><option value="education">Education</option><option value="legal">Legal</option><option value="finance">Finance</option><option value="church">Church</option><option value="ngo">NGO</option><option value="event">Event Planning</option><option value="portfolio">Portfolio</option><option value="marketplace">Marketplace</option></select></div><div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="wbDesc" placeholder="We help customers achieve..."></textarea></div><div class="form-group"><label class="form-label">Color Theme</label><select class="form-select" id="wbColor"><option value="cyan">Cyan</option><option value="green">Green</option><option value="purple">Purple</option><option value="orange">Orange</option><option value="blue">Blue</option><option value="pink">Pink</option><option value="red">Red</option><option value="gold">Gold</option></select></div><div class="form-group"><label class="form-label">Animation Style</label><select class="form-select" id="wbAnim"><option value="dribbble">Dribbble (Full Motion Graphics)</option><option value="smooth">Smooth (Subtle Animations)</option><option value="minimal">Minimal (Clean & Static)</option></select></div><div class="form-group"><label class="form-label">Builder Tools</label><div id="wbTools" style="display:flex;flex-wrap:wrap;gap:.4rem;padding:.5rem 0"><div style="display:flex;align-items:center;gap:.3rem;padding:.3rem .6rem;border:1px solid var(--border);border-radius:8px;font-size:.72rem"><input type="checkbox" id="toolLogo" checked style="accent-color:var(--cyan)"> AI Logo</div><div style="display:flex;align-items:center;gap:.3rem;padding:.3rem .6rem;border:1px solid var(--border);border-radius:8px;font-size:.72rem"><input type="checkbox" id="toolSEO" checked style="accent-color:var(--cyan)"> SEO</div><div style="display:flex;align-items:center;gap:.3rem;padding:.3rem .6rem;border:1px solid var(--border);border-radius:8px;font-size:.72rem"><input type="checkbox" id="toolContent" checked style="accent-color:var(--cyan)"> AI Content</div><div style="display:flex;align-items:center;gap:.3rem;padding:.3rem .6rem;border:1px solid var(--border);border-radius:8px;font-size:.72rem"><input type="checkbox" id="toolAnalytics" style="accent-color:var(--cyan)"> Analytics</div><div style="display:flex;align-items:center;gap:.3rem;padding:.3rem .6rem;border:1px solid var(--border);border-radius:8px;font-size:.72rem"><input type="checkbox" id="toolChatbot" style="accent-color:var(--cyan)"> Chatbot</div><div style="display:flex;align-items:center;gap:.3rem;padding:.3rem .6rem;border:1px solid var(--border);border-radius:8px;font-size:.72rem"><input type="checkbox" id="toolEcommerce" style="accent-color:var(--cyan)"> E-commerce</div><div style="display:flex;align-items:center;gap:.3rem;padding:.3rem .6rem;border:1px solid var(--border);border-radius:8px;font-size:.72rem"><input type="checkbox" id="toolBooking" style="accent-color:var(--cyan)"> Bookings</div><div style="display:flex;align-items:center;gap:.3rem;padding:.3rem .6rem;border:1px solid var(--border);border-radius:8px;font-size:.72rem"><input type="checkbox" id="toolBlog" style="accent-color:var(--cyan)"> Blog</div><div style="display:flex;align-items:center;gap:.3rem;padding:.3rem .6rem;border:1px solid var(--border);border-radius:8px;font-size:.72rem"><input type="checkbox" id="toolNewsletter" style="accent-color:var(--cyan)"> Newsletter</div><div style="display:flex;align-items:center;gap:.3rem;padding:.3rem .6rem;border:1px solid var(--border);border-radius:8px;font-size:.72rem"><input type="checkbox" id="toolContactForm" checked style="accent-color:var(--cyan)"> Contact Form</div></div><div id="wbMcpStatus" style="font-size:.7rem;color:var(--muted);margin-top:.3rem"></div></div><button class="btn btn-ghost" style="width:100%;margin-top:.5rem" onclick="buildWebsite()">⚡ Generate with Options</button></div><button class="btn btn-primary" style="width:100%;margin-top:.5rem" onclick="saveWebsite()">🚀 Deploy Website</button></div><div class="builder-preview"><div style="padding:.6rem 1rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between"><span style="font-size:.78rem;color:var(--muted)">Live Preview</span><span id="wbUrl" style="font-size:.75rem;color:var(--cyan);font-family:monospace">preview appears here</span></div><div id="wbCustomDomainWrap" style="margin-top:.8rem;display:none"><div class="form-group" style="margin-bottom:.5rem"><label class="form-label" style="font-size:.75rem">Custom Domain (optional)</label><input type="text" class="form-input" id="wbCustomDomain" placeholder="mybusiness.com" style="font-size:.85rem"></div></div><iframe id="wbPreview" sandbox="allow-same-origin allow-scripts"></iframe></div></div></div>
+<div class="tab-content" id="tab-website"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;padding:2rem"><div style="font-size:4rem;margin-bottom:1rem">🎨</div><h2 style="font-size:1.8rem;font-weight:800;margin-bottom:.5rem">Lovable-Style Website Builder</h2><p style="color:var(--muted);max-width:500px;line-height:1.6;margin-bottom:2rem">We've upgraded to a full visual builder with live preview, real-time AI generation, deploy options, and chat-based editing. Click below to launch it.</p><button class="btn btn-primary" style="font-size:1rem;padding:14px 32px" onclick="window.open('/build.html','_blank')">🚀 Launch Website Builder</button><div style="margin-top:1rem;font-size:.8rem;color:var(--muted)">Or type your business idea on the <a href="/" style="color:var(--cyan)">landing page</a> to start building instantly</div></div></div>
 
     <div class="tab-content" id="tab-leads"><div class="panel"><div class="panel-header"><div><div class="panel-title">Lead CRM</div><div class="panel-sub">Leads from Supabase + ERGIO discovery engine</div></div><div style="display:flex;gap:.5rem"><button class="btn btn-ghost btn-sm" onclick="loadLeadsSupabase()">Load from DB</button><button class="btn btn-primary btn-sm" onclick="scanLeadsEngine()">🔍 Scan New</button></div></div><div id="leadsTable"><div class="empty"><div class="icon">🎯</div><h3>No leads yet</h3><p>Scan for leads using the discovery engine.</p><button class="btn btn-primary" onclick="scanLeadsEngine()">🔍 Start Scan</button></div></div></div></div>
     <div class="tab-content" id="tab-bookings"><div class="panel"><div class="panel-header"><div><div class="panel-title">Bookings</div><div class="panel-sub">Customer bookings from Supabase</div></div><button class="btn btn-ghost btn-sm" onclick="loadBookings()">Refresh</button></div><div id="bookingsList"><div class="empty"><div class="icon">📅</div><h3>No bookings yet</h3><p>Bookings appear when customers book through your website.</p></div></div></div></div>
@@ -486,7 +486,57 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
     <div class="tab-content" id="tab-plugins"><div class="panel"><div class="panel-header"><div><div class="panel-title">MCP Servers and Plugins</div><div class="panel-sub">Model Context Protocol integrations</div></div><button class="btn btn-primary btn-sm" onclick="showAddMCP()">+ Add Custom MCP</button></div><div id="mcpAddForm" style="display:none;margin-bottom:1rem;padding:1rem;background:var(--card2);border:1px solid var(--border);border-radius:10px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.6rem"><input class="form-input" id="mcpName" placeholder="MCP Name"><input class="form-input" id="mcpUrl" placeholder="https://mcp-url.com"></div><div style="display:flex;gap:.6rem"><select class="form-select" id="mcpTransport" style="width:auto"><option value="http">HTTP</option><option value="sse">SSE</option><option value="ws">WebSocket</option></select><input class="form-input" id="mcpApiKey" placeholder="API Key (optional)" style="flex:1"><button class="btn btn-primary" onclick="connectMCP()">Connect</button></div></div><div class="engine-grid" id="mcpGrid"></div></div><div class="panel"><div class="panel-header"><div class="panel-title">Available Plugins</div><div class="panel-sub">Extend ERGIO capabilities</div></div><div class="int-grid" id="pluginsGrid"></div></div></div>
     <div class="tab-content" id="tab-skills"><div class="panel"><div class="panel-header"><div><div class="panel-title">Skills Marketplace</div><div class="panel-sub">Reusable AI skills for the Conductor</div></div><button class="btn btn-primary btn-sm" onclick="showSkillForm()">+ Create Skill</button></div><div id="skillForm" style="display:none;margin-bottom:1rem;padding:1rem;background:var(--card2);border:1px solid var(--border);border-radius:10px"><div class="form-group"><label class="form-label">Skill Name</label><input class="form-input" id="skillName" placeholder="e.g. Competitor Price Analysis"></div><div class="form-group"><label class="form-label">Description</label><input class="form-input" id="skillDesc" placeholder="What does this skill do?"></div><div class="form-group"><label class="form-label">Instructions</label><textarea class="form-textarea" id="skillInstr" placeholder="Step-by-step instructions for the AI agent..."></textarea></div><div class="form-group"><label class="form-label">Category</label><select class="form-select" id="skillCat"><option value="marketing">Marketing</option><option value="sales">Sales</option><option value="finance">Finance</option><option value="ops">Operations</option><option value="tech">Technology</option><option value="research">Research</option></select></div><button class="btn btn-primary" onclick="createSkill()">Publish Skill</button></div><div class="int-grid" id="skillsGrid"></div></div></div>
     <div class="tab-content" id="tab-integrations"><div class="panel"><div class="panel-header"><div><div class="panel-title">Integrations</div><div class="panel-sub">Connect external services to ERGIO</div></div></div><div style="display:flex;gap:.4rem;margin-bottom:1rem;flex-wrap:wrap" id="intCategories"></div><div class="int-grid" id="integrationsGrid"></div></div><div class="panel"><div class="panel-header"><div class="panel-title">Connected Integrations</div></div><div id="connectedList"></div></div></div>
-    <div class="tab-content" id="tab-analytics"><div class="kpi-grid"><div class="kpi-card"><div class="kpi-icon" style="background:rgba(0,217,255,.1)">👁️</div><div class="kpi-value" id="anPageViews">0</div><div class="kpi-label">Page Views</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(0,255,157,.1)">👆</div><div class="kpi-value" id="anClicks">0</div><div class="kpi-label">Clicks</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(139,92,246,.1)">📞</div><div class="kpi-value" id="anConversions">0</div><div class="kpi-label">Conversions</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(255,184,0,.1)">⚡</div><div class="kpi-value" id="anEnginesRun">0</div><div class="kpi-label">Engine Runs</div></div></div><div class="panel"><div class="panel-header"><div class="panel-title">Revenue and Activity</div><div class="panel-sub">From Supabase database</div></div><div id="analyticsContent"><div class="empty"><div class="icon">📊</div><h3>Loading analytics...</h3><p>Fetching data from Supabase.</p></div></div></div></div><div class="tab-content" id="tab-billing">
+    <div class="tab-content" id="tab-analytics"><div class="kpi-grid"><div class="kpi-card"><div class="kpi-icon" style="background:rgba(0,217,255,.1)">👁️</div><div class="kpi-value" id="anPageViews">0</div><div class="kpi-label">Page Views</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(0,255,157,.1)">👆</div><div class="kpi-value" id="anClicks">0</div><div class="kpi-label">Clicks</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(139,92,246,.1)">📞</div><div class="kpi-value" id="anConversions">0</div><div class="kpi-label">Conversions</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(255,184,0,.1)">⚡</div><div class="kpi-value" id="anEnginesRun">0</div><div class="kpi-label">Engine Runs</div></div></div><div class="panel"><div class="panel-header"><div class="panel-title">Revenue and Activity</div><div class="panel-sub">From Supabase database</div></div><div id="analyticsContent"><div class="empty"><div class="icon">📊</div><h3>Loading analytics...</h3><p>Fetching data from Supabase.</p></div></div></div></div><div class="tab-content" id="tab-insights">
+  <div class="panel" style="margin-bottom:1rem">
+    <div class="panel-header">
+      <div>
+        <div class="panel-title">AI Business Insights</div>
+        <div class="panel-sub">Real-time AI analysis of your ERGIO data</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="generateInsights()">🔄 Generate Insights</button>
+    </div>
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1rem">
+      <button class="btn btn-ghost btn-sm" onclick="quickInsight('marketing')">📣 Marketing Strategy</button>
+      <button class="btn btn-ghost btn-sm" onclick="quickInsight('growth')">📈 Growth Opportunities</button>
+      <button class="btn btn-ghost btn-sm" onclick="quickInsight('pricing')">💰 Pricing Strategy</button>
+      <button class="btn btn-ghost btn-sm" onclick="quickInsight('competitors')">🔍 Competitor Analysis</button>
+      <button class="btn btn-ghost btn-sm" onclick="quickInsight('automation')">⚡ Automation Ideas</button>
+      <button class="btn btn-ghost btn-sm" onclick="quickInsight('content')">✍️ Content Calendar</button>
+    </div>
+    <div id="insightsContent" style="min-height:200px">
+      <div class="empty" style="padding:2rem">
+        <div class="icon">🧠</div>
+        <h3>No insights yet</h3>
+        <p>Click "Generate Insights" for a full AI analysis of your business, or pick a quick topic above.</p>
+        <button class="btn btn-primary" onclick="generateInsights()" style="margin-top:1rem">Generate Insights Now</button>
+      </div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem">
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">📊 Lead Score</div></div>
+      <div id="insightLeadScore" style="padding:1rem;text-align:center">
+        <div style="font-size:3rem;font-weight:900;color:var(--green)" id="leadScoreVal">—</div>
+        <div style="color:var(--muted);font-size:.8rem">Overall lead quality score</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">💰 Revenue Trend</div></div>
+      <div id="insightRevTrend" style="padding:1rem;text-align:center">
+        <div style="font-size:2rem;font-weight:900;color:var(--cyan)" id="revTrendVal">—</div>
+        <div style="color:var(--muted);font-size:.8rem">30-day revenue from Supabase</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">🤖 Engine Activity</div></div>
+      <div id="insightEngineAct" style="padding:1rem;text-align:center">
+        <div style="font-size:2rem;font-weight:900;color:var(--purple)" id="engineActVal">—</div>
+        <div style="color:var(--muted);font-size:.8rem">Engine runs this week</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="tab-content" id="tab-billing">
 <div class="billing-wrap" style="padding:1.5rem">
 
   <!-- Header -->
@@ -1357,7 +1407,7 @@ const ENGINES=window.ErgioEngines||null;let currentUser=null,fbAuth=null,sbClien
 try{const F=window.ERGIO_CONFIG?.firebase||{};if(F.apiKey){firebase.initializeApp(F);fbAuth=firebase.auth()}}catch(e){console.log('Firebase:',e.message)}
 try{const U=window.ERGIO_CONFIG?.supabaseUrl,K=window.ERGIO_CONFIG?.supabaseAnonKey;if(U&&K)sbClient=supabase.createClient(U,K)}catch(e){console.log('Supabase:',e.message)}
 function showToast(m,t='info'){const e=document.createElement('div');e.className='toast '+t;e.textContent=m;document.body.appendChild(e);setTimeout(()=>e.remove(),3000)}
-function switchTab(t){document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));const e=document.getElementById('tab-'+t);if(e)e.classList.add('active');if(t==='workspace')loadWorkspace();if(t==='billing')loadPricingGrid();document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));document.querySelector('[data-tab="'+t+'"]')?.classList.add('active');const titles={overview:'Overview',website:'Website Builder',leads:'Leads CRM',bookings:'Bookings',outreach:'Outreach',conductor:'Conductor Agent',engines:'Engines',agents:'Agent Frameworks',plugins:'MCP and Plugins',skills:'Skills Marketplace',integrations:'Integrations',analytics:'Analytics',billing:'Billing & Plans',insights:'AI Insights',workspace:'Workspace',cloud:'Cloud Console',employees:'AI Employees',missions:'Missions',memory:'Business Memory',scheduler:'Scheduler',health:'Health Monitor',security:'Security Center',profile:'My Profile'};document.getElementById('pageTitle').textContent=titles[t]||t;if(t==='overview')handlePaystackCallback();loadOverview();if(t==='leads')loadLeadsSupabase();if(t==='bookings')loadBookings();if(t==='engines')loadEngineStatus();if(t==='plugins'){loadMCPGrid();loadPluginsGrid()}if(t==='skills')loadSkillsGrid();if(t==='agents')loadAgentFrameworks();if(t==='integrations')loadIntegrations();if(t==='analytics')loadAnalytics();if(t==='conductor')handlePaystackCallback();checkConductorStatus();initOnboarding();if(t==='billing'){loadPricingGrid();loadPaymentHistory()}if(t==='cloud')loadCloudConsole();if(t==='employees')loadEmployees();if(t==='missions')loadMissions();if(t==='memory')loadBusinessMemory();if(t==='scheduler')loadScheduler();if(t==='health')loadHealthMonitor();if(t==='security')loadSecurityCenter();if(t==='insights'){/* lazy load */}}
+function switchTab(t){document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));const e=document.getElementById('tab-'+t);if(e)e.classList.add('active');if(t==='workspace')loadWorkspace();if(t==='billing')loadPricingGrid();document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));document.querySelector('[data-tab="'+t+'"]')?.classList.add('active');const titles={overview:'Overview',website:'Website Builder',leads:'Leads CRM',bookings:'Bookings',outreach:'Outreach',conductor:'Conductor Agent',engines:'Engines',agents:'Agent Frameworks',plugins:'MCP and Plugins',skills:'Skills Marketplace',integrations:'Integrations',analytics:'Analytics',billing:'Billing & Plans',insights:'AI Insights',workspace:'Workspace',cloud:'Cloud Console',employees:'AI Employees',missions:'Missions',memory:'Business Memory',scheduler:'Scheduler',health:'Health Monitor',security:'Security Center',profile:'My Profile'};document.getElementById('pageTitle').textContent=titles[t]||t;if(t==='overview')handlePaystackCallback();loadOverview();if(t==='leads')loadLeadsSupabase();if(t==='bookings')loadBookings();if(t==='engines')loadEngineStatus();if(t==='plugins'){loadMCPGrid();loadPluginsGrid()}if(t==='skills')loadSkillsGrid();if(t==='agents')loadAgentFrameworks();if(t==='integrations')loadIntegrations();if(t==='analytics')loadAnalytics();if(t==='conductor')handlePaystackCallback();checkConductorStatus();initOnboarding();if(t==='billing'){loadPricingGrid();loadPaymentHistory()}if(t==='cloud')loadCloudConsole();if(t==='employees')loadEmployees();if(t==='missions')loadMissions();if(t==='memory')loadBusinessMemory();if(t==='scheduler')loadScheduler();if(t==='health')loadHealthMonitor();if(t==='security')loadSecurityCenter();if(t==='insights'){loadInsights();}if(t==='profile')loadProfile();}
 async function loadOverview(){if(ENGINES){try{const h=await ENGINES.health();if(h.status==='healthy'){const b=document.getElementById('engineStatusBadge');b.textContent='🟢 Engine Online';b.style.color='var(--green)';b.style.background='rgba(0,255,157,.08)'}const s=await ENGINES.status();document.getElementById('kpiEngines').textContent=(s.engines||[]).length;document.getElementById('kpiEnginesTrend').textContent='All operational'}catch(e){document.getElementById('engineStatusBadge').textContent='🔴 Engine Offline';document.getElementById('engineStatusBadge').style.color='var(--red)'}}if(sbClient){try{const{count:l}=await sbClient.from('leads').select('*',{count:'exact',head:true});document.getElementById('kpiLeads').textContent=l||0;document.getElementById('kpiLeadsTrend').textContent='In CRM';const{count:b}=await sbClient.from('bookings').select('*',{count:'exact',head:true});document.getElementById('kpiBookings').textContent=b||0;document.getElementById('kpiBookingsTrend').textContent='Total';const{data:pmts}=await sbClient.from('payments').select('amount');let rev=0;(pmts||[]).forEach(p=>rev+=(p.amount||0));document.getElementById('kpiRevenue').textContent='₦'+rev.toLocaleString();document.getElementById('kpiRevTrend').textContent='From payments'}catch(e){document.getElementById('kpiLeadsTrend').textContent='DB not accessible';document.getElementById('kpiBookingsTrend').textContent='DB not accessible';document.getElementById('kpiRevTrend').textContent='DB not accessible'}}loadActivity()}
 async function loadActivity(){const c=document.getElementById('activityFeed');if(!c)return;if(sbClient){try{const{data}=await sbClient.from('analytics_events').select('*').order('created_at',{ascending:false}).limit(10);if(data&&data.length>0){c.innerHTML=data.map(e=>'<div style="display:flex;align-items:center;gap:.8rem;padding:.7rem;border:1px solid var(--border);border-radius:10px;margin-bottom:.5rem"><div style="font-size:1.2rem">'+(e.icon||'📋')+'</div><div style="flex:1"><div style="font-weight:600;font-size:.85rem">'+(e.event_type||'Event')+'</div><div style="font-size:.72rem;color:var(--muted)">'+(e.description||'')+'</div></div><span class="badge badge-cyan">'+(e.category||'system')+'</span></div>').join('');return}}catch(e){}}if(ENGINES){try{const r=await fetch(ENGINES.BASE+'/activity/history');const d=await r.json();const ev=d.events||[];if(ev.length>0){c.innerHTML=ev.map(e=>'<div style="display:flex;align-items:center;gap:.8rem;padding:.7rem;border:1px solid var(--border);border-radius:10px;margin-bottom:.5rem"><div style="font-size:1.2rem">⚡</div><div style="flex:1"><div style="font-weight:600;font-size:.85rem">'+(e.engine||e.action||'Activity')+'</div><div style="font-size:.72rem;color:var(--muted)">'+(e.action||'')+'</div></div><span class="badge badge-green">completed</span></div>').join('');return}}catch(e){}}c.innerHTML='<div class="empty"><div class="icon">📋</div><h3>No activity yet</h3><p>Run the Conductor agent or scan for leads to see activity.</p></div>'}
 /* ═════════════════════════════════════════════════════════════════════
@@ -2524,12 +2574,18 @@ function genDemo(t,ctx){
   const connected=(ctx&&ctx.connectedMcps||[]).map(m=>m.id).join(', ')||'none';
   const totalMcps=(ctx?ctx.connectedMcps.length+ctx.disconnectedMcps.length:25);
   const connectedCount=(ctx?ctx.connectedMcps.length:0);
-  const awareness='\n\n---\n_Connected: '+connectedCount+' of '+totalMcps+' MCPs ('+connected+'). '+ctx?.connectedPlugins?.length+' plugins available._';
+  const awareness='\n\n---\n**ERGIO System Status:**\n• Admin HQ: Live at /ergio/admin/ (2FA protected, 25 sections)\n• ERGIO Console: Live at /ergio/console/ (AI website manager, 14 sections)\n• Website Builder: Upgraded to lovable-style visual builder at /build.html\n• 10 AI Engines: All operational\n• Dashboard: 21+ tabs including Cloud Console, AI Employees, Health Monitor, Security Center\n_Connected: '+connectedCount+' of '+totalMcps+' MCPs ('+connected+'). '+ctx?.connectedPlugins?.length+' plugins available._';
   if(l.includes('lead')||l.includes('client')){
     return"I can help you find leads!\n\n1. Scan your market using the discovery engine\n2. Score leads based on fit\n3. Generate outreach messages\n\nGo to the Leads tab and click 'Scan New', or tell me your business type and location and I'll run the full pipeline."+awareness;
   }
   if(l.includes('search')||l.includes('google')||l.includes('look up')||l.includes('research')){return"I can search the internet in real-time! Ask me to search for anything — news, facts, competitors, trends, or documentation. I'll find accurate, relevant information and summarize it for you."+awareness}if(l.includes('website')||l.includes('build')){
-    return"I can build a website! Go to the Website Builder tab, enter your business details, and I'll generate a complete website with live preview. You can save it to Supabase."+awareness;
+    return"I can build a website! Click the Website Builder link in the sidebar to open our new visual builder at /build.html — it has live preview, real-time AI generation, chat-based editing, and one-click deploy. You can also type your business idea on the landing page to start building instantly."+awareness;
+  }
+  if(l.includes('admin')||l.includes('headquarter')||l.includes('operations center')){
+    return"The ERGIO Admin Headquarters is your hidden internal operations center. It's at /ergio/admin/ — protected by 2FA and RBAC. It has 25 sections including Executive Dashboard, AI Agent Control Center, Lead Management, Intelligence Center, Cloud Center, Integration Center, System Health, Employee Management, Security Center, Audit Logs, and Secrets Management. Use it to manage the entire ERGIO platform."+awareness;
+  }
+  if(l.includes('console')||l.includes('website manager')||l.includes('site brain')){
+    return"The ERGIO Console is your AI Website Manager at /ergio/console/. It connects any website (WordPress, Shopify, Wix, or custom) and lets ERGIO understand, monitor, and operate it. Features include website verification, AI Site Brain, Business Confidence scores, Website Health dashboard, AI Suggestions, AI Automation, Version History with rollback, Team Permissions, and a Training Academy."+awareness;
   }
   if(l.includes('email')||l.includes('outreach')){
     const hasResend=(ctx?ctx.disconnectedMcps.some(m=>m.id==='resend'):true);
@@ -2617,11 +2673,12 @@ setTimeout(()=>{const su=localStorage.getItem('ergio_user');if(su){try{currentUs
 /* ══════════════════════════════════════════════════════ */
 
 var ERGIO_PLANS;try{ERGIO_PLANS=[
-{id:'free',name:'Starter',price:0,currency:'NGN',period:'forever',desc:'Perfect for trying out ERGIO',features:['10 leads per scan','1 website build','Basic conductor chat','1 engine','Community support'],disabled:['Unlimited leads','Outreach automation','Priority engines','Custom MCPs','API access'],color:'var(--muted)'},
-{id:'growth',name:'Growth',price:5000,currency:'NGN',period:'month',desc:'Start growing with AI power',features:['50 leads per scan','3 website builds','Conductor chat (full)','3 engines','Basic outreach (20/day)','Email support'],disabled:['Unlimited leads','All engines','Custom MCPs','API access'],color:'var(--cyan)'},,
-{id:'pro',name:'Professional',price:15000,currency:'NGN',period:'month',desc:'For growing African businesses',features:['Unlimited leads','5 website builds','Full conductor with streaming','All 10 engines','Outreach automation','10 MCP connections','Email support','Analytics dashboard'],disabled:['Custom MCPs','API access','White-label','Dedicated support'],color:'var(--cyan)'},
-{id:'business',name:'Business',price:50000,currency:'NGN',period:'month',desc:'For scaling businesses that need more power',features:['Everything in Professional','Unlimited website builds','25 MCP connections','AI Chatbot for websites','Custom domain support','Priority support','Advanced analytics','Team accounts (up to 5)'],disabled:['Custom MCP servers','White-label branding','Dedicated support manager','Team accounts (up to 10)'],color:'var(--green)',popular:true},
-{id:'enterprise',name:'Enterprise',price:75000,currency:'NGN',period:'month',desc:'For agencies and large teams',features:['Everything in Professional','Unlimited website builds','Custom MCP servers','Full API access','White-label branding','Priority engine scheduling','Dedicated support manager','Custom integrations','Team accounts (up to 10)'],disabled:[],color:'var(--purple)'}
+{id:'free',name:'Free',price:0,currency:'NGN',period:'forever',desc:'Launch your first business',features:['1 website (lovable-style builder)','AI brand identity + logo','Contact form + WhatsApp','ERGIO subdomain','Lead capture forms','Basic analytics'],disabled:['ERGIO Console','AI engines (10)','Admin HQ access','Payment collection'],color:'var(--muted)'},
+{id:'starter',name:'Starter',price:5000,currency:'NGN',period:'month',desc:'For solo entrepreneurs',features:['3 business websites','ERGIO Console (1 site)','Lead Engine (AI scoring)','Basic CRM dashboard','Booking management','Invoice generation'],disabled:['Payment collection','Admin HQ access','All 10 engines'],color:'var(--cyan)'},
+{id:'launch',name:'Launch',price:12500,currency:'NGN',period:'month',desc:'For growing businesses',features:['10 business websites','ERGIO Console (3 sites)','Paystack payment collection','AI Outreach Engine','Content Engine','WhatsApp automation','3 MCP integrations'],disabled:['Voice Engine','Admin HQ access'],color:'var(--cyan)'},
+{id:'grow',name:'Grow',price:25000,currency:'NGN',period:'month',desc:'Most popular — all 10 engines',features:['Unlimited websites','ERGIO Console (unlimited)','All 10 AI engines','Voice Engine (AI receptionist)','Reputation Engine','Analytics Engine','10 MCP integrations'],disabled:['White-label','Admin HQ access'],color:'var(--green)',popular:true},
+{id:'scale',name:'Scale',price:60000,currency:'NGN',period:'month',desc:'For agencies & multi-business',features:['Admin HQ access (5 seats)','White-label branding','Custom domain','Workflow automation builder','20 MCP integrations','Priority AI processing','API access'],disabled:['Unlimited seats','Training Academy'],color:'var(--blue)'},
+{id:'enterprise',name:'Enterprise',price:150000,currency:'NGN',period:'month',desc:'White-label SaaS platform',features:['Admin HQ (unlimited seats)','Training Academy (all courses)','All 25 MCP integrations','Clay lead enrichment','Dedicated support (24/7)','Custom AI training','SLA guarantee (99.9%)','On-premise deployment'],disabled:[],color:'var(--purple)'}
 ];}catch(e){console.error('ERGIO_PLANS error:',e);ERGIO_PLANS=[]}
 
 function loadPricingGrid(){try{
@@ -2726,6 +2783,54 @@ window.history.replaceState({},'',window.location.pathname);
 /* AI BUSINESS INSIGHTS — Cool inbuilt feature */
 
 /* ═══════════════════════════════════════════════════════════════ */
+
+function loadInsights(){
+  /* Load live data into insight cards */
+  loadInsightCards();
+  /* Auto-generate insights if none yet */
+  var ic=document.getElementById('insightsContent');
+  if(ic&&ic.querySelector('.empty')){
+    setTimeout(generateInsights,300);
+  }
+}
+
+async function loadInsightCards(){
+  /* Lead score */
+  var scoreEl=document.getElementById('leadScoreVal');
+  var revEl=document.getElementById('revTrendVal');
+  var engEl=document.getElementById('engineActVal');
+  if(sbClient){
+    try{
+      var {data:leads}=await sbClient.from('leads').select('score,created_at').limit(50);
+      if(leads&&leads.length>0){
+        var avgScore=Math.round(leads.filter(l=>l.score).reduce((s,l)=>s+(l.score||0),0)/(leads.filter(l=>l.score).length||1));
+        if(scoreEl)scoreEl.textContent=avgScore||leads.length+'L';
+      } else {
+        if(scoreEl)scoreEl.textContent='0';
+      }
+    }catch(e){if(scoreEl)scoreEl.textContent='—';}
+    try{
+      var {data:pays}=await sbClient.from('payments').select('amount,created_at').gte('created_at',new Date(Date.now()-30*24*60*60*1000).toISOString());
+      if(pays&&pays.length>0){
+        var total=pays.reduce((s,p)=>s+(p.amount||0),0);
+        if(revEl)revEl.textContent='₦'+total.toLocaleString();
+      } else {
+        if(revEl)revEl.textContent='₦0';
+      }
+    }catch(e){if(revEl)revEl.textContent='—';}
+    try{
+      var {data:logs}=await sbClient.from('engine_logs').select('id').gte('created_at',new Date(Date.now()-7*24*60*60*1000).toISOString()).limit(200);
+      if(engEl)engEl.textContent=(logs?logs.length:0)+' runs';
+    }catch(e){if(engEl)engEl.textContent='—';}
+  } else {
+    /* Demo values */
+    setTimeout(()=>{
+      if(scoreEl)scoreEl.textContent='74';
+      if(revEl)revEl.textContent='₦248K';
+      if(engEl)engEl.textContent='42 runs';
+    },400);
+  }
+}
 
 async function generateInsights(){
 const el=document.getElementById('insightsContent');if(!el)return;
@@ -3397,7 +3502,23 @@ var cropZoomVal=100;
 
 /* Load profile from localStorage + Firebase/Supabase */
 function loadProfile(){
-  var saved=JSON.parse(localStorage.getItem('ergio_profile')||'{}');
+  /* Auto-seed profile from logged-in user */
+  var ergioUser=JSON.parse(localStorage.getItem('ergio_user')||'{}');
+  var existing=JSON.parse(localStorage.getItem('ergio_profile')||'{}');
+  if(!existing.email&&ergioUser.email){existing.email=ergioUser.email;}
+  if(!existing.name&&ergioUser.displayName){existing.name=ergioUser.displayName;}
+  if(!existing.name&&ergioUser.fullName){existing.name=ergioUser.fullName;}
+  if(!existing.name&&ergioUser.name){existing.name=ergioUser.name;}
+  if(!existing.avatarUrl&&ergioUser.photoURL){existing.avatarUrl=ergioUser.photoURL;}
+  /* Default values for demo */
+  if(!existing.name){existing.name='Emmanuel Erog';}
+  if(!existing.role){existing.role='Founder & CEO';}
+  if(!existing.company){existing.company='EROGIAN Studio';}
+  if(!existing.city){existing.city='Enugu';}
+  if(!existing.country){existing.country='Nigeria';}
+  if(!existing.bio){existing.bio='Building AI products for Africa. Founder of ERGIO, EROGIAN Studio, WazaBot, PropelPay.';}
+  if(!existing.username){existing.username='emmanuelerog';}
+  var saved=existing;
   profileData=saved;
   /* Fill fields */
   var fields=['name','username','email','phone','country','city','role','company','website','bio',
