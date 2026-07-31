@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lekki Fitness Hub — Lagos Premier Gym</title>
+<meta name="description" content="Lekki Fitness Hub — premium gym in Lekki Phase 1, Lagos. Personal training, group classes, state-of-the-art equipment.">
+<meta name="ergio-site-verification" content="ergio-verify-lfh-2026">
+<script async src="https://ergio.vercel.app/api/console-bridge.js"></script>
+<script>
+  window.ERGIO_CONSOLE_CONFIG = {
+    siteId: 'lekki-fitness-hub',
+    businessName: 'Lekki Fitness Hub',
+    consoleUrl: 'https://ergio.vercel.app/ergio/console/',
+    autoConnect: true
+  };
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0b0f;--card:#15171c;--text:#fff;--muted:#8b8f9a;--accent:#00d1ff;--green:#22c55e}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+a{color:var(--accent);text-decoration:none}
+.container{max-width:1100px;margin:0 auto;padding:0 1.5rem}
+nav{position:sticky;top:0;background:rgba(10,11,15,.85);backdrop-filter:blur(10px);border-bottom:1px solid #222;z-index:100}
+.nav-inner{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.5rem;max-width:1100px;margin:0 auto}
+.logo{font-weight:700;font-size:1.3rem;color:var(--accent)}
+.nav-links{display:flex;gap:2rem}
+.nav-links a{color:var(--muted);font-size:.9rem;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.hero{text-align:center;padding:5rem 1.5rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,209,255,.08),transparent 70%);top:-100px;left:50%;transform:translateX(-50%)}
+.hero h1{font-size:3rem;font-weight:800;margin-bottom:1rem;position:relative}
+.hero p{color:var(--muted);font-size:1.2rem;max-width:600px;margin:0 auto 2rem;position:relative}
+.cta-btn{display:inline-block;padding:1rem 2.5rem;background:var(--accent);color:#000;font-weight:700;border-radius:12px;border:none;cursor:pointer;font-size:1rem;transition:transform .2s}
+.cta-btn:hover{transform:scale(1.05)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;padding:3rem 1.5rem;max-width:1100px;margin:0 auto}
+.stat{text-align:center;padding:1.5rem;background:var(--card);border-radius:16px;border:1px solid #222}
+.stat h2{font-size:2.5rem;color:var(--accent);font-weight:800}
+.stat p{color:var(--muted);font-size:.85rem;margin-top:.5rem}
+.section{padding:4rem 1.5rem;max-width:1100px;margin:0 auto}
+.section-title{font-size:2rem;font-weight:700;margin-bottom:.5rem}
+.section-sub{color:var(--muted);margin-bottom:2.5rem}
+.classes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.class-card{background:var(--card);border-radius:16px;overflow:hidden;border:1px solid #222;transition:transform .2s}
+.class-card:hover{transform:translateY(-4px)}
+.class-card img{width:100%;height:180px;object-fit:cover}
+.class-card-body{padding:1.2rem}
+.class-card h3{font-size:1.1rem;margin-bottom:.5rem}
+.class-card p{color:var(--muted);font-size:.85rem}
+.class-meta{display:flex;justify-content:space-between;align-items:center;margin-top:1rem}
+.price{color:var(--green);font-weight:700}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.price-card{background:var(--card);border-radius:16px;padding:2rem;border:1px solid #222;text-align:center}
+.price-card.featured{border-color:var(--accent);position:relative}
+.price-card.featured::after{content:'POPULAR';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;font-size:.7rem;font-weight:700;padding:.3rem 1rem;border-radius:20px}
+.price-card h3{font-size:1.2rem;margin-bottom:.5rem}
+.price-amount{font-size:2.5rem;font-weight:800;color:var(--accent);margin:1rem 0}
+.price-amount span{font-size:1rem;color:var(--muted)}
+.price-features{text-align:left;margin:1.5rem 0;list-style:none}
+.price-features li{padding:.5rem 0;color:var(--muted);font-size:.9rem}
+.price-features li::before{content:'✓ ';color:var(--green)}
+.contact{padding:4rem 1.5rem;text-align:center;max-width:600px;margin:0 auto}
+.contact h2{font-size:2rem;margin-bottom:1rem}
+.contact p{color:var(--muted);margin-bottom:2rem}
+.contact-info{display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;margin-top:2rem}
+.contact-item{color:var(--muted);font-size:.9rem}
+.contact-item strong{color:var(--text);display:block}
+footer{border-top:1px solid #222;padding:2rem 1.5rem;text-align:center;color:var(--muted);font-size:.85rem}
+footer a{color:var(--accent)}
+@media(max-width:768px){
+  .nav-links{display:none}
+  .hero h1{font-size:2rem}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .classes-grid{grid-template-columns:1fr}
+  .pricing-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div class="logo">⚡ Lekki Fitness Hub</div>
+    <div class="nav-links">
+      <a href="#classes">Classes</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#contact">Contact</a>
+      <a href="https://ergio.vercel.app/ergio/console/" target="_blank">Console</a>
+    </div>
+  </div>
+</nav>
+<section class="hero">
+  <h1>Train Hard. Live Strong.</h1>
+  <p>Lagos' premier fitness destination in Lekki Phase 1. State-of-the-art equipment, expert trainers, and a community that pushes you to be your best.</p>
+  <button class="cta-btn" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Start Free Trial</button>
+</section>
+<div class="stats">
+  <div class="stat"><h2>500+</h2><p>Active Members</p></div>
+  <div class="stat"><h2>15</h2><p>Expert Trainers</p></div>
+  <div class="stat"><h2>30+</h2><p>Weekly Classes</p></div>
+  <div class="stat"><h2>4.9★</h2><p>Google Rating</p></div>
+</div>
+<section class="section" id="classes">
+  <h2 class="section-title">Our Classes</h2>
+  <p class="section-sub">Find the perfect workout for your goals</p>
+  <div class="classes-grid">
+    <div class="class-card">
+      <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400" alt="HIIT Training">
+      <div class="class-card-body"><h3>HIIT Training</h3><p>High-intensity interval training to burn fat and build endurance fast.</p><div class="class-meta"><span class="price">₦5,000/session</span><span>45 min</span></div></div>
+    </div>
+    <div class="class-card">
+      <img src="https://images.unsplash.com/photo-1576678927484-cc907957088c?w=400" alt="Strength Training">
+      <div class="class-card-body"><h3>Strength & Power</h3><p>Build muscle and raw strength with our certified personal trainers.</p><div class="class-meta"><span class="price">₦7,000/session</span><span>60 min</span></div></div>
+    </div>
+    <div class="class-card">
+      <img src="https://images.unsplash.com/photo-1599901860904-17e4ed70d572?w=400" alt="Yoga">
+      <div class="class-card-body"><h3>Yoga & Mobility</h3><p>Improve flexibility, balance, and mental clarity in our serene studio.</p><div class="class-meta"><span class="price">₦4,000/session</span><span>50 min</span></div></div>
+    </div>
+  </div>
+</section>
+<section class="section" id="pricing">
+  <h2 class="section-title">Membership Plans</h2>
+  <p class="section-sub">Choose the plan that fits your fitness journey</p>
+  <div class="pricing-grid">
+    <div class="price-card"><h3>Basic</h3><div class="price-amount">₦15,000<span>/mo</span></div><ul class="price-features"><li>Gym floor access</li><li>2 group classes/week</li><li>Locker room access</li><li>Fitness assessment</li></ul><button class="cta-btn" style="width:100%;padding:.8rem">Choose Basic</button></div>
+    <div class="price-card featured"><h3>Premium</h3><div class="price-amount">₦35,000<span>/mo</span></div><ul class="price-features"><li>Unlimited gym access</li><li>Unlimited group classes</li><li>1 PT session/month</li><li>Nutrition plan</li><li>Guest passes (2/mo)</li></ul><button class="cta-btn" style="width:100%;padding:.8rem">Choose Premium</button></div>
+    <div class="price-card"><h3>Elite</h3><div class="price-amount">₦75,000<span>/mo</span></div><ul class="price-features"><li>Everything in Premium</li><li>4 PT sessions/month</li><li>Custom meal prep</li><li>Recovery suite access</li><li>Priority booking</li></ul><button class="cta-btn" style="width:100%;padding:.8rem">Choose Elite</button></div>
+  </div>
+</section>
+<section class="contact" id="contact">
+  <h2>Visit Us Today</h2>
+  <p>Ready to start your fitness journey? Drop by or give us a call.</p>
+  <button class="cta-btn">Book Free Tour</button>
+  <div class="contact-info">
+    <div class="contact-item"><strong>Address</strong>14 Admiralty Way, Lekki Phase 1, Lagos</div>
+    <div class="contact-item"><strong>Phone</strong>+234 803 000 0000</div>
+    <div class="contact-item"><strong>Hours</strong>Mon-Sat: 5am - 11pm</div>
+  </div>
+</section>
+<footer><p>© 2026 Lekki Fitness Hub. Powered by <a href="https://ergio.vercel.app">ERGIO</a></p></footer>
+</body>
+</html>
