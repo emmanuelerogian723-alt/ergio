@@ -6,7 +6,6 @@
 <title>Lekki Fitness Hub — Lagos Premier Gym</title>
 <meta name="description" content="Lekki Fitness Hub — premium gym in Lekki Phase 1, Lagos. Personal training, group classes, state-of-the-art equipment.">
 <meta name="ergio-site-verification" content="ergio-verify-lfh-2026">
-<script async src="https://ergio.vercel.app/api/console-bridge.js"></script>
 <script>
   window.ERGIO_CONSOLE_CONFIG = {
     siteId: 'lekki-fitness-hub',
@@ -14,6 +13,73 @@
     consoleUrl: 'https://ergio.vercel.app/ergio/console/',
     autoConnect: true
   };
+  
+  // ERGIO Console Bridge — connects this site to ERGIO Console
+  (function() {
+    var config = window.ERGIO_CONSOLE_CONFIG;
+    if (!config) return;
+    var CONSOLE_URL = 'https://ergio.vercel.app';
+    var SITE_ID = config.siteId || 'unknown-site';
+    var BUSINESS_NAME = config.businessName || 'Unknown Business';
+    
+    function collectSiteData() {
+      var pages = [];
+      var links = document.querySelectorAll('a[href]');
+      links.forEach(function(link) {
+        var href = link.getAttribute('href');
+        if (href && href[0] !== '#' && href.indexOf('javascript') !== 0 && href.indexOf('mailto') !== 0) {
+          pages.push({ url: href, text: link.textContent.trim().substring(0, 100) });
+        }
+      });
+      return {
+        siteId: SITE_ID, businessName: BUSINESS_NAME,
+        url: window.location.href, title: document.title,
+        description: (document.querySelector('meta[name="description"]') || {}).content || '',
+        pages: pages.slice(0, 20),
+        metaTags: {
+          verification: (document.querySelector('meta[name="ergio-site-verification"]') || {}).content || '',
+          ogImage: (document.querySelector('meta[property="og:image"]') || {}).content || '',
+        },
+        stats: {
+          totalLinks: links.length,
+          totalImages: document.querySelectorAll('img').length,
+          totalHeadings: document.querySelectorAll('h1,h2,h3').length,
+          wordCount: document.body.innerText.split(/\s+/).length
+        },
+        timestamp: new Date().toISOString()
+      };
+    }
+    
+    function syncToConsole() {
+      var data = collectSiteData();
+      fetch(CONSOLE_URL + '/api/console-bridge-sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).catch(function() {});
+    }
+    
+    function addConsoleBadge() {
+      var badge = document.createElement('div');
+      badge.id = 'ergio-console-badge';
+      badge.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#00d1ff;color:#000;padding:8px 16px;border-radius:24px;font-size:12px;font-weight:700;cursor:pointer;z-index:9999;box-shadow:0 4px 12px rgba(0,209,255,.3);transition:transform .2s;font-family:sans-serif';
+      badge.textContent = '⚡ ERGIO';
+      badge.title = 'Connected to ERGIO Console';
+      badge.onmouseenter = function() { badge.style.transform = 'scale(1.1)'; };
+      badge.onmouseleave = function() { badge.style.transform = 'scale(1)'; };
+      badge.onclick = function() { window.open(CONSOLE_URL + '/ergio/console/', '_blank'); };
+      document.body.appendChild(badge);
+    }
+    
+    function init() {
+      addConsoleBadge();
+      if (config.autoConnect) { syncToConsole(); setInterval(syncToConsole, 300000); }
+    }
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else { init(); }
+  })();
 </script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
