@@ -848,6 +848,7 @@
 <!-- Toast container -->
 <div class="toast-container" id="toastContainer"></div>
 
+  <script src="config.js"></script>
 <script>
 let currentMode = 'build';
 let currentHTML = '';
@@ -1176,13 +1177,13 @@ function handleSSE(event, stepMap, prevStep) {
       const dc = data.designConfig;
       document.getElementById('currentStyleName').textContent = dc.emoji + ' ' + dc.name;
       document.getElementById('currentStyleDesc').textContent = dc.desc;
-      addMessage('system', \`🎨 Design style detected: <b>\${dc.emoji} \${dc.name}</b> — \${dc.desc}\`);
+      addMessage('system', `🎨 Design style detected: <b>${dc.emoji} ${dc.name}</b> — ${dc.desc}`);
     }
     
     // Show business category chip
     const cat = data.plan?.websiteCategory || 'landing';
     const catEmoji = {restaurant:'🍽️',salon:'💇',fitness:'💪',clinic:'🏥',ecommerce:'🛍️',realestate:'🏠',saas:'🚀',portfolio:'🎨',agency:'🏢',education:'🎓',events:'🎉',landing:'✨'}[cat] || '🌐';
-    addMessage('system', \`\${catEmoji} Building a <b>\${cat}</b> website for \${name} in \${data.plan?.city || 'Nigeria'}\`);
+    addMessage('system', `${catEmoji} Building a <b>${cat}</b> website for ${name} in ${data.plan?.city || 'Nigeria'}`);
     
     updateStep('plan', 'done');
     updateScanStep('plan', 'done');
