@@ -1,5 +1,5 @@
 // ========================================
-import { assemblePremiumWebsite, selectLayout, LAYOUT_ARCHETYPES } from '../lib/premium-engine.js';
+import { assemblePremiumWebsite, assemblePremiumWebsiteV4, selectLayout, LAYOUT_ARCHETYPES, generateMultiPageSite, generateSitemapMultiPage, generateRobotsTxt } from '../lib/premium-engine.js';
 // ERGIO API — /api/generate (v5.0 AGENTIC)
 // The AI Conductor: plans → searches images → generates website
 // With REAL photos from Pixabay + Unsplash
@@ -384,10 +384,27 @@ Return ONLY JSON:
       const usePremium = !is3D && !isClay; // Premium handles most styles; 3D and clay keep dedicated generators
       if (usePremium) {
         try {
-          websiteHtml = assemblePremiumWebsite(planForHTML, contentForHTML, colors, logoUrl, images, layoutKey);
-          send('status', { task: `✨ Layout: ${LAYOUT_ARCHETYPES[layoutKey]?.name || layoutKey} — premium engine v3`, step: 5, total: 8 });
+          // Premium Engine v4.0 — all 15 features
+          const v4Options = {
+            megaMenu: true,
+            lottie: true,
+            beforeAfter: planForHTML.websiteCategory === 'realestate' || planForHTML.websiteCategory === 'fitness' || planForHTML.websiteCategory === 'clinic',
+            virtualTour: planForHTML.websiteCategory === 'realestate' || planForHTML.websiteCategory === 'restaurant',
+            interactiveMap: true,
+            bookingForm: ['restaurant','clinic','fitness','salon','agency','events'].includes(planForHTML.websiteCategory),
+            minifyCSS: true,
+            heroVideo: contentForHTML.hero?.videoUrl || '',
+            gltfModel: planForHTML.websiteType === '3d' ? 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF/Duck.gltf' : '',
+          };
+          websiteHtml = assemblePremiumWebsiteV4(planForHTML, contentForHTML, colors, logoUrl, images, layoutKey, v4Options);
+          send('status', { task: `✨ Layout: ${LAYOUT_ARCHETYPES[layoutKey]?.name || layoutKey} — premium engine v4 with ${Object.values(v4Options).filter(Boolean).length} features`, step: 5, total: 8 });
         } catch(premiumErr) {
-          console.error('Premium engine error, falling back:', premiumErr.message);
+          console.error('Premium engine v4 error, falling back to v3:', premiumErr.message);
+          try {
+            websiteHtml = assemblePremiumWebsite(planForHTML, contentForHTML, colors, logoUrl, images, layoutKey);
+          } catch(e) {
+            console.error('V3 fallback also failed:', e.message);
+          }
         }
       }
       if (!websiteHtml) {
