@@ -1742,6 +1742,98 @@ async function loadConnectedServers() {
       const data = await res.json();
       // Could render marketplace data here
     }
+
+// ===== PLUGIN PICKER (from input toolbar) =====
+function openPluginPicker() {
+  // Create or show a floating popup near the button
+  let popup = document.getElementById('pluginPickerPopup');
+  if (popup) {
+    popup.remove();
+    return;
+  }
+  const btn = document.querySelector('.plugin-trigger');
+  if (!btn) return;
+  const rect = btn.getBoundingClientRect();
+  popup = document.createElement('div');
+  popup.id = 'pluginPickerPopup';
+  popup.style.cssText = `position:fixed;bottom:${window.innerHeight - rect.top + 8}px;left:${rect.left}px;width:320px;max-height:400px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:16px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.5);font-family:inherit`;
+  const builtin = [
+    { id: 'ai', name: 'AI Assistant', icon: '🤖', desc: 'Smart suggestions' },
+    { id: 'images', name: 'Image Finder', icon: '🖼️', desc: 'Free stock photos' },
+    { id: 'seo', name: 'SEO Optimizer', icon: '📊', desc: 'Meta tags & keywords' },
+    { id: 'payments', name: 'Paystack', icon: '💳', desc: 'Accept payments' },
+    { id: 'booking', name: 'Booking System', icon: '📅', desc: 'Appointment scheduling' },
+    { id: 'whatsapp', name: 'WhatsApp Bot', icon: '💬', desc: 'Auto customer chat' },
+  ];
+  popup.innerHTML = `
+    <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px">🔌 Built-in Tools</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${builtin.map(t => `
+        <div style="padding:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'" onclick="togglePlugin('${t.id}');document.getElementById('pluginPickerPopup').remove()">
+          <div style="font-size:18px">${t.icon}</div>
+          <div style="font-size:12px;font-weight:600;color:var(--text);margin-top:4px">${t.name}</div>
+          <div style="font-size:10px;color:var(--muted)">${t.desc}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:12px;text-align:center">Click a tool to activate it</div>
+  `;
+  document.body.appendChild(popup);
+  // Close on outside click
+  setTimeout(() => {
+    document.addEventListener('click', function closePluginPicker(e) {
+      if (!popup.contains(e.target) && e.target !== btn) {
+        popup.remove();
+        document.removeEventListener('click', closePluginPicker);
+      }
+    });
+  }, 100);
+}
+
+// ===== MCP PICKER (from input toolbar) =====
+function openMcpPicker() {
+  let popup = document.getElementById('mcpPickerPopup');
+  if (popup) {
+    popup.remove();
+    return;
+  }
+  const btn = document.querySelector('.mcp-trigger');
+  if (!btn) return;
+  const rect = btn.getBoundingClientRect();
+  popup = document.createElement('div');
+  popup.id = 'mcpPickerPopup';
+  popup.style.cssText = `position:fixed;bottom:${window.innerHeight - rect.top + 8}px;left:${rect.left}px;width:320px;max-height:400px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:16px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.5);font-family:inherit`;
+  const mcps = [
+    { id: 'figma', name: 'Figma MCP', icon: '🎨', desc: 'Import Figma designs' },
+    { id: 'github', name: 'GitHub MCP', icon: '🐙', desc: 'Access repos & deploy' },
+    { id: 'supabase', name: 'Supabase MCP', icon: '🗄️', desc: 'Database queries' },
+    { id: 'slack', name: 'Slack MCP', icon: '💬', desc: 'Send Slack messages' },
+    { id: 'puppeteer', name: 'Puppeteer MCP', icon: '🎭', desc: 'Browser automation' },
+    { id: 'custom', name: 'Custom MCP', icon: '🔌', desc: 'Add any MCP server' },
+  ];
+  popup.innerHTML = `
+    <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px">🚀 MCP Servers</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${mcps.map(p => `
+        <div style="padding:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='#a78bfa'" onmouseout="this.style.borderColor='var(--border)'" onclick="togglePlugin('${p.id}');document.getElementById('mcpPickerPopup').remove()">
+          <div style="font-size:18px">${p.icon}</div>
+          <div style="font-size:12px;font-weight:600;color:var(--text);margin-top:4px">${p.name}</div>
+          <div style="font-size:10px;color:var(--muted)">${p.desc}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:12px;text-align:center">Connect an MCP server to extend ERGIO</div>
+  `;
+  document.body.appendChild(popup);
+  setTimeout(() => {
+    document.addEventListener('click', function closeMcpPicker(e) {
+      if (!popup.contains(e.target) && e.target !== btn) {
+        popup.remove();
+        document.removeEventListener('click', closeMcpPicker);
+      }
+    });
+  }, 100);
+}
   } catch {}
 }
 
