@@ -2596,7 +2596,7 @@ function genDemo(t,ctx){
   const connected=(ctx&&ctx.connectedMcps||[]).map(m=>m.id).join(', ')||'none';
   const totalMcps=(ctx?ctx.connectedMcps.length+ctx.disconnectedMcps.length:25);
   const connectedCount=(ctx?ctx.connectedMcps.length:0);
-  const awareness='\n\n---\n**ERGIO System Status:**\n• Admin HQ: Live at /ergio/admin/ (2FA protected, 25 sections)\n• ERGIO Console: Live at /ergio/console/ (AI website manager, 14 sections)\n• Website Builder: Upgraded to lovable-style visual builder at /build.html\n• 10 AI Engines: All operational\n• Dashboard: 21+ tabs including Cloud Console, AI Employees, Health Monitor, Security Center\n_Connected: '+connectedCount+' of '+totalMcps+' MCPs ('+connected+'). '+ctx?.connectedPlugins?.length+' plugins available._';
+  const awareness='\n\n---\n**ERGIO System Status:**\n• Admin HQ: Internal only (2FA protected, not publicly accessible)\n• ERGIO Console: Live at /ergio/console/ (AI website manager, 14 sections)\n• Website Builder: Upgraded to lovable-style visual builder at /build.html\n• 10 AI Engines: All operational\n• Dashboard: 21+ tabs including Cloud Console, AI Employees, Health Monitor, Security Center\n_Connected: '+connectedCount+' of '+totalMcps+' MCPs ('+connected+'). '+ctx?.connectedPlugins?.length+' plugins available._';
   if(l.includes('lead')||l.includes('client')){
     return"I can help you find leads!\n\n1. Scan your market using the discovery engine\n2. Score leads based on fit\n3. Generate outreach messages\n\nGo to the Leads tab and click 'Scan New', or tell me your business type and location and I'll run the full pipeline."+awareness;
   }
@@ -2604,7 +2604,7 @@ function genDemo(t,ctx){
     return"I can build a website! Click the Website Builder link in the sidebar to open our new visual builder at /build.html — it has live preview, real-time AI generation, chat-based editing, and one-click deploy. You can also type your business idea on the landing page to start building instantly."+awareness;
   }
   if(l.includes('admin')||l.includes('headquarter')||l.includes('operations center')){
-    return"The ERGIO Admin Headquarters is your hidden internal operations center. It's at /ergio/admin/ — protected by 2FA and RBAC. It has 25 sections including Executive Dashboard, AI Agent Control Center, Lead Management, Intelligence Center, Cloud Center, Integration Center, System Health, Employee Management, Security Center, Audit Logs, and Secrets Management. Use it to manage the entire ERGIO platform."+awareness;
+    return"The ERGIO Admin Headquarters is your hidden internal operations center. It's at an internal URL protected by 2FA and RBAC. It has 25 sections including Executive Dashboard, AI Agent Control Center, Lead Management, Intelligence Center, Cloud Center, Integration Center, System Health, Employee Management, Security Center, Audit Logs, and Secrets Management. Use it to manage the entire ERGIO platform."+awareness;
   }
   if(l.includes('console')||l.includes('website manager')||l.includes('site brain')){
     return"The ERGIO Console is your AI Website Manager at /ergio/console/. It connects any website (WordPress, Shopify, Wix, or custom) and lets ERGIO understand, monitor, and operate it. Features include website verification, AI Site Brain, Business Confidence scores, Website Health dashboard, AI Suggestions, AI Automation, Version History with rollback, Team Permissions, and a Training Academy."+awareness;
