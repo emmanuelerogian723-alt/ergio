@@ -359,19 +359,27 @@ Return ONLY JSON:
     send('status', { task: '🏗️ Building with motion graphics...', step: 5, total: 8 });
 
     // ============ STEP 5: GENERATE WEBSITE HTML WITH REAL IMAGES ============
-    // Merge design-system palette (has surface, border, text, muted, cta) with AI brandColors
-    // so all CSS variables are defined. brandColors overrides primary/accent/bg with AI choices.
+    // Merge design-system palette with AI brandColors for all CSS variables.
+    // When the AI's bg color conflicts with the design palette (e.g. light bg vs dark design),
+    // derive surface/text/muted from the AI's bg so the site looks visually consistent.
     const _dp = plan._design?.palette || {};
+    const _aiBg = plan.brandColors?.bg || _dp.bg || '#09090B';
+    const _isLightBg = _aiBg === '#fff' || _aiBg === '#ffffff' || 
+      (_aiBg.startsWith('#') && parseInt(_aiBg.slice(1, 3), 16) > 200 &&
+       parseInt(_aiBg.slice(3, 5), 16) > 200 && parseInt(_aiBg.slice(5, 7), 16) > 200);
+    // Use design palette colors only if the bg tones match; otherwise derive from AI's bg
+    const _bgMatchesDesign = _isLightBg === (_dp.bg === '#fff' || _dp.bg === '#ffffff' ||
+      (_dp.bg?.startsWith('#') && parseInt(_dp.bg.slice(1, 3), 16) > 200));
     const colors = {
       primary: plan.brandColors?.primary || _dp.primary || '#00D9FF',
       secondary: plan.brandColors?.secondary || _dp.secondary || _dp.surface || '#09090B',
       accent: plan.brandColors?.accent || _dp.accent || '#00FF9D',
-      bg: plan.brandColors?.bg || _dp.bg || '#09090B',
-      surface: _dp.surface || (plan.brandColors?.bg || '#09090B'),
-      border: _dp.border || 'rgba(255,255,255,0.1)',
-      text: _dp.text || '#f0f4ff',
-      muted: _dp.muted || '#8892a4',
-      cta: _dp.cta || plan.brandColors?.primary || _dp.primary || '#00D9FF',
+      bg: _aiBg,
+      surface: _bgMatchesDesign ? (_dp.surface || '#111827') : (_isLightBg ? '#f8f9fa' : '#111827'),
+      border: _bgMatchesDesign ? (_dp.border || 'rgba(255,255,255,0.1)') : (_isLightBg ? '#e5e7eb' : 'rgba(255,255,255,0.08)'),
+      text: _bgMatchesDesign ? (_dp.text || '#f0f4ff') : (_isLightBg ? '#111827' : '#f0f4ff'),
+      muted: _bgMatchesDesign ? (_dp.muted || '#8892a4') : (_isLightBg ? '#6b7280' : '#8892a4'),
+      cta: plan.brandColors?.primary || _dp.cta || _dp.primary || '#00D9FF',
     };
 
     const is3D = plan.websiteType === '3d' || 
