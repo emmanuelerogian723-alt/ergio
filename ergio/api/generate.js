@@ -1,4 +1,5 @@
 // ========================================
+import { assemblePremiumWebsite, selectLayout, LAYOUT_ARCHETYPES } from '../lib/premium-engine.js';
 // ERGIO API — /api/generate (v5.0 AGENTIC)
 // The AI Conductor: plans → searches images → generates website
 // With REAL photos from Pixabay + Unsplash
@@ -378,6 +379,18 @@ Return ONLY JSON:
     if (!contentForHTML.faq) contentForHTML.faq = [];
     if (!contentForHTML.contactInfo) contentForHTML.contactInfo = { phone: '+234 800 000 0000', email: 'info@business.com', address: plan.city + ', Nigeria', whatsapp: '+234 800 000 0000' };
     try {
+      // === PREMIUM ENGINE v3.0 ===
+      const layoutKey = selectLayout(planForHTML.websiteCategory, designStyleKey, planForHTML.websiteType);
+      const usePremium = !is3D && !isClay; // Premium handles most styles; 3D and clay keep dedicated generators
+      if (usePremium) {
+        try {
+          websiteHtml = assemblePremiumWebsite(planForHTML, contentForHTML, colors, logoUrl, images, layoutKey);
+          send('status', { task: `✨ Layout: ${LAYOUT_ARCHETYPES[layoutKey]?.name || layoutKey} — premium engine v3`, step: 5, total: 8 });
+        } catch(premiumErr) {
+          console.error('Premium engine error, falling back:', premiumErr.message);
+        }
+      }
+      if (!websiteHtml) {
       websiteHtml = is3D 
         ? generate3DWebsiteHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
         : isTransix
@@ -387,6 +400,7 @@ Return ONLY JSON:
             : isClay
               ? generateClayHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
               : generateWebsiteHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images);
+      }
     } catch(genErr) {
       console.error('HTML generation error:', genErr.message, genErr.stack);
       // Fallback minimal HTML
