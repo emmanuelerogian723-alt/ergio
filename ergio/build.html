@@ -1858,8 +1858,21 @@ async function buildWebsite(prompt) {
     }
     
   } catch (err) {
+    // If user cancelled, don't show fallback — just clean up
+    if (err.name === 'AbortError' || err.message === 'The user aborted a request' || !isBuilding) {
+      console.log('Build cancelled by user');
+      showScanOverlay(false);
+      document.getElementById('buildProgressMsg')?.remove();
+      document.getElementById('cancelBuildBtn').style.display = 'none';
+      isBuilding = false;
+      document.getElementById('sendBtn').disabled = false;
+      document.getElementById('deployBtn').disabled = false;
+      return;
+    }
+    
     console.error('Build error:', err);
     showScanOverlay(false);
+    document.getElementById('cancelBuildBtn').style.display = 'none';
     
     // Remove progress message
     document.getElementById('buildProgressMsg')?.remove();
