@@ -7,9 +7,10 @@ window.ERGIO_CONFIG = {
     ? 'https://ergio.vercel.app' 
     : window.location.origin,
 
-<<<<<<< HEAD
-  // Render Engines URL (Python FastAPI backend)
-  enginesBase: 'https://ergio-engines.onrender.com',
+  // ERGIO Engines Backend (Render — Python FastAPI)
+  enginesApiBase: window.location.origin.includes('localhost')
+    ? 'http://localhost:8000'
+    : 'https://ergio-engines.onrender.com',
 
   // Firebase Auth
   firebase: {
@@ -23,30 +24,12 @@ window.ERGIO_CONFIG = {
     measurementId: "G-Z49NFZYTW3"
   },
 
-  // Supabase
-  supabaseUrl: 'https://owcxfzlanlrulflsyvlr.supabase.co',
-  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93Y3hmemxhbmxydWxmbHN5dmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxNzI5NDIsImV4cCI6MjA5OTc0ODk0Mn0.k6IISu8k8QoU1CGLF0U3319qqDvEIwYY8PPXXvwfbAw',
-  
-  // Payment
-  paystackPublicKey: 'pk_live_b73d27d70e64ebb36f0523cb5754e77deba9080b',
-  stripePublicKey: 'pk_live_51...',
-=======
-  // ERGIO Engines Backend (Render — Python FastAPI)
-  enginesApiBase: window.location.origin.includes('localhost')
-    ? 'http://localhost:8000'  // Local dev
-    : 'https://ergio-engines.onrender.com',  // Render production
-
-  // Firebase Auth — loaded from /api/firebase-config.js (env vars)
-  // Auth pages include this script tag before Firebase init
-  firebase: {},
-
   // Supabase (database — anon key is safe for frontend)
   supabaseUrl: 'https://owcxfzlanlrulflsyvlr.supabase.co',
   supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93Y3hmemxhbmxydWxmbHN5dmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxNzI5NDIsImV4cCI6MjA5OTc0ODk0Mn0.k6IISu8k8QoU1CGLF0U3319qqDvEIwYY8PPXXvwfbAw',
   
   // Payment (public key — safe for frontend)
-  paystackPublicKey: 'pk_test_a7bc94e0c4e8622cd6cfe3c9a2c6f7e1d0b3a4c5',
->>>>>>> github/main
+  paystackPublicKey: 'pk_live_b73d27d70e64ebb36f0523cb5754e77deba9080b',
   
   // AI Models
   primaryModel: 'llama-3.3-70b-versatile',
