@@ -359,7 +359,20 @@ Return ONLY JSON:
     send('status', { task: '🏗️ Building with motion graphics...', step: 5, total: 8 });
 
     // ============ STEP 5: GENERATE WEBSITE HTML WITH REAL IMAGES ============
-    const colors = plan.brandColors || { primary: '#00D9FF', secondary: '#09090B', accent: '#00FF9D', bg: '#09090B' };
+    // Merge design-system palette (has surface, border, text, muted, cta) with AI brandColors
+    // so all CSS variables are defined. brandColors overrides primary/accent/bg with AI choices.
+    const _dp = plan._design?.palette || {};
+    const colors = {
+      primary: plan.brandColors?.primary || _dp.primary || '#00D9FF',
+      secondary: plan.brandColors?.secondary || _dp.secondary || _dp.surface || '#09090B',
+      accent: plan.brandColors?.accent || _dp.accent || '#00FF9D',
+      bg: plan.brandColors?.bg || _dp.bg || '#09090B',
+      surface: _dp.surface || (plan.brandColors?.bg || '#09090B'),
+      border: _dp.border || 'rgba(255,255,255,0.1)',
+      text: _dp.text || '#f0f4ff',
+      muted: _dp.muted || '#8892a4',
+      cta: _dp.cta || plan.brandColors?.primary || _dp.primary || '#00D9FF',
+    };
 
     const is3D = plan.websiteType === '3d' || 
       /3d|interactive|animated|immersive|motion|3dimentional/i.test(prompt + JSON.stringify(answers || {}));
