@@ -59,7 +59,7 @@ Create a business plan. Return ONLY valid JSON with this structure:
   "type": "business type (e.g. restaurant, salon, design studio)",
   "websiteCategory": "MUST FILL — detect from prompt: restaurant, ecommerce, portfolio, saas, blog, realestate, fitness, clinic, agency, education, events, or landing",
   "websiteType": "standard" or "3d" (use 3d for interactive/immersive requests),
-  "designStyle": "modern|minimal|luxury|bold|playful",
+  "designStyle": "nova|aria|onyx|pulse|flame|bloom|terra|ivory|slate|zinc|naija|kente|medcare|feast|market|canvas|estate|scholar|iron|gradient|editorial|split|bento (pick the most fitting key)",
   "description": "2-3 sentence business description",
   "brandColors": {
     "primary": "#hex color",
@@ -155,9 +155,13 @@ Rules:
       else plan.websiteCategory = 'landing';
     }
 
-    // Auto-detect best design style
+    // Auto-detect best design style — AI returns generic words like 'modern', always override with our system
     const detectedStyle = autoDetectStyle(plan.type || '', plan.websiteCategory || '', plan.description || '', plan.tone || 'professional');
-    plan.designStyle = plan.designStyle || detectedStyle;
+    const validStyleKeys = Object.keys(DESIGN_STYLES);
+    // Only keep AI's designStyle if it exactly matches a valid key; otherwise use autoDetect
+    if (!validStyleKeys.includes(plan.designStyle)) {
+      plan.designStyle = detectedStyle;
+    }
     const designConfig = DESIGN_STYLES[plan.designStyle] || DESIGN_STYLES.nova;
     plan._design = designConfig;
     
