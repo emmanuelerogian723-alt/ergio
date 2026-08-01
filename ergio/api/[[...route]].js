@@ -57,12 +57,91 @@ export default async function handler(req, res) {
       case 'crm': return await crmHandler(req, res);
       case 'assistant': return await assistantHandler(req, res);
       case 'ai': return await assistantHandler(req, res);
-      default: return success(res, { name: 'ERGIO API', version: '2.0.0', route: segments.join('/'), endpoints: ['generate','refine','auth','payments','bookings','business','leads','outreach','engines','analytics','whatsapp','social','seo','smart-pricing','card','invoices','expenses','notifications','referrals','reviews','mcp','crm','assistant','health'] });
+      case 'console-bridge': return await handleConsoleBridge(req, res);
+      case 'console-bridge-sync': return await handleConsoleBridgeSync(req, res);
+      case 'site': return await handleSite(req, res);
+      default: return success(res, { name: 'ERGIO API', version: '2.0.0', route: segments.join('/'), endpoints: ['generate','refine','auth','payments','bookings','business','leads','outreach','engines','analytics','whatsapp','social','seo','smart-pricing','card','invoices','expenses','notifications','referrals','reviews','mcp','crm','assistant','health','console-bridge','console-bridge-sync','site'] });
     }
   } catch (err) {
     console.error('API Error:', err);
     return error(res, err.message || 'Internal error', 500);
   }
+}
+
+
+// ============ CONSOLE BRIDGE (GET — list connected sites) ============
+async function handleConsoleBridge(req, res) {
+  if (req.method === 'GET') {
+    return success(res, { sites: consoleBridgeSites, total: consoleBridgeSites.length, message: 'Connected sites from ERGIO Console bridge' });
+  }
+  if (req.method === 'POST') {
+    return await handleConsoleBridgeSync(req, res);
+  }
+  return error(res, 'Method not allowed', 405);
+}
+
+// ============ CONSOLE BRIDGE SYNC (POST — receive site data) ============
+const consoleBridgeSites = [];
+async function handleConsoleBridgeSync(req, res) {
+  if (req.method !== 'POST') return error(res, 'POST only', 405);
+  const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+  const { siteUrl, siteName, page, event, metadata } = body;
+  if (!siteUrl) return error(res, 'siteUrl required', 400);
+  
+  const siteKey = siteUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
+  let existing = consoleBridgeSites.find(s => s.key === siteKey);
+  if (existing) {
+    existing.lastSeen = new Date().toISOString();
+    existing.totalEvents = (existing.totalEvents || 0) + 1;
+    existing.lastEvent = event || 'visit';
+    if (page && !existing.pagesVisited.includes(page)) existing.pagesVisited.push(page);
+  } else {
+    consoleBridgeSites.push({
+      key: siteKey,
+      url: siteUrl,
+      name: siteName || siteKey,
+      status: 'connected',
+      firstSeen: new Date().toISOString(),
+      lastSeen: new Date().toISOString(),
+      totalEvents: 1,
+      lastEvent: event || 'visit',
+      pagesVisited: page ? [page] : ['/'],
+      metadata: metadata || {}
+    });
+  }
+  
+  console.log(`[Console Bridge] ${siteName || siteUrl} -> ${event || 'visit'} on ${page || '/'}`);
+  return success(res, {
+    success: true,
+    message: 'Data received by ERGIO Console',
+    site: siteName || siteUrl,
+    event: event || 'visit',
+    timestamp: new Date().toISOString(),
+    consoleUrl: 'https://ergio.vercel.app/ergio/console/',
+    totalSites: consoleBridgeSites.length
+  });
+}
+
+// ============ SITE (deployed site data) ============
+async function handleSite(req, res) {
+  if (req.method === 'POST') {
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+    const { businessName, html, slug } = body;
+    if (!businessName || !html) return error(res, 'businessName and html required', 400);
+    
+    const siteSlug = slug || businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    return success(res, {
+      success: true,
+      slug: siteSlug,
+      url: `https://ergio.vercel.app/site/${siteSlug}`,
+      message: `Site saved for ${businessName}`,
+      timestamp: new Date().toISOString()
+    });
+  }
+  if (req.method === 'GET') {
+    return success(res, { message: 'Use POST to save a site', method: 'POST', params: ['businessName', 'html', 'slug'] });
+  }
+  return error(res, 'Method not allowed', 405);
 }
 
 // ============ GENERATE (SSE) ============
