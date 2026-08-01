@@ -2,12 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+<meta name="google-site-verification" content="GOOGLE_VERIFICATION_CODE_HERE" />
+<link rel="icon" type="image/jpeg" href="/ergio/assets/ergio-logo.jpg">
+<link rel="apple-touch-icon" href="/ergio/assets/ergio-logo.jpg">
+<meta property="og:image" content="https://ergio.vercel.app/ergio/assets/ergio-logo.jpg">
+<meta name="robots" content="index, follow">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign Up — ERGIO</title>
   <meta name="description" content="Create your ERGIO account and launch your business in minutes.">
   <link rel="icon" href="../favicon.ico">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="../config.js"></script>
+  <script src="/api/firebase-config.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <style>
@@ -78,7 +84,17 @@
     .firebase-badge{display:flex;align-items:center;justify-content:center;gap:.4rem;margin-top:1rem;color:var(--muted);font-size:.72rem;opacity:.6}
     .plan-section-title{font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:.5rem}
     .plan-section-sub{color:var(--muted);font-size:.9rem;text-align:center;margin-bottom:1rem}
-  </style>
+  
+/* ===== RESPONSIVE + ACCESSIBILITY ENHANCEMENTS ===== */
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #00d9ff;outline-offset:2px}
+button,a[role="button"]{min-height:44px;min-width:44px}
+img,video,canvas{max-width:100%;height:auto}
+*,*::before,*::after{max-width:100%}
+@media(max-width:480px){.auth-card{padding:1.5rem;border-radius:20px}.auth-wrap{padding:1rem}input,textarea,select{font-size:16px!important}}
+@media(max-width:374px){.auth-card{padding:1.2rem}.auth-title{font-size:1.3rem}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+</style>
 </head>
 <body>
   <div class="particles" id="particles"></div>

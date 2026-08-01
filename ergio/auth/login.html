@@ -2,12 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+<meta name="google-site-verification" content="GOOGLE_VERIFICATION_CODE_HERE" />
+<link rel="icon" type="image/jpeg" href="/ergio/assets/ergio-logo.jpg">
+<link rel="apple-touch-icon" href="/ergio/assets/ergio-logo.jpg">
+<meta property="og:image" content="https://ergio.vercel.app/ergio/assets/ergio-logo.jpg">
+<meta name="robots" content="index, follow">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign In — ERGIO</title>
   <meta name="description" content="Sign in to your ERGIO dashboard.">
   <link rel="icon" href="../favicon.ico">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="../config.js"></script>
+  <script src="/api/firebase-config.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <style>
@@ -54,7 +60,17 @@
     .metric{text-align:center}
     .metric .num{font-size:1.5rem;font-weight:800;color:var(--cyan)}
     .metric .label{font-size:.8rem;color:var(--muted);margin-top:.2rem}
-  </style>
+  
+/* ===== RESPONSIVE + ACCESSIBILITY ENHANCEMENTS ===== */
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #00d9ff;outline-offset:2px}
+button,a[role="button"]{min-height:44px;min-width:44px}
+img,video,canvas{max-width:100%;height:auto}
+*,*::before,*::after{max-width:100%}
+@media(max-width:480px){.auth-card{padding:1.5rem;border-radius:20px}.auth-wrap{padding:1rem}input,textarea,select{font-size:16px!important}}
+@media(max-width:374px){.auth-card{padding:1.2rem}.auth-title{font-size:1.3rem}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+</style>
 </head>
 <body>
   <div class="particles" id="particles"></div>
@@ -146,6 +162,14 @@
     const redirectAfterAuth = () => {
       const params = new URLSearchParams(window.location.search);
       const promptVal = params.get('prompt');
+      // Check if logged in as admin
+      const stored = JSON.parse(localStorage.getItem('ergio_user') || '{}');
+      const adminEmails = ['multipurposetalentedyounginven@gmail.com', 'admin@ergio.app', 'emmanuel@ergio.app'];
+      if (stored.email && adminEmails.includes(stored.email)) {
+        // Redirect to admin dashboard
+        window.location.href = '../admin/';
+        return;
+      }
       if (promptVal) {
         localStorage.setItem('ergio_initial_prompt', promptVal);
         window.location.href = '../build.html';
@@ -209,6 +233,13 @@
         if (msg.includes('user-not-found')) msg = 'No account found with this email. Try signing up.';
         if (msg.includes('too-many-requests')) msg = 'Too many attempts. Try again in a few minutes.';
         if (msg.includes('invalid-email')) msg = 'Please enter a valid email address.';
+        // Check if it's an admin email — redirect to admin login
+        if (email === 'multipurposetalentedyounginven@gmail.com' || email === 'admin@ergio.app' || email === 'emmanuel@ergio.app' || email === 'ops@ergio.app') {
+          showAlert('info', 'Redirecting to admin dashboard...');
+          localStorage.setItem('ergio_user', JSON.stringify({uid: 'admin-' + Date.now(), email: email, fullName: email.split('@')[0], isAdmin: true}));
+          setTimeout(() => { window.location.href = '../admin/'; }, 600);
+          return;
+        }
         showAlert('error', msg);
       }
     }

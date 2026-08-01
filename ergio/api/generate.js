@@ -8,8 +8,7 @@
 
 import { callGroq, callGroqFast, success, error, corsHeaders, generateSlug, generateLogoUrl, getSupabase } from '../lib/ergio.js';
 import { searchImages, planImages, fetchWebsiteImages, generateAIImage, getFallbackImage } from '../lib/images.js';
-import { generateRichWebsiteHTML } from '../lib/website-generator.js';
-
+import { DESIGN_STYLES, autoDetectStyle } from '../lib/design-system.js';
 
 export default async function handler(req, res) {
   corsHeaders(res);
@@ -85,18 +84,56 @@ Rules:
 - Business name should be memorable and work in the Nigerian market
 - imageSearchQueries: 3-5 specific search terms for finding real photos (e.g. "African restaurant interior", "barber cutting hair", "lagos skyline")`;
 
-    const planResult = await callGroq([
-      { role: 'system', content: 'You are ERGIO, an expert business strategist. Return only valid JSON, no markdown.' },
-      { role: 'user', content: planPrompt }
-    ], { temperature: 0.8, response_format: { type: 'json_object' } });
+    // Plan AI call — use fast model, 12s timeout
+    let planResult;
+    try {
+      planResult = await Promise.race([
+        callGroqFast([
+          { role: 'system', content: 'You are ERGIO, an expert business strategist. Return only valid JSON, no markdown.' },
+          { role: 'user', content: planPrompt }
+        ], { temperature: 0.8, response_format: { type: 'json_object' } }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Plan timeout')), 12000))
+      ]);
+    } catch(planErr) {
+      console.log('Plan AI fallback:', planErr.message);
+      // Derive plan directly from prompt keywords
+      planResult = null;
+    }
 
     let plan;
-    try {
-      plan = JSON.parse(planResult);
-    } catch (e) {
-      const match = planResult.match(/\{[\s\S]*\}/);
-      if (match) plan = JSON.parse(match[0]);
-      else throw new Error('Failed to parse business plan');
+    if (planResult) {
+      try {
+        plan = JSON.parse(planResult);
+      } catch (e) {
+        const match = planResult.match(/\{[\s\S]*\}/);
+        plan = match ? JSON.parse(match[0]) : null;
+      }
+    }
+    if (!plan) {
+      // Smart instant plan from prompt keywords
+      const p = (prompt || '').toLowerCase();
+      const words = prompt.split(' ');
+      const capitalized = words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      plan = {
+        businessName: answers?.name || capitalized.substring(0, 40) || 'My Business',
+        tagline: 'Excellence delivered, every time',
+        type: 'business',
+        websiteCategory: 'landing',
+        websiteType: 'standard',
+        designStyle: 'modern',
+        description: `${capitalized} is a forward-thinking business delivering exceptional value to clients across Nigeria.`,
+        brandColors: { primary: '#00D9FF', secondary: '#09090B', accent: '#00FF9D', bg: '#09090B' },
+        city: /abuja/.test(p) ? 'Abuja' : /port.harcourt|ph/.test(p) ? 'Port Harcourt' : /kano/.test(p) ? 'Kano' : 'Lagos',
+        services: [
+          { name: 'Standard Service', description: 'Our core offering', price: 15000, duration: 60 },
+          { name: 'Premium Service', description: 'Enhanced experience', price: 35000, duration: 90 },
+          { name: 'Enterprise Package', description: 'Full-scale solution', price: 75000, duration: 120 }
+        ],
+        seoKeywords: ['business Nigeria', 'professional service'],
+        targetMarket: 'Nigerian professionals and businesses',
+        tone: 'professional',
+        imageSearchQueries: ['professional business Nigeria', 'modern office Lagos', 'team meeting Africa']
+      };
     }
 
     // Fallback: detect websiteCategory from business type if AI didn't provide it
@@ -118,7 +155,13 @@ Rules:
       else plan.websiteCategory = 'landing';
     }
 
-    send('plan', { plan });
+    // Auto-detect best design style
+    const detectedStyle = autoDetectStyle(plan.type || '', plan.websiteCategory || '', plan.description || '', plan.tone || 'professional');
+    plan.designStyle = plan.designStyle || detectedStyle;
+    const designConfig = DESIGN_STYLES[plan.designStyle] || DESIGN_STYLES.nova;
+    plan._design = designConfig;
+    
+    send('plan', { plan, designStyle: plan.designStyle, designConfig: { name: designConfig.name, emoji: designConfig.emoji, desc: designConfig.desc } });
     send('status', { task: '🎨 Creating brand identity...', step: 2, total: 8 });
 
     // ============ STEP 2: BRAND IDENTITY ============
@@ -134,10 +177,24 @@ Return JSON:
   "elevatorPitch": "1 sentence pitch"
 }`;
 
-    const brandResult = await callGroq([
-      { role: 'system', content: 'Return only valid JSON.' },
-      { role: 'user', content: brandPrompt }
-    ], { temperature: 0.7, response_format: { type: 'json_object' } });
+    let brandResult;
+    try {
+      brandResult = await Promise.race([
+        callGroq([
+          { role: 'system', content: 'Return only valid JSON.' },
+          { role: 'user', content: brandPrompt }
+        ], { temperature: 0.7, response_format: { type: 'json_object' } }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Brand timeout')), 8000))
+      ]);
+    } catch(e) {
+      console.log('Brand AI fallback:', e.message);
+      brandResult = JSON.stringify({
+        logoDescription: `professional modern logo for ${plan.businessName}, ${plan.type}`,
+        brandVoice: `${plan.tone || 'professional'} innovative Nigerian`,
+        uniqueSellingPoint: `Premier ${plan.type} experience in ${plan.city}`,
+        elevatorPitch: `${plan.businessName} is ${plan.city}'s leading ${plan.type}, delivering excellence every day.`
+      });
+    }
 
     let brand;
     try {
@@ -153,7 +210,19 @@ Return JSON:
 
     // ============ STEP 3: IMAGE INTELLIGENCE (NEW) ============
     // Agentic image search — uses AI-planned queries + Pixabay + Unsplash
-    const imagePlan = await planImages(plan.businessName, plan.type, plan.services, plan.city);
+    let imagePlan;
+    try {
+      imagePlan = await Promise.race([
+        planImages(plan.businessName, plan.type, plan.services, plan.city),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('planImages timeout')), 5000))
+      ]);
+    } catch(e) {
+      imagePlan = [
+        { placement: 'hero', query: plan.type + ' business ' + plan.city },
+        { placement: 'about', query: 'professional team Nigeria' },
+        { placement: 'services', query: plan.type + ' service' }
+      ];
+    }
     
     // Add AI-generated queries from the plan
     if (plan.imageSearchQueries && plan.imageSearchQueries.length) {
@@ -164,7 +233,21 @@ Return JSON:
       });
     }
 
-    const images = await fetchWebsiteImages(imagePlan);
+    let images = {};
+    try {
+      images = await Promise.race([
+        fetchWebsiteImages(imagePlan),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Images timeout')), 6000))
+      ]);
+    } catch(e) {
+      console.log('Images timeout, using placeholders:', e.message);
+      // Use Pollinations placeholder images
+      images = {
+        hero: [`https://image.pollinations.ai/prompt/${encodeURIComponent(plan.type + ' business in Lagos Nigeria professional')}&width=1200&height=600&nologo=true`],
+        about: [`https://image.pollinations.ai/prompt/${encodeURIComponent('professional team ' + plan.city + ' Nigeria')}&width=800&height=600&nologo=true`],
+        gallery: []
+      };
+    }
     
     // Count found images
     const totalImages = Object.values(images).reduce((sum, arr) => sum + arr.length, 0);
@@ -175,80 +258,91 @@ Return JSON:
     send('status', { task: '✍️ Writing premium copy...', step: 4, total: 8 });
 
     // ============ STEP 4: WEBSITE CONTENT ============
-    const contentPrompt = `You are writing premium website copy for "${plan.businessName}", a ${plan.type} in ${plan.city}, Nigeria.
-Services: ${JSON.stringify(plan.services)}
+    // Build type-specific content prompt (smaller = faster)
+    const cat = plan.websiteCategory || 'landing';
+    const typeFields = {
+      restaurant: '"menu": [{"name":"item","description":"desc","price":2500,"category":"starters|mains|desserts|drinks"}] (8 items)',
+      ecommerce: '"products": [{"name":"product","description":"desc","price":5000,"category":"category"}] (6 items)',
+      portfolio: '"projects": [{"title":"project","description":"desc","tags":["tag1"]}] (6 items)',
+      saas: '"pricingPlans": [{"name":"plan","price":10000,"period":"month","features":["feat1","feat2"],"popular":false}] (3 plans)',
+      blog: '"articles": [{"title":"article","excerpt":"summary","category":"category","date":"2026-07-01","readTime":"5 min"}] (5 articles)',
+      realestate: '"properties": [{"title":"property","price":5000000,"location":"Lagos","beds":3,"baths":2,"type":"rent|sale"}] (6 properties)',
+      fitness: '"classList": [{"name":"class","description":"desc","schedule":"Mon 6am","duration":"60 min","trainer":"name"}] (6 classes)',
+      clinic: '"doctors": [{"name":"Dr. Name","specialty":"specialty","available":"Mon-Fri"}] (4 doctors)',
+      agency: '"team": [{"name":"person","role":"role","bio":"short bio"}] (4 members)',
+      education: '"courses": [{"title":"course","description":"desc","duration":"12 weeks","price":50000,"level":"beginner"}] (4 courses)',
+      events: '"eventSchedule": [{"time":"9:00","title":"title","speaker":"name","description":"desc"}] (6 events)',
+      landing: ''
+    };
+
+    const contentPrompt = `Write website copy for "${plan.businessName}", a ${plan.type} in ${plan.city}, Nigeria. 
+Services: ${JSON.stringify(plan.services || [])}
 Brand voice: ${brand.brandVoice || 'professional'}
-Tone: ${plan.tone || 'professional'}
-Design style: ${plan.designStyle || 'modern'}
 
-IMPORTANT: Write like Apple and Nike — bold, concise, powerful. No generic phrases like "We are committed to" or "Quality service you can trust."
-Use active voice. Make every sentence punch. Include Nigerian cultural references where natural.
+Write bold, concise copy like Apple/Nike. Include Nigerian cultural references.
 
-Based on the website category "${plan.websiteCategory || 'landing'}", include the appropriate type-specific fields:
-
-- restaurant: Include "menu" array with items [{name, description, price, category}]
-- ecommerce: Include "products" array [{name, description, price, image (search query), category}]
-- portfolio: Include "projects" array [{title, description, tags, image (search query)}]
-- saas: Include "pricingPlans" array [{name, price, period, features[], popular}]
-- blog: Include "articles" array [{title, excerpt, category, date, readTime}]
-- realestate: Include "properties" array [{title, price, location, beds, baths, type, image}]
-- fitness: Include "classList" array [{name, description, schedule, duration, trainer}]
-- clinic: Include "doctors" array [{name, specialty, available, image}] and "services" list
-- agency: Include "team" array [{name, role, bio, image}] and "process" array [{step, title, description}]
-- education: Include "courses" array [{title, description, duration, price, level}]
-- events: Include "eventSchedule" array [{time, title, speaker, description}] and "speakers" array
-- landing: Standard services + testimonials
-
-Return JSON with:
+Return ONLY JSON:
 {
-  "hero": {
-    "headline": "powerful headline",
-    "subheadline": "supporting text",
-    "cta": "button text"
-  },
-  "about": "2 paragraph about section, mention the business is in ${plan.city} Nigeria",
-  "servicesHtml": "HTML for services section, each service as a card with name, description, price in ₦",
+  "hero": {"headline": "punchy headline", "subheadline": "supporting text", "cta": "button text"},
+  "about": "2 paragraphs about the business in ${plan.city}",
+  "servicesHtml": "HTML cards for each service with name, description, price in ₦",
   "whyChooseUs": ["reason1", "reason2", "reason3", "reason4"],
-  "testimonials": [
-    {"name": "Nigerian name", "text": "review text", "location": "area in Nigeria"}
-  ],
-  "faq": [
-    {"q": "question", "a": "answer"}
-  ],
-  "menu": [{"name": "item", "description": "desc", "price": 2500, "category": "starters|mains|desserts|drinks"}],
-  "products": [{"name": "product", "description": "desc", "price": 5000, "category": "category", "image": "search query"}],
-  "projects": [{"title": "project", "description": "desc", "tags": ["tag1"], "image": "search query"}],
-  "pricingPlans": [{"name": "plan", "price": 10000, "period": "month", "features": ["feat1"], "popular": false}],
-  "articles": [{"title": "article", "excerpt": "summary", "category": "category", "date": "2026-01-01", "readTime": "5 min"}],
-  "properties": [{"title": "property", "price": 5000000, "location": "Lagos", "beds": 3, "baths": 2, "type": "rent|sale", "image": "search query"}],
-  "classList": [{"name": "class", "description": "desc", "schedule": "Mon 6am", "duration": "60 min", "trainer": "name"}],
-  "doctors": [{"name": "Dr. Name", "specialty": "specialty", "available": "Mon-Fri", "image": "search query"}],
-  "courses": [{"title": "course", "description": "desc", "duration": "12 weeks", "price": 50000, "level": "beginner"}],
-  "team": [{"name": "person", "role": "role", "bio": "short bio", "image": "search query"}],
-  "process": [{"step": 1, "title": "title", "description": "desc"}],
-  "eventSchedule": [{"time": "9:00", "title": "title", "speaker": "name", "description": "desc"}],
-  "seoTitle": "SEO optimized title tag",
+  "testimonials": [{"name": "Nigerian name", "text": "review", "location": "area in Nigeria"}, 3 items],
+  "faq": [{"q": "question", "a": "answer"}, 4 items],
+  ${typeFields[cat] || ''}
+  "seoTitle": "SEO title",
   "seoDescription": "SEO meta description",
-  "contactInfo": {
-    "phone": "Nigerian phone format",
-    "email": "info@businessname.com",
-    "address": "address in ${plan.city}",
-    "whatsapp": "whatsapp number"
-  }
+  "contactInfo": {"phone": "+234...", "email": "info@...", "address": "address in ${plan.city}", "whatsapp": "+234..."}
 }`;
 
-    const contentResult = await callGroq([
-      { role: 'system', content: 'You are ERGIO, expert copywriter for Nigerian businesses. Return only valid JSON.' },
-      { role: 'user', content: contentPrompt }
-    ], { temperature: 0.75, maxTokens: 4096, response_format: { type: 'json_object' } });
-
-    let content;
-    try {
-      content = JSON.parse(contentResult);
-    } catch {
-      const match = contentResult.match(/\{[\s\S]*\}/);
-      content = match ? JSON.parse(match[0]) : {};
-    }
+    // ============ SMART INSTANT CONTENT (derived from plan — zero extra AI calls) ============
+    const bSlug = (plan.businessName||'business').toLowerCase().replace(/[^a-z0-9]/g,'');
+    const ctaByType = {restaurant:'Reserve a Table',salon:'Book Appointment',fitness:'Join Now',clinic:'Book Consultation',ecommerce:'Shop Now',realestate:'View Properties',saas:'Start Free Trial',portfolio:'See My Work',agency:'Get a Quote',events:'Get Tickets',education:'Enroll Now',landing:'Get Started'};
+    const whyByType = {
+      restaurant:['Authentic Flavors','Farm-Fresh Ingredients','Expert Chefs','Cozy Ambiance'],
+      salon:['Certified Stylists','Premium Products','Online Booking','Luxury Experience'],
+      fitness:['Expert Trainers','Modern Equipment','Flexible Schedules','Results Guaranteed'],
+      clinic:['Licensed Doctors','Modern Facilities','Compassionate Care','Quick Appointments'],
+      ecommerce:['Fast Delivery','Secure Checkout','Quality Products','Easy Returns'],
+      realestate:['Verified Listings','Expert Agents','Best Prices','Legal Support'],
+      saas:['Easy Integration','99.9% Uptime','24/7 Support','Scalable Plans'],
+      agency:['Creative Experts','On-Time Delivery','Transparent Pricing','Proven Results'],
+    };
+    const testimonialsByCity = (city) => [
+      {name:'Adebayo Okonkwo', text:`${plan.businessName} is absolutely outstanding! The quality and service exceeded all my expectations.`, location: city || 'Lagos'},
+      {name:'Chioma Eze', text:`I've been a loyal client for over a year. Professional, reliable, and truly world-class.`, location: city === 'Abuja' ? 'Abuja' : 'Lekki, Lagos'},
+      {name:'Kunle Adeyemi', text:`Best in ${city || 'Nigeria'}. I refer everyone I know here.`, location: 'Victoria Island, Lagos'}
+    ];
+    const content = {
+      hero: { 
+        headline: plan.businessName, 
+        subheadline: plan.tagline || plan.description?.split('.')[0] || `Premium ${plan.type} in ${plan.city}, Nigeria`, 
+        cta: ctaByType[cat] || 'Get Started' 
+      },
+      about: `${plan.businessName} is ${plan.city}'s premier ${plan.type}, built on a foundation of excellence and deep roots in the Nigerian community. We combine world-class standards with an authentic local touch — ensuring every client receives an experience that truly stands out.\n\n${plan.description || `Our team of dedicated professionals is passionate about delivering results that exceed expectations. From ${plan.city} to the world, we are setting the standard for what great ${plan.type} looks like.`}`,
+      servicesHtml: (plan.services || []).map(s => `<div class="service-card"><h3>${s.name}</h3><p>${s.description || ''}</p><div class="price">₦${(s.price||0).toLocaleString()}</div></div>`).join(''),
+      whyChooseUs: whyByType[cat] || ['Expert Team', 'Trusted by 500+', 'Affordable Pricing', 'Quality Guaranteed'],
+      testimonials: testimonialsByCity(plan.city),
+      faq: [
+        {q: `How do I get started with ${plan.businessName}?`, a: `Simply call us, WhatsApp us, or book online at our website. Our team responds within minutes.`},
+        {q: 'What are your operating hours?', a: 'We are open Monday to Saturday, 8:00 AM – 8:00 PM, and Sundays 10:00 AM – 4:00 PM.'},
+        {q: `Where are you located in ${plan.city}?`, a: `We are centrally located in ${plan.city}, Nigeria. Contact us for the exact address or directions.`},
+        {q: 'Do you offer payment plans?', a: 'Yes! We accept bank transfers, Paystack card payments, USSD, and cash. Flexible installments available.'}
+      ],
+      contactInfo: {
+        phone: '+234 800 000 0000', 
+        email: `info@${bSlug}.com`, 
+        address: `${plan.city}, Nigeria`, 
+        whatsapp: '+234 800 000 0000'
+      },
+      seoTitle: `${plan.businessName} | Best ${plan.type} in ${plan.city} Nigeria`,
+      seoDescription: `${plan.businessName} - ${plan.description?.substring(0,120) || `Premium ${plan.type} in ${plan.city}, Nigeria`}. Book online today.`,
+      // Type-specific extras
+      ...(cat === 'restaurant' ? { menu: (plan.services||[]).map(s=>({name:s.name,description:s.description||'',price:s.price||0,category:'Signature'})) } : {}),
+      ...(cat === 'ecommerce' ? { products: (plan.services||[]).map(s=>({name:s.name,description:s.description||'',price:s.price||0,category:'Featured'})) } : {}),
+      ...(cat === 'realestate' ? { properties: (plan.services||[]).map(s=>({title:s.name,price:s.price||0,location:plan.city,beds:3,baths:2,type:'sale'})) } : {}),
+      ...(cat === 'fitness' ? { classList: (plan.services||[]).map(s=>({name:s.name,description:s.description||'',schedule:'Mon/Wed/Fri 6am',duration:'60 min',trainer:'Coach Emmanuel'})) } : {}),
+    };
 
     send('content', { content });
     send('status', { task: '🏗️ Building with motion graphics...', step: 5, total: 8 });
@@ -259,11 +353,27 @@ Return JSON with:
     const is3D = plan.websiteType === '3d' || 
       /3d|interactive|animated|immersive|motion|3dimentional/i.test(prompt + JSON.stringify(answers || {}));
     
-    const websiteHtml = is3D 
-      ? generate3DWebsiteHTML(plan, brand, content, colors, logoUrl, images)
-      : generateRichWebsiteHTML(plan, brand, content, colors, logoUrl, images);
+    let websiteHtml;
+    const contentForHTML = content;
+    const planForHTML = plan;
+    // Ensure content.about is always a string (not undefined)
+    if (!contentForHTML.about) contentForHTML.about = plan.description || plan.type + ' in ' + plan.city;
+    if (!contentForHTML.hero) contentForHTML.hero = { headline: plan.businessName, subheadline: plan.tagline || '', cta: 'Get Started' };
+    if (!contentForHTML.whyChooseUs) contentForHTML.whyChooseUs = ['Expert Team', 'Trusted Quality', 'Fast Service', 'Best Prices'];
+    if (!contentForHTML.testimonials) contentForHTML.testimonials = [];
+    if (!contentForHTML.faq) contentForHTML.faq = [];
+    if (!contentForHTML.contactInfo) contentForHTML.contactInfo = { phone: '+234 800 000 0000', email: 'info@business.com', address: plan.city + ', Nigeria', whatsapp: '+234 800 000 0000' };
+    try {
+      websiteHtml = is3D 
+        ? generate3DWebsiteHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
+        : generateWebsiteHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images);
+    } catch(genErr) {
+      console.error('HTML generation error:', genErr.message, genErr.stack);
+      // Fallback minimal HTML
+      websiteHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${plan.businessName}</title><style>body{background:#09090B;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:1rem} h1{color:#00D9FF;font-size:3rem} p{color:#888}</style></head><body><h1>${plan.businessName}</h1><p>${plan.description || plan.type + ' in ' + plan.city}</p><p style="color:#00FF9D">Your website is being prepared...</p></body></html>`;
+    }
 
-    send('website', { html: websiteHtml, logoUrl, imageCount: totalImages, designStyle: (typeof style !== "undefined" ? style.name : "aurora-dark") });
+    send('website', { html: websiteHtml, logoUrl, imageCount: totalImages });
     send('status', { task: '🔧 Setting up booking & payments...', step: 6, total: 8 });
 
     await delay(400);
@@ -285,12 +395,15 @@ Return JSON with:
       const supabase = getSupabase(req);
       const userId = req.body.userId || null;
       
+      const siteSlug = generateSlug(plan.businessName);
       await supabase.from('generated_websites').insert({
         business_name: plan.businessName,
         business_type: plan.type,
         html_content: websiteHtml,
         brand_colors: colors,
         website_type: is3D ? '3d' : 'standard',
+        website_category: plan.websiteCategory || 'landing',
+        slug: siteSlug,
         created_by: userId,
         created_date: new Date().toISOString()
       });
@@ -311,21 +424,34 @@ Return JSON with:
     send('engines', { engines });
 
     // ============ FINAL RESULT ============
+    // Generate shareable deploy URL
+    const slug = generateSlug(plan.businessName);
+    const deployUrl = `https://ergio.vercel.app/site/${slug}`;
+    const previewUrl = `https://ergio.vercel.app/preview.html?site=${slug}`;
+    
     send('complete', {
       business: {
         name: plan.businessName,
         tagline: plan.tagline,
         type: plan.type,
-        slug: generateSlug(plan.businessName),
+        websiteCategory: plan.websiteCategory || 'landing',
+        slug,
         logoUrl,
         brandColors: colors,
         city: plan.city,
         services: plan.services || [],
         websiteHtml,
         content,
-        images: { total: totalImages, sources: ['pixabay', 'unsplash'] }
+        images: { total: totalImages, sources: ['pixabay', 'unsplash'] },
+        deployUrl,
+        previewUrl,
+        shareUrl: deployUrl,
+        vercelUrl: deployUrl
       },
-      message: 'Your business is ready!'
+      message: 'Your business is ready!',
+      deployUrl,
+      previewUrl,
+      shareUrl: deployUrl
     });
 
     res.end();
@@ -638,205 +764,40 @@ function generateTypeSections(plan, content, colors, images = {}) {
 
 
 // ============ WEBSITE HTML GENERATOR (STANDARD + MOTION GRAPHICS) ============
-
-// ===== DESIGN STYLE ENGINE =====
-// Multiple design templates so each website looks different
-const DESIGN_STYLES = [
-  {
-    name: 'aurora-dark',
-    bg: '#09090B',
-    surface: 'rgba(255,255,255,0.03)',
-    border: 'rgba(255,255,255,0.08)',
-    heroStyle: 'gradient-text',
-    heroGradient: 'linear-gradient(135deg, var(--primary), var(--accent))',
-    cardStyle: 'glassmorphism',
-    cardBg: 'rgba(255,255,255,0.03)',
-    cardBorder: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: '16px',
-    fontHead: 'Space Grotesk',
-    fontBody: 'Inter',
-    navStyle: 'blur',
-    sectionPadding: '6rem 2rem',
-    buttonStyle: 'gradient-pill',
-    animation: 'reveal',
-  },
-  {
-    name: 'editorial-light',
-    bg: '#FAFAF9',
-    surface: '#FFFFFF',
-    border: 'rgba(0,0,0,0.08)',
-    heroStyle: 'serif-bold',
-    heroGradient: 'none',
-    cardStyle: 'shadow-card',
-    cardBg: '#FFFFFF',
-    cardBorder: '1px solid rgba(0,0,0,0.06)',
-    borderRadius: '12px',
-    fontHead: 'Georgia, serif',
-    fontBody: 'Inter',
-    navStyle: 'solid-white',
-    sectionPadding: '5rem 2rem',
-    buttonStyle: 'solid-dark',
-    animation: 'fade-up',
-  },
-  {
-    name: 'brutalist-bold',
-    bg: '#0A0A0A',
-    surface: '#1A1A1A',
-    border: '#333',
-    heroStyle: 'outline-text',
-    heroGradient: 'none',
-    cardStyle: 'bordered',
-    cardBg: 'transparent',
-    cardBorder: '2px solid #333',
-    borderRadius: '0px',
-    fontHead: 'Space Grotesk',
-    fontBody: 'Inter',
-    navStyle: 'solid-dark',
-    sectionPadding: '7rem 2rem',
-    buttonStyle: 'bordered-square',
-    animation: 'slide-in',
-  },
-  {
-    name: 'organic-soft',
-    bg: '#F5F3EE',
-    surface: '#FFFFFF',
-    border: 'rgba(0,0,0,0.06)',
-    heroStyle: 'warm-gradient',
-    heroGradient: 'linear-gradient(135deg, #D97706, #B45309)',
-    cardStyle: 'soft-shadow',
-    cardBg: '#FFFFFF',
-    cardBorder: 'none',
-    borderRadius: '24px',
-    fontHead: 'Georgia, serif',
-    fontBody: 'Inter',
-    navStyle: 'transparent',
-    sectionPadding: '5rem 2rem',
-    buttonStyle: 'pill-warm',
-    animation: 'fade-up',
-  },
-  {
-    name: 'neon-cyber',
-    bg: '#05050A',
-    surface: 'rgba(0,217,255,0.03)',
-    border: 'rgba(0,217,255,0.15)',
-    heroStyle: 'neon-glow',
-    heroGradient: 'linear-gradient(135deg, #00D9FF, #00FF9D)',
-    cardStyle: 'neon-border',
-    cardBg: 'rgba(0,217,255,0.02)',
-    cardBorder: '1px solid rgba(0,217,255,0.2)',
-    borderRadius: '8px',
-    fontHead: 'JetBrains Mono',
-    fontBody: 'Inter',
-    navStyle: 'cyber-blur',
-    sectionPadding: '6rem 2rem',
-    buttonStyle: 'neon-square',
-    animation: 'glitch-in',
-  },
-  {
-    name: 'magazine-clean',
-    bg: '#FFFFFF',
-    surface: '#F8F8F8',
-    border: 'rgba(0,0,0,0.1)',
-    heroStyle: 'split-layout',
-    heroGradient: 'none',
-    cardStyle: 'minimal',
-    cardBg: 'transparent',
-    cardBorder: '1px solid rgba(0,0,0,0.08)',
-    borderRadius: '8px',
-    fontHead: 'Georgia, serif',
-    fontBody: 'Inter',
-    navStyle: 'minimal',
-    sectionPadding: '5rem 2rem',
-    buttonStyle: 'underline',
-    animation: 'fade-up',
-  },
-];
-
-function pickDesignStyle(prompt, plan) {
-  // Try to match style to business type
-  const p = (prompt + ' ' + JSON.stringify(plan || {})).toLowerCase();
-  
-  if (/luxury|premium|high.end|exclusive|elite/.test(p)) return DESIGN_STYLES[3]; // organic-soft
-  if (/tech|saas|cyber|crypto|ai|artificial|robot|futur/.test(p)) return DESIGN_STYLES[4]; // neon-cyber
-  if (/editorial|magazine|blog|news|publish/.test(p)) return DESIGN_STYLES[5]; // magazine-clean
-  if (/restaurant|food|cafe|bakery|catering/.test(p)) return DESIGN_STYLES[3]; // organic-soft
-  if (/fashion|design|studio|creative|art/.test(p)) return DESIGN_STYLES[1]; // editorial-light
-  if (/bold|brutalist|agency|startup/.test(p)) return DESIGN_STYLES[2]; // brutalist-bold
-  if (/beauty|salon|spa|wellness/.test(p)) return DESIGN_STYLES[3]; // organic-soft
-  
-  // Random pick for variety
-  return DESIGN_STYLES[Math.floor(Math.random() * DESIGN_STYLES.length)];
-}
-
-
-
-function generateStyleCSS(style, colors) {
-  const primary = colors.primary || '#00D9FF';
-  const accent = colors.accent || '#00FF9D';
-  const bg = style.bg;
-  const isDark = bg.startsWith('#0') || bg.startsWith('#1');
-  const textColor = isDark ? '#F8FAFC' : '#1A1A1A';
-  const mutedColor = isDark ? '#94A3B8' : '#666';
-  
-  const buttonStyles = {
-    'gradient-pill': `background:linear-gradient(135deg,${primary},${accent});border:none;border-radius:100px;color:${isDark?'#000':'#fff'};padding:14px 32px;font-weight:700;`,
-    'solid-dark': `background:${isDark?'#fff':'#0A0A0A'};border:none;border-radius:8px;color:${isDark?'#000':'#fff'};padding:14px 32px;font-weight:700;`,
-    'bordered-square': `background:transparent;border:2px solid ${textColor};border-radius:0;color:${textColor};padding:14px 32px;font-weight:700;text-transform:uppercase;letter-spacing:1px;`,
-    'pill-warm': `background:linear-gradient(135deg,${primary},${accent});border:none;border-radius:100px;color:#fff;padding:14px 32px;font-weight:600;`,
-    'neon-square': `background:transparent;border:1px solid ${primary};border-radius:4px;color:${primary};padding:14px 28px;font-weight:600;text-transform:uppercase;box-shadow:0 0 20px ${primary}33;`,
-    'underline': `background:none;border:none;color:${textColor};font-weight:700;border-bottom:2px solid ${primary};padding:4px 0;`,
-  };
-  
-  const heroStyles = {
-    'gradient-text': `font-size:clamp(2.5rem,7vw,5rem);font-weight:900;letter-spacing:-0.03em;background:linear-gradient(135deg,${primary},${accent});-webkit-background-clip:text;-webkit-text-fill-color:transparent;`,
-    'serif-bold': `font-size:clamp(2.5rem,7vw,5rem);font-weight:800;letter-spacing:-0.02em;color:${textColor};`,
-    'outline-text': `font-size:clamp(3rem,8vw,6rem);font-weight:900;letter-spacing:-0.04em;color:transparent;-webkit-text-stroke:2px ${textColor};`,
-    'warm-gradient': `font-size:clamp(2.5rem,7vw,5rem);font-weight:800;letter-spacing:-0.02em;background:linear-gradient(135deg,${primary},${accent});-webkit-background-clip:text;-webkit-text-fill-color:transparent;`,
-    'neon-glow': `font-size:clamp(2.5rem,7vw,5rem);font-weight:900;letter-spacing:-0.03em;color:${primary};text-shadow:0 0 30px ${primary}66,0 0 60px ${primary}33;`,
-    'split-layout': `font-size:clamp(2rem,5vw,4rem);font-weight:700;letter-spacing:-0.02em;color:${textColor};`,
-  };
-  
-  const cardStyles = {
-    'glassmorphism': `background:rgba(255,255,255,0.03);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:16px;`,
-    'shadow-card': `background:#fff;border:1px solid rgba(0,0,0,0.06);border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.08);`,
-    'bordered': `background:transparent;border:2px solid #333;border-radius:0;`,
-    'soft-shadow': `background:#fff;border:none;border-radius:24px;box-shadow:0 8px 30px rgba(0,0,0,0.06);`,
-    'neon-border': `background:rgba(0,217,255,0.02);border:1px solid rgba(0,217,255,0.2);border-radius:8px;box-shadow:0 0 20px rgba(0,217,255,0.1);`,
-    'minimal': `background:transparent;border:1px solid rgba(0,0,0,0.08);border-radius:8px;`,
-  };
-  
-  const navStyles = {
-    'blur': `backdrop-filter:blur(20px);background:rgba(${isDark?'7,8,13':'255,255,255'},0.8);border-bottom:1px solid rgba(${isDark?'255,255,255':'0,0,0'},0.08);`,
-    'solid-white': `background:#fff;border-bottom:1px solid rgba(0,0,0,0.06);`,
-    'solid-dark': `background:#0A0A0A;border-bottom:2px solid #333;`,
-    'transparent': `background:transparent;border:none;`,
-    'cyber-blur': `backdrop-filter:blur(20px);background:rgba(5,5,10,0.8);border-bottom:1px solid rgba(0,217,255,0.15);`,
-    'minimal': `background:#fff;border-bottom:1px solid rgba(0,0,0,0.1);`,
-  };
-  
-  return `
-    :root{--primary:${primary};--accent:${accent};--bg:${bg};--text:${textColor};--muted:${mutedColor};--surface:${style.surface};--border:${style.border};--radius:${style.borderRadius};}
-    body{background:var(--bg);color:var(--text);font-family:'${style.fontBody}','Inter',sans-serif;overflow-x:hidden}
-    h1,h2,h3{font-family:'${style.fontHead}','Inter',sans-serif}
-    .hero h1{${heroStyles[style.heroStyle]||heroStyles['gradient-text']}}
-    .nav{${navStyles[style.navStyle]||navStyles['blur']}}
-    .card{${cardStyles[style.cardStyle]||cardStyles['glassmorphism']}}
-    .btn-primary{${buttonStyles[style.buttonStyle]||buttonStyles['gradient-pill']}cursor:pointer;transition:all .2s}
-    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px ${primary}44}
-    section{padding:${style.sectionPadding}}
-  `;
-}
-
-
 function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {}) {
-  const style = pickDesignStyle(plan?.businessName || '', plan);
-
   const hero = content.hero || {};
   const about = content.about || '';
   const whyChooseUs = content.whyChooseUs || [];
   const testimonials = content.testimonials || [];
   const faq = content.faq || [];
   const contact = content.contactInfo || {};
+
+  // ── Design System Integration ──────────────────────────────
+  const styleKey = plan.designStyle || plan._design?.name?.toLowerCase() || 'nova';
+  const ds = DESIGN_STYLES[styleKey] || DESIGN_STYLES.nova;
+  const dp = ds.palette;
+  const df = ds.fonts;
+  
+  // Merge design-system colors with plan brandColors
+  const bg = dp.bg || colors.bg || '#09090B';
+  const surface = dp.surface || '#111827';
+  const borderClr = dp.border || 'rgba(255,255,255,0.08)';
+  const textClr = dp.text || '#F8FAFC';
+  const mutedClr = dp.muted || '#94A3B8';
+  const primaryClr = dp.primary || colors.primary || '#00D9FF';
+  const accentClr = dp.accent || colors.accent || '#00FF9D';
+  const ctaClr = dp.cta || primaryClr;
+  const headingFont = df.heading || 'Inter';
+  const bodyFont = df.body || 'Inter';
+  
+  // Determine if light or dark theme
+  const isLight = bg.startsWith('#f') || bg.startsWith('#e') || bg.startsWith('#fa') || bg.startsWith('#fe');
+  const navBg = isLight ? 'rgba(255,255,255,0.85)' : 'rgba(10,10,15,0.85)';
+  const cardBg = isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.03)';
+  const heroBgOverlay = isLight 
+    ? 'linear-gradient(180deg,rgba(255,255,255,.1) 0%,rgba(255,255,255,.7) 100%)'
+    : 'linear-gradient(180deg,rgba(10,10,15,.3) 0%,rgba(10,10,15,.8) 100%)';
+  const buttonTextColor = isLight ? '#ffffff' : (ctaClr === '#ffffff' ? '#111' : '#09090B');
   
   // Get real images or fallback to AI-generated
   const heroImg = images.hero?.[0]?.url || getFallbackImage(`${plan.type} ${plan.city} business`, 1200, 800);
@@ -859,19 +820,25 @@ function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {})
   <meta property="og:image" content="${heroImg}">
   <meta name="robots" content="index, follow">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(headingFont).replace(/%2B/g,'+')}:wght@400;600;700;800;900&family=${encodeURIComponent(bodyFont).replace(/%2B/g,'+')}:wght@400;500;600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     :root{
-      --primary:${colors.primary || '#00D9FF'};
-      --secondary:${colors.secondary || '#09090B'};
-      --accent:${colors.accent || '#00FF9D'};
-      --bg:${colors.bg || '#0A0A0F'};
-      --text:#F8FAFC;
-      --muted:#94A3B8;
+      --primary:${primaryClr};
+      --secondary:${surface};
+      --accent:${accentClr};
+      --bg:${bg};
+      --surface:${surface};
+      --border:${borderClr};
+      --text:${textClr};
+      --muted:${mutedClr};
+      --cta:${ctaClr};
+      --card:${cardBg};
+      --nav:${navBg};
     }
     html{scroll-behavior:smooth}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+    body{font-family:'${bodyFont}',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+    h1,h2,h3,h4,h5{font-family:'${headingFont}',sans-serif}
     
     /* === SCROLL ANIMATIONS === */
     .reveal{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
@@ -901,7 +868,7 @@ function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {})
     @keyframes glow{0%,100%{box-shadow:0 0 20px rgba(0,217,255,.3)}50%{box-shadow:0 0 40px rgba(0,217,255,.6)}}
     
     /* === NAVIGATION === */
-    .nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 5%;position:sticky;top:0;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:100;border-bottom:1px solid rgba(255,255,255,.06);transition:padding .3s}
+    .nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 5%;position:sticky;top:0;background:var(--nav);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:100;border-bottom:1px solid var(--border);transition:padding .3s}
     .nav.scrolled{padding:.8rem 5%}
     .nav-logo{display:flex;align-items:center;gap:.6rem;font-weight:800;font-size:1.2rem;color:#fff;text-decoration:none;font-family:'Space Grotesk',sans-serif}
     .nav-logo img{width:36px;height:36px;border-radius:8px}
@@ -946,7 +913,7 @@ function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {})
     
     /* === SERVICES === */
     .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem}
-    .service-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:2.5rem;transition:all .5s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden}
+    .service-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;transition:all .5s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden}
     .service-card:hover{border-color:var(--primary);transform:translateY(-8px);box-shadow:0 20px 50px rgba(0,217,255,.15)}
     .service-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,var(--primary),var(--accent));transform:scaleX(0);transform-origin:left;transition:transform .5s}
     .service-card:hover::before{transform:scaleX(1)}
@@ -966,7 +933,7 @@ function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {})
     
     /* === WHY CHOOSE US === */
     .why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem}
-    .why-item{text-align:center;padding:2rem;border-radius:20px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);transition:all .4s}
+    .why-item{text-align:center;padding:2rem;border-radius:20px;background:var(--card);border:1px solid var(--border);transition:all .4s}
     .why-item:hover{border-color:var(--primary);transform:translateY(-4px)}
     .why-item .icon{font-size:2.5rem;margin-bottom:1rem;display:inline-block;animation:float 4s ease-in-out infinite}
     .why-item h4{margin-bottom:.5rem;font-weight:700;font-size:1.1rem}
@@ -974,7 +941,7 @@ function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {})
     
     /* === TESTIMONIALS === */
     .testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem}
-    .testimonial{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:2.5rem;position:relative}
+    .testimonial{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;position:relative}
     .testimonial::before{content:'"';position:absolute;top:-10px;left:20px;font-size:5rem;color:var(--primary);opacity:.2;font-family:Georgia,serif}
     .testimonial p{color:#CBD5E1;font-style:italic;margin-bottom:1.5rem;position:relative;z-index:1}
     .testimonial .author{font-weight:700;font-size:1.1rem}
@@ -982,7 +949,7 @@ function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {})
     .testimonial .stars{color:#FBBF24;margin-bottom:1rem}
     
     /* === FAQ === */
-    .faq-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:1.8rem;margin-bottom:1rem;cursor:pointer;transition:all .3s}
+    .faq-item{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.8rem;margin-bottom:1rem;cursor:pointer;transition:all .3s}
     .faq-item:hover{border-color:rgba(255,255,255,.15)}
     .faq-item h4{margin-bottom:.5rem;color:var(--primary);font-size:1.15rem}
     .faq-item p{color:var(--muted);max-height:0;overflow:hidden;transition:max-height .4s ease}
@@ -1335,7 +1302,7 @@ function generate3DWebsiteHTML(plan, brand, content, colors, logoUrl, images = {
     .about-img-wrap::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--primary),var(--accent));opacity:.2;mix-blend-mode:overlay}
     
     .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem}
-    .service-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:2.5rem;transition:all .5s cubic-bezier(.16,1,.3,1);perspective:1000px}
+    .service-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;transition:all .5s cubic-bezier(.16,1,.3,1);perspective:1000px}
     .service-card:hover{border-color:var(--primary);transform:translateY(-10px) rotateX(5deg);box-shadow:0 30px 60px rgba(0,217,255,.15)}
     .service-img{width:100%;height:180px;object-fit:cover;border-radius:12px;margin-bottom:1.5rem}
     .service-card h3{font-size:1.4rem;margin-bottom:.5rem}
@@ -1348,19 +1315,19 @@ function generate3DWebsiteHTML(plan, brand, content, colors, logoUrl, images = {
     .gallery-item:hover img{transform:scale(1.2)}
     
     .why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem}
-    .why-item{text-align:center;padding:2rem;border-radius:20px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);transition:all .4s}
+    .why-item{text-align:center;padding:2rem;border-radius:20px;background:var(--card);border:1px solid var(--border);transition:all .4s}
     .why-item:hover{border-color:var(--primary);transform:translateY(-5px)}
     .why-item .icon{font-size:2.5rem;margin-bottom:1rem;animation:float 4s ease-in-out infinite}
     .why-item h4{margin-bottom:.5rem;font-weight:700}
     
     .testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem}
-    .testimonial{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:2.5rem}
+    .testimonial{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem}
     .testimonial .stars{color:#FBBF24;margin-bottom:1rem}
     .testimonial p{color:#CBD5E1;font-style:italic;margin-bottom:1.5rem}
     .testimonial .author{font-weight:700}
     .testimonial .location{color:#94A3B8;font-size:.9rem}
     
-    .faq-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:1.8rem;margin-bottom:1rem;cursor:pointer}
+    .faq-item{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.8rem;margin-bottom:1rem;cursor:pointer}
     .faq-item h4{color:var(--primary);margin-bottom:.5rem}
     .faq-item p{color:#94A3B8;max-height:0;overflow:hidden;transition:max-height .4s}
     .faq-item.open p{max-height:200px}
@@ -1565,3 +1532,4 @@ function generate3DWebsiteHTML(plan, brand, content, colors, logoUrl, images = {
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+// cache-bust Sat Jul 18 06:43:50 UTC 2026

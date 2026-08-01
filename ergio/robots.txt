@@ -2,4 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /ergio/dashboard/
+Disallow: /ergio/admin/
+Disallow: /ergio/console/
 Sitemap: https://ergio.vercel.app/sitemap.xml

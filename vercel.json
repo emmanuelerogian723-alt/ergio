@@ -3,35 +3,11 @@
     "api/[endpoint].js": {
       "maxDuration": 60
     },
-    "api/generate.js": {
-      "maxDuration": 60
-    },
-    "api/site.js": {
-      "maxDuration": 30
-    },
-    "api/mcp.js": {
-      "maxDuration": 30
-    },
-    "api/logo.js": {
-      "maxDuration": 30
-    },
-    "api/critique.js": {
-      "maxDuration": 30
-    },
-    "api/advisor.js": {
-      "maxDuration": 30
+    "api/health.js": {
+      "maxDuration": 10
     },
     "api/firebase-config.js": {
       "maxDuration": 10
-    },
-    "api/leads.js": {
-      "maxDuration": 30
-    },
-    "api/outreach.js": {
-      "maxDuration": 30
-    },
-    "api/bookings.js": {
-      "maxDuration": 30
     }
   },
   "rewrites": [
@@ -62,6 +38,70 @@
     {
       "source": "/guide.html",
       "destination": "/ergio/guide.html"
+    },
+    {
+      "source": "/lib/:path*",
+      "destination": "/ergio/lib/:path*"
+    },
+    {
+      "source": "/config.js",
+      "destination": "/ergio/config.js"
+    },
+    {
+      "source": "/ergio/console",
+      "destination": "/ergio/console/index.html"
+    },
+    {
+      "source": "/ergio/console/",
+      "destination": "/ergio/console/index.html"
+    },
+    {
+      "source": "/ergio/admin",
+      "destination": "/ergio/admin/index.html"
+    },
+    {
+      "source": "/ergio/admin/",
+      "destination": "/ergio/admin/index.html"
+    },
+    {
+      "source": "/build.html",
+      "destination": "/ergio/build.html"
+    },
+    {
+      "source": "/s/:slug*",
+      "destination": "/ergio/site.html"
+    },
+    {
+      "source": "/match.html",
+      "destination": "/ergio/match.html"
+    },
+    {
+      "source": "/critique.html",
+      "destination": "/ergio/critique.html"
+    },
+    {
+      "source": "/refer.html",
+      "destination": "/ergio/refer.html"
+    },
+    {
+      "source": "/pay.html",
+      "destination": "/ergio/pay.html"
+    },
+    {
+      "source": "/guide-widget.js",
+      "destination": "/ergio/guide-widget.js"
+    },
+    {
+      "source": "/cinematic-build.js",
+      "destination": "/ergio/cinematic-build.js"
+    },
+    {
+      "source": "/assets/:path*",
+      "destination": "/ergio/assets/:path*"
+    },
+    {
+      "source": "/manifest.json",
+      "destination": "/ergio/manifest.json"
     }
   ]
 }

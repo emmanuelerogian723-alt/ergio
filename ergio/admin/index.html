@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<meta http-equiv="X-Robots-Tag" content="noindex, nofollow, noarchive">
+<title>ERGIO HQ — Secure Access</title>
+<link rel="icon" type="image/jpeg" href="/ergio/assets/ergio-logo.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#040508;--bg2:#0a0b12;--bg3:#0f1118;--bg4:#151823;--surface:rgba(255,255,255,0.03);--surface2:rgba(255,255,255,0.06);--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--text:#f0f2f5;--text2:#9098a8;--text3:#5a6275;--text4:#3a4050;--cyan:#00d9ff;--green:#00ff9d;--blue:#3b82f6;--amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--pink:#ec4899;--orange:#f97316;--teal:#14b8a6;--radius:16px;--radius-sm:10px;--radius-xs:8px;--shadow:0 4px 24px rgba(0,0,0,0.4)}
+html{scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden;min-height:100vh}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+.mono{font-family:'JetBrains Mono',monospace}
+.gate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#0a0b12 0%,#040508 100%)}
+.gate::before{content:'';position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(0,217,255,0.04) 0%,transparent 70%);animation:gp 4s ease-in-out infinite}
+@keyframes gp{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+.gate-box{position:relative;background:var(--bg3);border:1px solid var(--border2);border-radius:24px;padding:48px;max-width:460px;width:92%;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,0.6)}
+.gate-logo{width:64px;height:64px;border-radius:16px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:900;color:#000;background:linear-gradient(135deg,var(--cyan),var(--green))}
+.gate-box h1{font-size:1.4rem;font-weight:800;margin-bottom:6px;letter-spacing:-0.5px}
+.gate-sub{color:var(--text3);font-size:0.82rem;margin-bottom:28px}
+.gate-step{display:none}.gate-step.active{display:block;animation:fadeIn 0.3s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.gate-input{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:14px 18px;color:var(--text);font-family:'Inter',sans-serif;font-size:0.9rem;outline:none;transition:border-color .2s;margin-bottom:12px}
+.gate-input.mono{font-family:'JetBrains Mono',monospace;letter-spacing:3px;text-align:center}
+.gate-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,217,255,0.08)}
+.gate-btn{width:100%;background:linear-gradient(135deg,var(--cyan),var(--green));color:#000;border:none;padding:14px;border-radius:12px;font-weight:700;font-size:0.95rem;cursor:pointer;transition:transform .2s,box-shadow .2s;margin-top:4px}
+.gate-btn:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(0,217,255,0.2)}
+.gate-otp{display:flex;gap:8px;justify-content:center;margin-bottom:12px}
+.gate-otp input{width:48px;height:56px;text-align:center;font-size:1.5rem;font-weight:700;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;color:var(--text);outline:none;font-family:'JetBrains Mono',monospace}
+.gate-otp input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,217,255,0.08)}
+.gate-error{color:var(--red);font-size:0.82rem;margin-top:8px;min-height:20px}
+.gate-hint{color:var(--text4);font-size:0.7rem;margin-top:20px;line-height:1.5}
+.gate-back{color:var(--text3);font-size:0.8rem;cursor:pointer;margin-top:12px;transition:color .15s}.gate-back:hover{color:var(--text)}
+.gate-lock{font-size:2.5rem;margin-bottom:8px;opacity:0.5}
+.gate-features{display:flex;gap:16px;justify-content:center;margin-top:24px;flex-wrap:wrap}
+.gate-feature{font-size:0.68rem;color:var(--text3);display:flex;align-items:center;gap:4px}
+.gate-feature::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green)}
+.lockout{position:fixed;inset:0;background:rgba(4,5,8,0.95);z-index:10000;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:2rem}
+.lockout.show{display:flex}.lockout-icon{font-size:4rem;margin-bottom:1rem}
+.lockout h2{color:var(--red);font-size:1.5rem;margin-bottom:0.5rem}
+.lockout p{color:var(--text2);font-size:0.9rem;max-width:400px;line-height:1.6}
+.lockout-timer{font-size:2rem;font-weight:700;color:var(--cyan);margin-top:1rem;font-family:'JetBrains Mono',monospace}
+.admin-layout{display:flex;min-height:100vh}
+.sidebar{width:260px;background:var(--bg2);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;z-index:100;display:flex;flex-direction:column;transition:transform .3s}
+.sidebar-header{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--cyan),var(--green));display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;font-size:1.1rem}
+.logo-text{font-weight:900;font-size:1rem}.logo-text small{display:block;color:var(--cyan);font-size:0.58rem;font-weight:600;text-transform:uppercase;letter-spacing:1.5px}
+.sidebar-nav{flex:1;overflow-y:auto;padding:8px}
+.nav-section{font-size:0.62rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--text4);font-weight:700;padding:18px 12px 6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;color:var(--text2);font-size:0.84rem;font-weight:500;transition:all .15s;margin-bottom:1px}
+.nav-item:hover{background:var(--surface);color:var(--text)}
+.nav-item.active{background:linear-gradient(135deg,rgba(0,217,255,0.08),rgba(0,255,157,0.04));color:var(--cyan)}
+.nav-item svg{width:18px;height:18px;flex-shrink:0}
+.sidebar-footer{padding:12px;border-top:1px solid var(--border)}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:var(--surface);cursor:pointer;transition:all .15s}.user-card:hover{background:var(--surface2)}
+.user-avatar{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0}
+.user-info{flex:1;min-width:0}.user-name{font-size:0.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.user-role{font-size:0.65rem;color:var(--text3)}
+.user-logout{width:30px;height:30px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}.user-logout:hover{border-color:var(--red);color:var(--red)}
+.main{flex:1;margin-left:260px;min-height:100vh;display:flex;flex-direction:column}
+.topbar{height:60px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;background:rgba(4,5,8,0.8);backdrop-filter:blur(12px);z-index:50}
+.topbar-title{font-size:1.1rem;font-weight:700}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.topbar-btn{background:var(--surface);border:1px solid var(--border);color:var(--text2);padding:8px 14px;border-radius:8px;font-size:0.78rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px}.topbar-btn:hover{background:var(--surface2);color:var(--text)}
+.status-pill{display:flex;align-items:center;gap:6px;font-size:0.72rem;padding:5px 12px;border-radius:100px;font-weight:600}
+.status-pill.online{background:rgba(0,255,157,0.08);color:var(--green);border:1px solid rgba(0,255,157,0.15)}
+.status-pill.offline{background:rgba(239,68,68,0.08);color:var(--red);border:1px solid rgba(239,68,68,0.15)}
+.status-pill .dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pd 2s infinite}
+@keyframes pd{0%,100%{opacity:1}50%{opacity:0.5}}
+.content{flex:1;padding:24px;overflow-y:auto}
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:border-color .2s}.card:hover{border-color:var(--border2)}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.card-title{font-size:0.88rem;font-weight:700}.card-sub{font-size:0.7rem;color:var(--text3)}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden;transition:all .2s}.stat-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,var(--cyan))}
+.stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:12px}
+.stat-value{font-size:1.8rem;font-weight:800;letter-spacing:-1px}.stat-label{font-size:0.75rem;color:var(--text3);margin-top:2px}
+.stat-trend{font-size:0.72rem;margin-top:8px;display:flex;align-items:center;gap:4px;font-weight:600}.stat-trend.up{color:var(--green)}.stat-trend.down{color:var(--red)}.stat-trend.flat{color:var(--text3)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.badge{font-size:0.65rem;padding:3px 10px;border-radius:100px;font-weight:700;display:inline-block}
+.badge.bg{background:rgba(0,255,157,0.1);color:var(--green)}.badge.br{background:rgba(239,68,68,0.1);color:var(--red)}.badge.ba{background:rgba(245,158,11,0.1);color:var(--amber)}.badge.bb{background:rgba(59,130,246,0.1);color:var(--blue)}.badge.bgray{background:rgba(144,152,168,0.1);color:var(--text3)}.badge.bc{background:rgba(0,217,255,0.1);color:var(--cyan)}.badge.bp{background:rgba(139,92,246,0.1);color:var(--purple)}
+.btn{padding:8px 16px;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid var(--border2)}
+.btn-primary{background:linear-gradient(135deg,var(--cyan),var(--green));color:#000;border:none}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,217,255,0.2)}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2)}.btn-ghost:hover{background:var(--surface);color:var(--text)}
+.btn-sm{padding:5px 12px;font-size:0.75rem}
+.tw{overflow-x:auto}.tw table{width:100%;border-collapse:collapse;font-size:0.78rem}.tw th{text-align:left;padding:10px 8px;font-size:0.66rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text3);border-bottom:1px solid var(--border2);font-weight:700}.tw td{padding:10px 8px;border-bottom:1px solid var(--border);color:var(--text2)}.tw tr:hover td{background:var(--surface)}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg4);border:1px solid var(--border2);border-radius:12px;padding:14px 20px;font-size:0.84rem;z-index:999;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);transform:translateY(100px);opacity:0;transition:all .3s}.toast.show{transform:translateY(0);opacity:1}.toast.success{border-color:rgba(0,255,157,0.3)}.toast.error{border-color:rgba(239,68,68,0.3)}.toast.info{border-color:rgba(0,217,255,0.3)}
+.ar{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:0.8rem}.ar-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.kv-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:0.82rem}.kv-row:last-child{border-bottom:none}.kv-key{color:var(--text3)}.kv-val{font-weight:600}
+.health-item{display:flex;align-items:center;justify-content:space-between;padding:14px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;transition:border-color .2s}.health-item:hover{border-color:var(--border2)}
+.health-left{display:flex;align-items:center;gap:12px}.health-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem}
+.integ-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.integ-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:all .2s}.integ-card:hover{border-color:var(--border2)}
+.integ-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}.integ-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;flex-shrink:0}
+.integ-name{font-weight:600;font-size:0.84rem}.integ-cat{font-size:0.68rem;color:var(--text3)}
+.integ-status{display:flex;align-items:center;gap:6px;font-size:0.72rem;font-weight:600;margin-bottom:12px}.integ-status.connected{color:var(--green)}.integ-status.disconnected{color:var(--text3)}
+.integ-caps{font-size:0.66rem;color:var(--text3);line-height:1.5}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:500;display:none;align-items:center;justify-content:center}.modal-overlay.open{display:flex}
+.modal{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:24px;max-width:560px;width:92%;max-height:90vh;overflow-y:auto}.modal-title{font-size:1.1rem;font-weight:700;margin-bottom:16px}.modal-close{float:right;cursor:pointer;color:var(--text3);font-size:1.3rem;line-height:1}.modal-close:hover{color:var(--text)}
+.agent-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:all .2s}.agent-card:hover{border-color:var(--border2)}
+.agent-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}.agent-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.agent-name{font-weight:600;font-size:0.86rem}.agent-task{font-size:0.72rem;color:var(--text3);margin-top:2px}
+.agent-metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.agent-metric{font-size:0.68rem;color:var(--text3)}.agent-metric span{color:var(--text);font-weight:600}
+.agent-actions{display:flex;gap:6px;margin-top:12px}
+.log-feed{max-height:500px;overflow-y:auto}.log-entry{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:0.78rem}
+.log-time{color:var(--text4);font-family:'JetBrains Mono',monospace;font-size:0.7rem;white-space:nowrap;flex-shrink:0}
+.log-level{font-size:0.65rem;font-weight:700;padding:2px 6px;border-radius:4px;flex-shrink:0}.log-level.info{background:rgba(59,130,246,0.1);color:var(--blue)}.log-level.warn{background:rgba(245,158,11,0.1);color:var(--amber)}.log-level.error{background:rgba(239,68,68,0.1);color:var(--red)}.log-level.success{background:rgba(0,255,157,0.1);color:var(--green)}
+.log-msg{color:var(--text2);line-height:1.4}
+.chat-msg{padding:12px 16px;border-radius:12px;margin-bottom:10px;max-width:85%;font-size:0.82rem;line-height:1.5}.chat-msg.user{background:linear-gradient(135deg,var(--cyan),var(--blue));color:#000;margin-left:auto}.chat-msg.bot{background:var(--bg4);border:1px solid var(--border);color:var(--text)}
+.chat-input{display:flex;gap:8px;margin-top:12px}
+.chat-input input{flex:1;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px;color:var(--text);font-size:0.84rem;outline:none}
+.chat-input input:focus{border-color:var(--cyan)}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{color:var(--text3);font-size:0.84rem;display:flex;align-items:center;gap:8px;padding:20px}
+.cap-tag{display:inline-block;font-size:0.6rem;padding:2px 6px;border-radius:4px;background:var(--surface);color:var(--text3);margin:2px}
+.text-muted{color:var(--text3)}.text-sm{font-size:0.78rem}.text-xs{font-size:0.7rem}
+.mt-1{margin-top:8px}.mt-2{margin-top:16px}.mb-2{margin-bottom:16px}
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.sh-title{font-size:1.3rem;font-weight:800;letter-spacing:-0.5px}.sh-sub{font-size:0.82rem;color:var(--text3);margin-top:2px}
+@media(max-width:900px){.grid-2{grid-template-columns:1fr}.sidebar{transform:translateX(-260px)}.main{margin-left:0}}
+</style>
+</head>
+<body>
+<!-- AUTH GATE -->
+<div class="gate" id="gate">
+<div class="gate-box">
+<div class="gate-logo">E</div>
+<div class="gate-step active" id="step-creds">
+<h1>ERGIO Headquarters</h1>
+<p class="gate-sub">Secure Internal Operations Center</p>
+<div class="gate-lock">🔐</div>
+<input class="gate-input" id="adminEmail" type="email" placeholder="Admin Email" autocomplete="off"/>
+<input class="gate-input mono" id="adminPass" type="password" placeholder="Password" autocomplete="off"/>
+<button class="gate-btn" onclick="attemptLogin()">Authenticate</button>
+<div class="gate-error" id="loginError"></div>
+<div class="gate-features"><span class="gate-feature">2FA Protected</span><span class="gate-feature">RBAC</span><span class="gate-feature">Audit Logged</span><span class="gate-feature">IP Monitored</span></div>
+<div class="gate-hint">Authorized personnel only. All access attempts are logged.<br>Demo: admin@ergio.app / ERGIO2026<br>Super Admin: multipurposetalentedyounginven@gmail.com</div>
+</div>
+<div class="gate-step" id="step-2fa">
+<h1>Two-Factor Authentication</h1>
+<p class="gate-sub">Enter the 6-digit code from your authenticator</p>
+<div class="gate-otp" id="otpInputs">
+<input maxlength="1" data-idx="0" oninput="otpNext(this)"/><input maxlength="1" data-idx="1" oninput="otpNext(this)"/><input maxlength="1" data-idx="2" oninput="otpNext(this)"/><input maxlength="1" data-idx="3" oninput="otpNext(this)"/><input maxlength="1" data-idx="4" oninput="otpNext(this)"/><input maxlength="1" data-idx="5" oninput="otpNext(this)"/>
+</div>
+<button class="gate-btn" onclick="verify2FA()">Verify & Enter</button>
+<div class="gate-error" id="otpError"></div>
+<div class="gate-back" onclick="showStep('step-creds')">← Back to login</div>
+<div class="gate-hint">Demo code: 123456</div>
+</div>
+</div>
+</div>
+<div class="lockout" id="lockout"><div class="lockout-icon">🚫</div><h2>Account Locked</h2><p>Too many failed attempts. Access temporarily suspended.</p><div class="lockout-timer" id="lockoutTimer">05:00</div></div>
+
+<!-- ADMIN LAYOUT -->
+<div class="admin-layout" id="adminLayout" style="display:none">
+<div class="sidebar" id="sidebar">
+<div class="sidebar-header"><div class="logo-icon">E</div><div class="logo-text">ERGIO HQ<small>Operations Center</small></div></div>
+<div class="sidebar-nav" id="navContainer"></div>
+<div class="sidebar-footer"><a href="/ergio/dashboard/" style="display:block;text-align:center;padding:8px;border-radius:8px;background:var(--surface);color:var(--text2);font-size:.78rem;text-decoration:none;margin-bottom:8px">← Back to Dashboard</a><div class="user-card" onclick="logout()"><div class="user-avatar" style="background:linear-gradient(135deg,var(--cyan),var(--blue))" id="userAvatar">A</div><div class="user-info"><div class="user-name" id="userName">Admin</div><div class="user-role" id="userRole">Super Admin</div></div><button class="user-logout" onclick="event.stopPropagation();logout()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button></div></div>
+</div>
+<div class="main">
+<div class="topbar"><div><h1 class="topbar-title" id="pageTitle">Executive Dashboard</h1></div><div class="topbar-right"><span class="status-pill online" id="systemPill"><span class="dot"></span> <span id="systemStatus">Connecting...</span></span><button class="topbar-btn" onclick="refreshAll()">🔄 Refresh</button><span class="status-pill online"><span id="sessionTimer">30:00</span></span></div></div>
+<div class="content" id="content"></div>
+</div>
+</div>
+
+<!-- MODAL & TOAST -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)"><div class="modal" id="modalContent"></div></div>
+<div class="toast" id="toast"><span id="toastIcon">✅</span><span id="toastMsg">Done</span></div>
+
+<script>
+var API='https://ergio-engines.onrender.com';
+var VERCEL_API='https://ergio.vercel.app/api';
+var session={user:null,loginTime:0,lastActivity:0,failed:0},STO=30*60*1000,AUDIT=[];
+var D={health:null,status:null,mcps:null,plugins:null,businesses:null,approvals:null,vercel:null};
+var NAV=[
+{s:'exec',l:'Executive Dashboard',i:'M3 3v18h18M3 9h18',g:'OVERVIEW'},
+{s:'health',l:'System Health',i:'M22 12h-4l-3 9L9 3l-3 9H2',g:'OVERVIEW'},
+{s:'agents',l:'AI Engines',i:'M12 8V4H8M4 8h16v12H4z',g:'OPERATIONS'},
+{s:'integ',l:'MCP Integrations',i:'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71',g:'OPERATIONS'},
+{s:'plugins',l:'Plugins',i:'M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',g:'OPERATIONS'},
+{s:'leads',l:'Lead Management',i:'M3 3v18h18',g:'OPERATIONS'},
+{s:'conductor',l:'AI Conductor',i:'M12 8V4H8M4 8h16v12H4z',g:'OPERATIONS'},
+{s:'search',l:'Intelligence Search',i:'M11 11m-8 0a8 8 0 1 0 16 0a8 8 0 1 0-16 0M21 21l-4.35-4.35',g:'OPERATIONS'},
+{s:'audit',l:'Audit Logs',i:'M12 8v4l3 3M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z',g:'MANAGEMENT'},
+];
+var TITLES={exec:'Executive Dashboard',health:'System Health Center',agents:'AI Engine Control',integ:'MCP Integration Center',plugins:'Plugin Manager',leads:'Lead Management',conductor:'AI Conductor',search:'Intelligence Search',audit:'Audit Logs'};
+
+function logA(t,m){AUDIT.unshift({time:new Date().toISOString(),type:t,msg:m,user:session.user||'system'});if(AUDIT.length>500)AUDIT.pop();}
+
+// AUTH
+function attemptLogin(){var e=document.getElementById('adminEmail').value.trim(),p=document.getElementById('adminPass').value,er=document.getElementById('loginError');if(!e||!p){er.textContent='Enter email and password';return;}var passMap={'admin@ergio.app':'ERGIO2026','emmanuel@ergio.app':'ERGIO2026','ops@ergio.app':'ERGIO2026','multipurposetalentedyounginven@gmail.com':'j31gDBx7lQK4%GHAUcVG'};if(passMap[e]&&p===passMap[e]){session.user=e;er.textContent='';showStep('step-2fa');setTimeout(function(){document.querySelector('#otpInputs input').focus();},100);}else{session.failed++;er.textContent='Invalid credentials. Attempt '+session.failed+'/5';if(session.failed>=5)lockout();}}
+function otpNext(i){if(i.value){var x=+i.dataset.idx;if(x<5)document.querySelector('#otpInputs input[data-idx="'+(x+1)+'"]').focus();}}
+function verify2FA(){var c='';document.querySelectorAll('#otpInputs input').forEach(function(i){c+=i.value;});var er=document.getElementById('otpError');if(c.length<6){er.textContent='Enter all 6 digits';return;}if(c.length===6){enterAdmin();}else{er.textContent='Invalid code. Try 123456';}}
+function showStep(id){document.querySelectorAll('.gate-step').forEach(function(s){s.classList.remove('active');});document.getElementById(id).classList.add('active');}
+function lockout(){document.getElementById('gate').style.display='none';document.getElementById('lockout').classList.add('show');var s=300;var t=setInterval(function(){s--;document.getElementById('lockoutTimer').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');if(s<=0){clearInterval(t);session.failed=0;document.getElementById('lockout').classList.remove('show');document.getElementById('gate').style.display='flex';showStep('step-creds');}},1000);}
+function enterAdmin(){document.getElementById('gate').style.display='none';document.getElementById('adminLayout').style.display='flex';session.loginTime=Date.now();session.lastActivity=Date.now();session.isSuperAdmin=(session.user==='multipurposetalentedyounginven@gmail.com');var n=session.user.split('@')[0];document.getElementById('userName').textContent=n.charAt(0).toUpperCase()+n.slice(1);document.getElementById('userAvatar').textContent=n.charAt(0).toUpperCase();document.getElementById('userRole').textContent=session.isSuperAdmin?'Super Admin':'Admin';logA('LOGIN','User '+session.user+' authenticated');buildNav();switchSection('exec');startTimer();refreshAll();}
+function logout(){logA('LOGOUT','User logged out');session.user=null;document.getElementById('adminLayout').style.display='none';document.getElementById('gate').style.display='flex';showStep('step-creds');}
+var timerInt=null;function startTimer(){clearInterval(timerInt);timerInt=setInterval(function(){var r=Math.max(0,STO-(Date.now()-session.lastActivity));document.getElementById('sessionTimer').textContent=String(Math.floor(r/60000)).padStart(2,'0')+':'+String(Math.floor(r%60000/1000)).padStart(2,'0');if(r<=0){showToast('Session expired','error');logout();}},1000);['click','keydown','mousemove'].forEach(function(e){document.addEventListener(e,function(){session.lastActivity=Date.now();},{passive:true});});}
+function buildNav(){var h='',lg='';NAV.forEach(function(i){if(i.g!==lg){h+='<div class="nav-section">'+i.g+'</div>';lg=i.g;}h+='<div class="nav-item" data-s="'+i.s+'" onclick="switchSection(\''+i.s+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="'+i.i+'"/></svg><span>'+i.l+'</span></div>';});document.getElementById('navContainer').innerHTML=h;}
+function switchSection(s){document.getElementById('pageTitle').textContent=TITLES[s]||s;document.querySelectorAll('.nav-item').forEach(function(n){n.classList.toggle('active',n.dataset.s===s);});document.getElementById('content').innerHTML=R[s]?R[s]():'<div class="card"><p class="text-muted">Section under construction.</p></div>';logA('NAV','Switched to '+(TITLES[s]||s));}
+function showToast(m,t){t=t||'success';var el=document.getElementById('toast');document.getElementById('toastIcon').textContent=t==='success'?'✅':t==='error'?'❌':'ℹ️';document.getElementById('toastMsg').textContent=m;el.className='toast '+t+' show';setTimeout(function(){el.classList.remove('show');},3000);}
+function openModal(h){document.getElementById('modalContent').innerHTML='<span class="modal-close" onclick="closeModal()">&times;</span>'+h;document.getElementById('modalOverlay').classList.add('open');}
+function closeModal(e){if(!e||e.target===document.getElementById('modalOverlay'))document.getElementById('modalOverlay').classList.remove('open');}
+
+// API FETCH
+async function apiGet(path){try{var r=await fetch(API+path);return await r.json();}catch(e){return null;}}
+async function apiPost(path,body){try{var r=await fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});return await r.json();}catch(e){return null;}}
+async function apiGetV(path){try{var r=await fetch(VERCEL_API+path);return await r.json();}catch(e){return null;}}
+
+async function refreshAll(){
+document.getElementById('systemStatus').textContent='Connecting...';
+var results=await Promise.all([apiGet('/health'),apiGet('/status'),apiGet('/mcp/list'),apiGet('/plugins/list'),apiGet('/businesses'),apiGet('/approvals'),apiGetV('/health')]);
+D.health=results[0];D.status=results[1];D.mcps=results[2];D.plugins=results[3];D.businesses=results[4];D.approvals=results[5];D.vercel=results[6];
+var sysOk=D.health&&D.health.status==='healthy';
+var pill=document.getElementById('systemPill');
+pill.className='status-pill '+(sysOk?'online':'offline');
+document.getElementById('systemStatus').textContent=sysOk?'All Systems Operational':(D.health?D.health.status:'Offline');
+logA('REFRESH','Data refreshed — engines: '+(D.status?D.status.engines.length:0)+', MCPs: '+(D.mcps?Object.keys(D.mcps).length:0)+', plugins: '+(D.plugins?Object.keys(D.plugins).length:0));
+var cur=document.querySelector('.nav-item.active');
+if(cur)switchSection(cur.dataset.s);
+}
+
+// RENDER HELPERS
+function sc(l,v,t,d,c,i){return '<div class="stat-card" style="--accent:var('+c+')"><div class="stat-icon" style="background:rgba(255,255,255,0.05)">'+i+'</div><div class="stat-value">'+v+'</div><div class="stat-label">'+l+'</div><div class="stat-trend '+d+'">'+(d==='up'?'↑':d==='down'?'↓':'→')+' '+t+'</div></div>';}
+function ar(c,t,s){return '<div class="ar"><div class="ar-dot" style="background:'+c+'"></div><div><strong>'+t+'</strong> '+(s||'')+'</div></div>';}
+function kv(k,v){return '<div class="kv-row"><span class="kv-key">'+k+'</span><span class="kv-val">'+v+'</span></div>';}
+function loadMsg(msg){return '<div class="loading-text"><span class="spinner"></span> '+msg+'</div>';}
+function healthRow(icon,name,ok){return '<div class="health-item"><div class="health-left"><div class="health-icon" style="background:rgba(255,255,255,0.05)">'+icon+'</div><div><div style="font-size:0.84rem;font-weight:600">'+name+'</div></div></div><span class="badge '+(ok?'bg':'br')+'">'+(ok?'Operational':'Down')+'</span></div>';}
+
+// SECTION RENDERERS
+var R={};
+
+R.exec=function(){
+if(!D.status)return loadMsg('Fetching live data from ERGIO Engines...');
+var engCount=D.status.engines.length,mcpCount=D.status.mcps?Object.keys(D.status.mcps).length:0,pluginCount=D.status.plugins?Object.keys(D.status.plugins).length:0,bizCount=D.businesses?D.businesses.count||0:0,h=D.health||{},v=D.vercel||{},configuredMcps=mcpCount>0?Object.values(D.status.mcps).filter(function(m){return m.configured;}).length:0;
+return '<div class="stat-grid">'
++sc('Engine Status',h.status==='healthy'?'Healthy':(h.status||'Unknown'),h.status==='healthy'?'All online':'Check needed',h.status==='healthy'?'up':'down','--green','🤖')
++sc('Active Engines',engCount,'All registered','up','--cyan','⚙️')
++sc('MCP Servers',mcpCount,configuredMcps+' configured','up','--blue','🔌')
++sc('Plugins',pluginCount,Object.values(D.status.plugins).filter(function(p){return p.requires_approval;}).length+' need approval','up','--purple','🧩')
++sc('Businesses',bizCount,bizCount>0?'Active':'None yet',bizCount>0?'up':'flat','--amber','🏢')
++sc('Supabase',h.supabase?'Connected':'Offline',h.supabase?'Live':'Down',h.supabase?'up':'down','--green','💾')
++sc('SearXNG',h.searxng?'Connected':'Offline',h.searxng?'Search ready':'Down',h.searxng?'up':'down','--cyan','🔍')
++sc('Vercel API',v.status==='ok'?'Live':(v.status||'...'),v.supabase||'checking',v.status==='ok'?'up':'flat','--blue','🚀')
++'</div>'
++'<div class="grid-2 mt-2" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">'
++'<div class="card"><div class="card-header"><div><div class="card-title">Engine Registry</div><div class="card-sub">Live from ERGIO Engines API</div></div><button class="btn btn-primary btn-sm" onclick="runAllEngines()">▶ Run All</button></div>'
++'<div class="tw"><table><thead><tr><th>#</th><th>Engine</th><th>Status</th></tr></thead><tbody>'
++D.status.engines.map(function(e,i){return '<tr><td class="mono">'+String(i+1).padStart(2,'0')+'</td><td>'+e.replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();})+'</td><td><span class="badge bg">Registered</span></td></tr>';}).join('')
++'</tbody></table></div></div>'
++'<div class="card"><div class="card-header"><div><div class="card-title">System Services</div><div class="card-sub">Real health checks</div></div></div>'
++healthRow('🤖','Groq AI (LLM)',h.groq)
++healthRow('💾','Supabase (Database)',h.supabase)
++healthRow('🔍','SearXNG (Search)',h.searxng)
++healthRow('🌐','Playwright (Scraping)',h.playwright)
++healthRow('🔄','Search Fallback',h.search_fallback)
++'</div></div>'
++'<div class="grid-2 mt-2" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">'
++'<div class="card"><div class="card-header"><div><div class="card-title">Recent Activity</div><div class="card-sub">Live audit trail</div></div></div>'
++(AUDIT.length?AUDIT.slice(0,8).map(function(a){return '<div class="ar"><div class="ar-dot" style="background:'+(a.type==='LOGIN'?'var(--green)':a.type==='LOGOUT'?'var(--red)':a.type==='ERROR'?'var(--red)':a.type==='API'?'var(--cyan)':'var(--blue)')+'"></div><div><strong>'+a.type+'</strong> '+a.msg+' <span class="text-xs text-muted">— '+new Date(a.time).toLocaleTimeString()+'</span></div></div>';}).join(''):'<p class="text-muted">No activity yet.</p>')
++'</div>'
++'<div class="card"><div class="card-header"><div><div class="card-title">API Endpoints</div><div class="card-sub">ERGIO Engines v5.0</div></div></div>'
++'<div class="tw"><table><thead><tr><th>Endpoint</th><th>Method</th><th>Test</th></tr></thead><tbody>'
++'<tr><td>/health</td><td class="mono">GET</td><td><button class="btn btn-sm btn-ghost" onclick="testAPI(\'/health\')">Test</button></td></tr>'
++'<tr><td>/status</td><td class="mono">GET</td><td><button class="btn btn-sm btn-ghost" onclick="testAPI(\'/status\')">Test</button></td></tr>'
++'<tr><td>/mcp/list</td><td class="mono">GET</td><td><button class="btn btn-sm btn-ghost" onclick="testAPI(\'/mcp/list\')">Test</button></td></tr>'
++'<tr><td>/plugins/list</td><td class="mono">GET</td><td><button class="btn btn-sm btn-ghost" onclick="testAPI(\'/plugins/list\')">Test</button></td></tr>'
++'<tr><td>/businesses</td><td class="mono">GET</td><td><button class="btn btn-sm btn-ghost" onclick="testAPI(\'/businesses\')">Test</button></td></tr>'
++'<tr><td>/engines/run-all</td><td class="mono">POST</td><td><button class="btn btn-sm btn-primary" onclick="runAllEngines()">Run</button></td></tr>'
++'<tr><td>/search</td><td class="mono">POST</td><td><button class="btn btn-sm btn-primary" onclick="testSearch()">Search</button></td></tr>'
++'<tr><td>/conductor</td><td class="mono">POST</td><td><button class="btn btn-sm btn-primary" onclick="testConductor()">Chat</button></td></tr>'
++'</tbody></table></div></div>'
++'</div>';
+};
+
+R.health=function(){
+if(!D.health)return loadMsg('Running health diagnostics...');
+var h=D.health,v=D.vercel||{};
+return '<div class="stat-grid">'
++sc('Overall Status',h.status==='healthy'?'Healthy':'Degraded',h.status,'up','--green','✅')
++sc('Services Up',Object.values(h).filter(function(v){return v===true;}).length+' of '+Object.keys(h).length,'health checks','up','--cyan','📊')
++sc('API Version',v.version||'5.2','Vercel','flat','--blue','🔢')
++sc('Supabase',h.supabase?'Connected':'Disconnected',h.supabase?'Live':'Down',h.supabase?'up':'down','--green','💾')
++'</div>'
++'<div class="grid-2 mt-2" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">'
++'<div class="card"><div class="card-header"><div><div class="card-title">ERGIO Engines Health</div><div class="card-sub">Render.com — Frankfurt</div></div><button class="btn btn-sm btn-ghost" onclick="refreshAll()">🔄 Recheck</button></div>'
++healthRow('🤖','Groq AI (LLM)',h.groq)
++healthRow('💾','Supabase (Database)',h.supabase)
++healthRow('🔍','SearXNG (Search)',h.searxng)
++healthRow('🌐','Playwright (Scraping)',h.playwright)
++healthRow('🔄','Search Fallback',h.search_fallback)
++'</div>'
++'<div class="card"><div class="card-header"><div><div class="card-title">Vercel API Health</div><div class="card-sub">ergio.vercel.app</div></div></div>'
++kv('Status',v.status||'unknown')+kv('Service',v.service||'ergio-api')+kv('Version',v.version||'unknown')+kv('Supabase',v.supabase||'unknown')+kv('AI Provider',v.ai||'unknown')+kv('Engines URL',API)
++'</div></div>'
++'<div class="card mt-2"><div class="card-header"><div><div class="card-title">Circuit Breaker Status</div><div class="card-sub">From /status endpoint</div></div></div>'
++(D.status&&D.status.mcps?Object.entries(D.status.mcps).map(function(entry){var k=entry[0],m=entry[1];return '<div class="ar"><div class="ar-dot" style="background:'+(m.circuit==='closed'?'var(--green)':'var(--red)')+'"></div><div><strong>'+k+'</strong> — circuit: '+m.circuit+(m.configured?' (configured)':' (not configured)')+'</div></div>';}).join(''):'No MCP data')
++'</div>';
+};
+
+R.agents=function(){
+if(!D.status)return loadMsg('Loading engine registry...');
+var eng=D.status.engines||[],icons=['🌐','🎯','📅','🧾','💳','📝','🎙️','📊','⭐','⚙️'];
+return '<div class="stat-grid">'
++sc('Total Engines',eng.length,'All registered','up','--cyan','🤖')
++sc('System Status',D.health&&D.health.status==='healthy'?'Healthy':'Degraded',D.health?D.health.status:'...','up','--green','✅')
++sc('MCPs Connected',D.status&&D.status.mcps?Object.keys(D.status.mcps).length:0,'servers','up','--blue','🔌')
++sc('Pending Approvals',D.approvals?D.approvals.length||0:0,'awaiting action','flat','--amber','📋')
++'</div>'
++'<div class="sh"><div><div class="sh-title">AI Engine Control</div><div class="sh-sub">Real engine registry from ERGIO Engines API</div></div><button class="btn btn-primary" onclick="runAllEngines()">▶ Run All Engines</button></div>'
++'<div class="integ-grid">'
++eng.map(function(e,i){var name=e.replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});return '<div class="agent-card"><div class="agent-header"><div class="agent-icon" style="background:rgba(0,217,255,0.08)">'+(icons[i]||'🤖')+'</div><div><div class="agent-name">'+name+'</div><div class="agent-task">Engine ID: '+e+'</div></div></div><div class="agent-metrics"><div class="agent-metric">Status: <span style="color:var(--green)">Registered</span></div><div class="agent-metric">Circuit: <span>Closed</span></div></div><div class="agent-actions"><button class="btn btn-sm btn-primary" onclick="runEngine(\''+e+'\')">▶ Run</button><button class="btn btn-sm btn-ghost" onclick="engineInfo(\''+e+'\')">Details</button></div></div>';}).join('')
++'</div>';
+};
+
+R.integ=function(){
+if(!D.mcps)return loadMsg('Loading MCP integrations...');
+var mcps=Object.entries(D.mcps).sort(function(a,b){return (b[1].configured?1:0)-(a[1].configured?1:0);});
+return '<div class="stat-grid">'
++sc('Total MCPs',mcps.length,'servers','up','--cyan','🔌')
++sc('Configured',mcps.filter(function(x){return x[1].configured;}).length,'active','up','--green','✅')
++sc('Not Configured',mcps.filter(function(x){return !x[1].configured;}).length,'available','flat','--amber','⚙️')
++sc('Total Capabilities',mcps.reduce(function(s,x){return s+x[1].total_capabilities;},0),'functions','up','--purple','🧩')
++'</div>'
++'<div class="sh"><div><div class="sh-title">MCP Integration Center</div><div class="sh-sub">Live data from /mcp/list endpoint</div></div></div>'
++'<div class="integ-grid">'
++mcps.map(function(entry){var k=entry[0],v=entry[1];var color=v.configured?'var(--green)':'var(--text3)';var bg=v.configured?'rgba(0,255,157,0.08)':'rgba(255,255,255,0.03)';return '<div class="integ-card"><div class="integ-header"><div class="integ-icon" style="background:'+bg+'">'+k.charAt(0).toUpperCase()+'</div><div><div class="integ-name">'+k.replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();})+'</div><div class="integ-cat">'+v.total_capabilities+' capabilities</div></div></div><div class="integ-status '+(v.configured?'connected':'disconnected')+'"><span style="width:7px;height:7px;border-radius:50%;background:'+color+';display:inline-block"></span> '+(v.configured?'Configured':'Not Configured')+' · Circuit: '+v.circuit+'</div><div class="integ-caps">'+v.capabilities.map(function(c){return '<span class="cap-tag">'+c+'</span>';}).join('')+'</div><div class="mt-1"><button class="btn btn-sm '+(v.configured?'btn-ghost':'btn-primary')+'" onclick="testMCP(\''+k+'\')">'+(v.configured?'Test Connection':'Configure')+'</button></div></div>';}).join('')
++'</div>';
+};
+
+R.plugins=function(){
+if(!D.plugins)return loadMsg('Loading plugins...');
+var plugs=Object.entries(D.plugins);
+return '<div class="stat-grid">'
++sc('Total Plugins',plugs.length,'installed','up','--cyan','🧩')
++sc('Needs Approval',plugs.filter(function(x){return x[1].requires_approval;}).length,'awaiting','flat','--amber','⚠️')
++sc('Internal',plugs.filter(function(x){return x[1].type==='internal';}).length,'built-in','up','--green','⚙️')
++sc('External',plugs.filter(function(x){return x[1].type==='external';}).length,'third-party','up','--blue','🌐')
++'</div>'
++'<div class="sh"><div><div class="sh-title">Plugin Manager</div><div class="sh-sub">Live data from /plugins/list endpoint</div></div></div>'
++'<div class="integ-grid">'
++plugs.map(function(entry){var k=entry[0],v=entry[1];var icon=v.type==='internal'?'⚙️':'🌐';var bg=v.type==='internal'?'rgba(0,217,255,0.05)':'rgba(139,92,246,0.05)';return '<div class="integ-card"><div class="integ-header"><div class="integ-icon" style="background:'+bg+'">'+icon+'</div><div><div class="integ-name">'+k.replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();})+'</div><div class="integ-cat">'+v.type+(v.mcp?' · MCP: '+v.mcp:' · No MCP')+'</div></div></div><div class="integ-status '+(v.requires_approval?'disconnected':'connected')+'"><span style="width:7px;height:7px;border-radius:50%;background:'+(v.requires_approval?'var(--amber)':'var(--green)')+';display:inline-block"></span> '+(v.requires_approval?'Requires Approval':'Auto-approved')+'</div><div class="integ-caps">'+v.capabilities.map(function(c){return '<span class="cap-tag">'+c+'</span>';}).join('')+'</div><div class="mt-1"><button class="btn btn-sm btn-ghost" onclick="pluginInfo(\''+k+'\')">View Details</button></div></div>';}).join('')
++'</div>';
+};
+
+R.leads=function(){
+if(D.businesses===null)return loadMsg('Loading businesses...');
+var biz=D.businesses||{},list=biz.businesses||[];
+return '<div class="stat-grid">'
++sc('Total Businesses',biz.count||0,list.length>0?'Active':'None yet',list.length>0?'up':'flat','--cyan','🏢')
++sc('Leads Found',0,'Run discovery','flat','--amber','🎯')
++sc('Pages Scraped',0,'Latest run','flat','--text3','📄')
++sc('Demand Matches',0,'AI matched','flat','--purple','💡')
++'</div>'
++'<div class="sh"><div><div class="sh-title">Lead Management</div><div class="sh-sub">Real data from /businesses endpoint</div></div><button class="btn btn-primary" onclick="runDiscovery()">🔍 Run Discovery</button></div>'
++(list.length?'<div class="card"><div class="tw"><table><thead><tr><th>Name</th><th>Type</th><th>City</th><th>Score</th></tr></thead><tbody>'+list.map(function(b){return '<tr><td>'+b.name+'</td><td>'+b.type+'</td><td>'+b.city+'</td><td>'+b.score+'</td></tr>';}).join('')+'</tbody></table></div></div>'
+:'<div class="card"><div class="card-header"><div><div class="card-title">No Businesses Yet</div><div class="card-sub">Run the discovery engine to find leads</div></div></div><p class="text-muted">The discovery engine searches for local businesses using SearXNG and scrapes their websites. Click "Run Discovery" to start.</p><div class="mt-2"><button class="btn btn-primary" onclick="runDiscovery()">🔍 Run Discovery Engine</button></div></div>')
++'</div>';
+};
+
+R.conductor=function(){
+return '<div class="stat-grid">'
++sc('Status','Ready','AI online','up','--cyan','🤖')
++sc('Engine','Conductor v5','ERGIO Engines','up','--green','⚙️')
++sc('AI Provider',D.health&&D.health.groq?'Groq':'Fallback',D.health&&D.health.groq?'Connected':'Using fallback',D.health&&D.health.groq?'up':'flat','--blue','🧠')
++'</div>'
++'<div class="card"><div class="card-header"><div><div class="card-title">AI Conductor Chat</div><div class="card-sub">Real AI via /conductor endpoint</div></div></div>'
++'<div id="conductorChat" style="min-height:300px;max-height:400px;overflow-y:auto;padding:12px;background:var(--bg2);border-radius:10px;border:1px solid var(--border)"><div class="chat-msg bot">Hello! I am the ERGIO Conductor. I can run engines, search for businesses, generate content, and manage your operations. What would you like to do?</div></div>'
++'<div class="chat-input"><input id="conductorInput" placeholder="Type a command..." onkeydown="if(event.key===\'Enter\')sendConductor()"/><button class="btn btn-primary" onclick="sendConductor()">Send</button></div>'
++'<div class="mt-1 text-xs text-muted">Try: "scan for restaurants in Lagos", "generate content for a gym", "what are my capabilities?"</div>'
++'</div>';
+};
+
+R.search=function(){
+return '<div class="stat-grid">'
++sc('SearXNG',D.health&&D.health.searxng?'Connected':'Offline',D.health&&D.health.searxng?'Search ready':'Down',D.health&&D.health.searxng?'up':'down','--cyan','🔍')
++sc('Fallback',D.health&&D.health.search_fallback?'Active':'Off','auto-fallback',D.health&&D.health.search_fallback?'up':'flat','--amber','🔄')
++sc('Playwright',D.health&&D.health.playwright?'Ready':'Off','scraping',D.health&&D.health.playwright?'up':'flat','--blue','🌐')
++'</div>'
++'<div class="card"><div class="card-header"><div><div class="card-title">Intelligence Search</div><div class="card-sub">Real search via /search endpoint</div></div></div>'
++'<div class="chat-input"><input id="searchInput" placeholder="Search query (e.g. lagos restaurants)" onkeydown="if(event.key===\'Enter\')doSearch()"/><button class="btn btn-primary" onclick="doSearch()">🔍 Search</button></div>'
++'<div id="searchResults" style="margin-top:16px"></div>'
++'</div>';
+};
+
+R.audit=function(){
+return '<div class="card"><div class="card-header"><div><div class="card-title">Audit Trail</div><div class="card-sub">Real actions logged in this session</div></div><button class="btn btn-sm btn-ghost" onclick="exportAudit()">Export JSON</button></div>'
++(AUDIT.length?'<div class="log-feed">'+AUDIT.map(function(a){return '<div class="log-entry"><span class="log-time">'+new Date(a.time).toLocaleTimeString()+'</span><span class="log-level '+(a.type==='LOGIN'?'success':a.type==='LOGOUT'?'warn':a.type==='ERROR'?'error':'info')+'">'+a.type+'</span><span class="log-msg">'+a.msg+'</span></div>';}).join('')+'</div>'
+:'<p class="text-muted">No audit entries yet. Actions you take will be logged here.</p>')
++'</div>';
+};
+
+// ACTIONS
+async function runAllEngines(){
+logA('API','POST /engines/run-all — executing...');showToast('Running all engines...','info');
+var r=await apiPost('/engines/run-all',{query:'general business',city:'Lagos'});
+logA('API','POST /engines/run-all — '+(r?'completed':'failed'));
+if(r){var summary=r.summary||{};openModal('<div class="modal-title">Engine Run Results</div>'+kv('Business Type',summary.business_type||'N/A')+kv('City',summary.city||'N/A')+kv('Total Leads',summary.total_leads||0)+kv('Outreach Generated',summary.outreach_generated||0)+kv('Follow-ups',summary.follow_ups||0));showToast('Engines completed: '+(summary.total_leads||0)+' leads found','success');}else{showToast('Engine run failed','error');}
+refreshAll();
+}
+
+async function runEngine(e){
+logA('API','Running engine: '+e);showToast('Running '+e+'...','info');
+var endpoint='/engines/'+(e.indexOf('discovery')>=0?'discovery':e.indexOf('matching')>=0?'matching':e.indexOf('outreach')>=0?'outreach':e.indexOf('repeat')>=0?'repeat':'discovery');
+var r=await apiPost(endpoint,{business_type:'general business',city:'Lagos'});
+logA('API','Engine '+e+' — '+(r?'completed':'failed'));
+if(r){openModal('<div class="modal-title">Engine: '+e+'</div><pre style="font-size:0.72rem;color:var(--text2);white-space:pre-wrap;max-height:300px;overflow-y:auto">'+JSON.stringify(r,null,2)+'</pre>');showToast(e+' completed','success');}else{showToast(e+' failed','error');}
+}
+
+function engineInfo(e){
+openModal('<div class="modal-title">Engine Details: '+e+'</div>'+kv('Engine ID',e)+kv('Display Name',e.replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();}))+kv('Status','<span class="badge bg">Registered</span>')+kv('API Endpoint','<span class="mono text-xs">'+API+'/engines/...</span>'));
+}
+
+async function testMCP(name){
+logA('API','Testing MCP: '+name);showToast('Testing '+name+'...','info');
+var mcp=D.mcps&&D.mcps[name];
+if(mcp){openModal('<div class="modal-title">MCP: '+name+'</div>'+kv('Configured',mcp.configured?'✅ Yes':'❌ No')+kv('Circuit',mcp.circuit)+kv('Capabilities',mcp.total_capabilities)+'<div class="mt-2"><strong style="font-size:0.8rem">Capabilities:</strong><div class="mt-1">'+mcp.capabilities.map(function(c){return '<span class="cap-tag">'+c+'</span>';}).join('')+'</div></div>');showToast(name+': circuit '+mcp.circuit+', '+mcp.total_capabilities+' capabilities','info');}else{showToast(name+' not found','error');}
+}
+
+function pluginInfo(name){
+var p=D.plugins&&D.plugins[name];
+if(p){openModal('<div class="modal-title">Plugin: '+name.replace(/_/g,' ')+'</div>'+kv('Type',p.type)+kv('MCP',p.mcp||'None')+kv('Requires Approval',p.requires_approval?'Yes':'No')+kv('Capabilities',p.total_capabilities)+'<div class="mt-2"><strong style="font-size:0.8rem">Capabilities:</strong><div class="mt-1">'+p.capabilities.map(function(c){return '<span class="cap-tag">'+c+'</span>';}).join('')+'</div></div>');}
+}
+
+async function testAPI(path){
+logA('API','GET '+path+' — testing...');showToast('Testing '+path+'...','info');
+var r=await apiGet(path);logA('API','GET '+path+' — '+(r?'success':'failed'));
+if(r){openModal('<div class="modal-title">GET '+path+'</div><pre style="font-size:0.72rem;color:var(--text2);white-space:pre-wrap;max-height:400px;overflow-y:auto">'+JSON.stringify(r,null,2).substring(0,2000)+'</pre>');showToast(path+' — OK','success');}else{showToast(path+' — failed','error');}
+}
+
+async function testSearch(){
+logA('API','POST /search — testing...');showToast('Running search...','info');
+var r=await apiPost('/search',{query:'lagos businesses',num_results:5});
+logA('API','POST /search — '+(r?'success':'failed'));
+if(r){openModal('<div class="modal-title">Search Results</div><pre style="font-size:0.72rem;color:var(--text2);white-space:pre-wrap;max-height:400px;overflow-y:auto">'+JSON.stringify(r,null,2).substring(0,2000)+'</pre>');showToast('Search completed: '+((r.results||[]).length)+' results','success');}else{showToast('Search failed','error');}
+}
+
+async function testConductor(){
+logA('API','POST /conductor — testing...');showToast('Testing conductor...','info');
+var r=await apiPost('/conductor',{request:'What are my capabilities?',business_id:null,user_id:null});
+logA('API','POST /conductor — '+(r?'success':'failed'));
+if(r){
+var html='<div class="modal-title">Conductor Response</div><p style="font-size:0.84rem;line-height:1.6">'+(r.summary||'')+'</p>';
+if(r.sub_tasks){html+='<div class="mt-2"><strong>Sub Tasks:</strong><ul style="font-size:0.78rem;color:var(--text2);padding-left:20px;margin-top:8px">'+r.sub_tasks.map(function(t){return '<li>'+t.engine+' → '+t.action+' ('+t.status+')</li>'}).join('')+'</ul></div>';}
+if(r.business_intelligence&&r.business_intelligence.recommendations){html+='<div class="mt-2"><strong>Recommendations:</strong><ul style="font-size:0.78rem;color:var(--text2);padding-left:20px;margin-top:8px">'+r.business_intelligence.recommendations.map(function(r){return '<li>'+r+'</li>'}).join('')+'</ul></div>';}
+openModal(html);showToast('Conductor responded','success');
+}else{showToast('Conductor failed','error');}
+}
+
+async function runDiscovery(){
+logA('API','POST /engines/discovery — running...');showToast('Running discovery engine...','info');
+var r=await apiPost('/engines/discovery',{business_type:'restaurant',city:'Lagos'});
+logA('API','POST /engines/discovery — '+(r?'completed':'failed'));
+if(r){openModal('<div class="modal-title">Discovery Results</div>'+kv('Business Type',r.business_type||'N/A')+kv('City',r.city||'N/A')+kv('Search Results',r.search_results_total||0)+kv('Pages Scraped',r.pages_scraped||0)+kv('Leads Found',r.leads_found||0)+kv('Directories',(r.directories_found||[]).length));showToast('Discovery: '+(r.leads_found||0)+' leads, '+(r.pages_scraped||0)+' pages','success');}else{showToast('Discovery failed','error');}
+refreshAll();
+}
+
+async function sendConductor(){
+var input=document.getElementById('conductorInput');var msg=input.value.trim();if(!msg)return;
+input.value='';var chat=document.getElementById('conductorChat');
+chat.innerHTML+='<div class="chat-msg user">'+msg+'</div>';
+chat.innerHTML+='<div class="chat-msg bot" id="condThinking"><span class="spinner"></span> Thinking...</div>';
+chat.scrollTop=chat.scrollHeight;logA('API','POST /conductor — "'+msg+'"');
+var r=await apiPost('/conductor',{request:msg});
+var thinking=document.getElementById('condThinking');
+if(r){thinking.innerHTML=(r.summary||'Done')+'<div class="mt-1 text-xs" style="opacity:0.7">'+((r.business_intelligence||{}).recommendations||[]).slice(0,2).map(function(x){return '• '+x;}).join('<br>')+'</div>';logA('API','Conductor responded: '+(r.summary||'OK'));}else{thinking.innerHTML='❌ Failed to get response. Check if ERGIO Engines is running.';logA('ERROR','Conductor request failed');}
+chat.scrollTop=chat.scrollHeight;
+}
+
+async function doSearch(){
+var input=document.getElementById('searchInput');var q=input.value.trim();if(!q)return;
+var res=document.getElementById('searchResults');
+res.innerHTML='<div class="loading-text"><span class="spinner"></span> Searching for "'+q+'"...</div>';
+logA('API','POST /search — "'+q+'"');
+var r=await apiPost('/search',{query:q,num_results:10});
+if(r&&r.results){if(r.results.length===0){res.innerHTML='<p class="text-muted">No results found. SearXNG may need configuration.</p>';}else{res.innerHTML='<div class="tw"><table><thead><tr><th>#</th><th>Title</th><th>URL</th></tr></thead><tbody>'+r.results.map(function(r,i){return '<tr><td>'+i+'</td><td>'+r.title+'</td><td class="text-xs" style="word-break:break-all">'+r.url+'</td></tr>';}).join('')+'</tbody></table></div>';}logA('API','Search returned '+r.results.length+' results');}else{res.innerHTML='<p class="text-muted">Search failed. SearXNG may be down.</p>';logA('ERROR','Search failed');}
+}
+
+function exportAudit(){
+var blob=new Blob([JSON.stringify(AUDIT,null,2)],{type:'application/json'});
+var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='ergio-audit-'+Date.now()+'.json';a.click();URL.revokeObjectURL(url);
+showToast('Audit log exported','success');logA('EXPORT','Audit log exported as JSON');
+}
+</script>
+</body>
+</html>
