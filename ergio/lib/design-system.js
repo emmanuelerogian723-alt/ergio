@@ -226,6 +226,9 @@ export function autoDetectStyle(businessType, category, description = '', tone =
   if (/ai.*platform|ai.*analytics|machine.learning|deep.tech|biotech|health.tech/.test(combined)) return 'aurora';
   if (/consumer.app|lifestyle.app|kids|playful.app|social.network/.test(combined)) return 'clay';
   if (/cyber|esports|dark.agency|creative.studio.*dark/.test(combined)) return 'darkglass';
+  // Fintech — before everything else to prevent false matches on 'app', 'design', 'saas'
+  if (/fintech|neobank|payment.*app|wallet.*app|crypto|investment.*platform|wealth.*manage/.test(combined)) return 'editorial';
+  if (/finance|bank|invest|insurance|legal|law|consult/.test(combined)) return 'slate';
 
   // Specific verticals — most specific first
   if (/restaurant|food|dining|cafe|catering|kitchen|bistro|bar|chef/.test(combined)) return 'feast';
@@ -235,11 +238,9 @@ export function autoDetectStyle(businessType, category, description = '', tone =
   if (/school|university|academy|course|education|training|tutor|learn/.test(combined)) return 'scholar';
   if (/real.estate|property|house|apartment|housing|rent|agent|mortgage/.test(combined)) return 'estate';
   if (/fashion|clothing|boutique|wear|style|apparel/.test(combined)) return 'market';
-  if (/photo|design|creative|artist|portfolio|studio|gallery/.test(combined)) return 'canvas';
+  if (/photo|\bdesign\b|creative|artist|portfolio|studio|gallery/.test(combined)) return 'canvas';
   if (/farm|agric|organic|eco|green|nature|food.production/.test(combined)) return 'terra';
   if (/construction|building|contractor|architecture|engineering/.test(combined)) return 'zinc';
-  if (/fintech|neobank|payment.*app|wallet.*app|crypto|investment.*platform|wealth.*manage/.test(combined)) return 'editorial';
-  if (/finance|bank|invest|insurance|legal|law|consult/.test(combined)) return 'slate';
   if (/church|ministry|ngo|foundation|charity/.test(combined)) return 'naija';
   if (/african|naija|nigeria|local|ankara|kente/.test(combined)) return 'kente';
   if (/luxury|premium|exclusive|vip|concierge/.test(combined)) return 'onyx';
