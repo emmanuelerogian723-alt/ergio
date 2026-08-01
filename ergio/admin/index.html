@@ -441,9 +441,14 @@ if(r){openModal('<div class="modal-title">Search Results</div><pre style="font-s
 
 async function testConductor(){
 logA('API','POST /conductor — testing...');showToast('Testing conductor...','info');
-var r=await apiPost('/conductor',{request:'What are my capabilities?'});
+var r=await apiPost('/conductor',{request:'What are my capabilities?',business_id:null,user_id:null});
 logA('API','POST /conductor — '+(r?'success':'failed'));
-if(r){openModal('<div class="modal-title">Conductor Response</div><p style="font-size:0.84rem;line-height:1.6">'+(r.summary||JSON.stringify(r).substring(0,500))+'</p><div class="mt-2"><strong>Recommendations:</strong><ul style="font-size:0.78rem;color:var(--text2);padding-left:20px;margin-top:8px">'+((r.business_intelligence||{}).recommendations||[]).map(function(r){return '<li>'+r+'</li>';}).join('')+'</ul></div>');showToast('Conductor responded','success');}else{showToast('Conductor failed','error');}
+if(r){
+var html='<div class="modal-title">Conductor Response</div><p style="font-size:0.84rem;line-height:1.6">'+(r.summary||'')+'</p>';
+if(r.sub_tasks){html+='<div class="mt-2"><strong>Sub Tasks:</strong><ul style="font-size:0.78rem;color:var(--text2);padding-left:20px;margin-top:8px">'+r.sub_tasks.map(function(t){return '<li>'+t.engine+' → '+t.action+' ('+t.status+')</li>'}).join('')+'</ul></div>';}
+if(r.business_intelligence&&r.business_intelligence.recommendations){html+='<div class="mt-2"><strong>Recommendations:</strong><ul style="font-size:0.78rem;color:var(--text2);padding-left:20px;margin-top:8px">'+r.business_intelligence.recommendations.map(function(r){return '<li>'+r+'</li>'}).join('')+'</ul></div>';}
+openModal(html);showToast('Conductor responded','success');
+}else{showToast('Conductor failed','error');}
 }
 
 async function runDiscovery(){
