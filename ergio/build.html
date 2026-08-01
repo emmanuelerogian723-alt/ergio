@@ -2487,12 +2487,28 @@ setInterval(() => {
 
 // ===== DESIGN STYLES ENGINE =====
 const DESIGN_STYLES = [
-  { name: 'aurora-dark', desc: 'Dark with glassmorphism, gradient text', preview: 'linear-gradient(135deg,#09090B,#1a1a2e)', color1: '#00D9FF', color2: '#00FF9D' },
-  { name: 'editorial-light', desc: 'Clean white, serif headings, magazine feel', preview: 'linear-gradient(135deg,#FAFAF9,#fff)', color1: '#1A1A1A', color2: '#666' },
-  { name: 'brutalist-bold', desc: 'Raw, bold, outlined text, square edges', preview: 'linear-gradient(135deg,#0A0A0A,#1a1a1a)', color1: '#fff', color2: '#333' },
-  { name: 'organic-soft', desc: 'Warm, rounded corners, soft shadows', preview: 'linear-gradient(135deg,#F5F3EE,#fff)', color1: '#D97706', color2: '#B45309' },
-  { name: 'neon-cyber', desc: 'Cyberpunk neon glow, mono font', preview: 'linear-gradient(135deg,#05050A,#0a0a1a)', color1: '#00D9FF', color2: '#00FF9D' },
-  { name: 'magazine-clean', desc: 'Minimal, split layouts, editorial', preview: 'linear-gradient(135deg,#fff,#f8f8f8)', color1: '#1A1A1A', color2: '#0066ff' },
+  // ── DARK TECH ─────────────────────────────────────────────
+  { name: 'nova', emoji: '🌟', desc: 'Futuristic dark with cyan accents — tech & SaaS', preview: 'linear-gradient(135deg,#08090f,#111827)', color1: '#00D9FF', color2: '#7c3aed' },
+  { name: 'onyx', emoji: '🖤', desc: 'Premium all-black with gold — luxury brands', preview: 'linear-gradient(135deg,#0a0a0a,#111111)', color1: '#D4AF37', color2: '#C0A020' },
+  { name: 'bento', emoji: '🍱', desc: 'Bento grid layout — modern SaaS & dashboards', preview: 'linear-gradient(135deg,#0A0A0A,#111111)', color1: '#fff', color2: '#E8C547' },
+  { name: 'gradient', emoji: '🌈', desc: 'Gradient mesh purple — AI & startup products', preview: 'linear-gradient(135deg,#030014,#0f0524)', color1: '#6366f1', color2: '#8b5cf6' },
+  // ── EDITORIAL ─────────────────────────────────────────────
+  { name: 'editorial', emoji: '📰', desc: 'Oversized billboard type — fintech & bold brands', preview: 'linear-gradient(135deg,#1a2318,#243022)', color1: '#E8C547', color2: '#F0E68C' },
+  { name: 'split', emoji: '🔀', desc: 'Split-screen with product mockup — apps & SaaS', preview: 'linear-gradient(135deg,#FAFAF8,#F0EFE9)', color1: '#111110', color2: '#E8C547' },
+  { name: 'slate', emoji: '🏢', desc: 'Corporate navy — finance, legal & consulting', preview: 'linear-gradient(135deg,#0a1628,#0f2044)', color1: '#3b82f6', color2: '#0ea5e9' },
+  // ── VIBRANT ──────────────────────────────────────────────
+  { name: 'pulse', emoji: '⚡', desc: 'Electric purple — nightlife & entertainment', preview: 'linear-gradient(135deg,#0d0118,#160228)', color1: '#8b5cf6', color2: '#ec4899' },
+  { name: 'flame', emoji: '🔥', desc: 'Bold red-orange — fitness, food & sport', preview: 'linear-gradient(135deg,#0f0a00,#1a1200)', color1: '#f97316', color2: '#ef4444' },
+  { name: 'bloom', emoji: '🌸', desc: 'Soft pastel — beauty, wellness & lifestyle', preview: 'linear-gradient(135deg,#fff5f7,#fff0f3)', color1: '#ec4899', color2: '#f472b6' },
+  // ── NATURAL ───────────────────────────────────────────────
+  { name: 'terra', emoji: '🌿', desc: 'Earthy greens — agriculture, food & eco brands', preview: 'linear-gradient(135deg,#0f1a0f,#1a2e1a)', color1: '#22c55e', color2: '#84cc16' },
+  { name: 'ivory', emoji: '🏛️', desc: 'Warm cream — professional services & real estate', preview: 'linear-gradient(135deg,#fefce8,#fef9c3)', color1: '#92400e', color2: '#b45309' },
+  // ── AFRICAN ───────────────────────────────────────────────
+  { name: 'naija', emoji: '🇳🇬', desc: 'Proudly Nigerian — bold green & white', preview: 'linear-gradient(135deg,#001a00,#002200)', color1: '#16a34a', color2: '#22c55e' },
+  { name: 'kente', emoji: '🪡', desc: 'African Kente — warm gold & terracotta', preview: 'linear-gradient(135deg,#1a0a00,#2d1500)', color1: '#F59E0B', color2: '#EF4444' },
+  // ── MINIMAL ───────────────────────────────────────────────
+  { name: 'aria', emoji: '✨', desc: 'Clean minimalist light — Notion & Linear style', preview: 'linear-gradient(135deg,#ffffff,#f8f9fa)', color1: '#2563eb', color2: '#7c3aed' },
+  { name: 'zinc', emoji: '⚙️', desc: 'Industrial grey — manufacturing & B2B', preview: 'linear-gradient(135deg,#18181b,#27272a)', color1: '#a1a1aa', color2: '#e4e4e7' },
 ];
 
 let selectedStyle = null;
@@ -2500,12 +2516,25 @@ let editModeActive = false;
 
 function openStyleModal() {
   const grid = document.getElementById('styleGrid');
-  grid.innerHTML = DESIGN_STYLES.map((s, i) => `
-    <div class="style-option ${selectedStyle === s.name ? 'selected' : ''}" onclick="selectStyle('${s.name}')" id="styleOpt-${s.name}">
-      <div class="style-preview" style="background:${s.preview}"></div>
-      <div class="style-option-name">${s.name.replace('-', ' ')}</div>
-      <div class="style-option-desc">${s.desc}</div>
-    </div>
+  // Group by category for display
+  const categories = ['DARK TECH', 'EDITORIAL', 'VIBRANT', 'NATURAL', 'AFRICAN', 'MINIMAL'];
+  const catStyles = {
+    'DARK TECH': DESIGN_STYLES.slice(0, 4),
+    'EDITORIAL': DESIGN_STYLES.slice(4, 7),
+    'VIBRANT':   DESIGN_STYLES.slice(7, 10),
+    'NATURAL':   DESIGN_STYLES.slice(10, 12),
+    'AFRICAN':   DESIGN_STYLES.slice(12, 14),
+    'MINIMAL':   DESIGN_STYLES.slice(14, 16),
+  };
+  grid.innerHTML = categories.map(cat => `
+    <div style="grid-column:1/-1;font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;padding:4px 0 2px;border-top:1px solid var(--border);margin-top:4px">${cat}</div>
+    ${catStyles[cat].map(s => `
+      <div class="style-option ${selectedStyle === s.name ? 'selected' : ''}" onclick="selectStyle('${s.name}')" id="styleOpt-${s.name}">
+        <div class="style-preview" style="background:${s.preview};display:flex;align-items:center;justify-content:center;font-size:1.4rem">${s.emoji || '🎨'}</div>
+        <div class="style-option-name" style="font-weight:700;font-size:11px;text-transform:capitalize">${s.name.replace(/-/g,' ')}</div>
+        <div class="style-option-desc" style="font-size:10px;color:var(--muted);line-height:1.3">${s.desc}</div>
+      </div>
+    `).join('')}
   `).join('');
   document.getElementById('styleModal').classList.add('open');
 }

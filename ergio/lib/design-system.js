@@ -189,6 +189,32 @@ export const DESIGN_STYLES = {
     fonts: { heading: 'Sora', body: 'Inter', mono: 'JetBrains Mono' },
     mood: 'saas app startup ai gradient modern',
   },
+
+  // ── EDITORIAL / TYPOGRAPHIC ────────────────────────────────
+  editorial: {
+    name: 'Editorial', emoji: '📰',
+    desc: 'Oversized billboard typography — finance, fintech & bold brands',
+    palette: { bg: '#1a2318', surface: '#243022', border: 'rgba(245,235,200,0.15)',
+               text: '#F5EBC8', muted: '#9aaa93', primary: '#E8C547', accent: '#F0E68C', cta: '#E8C547' },
+    fonts: { heading: 'Space Grotesk', body: 'DM Sans', mono: 'JetBrains Mono' },
+    mood: 'editorial fintech finance banking bold typography oversized',
+  },
+  split: {
+    name: 'Split', emoji: '🔀',
+    desc: 'Split-screen hero with product mockup — apps, SaaS & tech',
+    palette: { bg: '#FAFAF8', surface: '#F0EFE9', border: 'rgba(0,0,0,0.08)',
+               text: '#111110', muted: '#6b6b6b', primary: '#111110', accent: '#E8C547', cta: '#111110' },
+    fonts: { heading: 'Space Grotesk', body: 'Inter', mono: 'Fira Code' },
+    mood: 'minimal split product app startup clean',
+  },
+  bento: {
+    name: 'Bento', emoji: '🍱',
+    desc: 'Bento grid layout — modern SaaS dashboards & feature showcases',
+    palette: { bg: '#0A0A0A', surface: '#111111', border: 'rgba(255,255,255,0.06)',
+               text: '#FAFAFA', muted: '#888888', primary: '#FFFFFF', accent: '#E8C547', cta: '#FFFFFF' },
+    fonts: { heading: 'Space Grotesk', body: 'Inter', mono: 'Fira Code' },
+    mood: 'bento grid saas dashboard modern minimal dark',
+  },
 };
 
 // ── AUTO-DETECT best style from business type ──────────────
@@ -204,6 +230,8 @@ export function autoDetectStyle(businessType, category, description = '', tone =
   if (/fashion|clothing|boutique|wear|style|apparel/.test(combined)) return 'market';
   if (/photo|design|creative|artist|portfolio|studio|gallery/.test(combined)) return 'canvas';
   if (/saas|software|app|platform|api|tech|startup|digital/.test(combined)) return 'nova';
+  if (/fintech|flowbank|neobank|payment.*app|wallet.*app|crypto|investment.*platform|wealth.*manage/.test(combined)) return 'editorial';
+  if (/app.*startup|saas.*product|software.*product|tech.*platform/.test(combined) && tone === 'bold') return 'split';
   if (/finance|bank|invest|insurance|legal|law|consult/.test(combined)) return 'slate';
   if (/church|ministry|ngo|foundation|charity/.test(combined)) return 'naija';
   if (/african|naija|nigeria|local|market|ankara|kente/.test(combined)) return 'kente';

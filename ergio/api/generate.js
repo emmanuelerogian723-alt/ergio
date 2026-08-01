@@ -352,6 +352,8 @@ Return ONLY JSON:
 
     const is3D = plan.websiteType === '3d' || 
       /3d|interactive|animated|immersive|motion|3dimentional/i.test(prompt + JSON.stringify(answers || {}));
+    const designStyleKey = plan.designStyle || plan._design?.name?.toLowerCase() || 'nova';
+    const isEditorial = ['editorial', 'split', 'bento'].includes(designStyleKey);
     
     let websiteHtml;
     const contentForHTML = content;
@@ -366,7 +368,9 @@ Return ONLY JSON:
     try {
       websiteHtml = is3D 
         ? generate3DWebsiteHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
-        : generateWebsiteHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images);
+        : isEditorial
+          ? generateEditorialHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
+          : generateWebsiteHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images);
     } catch(genErr) {
       console.error('HTML generation error:', genErr.message, genErr.stack);
       // Fallback minimal HTML
@@ -1218,6 +1222,462 @@ function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {})
 </body>
 </html>`;
 }
+
+
+// ============ EDITORIAL / TYPOGRAPHIC WEBSITE GENERATOR ============
+// Inspired by: Flowbank, Linear, Vercel, Resend, Arc — bold oversized type, pill tags, split hero
+function generateEditorialHTML(plan, brand, content, colors, logoUrl, images = {}) {
+  const hero = content.hero || {};
+  const about = content.about || '';
+  const whyChooseUs = content.whyChooseUs || [];
+  const testimonials = content.testimonials || [];
+  const faq = content.faq || [];
+  const contact = content.contactInfo || {};
+
+  const ds = DESIGN_STYLES[plan.designStyle] || DESIGN_STYLES.editorial;
+  const dp = ds.palette;
+  const df = ds.fonts;
+
+  const bg = dp.bg;
+  const surface = dp.surface;
+  const borderClr = dp.border;
+  const textClr = dp.text;
+  const mutedClr = dp.muted;
+  const primaryClr = dp.primary;
+  const accentClr = dp.accent;
+  const ctaClr = dp.cta;
+  const headingFont = df.heading || 'Space Grotesk';
+  const bodyFont = df.body || 'DM Sans';
+
+  const isLight = bg.startsWith('#f') || bg.startsWith('#FA') || bg.startsWith('#fe') || bg.startsWith('#FF');
+  const heroImg = images.hero?.[0]?.url || '';
+  const aboutImg = images.about?.[0]?.url || '';
+  const galleryImgs = (images.gallery || []).map(i => i.url);
+
+  // Build dynamic pill tags from services + keywords
+  const pillTags = [
+    ...(plan.services || []).slice(0, 3).map(s => s.name),
+    ...(plan.seoKeywords || []).slice(0, 4),
+    plan.city || 'Lagos',
+    '24/7',
+  ].filter(Boolean).slice(0, 10);
+
+  // Build feature stats from services
+  const stats = [
+    { val: (plan.services || []).length + '+', label: 'Services' },
+    { val: '500+', label: 'Happy Clients' },
+    { val: '5★', label: 'Rating' },
+    { val: '24/7', label: 'Support' },
+  ];
+
+  const businessName = plan.businessName || 'Your Business';
+  // Split business name for oversized display — first word big, rest smaller
+  const words = businessName.split(' ');
+  const heroWord1 = words.slice(0, Math.ceil(words.length / 2)).join(' ').toUpperCase();
+  const heroWord2 = words.slice(Math.ceil(words.length / 2)).join(' ').toUpperCase();
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${content.seoTitle || businessName + ' — ' + (plan.tagline || '')}</title>
+  <meta name="description" content="${content.seoDescription || plan.description || ''}">
+  <meta property="og:title" content="${businessName}">
+  <meta property="og:description" content="${plan.tagline || ''}">
+  <meta property="og:image" content="${heroImg}">
+  <meta name="robots" content="index, follow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --bg:${bg};
+      --surface:${surface};
+      --border:${borderClr};
+      --text:${textClr};
+      --muted:${mutedClr};
+      --primary:${primaryClr};
+      --accent:${accentClr};
+      --cta:${ctaClr};
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6}
+    h1,h2,h3,h4,h5,h6{font-family:'Space Grotesk',sans-serif}
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar{width:6px}
+    ::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:var(--primary);border-radius:3px}
+
+    /* REVEAL ANIMATIONS */
+    .reveal{opacity:0;transform:translateY(32px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+    .reveal.active{opacity:1;transform:translateY(0)}
+    .reveal-left{opacity:0;transform:translateX(-40px);transition:all .7s cubic-bezier(.16,1,.3,1)}
+    .reveal-left.active{opacity:1;transform:translateX(0)}
+    @keyframes slideIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    @keyframes pill-scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+    /* ── NAV ── */
+    .nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 5%;position:sticky;top:0;z-index:100;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:${isLight ? 'rgba(250,250,248,0.88)' : 'rgba(26,35,24,0.88)'};border-bottom:1px solid var(--border)}
+    .nav-logo{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:1.1rem;color:var(--text);text-decoration:none;font-family:'Space Grotesk',sans-serif}
+    .nav-logo-icon{width:28px;height:28px;background:var(--primary);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:900;color:${isLight ? '#111' : '#1a2318'}}
+    .nav-links{display:flex;gap:2rem}
+    .nav-links a{color:var(--muted);text-decoration:none;font-size:.9rem;font-weight:500;transition:color .2s}
+    .nav-links a:hover{color:var(--text)}
+    .nav-cta{background:transparent;color:var(--text);padding:.5rem 1.2rem;border-radius:100px;border:1px solid var(--text);font-size:.88rem;font-weight:600;cursor:pointer;text-decoration:none;transition:all .25s;font-family:'Space Grotesk',sans-serif}
+    .nav-cta:hover{background:var(--text);color:var(--bg)}
+
+    /* ── HERO EDITORIAL ── */
+    .hero{position:relative;padding:3rem 5% 0;overflow:hidden;min-height:88vh;display:flex;flex-direction:column}
+    .hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:0;flex:1;align-items:end}
+    .hero-left{padding-bottom:3rem;display:flex;flex-direction:column;justify-content:flex-end;gap:1.5rem}
+    .hero-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:${isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)'};border:1px solid var(--border);color:var(--muted);padding:.35rem .9rem;border-radius:100px;font-size:.82rem;font-weight:500;width:fit-content}
+    .hero-eyebrow span{width:6px;height:6px;background:var(--primary);border-radius:50%;animation:float 2s ease-in-out infinite}
+    .hero-headline{font-size:clamp(3.5rem,9vw,8rem);font-weight:700;line-height:.95;letter-spacing:-.04em;color:var(--text)}
+    .hero-headline em{color:var(--primary);font-style:normal}
+    .hero-sub{color:var(--muted);font-size:1rem;max-width:380px;line-height:1.65;font-weight:400}
+    .hero-actions{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+    .btn-solid{background:var(--primary);color:${isLight ? '#111' : '#1a2318'};padding:.75rem 1.8rem;border-radius:100px;font-weight:700;font-size:.92rem;text-decoration:none;border:none;cursor:pointer;transition:all .25s;font-family:'Space Grotesk',sans-serif;display:inline-flex;align-items:center;gap:.5rem}
+    .btn-solid:hover{transform:scale(1.04);box-shadow:0 8px 30px color-mix(in srgb, ${primaryClr} 40%, transparent)}
+    .btn-ghost{background:transparent;color:var(--text);padding:.75rem 1.8rem;border-radius:100px;font-weight:600;font-size:.92rem;text-decoration:none;border:1px solid var(--border);cursor:pointer;transition:all .25s;font-family:'Space Grotesk',sans-serif}
+    .btn-ghost:hover{border-color:var(--text);background:${isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.05)'}}
+    
+    /* ── HERO RIGHT — MOCKUP ── */
+    .hero-right{display:flex;align-items:flex-end;justify-content:center;position:relative;padding-bottom:0}
+    .hero-mockup{width:100%;max-width:420px;border-radius:20px 20px 0 0;overflow:hidden;position:relative;animation:fadeUp 1s cubic-bezier(.16,1,.3,1) .3s both}
+    .hero-mockup img{width:100%;height:520px;object-fit:cover;object-position:top;display:block}
+    .hero-mockup-overlay{position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(transparent,var(--bg))}
+    .hero-float-card{position:absolute;background:${isLight ? '#fff' : surface};border:1px solid var(--border);border-radius:14px;padding:.8rem 1.1rem;backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(0,0,0,.15)}
+    .hero-float-card.top-left{top:10%;left:-5%;animation:float 5s ease-in-out infinite}
+    .hero-float-card.bottom-right{bottom:15%;right:-5%;animation:float 5s ease-in-out infinite .8s}
+    .float-label{font-size:.7rem;color:var(--muted);font-weight:500;margin-bottom:.2rem}
+    .float-value{font-size:1.1rem;font-weight:700;color:var(--text)}
+    .float-value span{color:var(--primary)}
+
+    /* ── PILL TICKER ── */
+    .pill-ticker{padding:.8rem 0;overflow:hidden;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-top:auto;position:relative}
+    .pill-ticker::before,.pill-ticker::after{content:'';position:absolute;top:0;width:80px;height:100%;z-index:2}
+    .pill-ticker::before{left:0;background:linear-gradient(to right,var(--bg),transparent)}
+    .pill-ticker::after{right:0;background:linear-gradient(to left,var(--bg),transparent)}
+    .pill-track{display:flex;gap:.75rem;width:max-content;animation:pill-scroll 20s linear infinite}
+    .pill-track:hover{animation-play-state:paused}
+    .pill-tag{display:inline-flex;align-items:center;gap:.4rem;background:${isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)'};border:1px solid var(--border);color:var(--text);padding:.4rem 1rem;border-radius:100px;font-size:.82rem;font-weight:500;white-space:nowrap;cursor:default;transition:all .2s}
+    .pill-tag:hover{background:var(--primary);color:${isLight ? '#111' : '#1a2318'};border-color:var(--primary)}
+    .pill-tag.accent{background:var(--primary);color:${isLight ? '#111' : '#1a2318'};border-color:var(--primary);font-weight:700}
+    .pill-dot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.6}
+
+    /* ── STATS BAR ── */
+    .stats-bar{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:4rem 5%}
+    .stat-item{padding:2rem 1rem;text-align:center;border-right:1px solid var(--border)}
+    .stat-item:last-child{border-right:none}
+    .stat-num{font-size:2.2rem;font-weight:800;color:var(--primary);font-family:'Space Grotesk',sans-serif;letter-spacing:-.03em}
+    .stat-label{font-size:.82rem;color:var(--muted);font-weight:500;margin-top:.2rem}
+
+    /* ── SECTION STYLES ── */
+    .section{padding:5rem 5%;max-width:1200px;margin:0 auto}
+    .section-label{font-size:.78rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.8rem}
+    .section-title{font-size:clamp(2rem,4vw,3.2rem);font-weight:700;line-height:1.1;letter-spacing:-.03em;margin-bottom:1rem}
+    .section-title em{color:var(--primary);font-style:normal}
+
+    /* ── BENTO GRID ── */
+    .bento{padding:4rem 5%;max-width:1200px;margin:0 auto}
+    .bento-grid{display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:auto;gap:1rem}
+    .bento-cell{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2rem;overflow:hidden;position:relative;transition:border-color .3s,transform .3s}
+    .bento-cell:hover{border-color:var(--primary);transform:translateY(-3px)}
+    .bento-cell.span-8{grid-column:span 8}
+    .bento-cell.span-4{grid-column:span 4}
+    .bento-cell.span-6{grid-column:span 6}
+    .bento-cell.span-5{grid-column:span 5}
+    .bento-cell.span-7{grid-column:span 7}
+    .bento-cell.span-12{grid-column:span 12}
+    .bento-cell.accent-bg{background:var(--primary);color:${isLight ? '#111' : '#1a2318'}}
+    .bento-cell.accent-bg .bento-muted,.bento-cell.accent-bg .bento-sub{color:${isLight ? 'rgba(0,0,0,0.6)' : 'rgba(26,35,24,0.7)'}}
+    .bento-tag{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--primary);margin-bottom:.5rem}
+    .bento-cell.accent-bg .bento-tag{color:${isLight ? 'rgba(0,0,0,0.7)' : 'rgba(26,35,24,0.8)'}}
+    .bento-title{font-size:1.4rem;font-weight:700;margin-bottom:.5rem;font-family:'Space Grotesk',sans-serif;letter-spacing:-.02em}
+    .bento-sub{font-size:.9rem;color:var(--muted)}
+    .bento-big{font-size:3rem;font-weight:800;font-family:'Space Grotesk',sans-serif;letter-spacing:-.04em;color:var(--primary)}
+    .bento-img{width:100%;height:180px;object-fit:cover;border-radius:12px;margin-top:1rem}
+    .bento-pill{display:inline-flex;align-items:center;gap:.4rem;background:${isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.1)'};padding:.3rem .7rem;border-radius:100px;font-size:.75rem;font-weight:600;margin:.2rem;color:var(--text)}
+    .bento-cell.accent-bg .bento-pill{background:rgba(0,0,0,0.15);color:${isLight ? '#111' : '#1a2318'}}
+
+    /* ── SERVICES LIST ── */
+    .services-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-top:2rem}
+    .service-row{display:flex;justify-content:space-between;align-items:center;padding:1.5rem 2rem;border-bottom:1px solid var(--border);transition:background .2s;cursor:pointer}
+    .service-row:last-child{border-bottom:none}
+    .service-row:hover{background:${isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.03)'}}
+    .service-row-left{display:flex;align-items:center;gap:1rem}
+    .service-num{font-size:.75rem;font-weight:700;color:var(--muted);width:24px}
+    .service-row-name{font-weight:600;font-size:1rem}
+    .service-row-desc{font-size:.85rem;color:var(--muted);margin-top:.2rem}
+    .service-row-price{font-size:1.1rem;font-weight:800;color:var(--primary);font-family:'Space Grotesk',sans-serif;white-space:nowrap}
+    .service-arrow{font-size:1.2rem;color:var(--muted);transition:transform .2s,color .2s;margin-left:1rem}
+    .service-row:hover .service-arrow{transform:translateX(4px);color:var(--primary)}
+
+    /* ── TESTIMONIALS ── */
+    .testimonials-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;margin-top:2.5rem}
+    .testi-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2rem;transition:border-color .3s}
+    .testi-card:hover{border-color:var(--primary)}
+    .testi-stars{color:${accentClr};font-size:1rem;margin-bottom:1rem}
+    .testi-text{color:var(--text);font-size:.95rem;line-height:1.7;margin-bottom:1.5rem;font-style:italic}
+    .testi-author{display:flex;align-items:center;gap:.8rem}
+    .testi-avatar{width:40px;height:40px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;color:${isLight ? '#111' : '#1a2318'}}
+    .testi-name{font-weight:700;font-size:.92rem}
+    .testi-loc{font-size:.8rem;color:var(--muted)}
+
+    /* ── FAQ ── */
+    .faq-list{display:flex;flex-direction:column;gap:.75rem;margin-top:2rem}
+    .faq-row{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+    .faq-q{display:flex;justify-content:space-between;align-items:center;padding:1.3rem 1.5rem;cursor:pointer;font-weight:600;font-size:.95rem;gap:1rem;transition:color .2s}
+    .faq-q:hover{color:var(--primary)}
+    .faq-icon{font-size:1.2rem;color:var(--muted);transition:transform .3s;flex-shrink:0}
+    .faq-row.open .faq-icon{transform:rotate(45deg);color:var(--primary)}
+    .faq-a{padding:0 1.5rem;max-height:0;overflow:hidden;transition:max-height .4s ease,padding .4s ease;color:var(--muted);font-size:.9rem;line-height:1.7}
+    .faq-row.open .faq-a{max-height:300px;padding-bottom:1.3rem}
+
+    /* ── CONTACT CTA ── */
+    .contact-cta{margin:0 5% 5rem;background:var(--primary);border-radius:24px;padding:4rem;display:flex;justify-content:space-between;align-items:center;gap:2rem;flex-wrap:wrap}
+    .contact-cta h2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-.03em;color:${isLight ? '#111' : '#1a2318'};max-width:500px;line-height:1.1}
+    .contact-cta p{color:${isLight ? 'rgba(0,0,0,0.6)' : 'rgba(26,35,24,0.7)'};margin-top:.5rem;font-size:1rem}
+    .contact-cta-right{display:flex;flex-direction:column;gap:1rem;min-width:220px}
+    .btn-dark{background:${isLight ? '#111' : '#1a2318'};color:${isLight ? '#fff' : textClr};padding:.9rem 2rem;border-radius:100px;font-weight:700;font-size:.95rem;text-decoration:none;text-align:center;transition:opacity .2s;font-family:'Space Grotesk',sans-serif;border:none;cursor:pointer}
+    .btn-dark:hover{opacity:.85}
+    .contact-info-row{display:flex;flex-direction:column;gap:.5rem}
+    .contact-link{display:flex;align-items:center;gap:.6rem;color:${isLight ? 'rgba(0,0,0,0.7)' : 'rgba(26,35,24,0.8)'};font-size:.88rem;font-weight:500;text-decoration:none}
+    .contact-link:hover{color:${isLight ? '#111' : '#1a2318'}}
+
+    /* ── FOOTER ── */
+    .footer{padding:2rem 5%;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+    .footer-left{font-weight:700;font-size:.95rem;font-family:'Space Grotesk',sans-serif}
+    .footer-right{font-size:.8rem;color:var(--muted)}
+    .footer-right a{color:var(--primary);text-decoration:none;font-weight:600}
+
+    /* ── MOBILE ── */
+    @media(max-width:768px){
+      .hero-inner{grid-template-columns:1fr}
+      .hero-right{display:none}
+      .hero-headline{font-size:clamp(3rem,14vw,6rem)}
+      .stats-bar{grid-template-columns:repeat(2,1fr)}
+      .bento-cell.span-8,.bento-cell.span-4,.bento-cell.span-6,.bento-cell.span-5,.bento-cell.span-7{grid-column:span 12}
+      .contact-cta{padding:2.5rem;flex-direction:column}
+      .nav-links{display:none}
+      .footer{flex-direction:column;text-align:center}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-icon">${businessName.charAt(0)}</div>
+      ${businessName}
+    </a>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="#contact" class="nav-cta">Get Started</a>
+  </nav>
+
+  <!-- HERO EDITORIAL -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-left">
+        <div class="hero-eyebrow reveal active">
+          <span></span>
+          ${plan.tagline || 'Trusted by 500+ clients in ' + (plan.city || 'Lagos')}
+        </div>
+        <h1 class="hero-headline reveal active">
+          ${heroWord1 ? heroWord1 + '<br>' : ''}${heroWord2 ? '<em>' + heroWord2 + '</em>' : ''}
+        </h1>
+        <p class="hero-sub reveal">${hero.subheadline || plan.description || 'Trusted protection and expert guidance for your business.'}</p>
+        <div class="hero-actions reveal">
+          <a href="#contact" class="btn-solid">Get Started →</a>
+          <a href="#services" class="btn-ghost">View Services</a>
+        </div>
+      </div>
+      <div class="hero-right">
+        ${heroImg ? `
+        <div class="hero-mockup">
+          <img src="${heroImg}" alt="${businessName}">
+          <div class="hero-mockup-overlay"></div>
+        </div>` : ''}
+        <div class="hero-float-card top-left">
+          <div class="float-label">Total Clients</div>
+          <div class="float-value"><span>500+</span> happy</div>
+        </div>
+        <div class="hero-float-card bottom-right">
+          <div class="float-label">Rating</div>
+          <div class="float-value"><span>★ 4.9</span> /5</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PILL TICKER -->
+    <div class="pill-ticker">
+      <div class="pill-track">
+        ${[...pillTags, ...pillTags].map((tag, i) => `
+          <span class="pill-tag${i % 4 === 1 ? ' accent' : ''}">
+            <span class="pill-dot"></span>${tag}
+          </span>
+        `).join('')}
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar reveal">
+    ${stats.map(s => `
+      <div class="stat-item">
+        <div class="stat-num">${s.val}</div>
+        <div class="stat-label">${s.label}</div>
+      </div>
+    `).join('')}
+  </div>
+
+  <!-- BENTO GRID (About + Features) -->
+  <div class="bento" id="about">
+    <div class="bento-grid">
+      <div class="bento-cell span-8 reveal">
+        <div class="bento-tag">About Us</div>
+        <div class="bento-title">${businessName}</div>
+        <p class="bento-sub">${typeof about === 'string' ? about.slice(0, 280) : plan.description || ''}</p>
+        ${aboutImg ? `<img src="${aboutImg}" alt="${businessName}" class="bento-img">` : ''}
+      </div>
+      <div class="bento-cell span-4 accent-bg reveal">
+        <div class="bento-tag">Our Edge</div>
+        <div class="bento-big">${stats[0].val}</div>
+        <div class="bento-title">${stats[0].label}</div>
+        <div class="bento-sub" style="margin-top:1rem">${whyChooseUs.slice(0,2).join(' · ')}</div>
+      </div>
+      ${(whyChooseUs || []).slice(0, 4).map((w, i) => `
+        <div class="bento-cell span-${i % 2 === 0 ? '6' : '6'} reveal">
+          <div class="bento-tag">${['01','02','03','04'][i]}</div>
+          <div class="bento-title">${w}</div>
+          <div class="bento-sub">Professional quality you can trust</div>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+
+  <!-- SERVICES as editorial list -->
+  <section class="section" id="services">
+    <div class="section-label reveal">What We Do</div>
+    <h2 class="section-title reveal">Our <em>Services</em></h2>
+    <div class="services-list">
+      ${(plan.services || []).map((s, i) => `
+        <div class="service-row reveal">
+          <div class="service-row-left">
+            <span class="service-num">0${i+1}</span>
+            <div>
+              <div class="service-row-name">${s.name}</div>
+              <div class="service-row-desc">${s.description || ''}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:1rem">
+            <span class="service-row-price">₦${(s.price || 0).toLocaleString()}</span>
+            <span class="service-arrow">→</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  </section>
+
+  <!-- GALLERY (if images available) -->
+  ${(images.gallery || []).length > 0 ? `
+  <section class="section" id="gallery" style="padding-top:2rem">
+    <div class="section-label reveal">Portfolio</div>
+    <h2 class="section-title reveal">Our <em>Work</em></h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;margin-top:2rem">
+      ${(images.gallery || []).slice(0,6).map(img => `
+        <div style="border-radius:16px;overflow:hidden;aspect-ratio:1;position:relative" class="reveal">
+          <img src="${img.url}" alt="Work" style="width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.16,1,.3,1)" onmouseover="this.style.transform='scale(1.07)'" onmouseout="this.style.transform='scale(1)'">
+        </div>
+      `).join('')}
+    </div>
+  </section>` : ''}
+
+  <!-- TESTIMONIALS -->
+  ${testimonials.length > 0 ? `
+  <section class="section" id="testimonials">
+    <div class="section-label reveal">Reviews</div>
+    <h2 class="section-title reveal">What <em>Clients</em> Say</h2>
+    <div class="testimonials-grid">
+      ${testimonials.map(t => `
+        <div class="testi-card reveal">
+          <div class="testi-stars">★★★★★</div>
+          <div class="testi-text">"${t.text}"</div>
+          <div class="testi-author">
+            <div class="testi-avatar">${(t.name || 'C').charAt(0)}</div>
+            <div>
+              <div class="testi-name">${t.name}</div>
+              <div class="testi-loc">${t.location || plan.city || 'Lagos'}</div>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  </section>` : ''}
+
+  <!-- FAQ -->
+  ${faq.length > 0 ? `
+  <section class="section">
+    <div class="section-label reveal">FAQ</div>
+    <h2 class="section-title reveal">Common <em>Questions</em></h2>
+    <div class="faq-list">
+      ${faq.map((f, i) => `
+        <div class="faq-row reveal" onclick="this.classList.toggle('open')">
+          <div class="faq-q">${f.q}<span class="faq-icon">+</span></div>
+          <div class="faq-a">${f.a}</div>
+        </div>
+      `).join('')}
+    </div>
+  </section>` : ''}
+
+  <!-- CONTACT CTA — BIG EDITORIAL BLOCK -->
+  <div class="contact-cta reveal" id="contact">
+    <div>
+      <h2>Ready to get <br>started with us?</h2>
+      <p>${contact.address || (plan.city || 'Lagos') + ', Nigeria'}</p>
+    </div>
+    <div class="contact-cta-right">
+      <a href="tel:${contact.phone || ''}" class="btn-dark">📞 Call Us Now</a>
+      <div class="contact-info-row">
+        ${contact.whatsapp ? `<a href="https://wa.me/${(contact.whatsapp||'').replace(/[^0-9]/g,'')}" class="contact-link">💬 WhatsApp Us</a>` : ''}
+        ${contact.email ? `<a href="mailto:${contact.email}" class="contact-link">✉️ ${contact.email}</a>` : ''}
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-left">${businessName}</div>
+    <div class="footer-right">© ${new Date().getFullYear()} ${businessName}. Powered by <a href="https://ergio.vercel.app">ERGIO</a></div>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal,.reveal-left').forEach(el => observer.observe(el));
+
+    // Nav scroll effect
+    const nav = document.querySelector('.nav');
+    window.addEventListener('scroll', () => {
+      nav.style.borderBottomColor = window.scrollY > 20 ? 'var(--border)' : 'transparent';
+    });
+  </script>
+</body>
+</html>`;
+}
+
 
 // ============ 3D WEBSITE GENERATOR (ENHANCED WITH THREE.JS + IMAGES) ============
 function generate3DWebsiteHTML(plan, brand, content, colors, logoUrl, images = {}) {
