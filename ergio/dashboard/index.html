@@ -4208,6 +4208,124 @@ function confirmDeleteAccount(){
 if(typeof loadProfile==='function'&&!window._profileHookAdded){
   window._profileHookAdded=true;
 }
+
+/* ===== FREE MONTHLY LIMITS SYSTEM ===== */
+var FreeLimits={
+  // Monthly limits per feature (like Base44 credits)
+  limits:{
+    conductor:{name:'Conductor Agent',free:100,pro:1000,enterprise:10000,used:0},
+    website:{name:'Website Builder',free:3,pro:25,enterprise:100,used:0},
+    leads:{name:'Lead Scanner',free:5,pro:50,enterprise:500,used:0},
+    outreach:{name:'Outreach Emails',free:10,pro:100,enterprise:1000,used:0},
+    seo:{name:'SEO Reports',free:5,pro:50,enterprise:200,used:0},
+    social:{name:'Social Posts',free:10,pro:100,enterprise:500,used:0},
+    content:{name:'Content Generation',free:20,pro:200,enterprise:2000,used:0},
+    invoices:{name:'Invoices',free:5,pro:50,enterprise:500,used:0},
+    analytics:{name:'Analytics Reports',free:10,pro:100,enterprise:1000,used:0},
+    whatsapp:{name:'WhatsApp Messages',free:20,pro:200,enterprise:2000,used:0},
+    aiChat:{name:'AI Chat Messages',free:50,pro:500,enterprise:5000,used:0},
+    websiteAudit:{name:'Website Audits',free:3,pro:30,enterprise:100,used:0}
+  },
+  plan:'free', // free | pro | enterprise
+  month:null, // current month key e.g. "2026-08"
+  
+  init:function(){
+    var now=new Date();
+    this.month=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+    var saved=JSON.parse(localStorage.getItem('ergio_usage')||'{}');
+    if(saved.month!==this.month){
+      // New month — reset all usage
+      saved={month:this.month,usage:{}};
+      localStorage.setItem('ergio_usage',JSON.stringify(saved));
+    }
+    this.loadUsage(saved.usage||{});
+  },
+  
+  loadUsage:function(usage){
+    for(var k in this.limits){
+      if(usage[k])this.limits[k].used=usage[k];
+    }
+  },
+  
+  canUse:function(feature){
+    if(!this.limits[feature])return true;
+    var limit=this.limits[this.plan]||this.limits[feature].free;
+    return this.limits[feature].used<limit;
+  },
+  
+  use:function(feature){
+    if(!this.limits[feature])return true;
+    if(!this.canUse(feature)){
+      this.showLimitReached(feature);
+      return false;
+    }
+    this.limits[feature].used++;
+    this.saveUsage();
+    this.updateBadges();
+    return true;
+  },
+  
+  getRemaining:function(feature){
+    if(!this.limits[feature])return Infinity;
+    var limit=this.limits[feature][this.plan]||this.limits[feature].free;
+    return Math.max(0,limit-this.limits[feature].used);
+  },
+  
+  saveUsage:function(){
+    var usage={};
+    for(var k in this.limits)usage[k]=this.limits[k].used;
+    localStorage.setItem('ergio_usage',JSON.stringify({
+      month:this.month,usage:usage
+    }));
+  },
+  
+  showLimitReached:function(feature){
+    var f=this.limits[feature];
+    showToast('⚠️ Monthly limit reached: '+f.name+'. Upgrade to '+this.plan.charAt(0).toUpperCase()+this.plan.slice(1)+' for more. (Resets next month)','error');
+    // Show upgrade prompt
+    var modal=document.createElement('div');
+    modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center';
+    modal.innerHTML='<div style="background:var(--card,#151c2a);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:400px;text-align:center"><div style="font-size:2rem">⚡</div><h3 style="margin:12px 0;color:var(--text)">Monthly Limit Reached</h3><p style="color:var(--muted);font-size:.85rem;margin-bottom:20px">You have used all '+f.free+' free '+f.name+' for this month. Upgrade for more.</p><div style="display:flex;gap:8px;justify-content:center"><button onclick="this.closest(\'div[style*=fixed]\').remove()" style="padding:8px 20px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer">Later</button><button onclick="switchTab(\'billing\');this.closest(\'div[style*=fixed]\').remove()" style="padding:8px 20px;border-radius:8px;background:linear-gradient(135deg,var(--cyan),var(--green));color:#000;border:none;cursor:pointer;font-weight:600">Upgrade Now</button></div></div>';
+    document.body.appendChild(modal);
+  },
+  
+  updateBadges:function(){
+    // Update UI badges showing remaining usage
+    for(var k in this.limits){
+      var el=document.getElementById('limit-'+k);
+      if(el){
+        var remaining=this.getRemaining(k);
+        var limit=this.limits[k][this.plan]||this.limits[k].free;
+        el.textContent=remaining+'/'+limit;
+        if(remaining===0)el.style.color='var(--red,#ef4444)';
+        else if(remaining<limit*0.2)el.style.color='var(--amber,#f59e0b)';
+        else el.style.color='var(--green,#00ff9d)';
+      }
+    }
+  },
+  
+  getStats:function(){
+    var stats={};
+    for(var k in this.limits){
+      stats[k]={name:this.limits[k].name,used:this.limits[k].used,remaining:this.getRemaining(k),limit:this.limits[k][this.plan]||this.limits[k].free};
+    }
+    return stats;
+  }
+};
+FreeLimits.init();
+console.log('Free limits initialized:',FreeLimits.getStats());
+
+/* Wrap sendChatMessage to enforce limits */
+var _originalSendChat=sendChatMessage;
+sendChatMessage=function(){
+  if(!FreeLimits.canUse('conductor')){
+    FreeLimits.showLimitReached('conductor');
+    return;
+  }
+  FreeLimits.use('conductor');
+  return _originalSendChat.apply(this,arguments);
+};
+
 </script>
 
 </body>
