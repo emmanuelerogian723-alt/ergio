@@ -1234,7 +1234,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
               <div style="font-weight:600;color:#fff" id="photoPreviewName">Demo User</div>
               <div style="font-size:.78rem;color:var(--muted)" id="photoPreviewRole">Founder · EROGIAN Studio</div>
             </div>
-            \${badge}
+            ${badge}
           </div>
         </div>
       </div>
@@ -4416,9 +4416,10 @@ sendChatMessage=function(){
 };
 
 </script>
+<script>
 // ERGIO INTEGRATIONS SYSTEM
 // ======================================================
-const ENGINES_BASE = window.ERGIO_CONFIG?.enginesBase || 'https://ergio-engines.onrender.com';
+const ENGINES_BASE = window.ERGIO_CONFIG?.enginesApiBase || 'https://ergio-engines.onrender.com';
 const INTEG_CONFIG = window.ERGIO_CONFIG?.integrations || {};
 let currentIntegKey = null;
 
@@ -4453,20 +4454,20 @@ function renderIntegrations(filter) {
     const statusText = conn ? '<span style="color:#10b981;font-size:.75rem;font-weight:600">Connected</span>' : '<span style="color:#475569;font-size:.75rem">Not connected</span>';
     const iconBg = `background:${integ.color}22;border:1px solid ${integ.color}44`;
     const iconStyle = `width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;${iconBg}`;
-    return \`<div class="integ-card" data-category="\${integ.category}" style="background:var(--surface);border:1px solid \${conn ? '#10b98140' : 'var(--border)'};border-radius:14px;padding:1.2rem;position:relative;transition:border-color .2s">
+    return `<div class="integ-card" data-category="${integ.category}" style="background:var(--surface);border:1px solid ${conn ? '#10b98140' : 'var(--border)'};border-radius:14px;padding:1.2rem;position:relative;transition:border-color .2s">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.8rem">
         <div style="display:flex;align-items:center;gap:.7rem">
-          <div style="\${iconStyle}">\${integ.icon}</div>
+          <div style="${iconStyle}">${integ.icon}</div>
           <div>
-            <div style="font-weight:700;font-size:.9rem">\${integ.name}</div>
-            <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">\${integ.category}</div>
+            <div style="font-weight:700;font-size:.9rem">${integ.name}</div>
+            <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">${integ.category}</div>
           </div>
         </div>
-        <div style="display:flex;gap:.3rem;align-items:center">\${statusDot} \${statusText}</div>
+        <div style="display:flex;gap:.3rem;align-items:center">${statusDot} ${statusText}</div>
       </div>
-      <p style="color:var(--muted);font-size:.82rem;margin-bottom:1rem;line-height:1.5">\${integ.description}</p>
-      <button onclick="openIntegModal('\${id}')" style="width:100%;padding:.6rem;border-radius:8px;background:\${conn ? 'rgba(16,185,129,.1)' : 'linear-gradient(135deg,var(--cyan),var(--blue))'};border:1px solid \${conn ? '#10b981' : 'transparent'};color:\${conn ? '#10b981' : '#000'};font-weight:700;font-size:.82rem;cursor:pointer">\${conn ? '✓ Manage' : '+ Connect'}</button>
-    </div>\`;
+      <p style="color:var(--muted);font-size:.82rem;margin-bottom:1rem;line-height:1.5">${integ.description}</p>
+      <button onclick="openIntegModal('${id}')" style="width:100%;padding:.6rem;border-radius:8px;background:${conn ? 'rgba(16,185,129,.1)' : 'linear-gradient(135deg,var(--cyan),var(--blue))'};border:1px solid ${conn ? '#10b981' : 'transparent'};color:${conn ? '#10b981' : '#000'};font-weight:700;font-size:.82rem;cursor:pointer">${conn ? '✓ Manage' : '+ Connect'}</button>
+    </div>`;
   }).join('');
 }
 
@@ -4668,8 +4669,6 @@ async function testMCPConnection(tool) {
 }
 </script>
 
-  </body>
-=======
 
 </body>
 </html>
