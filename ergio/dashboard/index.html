@@ -1441,7 +1441,45 @@ function showPaywall(feature,required,plan){
   modal.innerHTML='<div class="modal-overlay" onclick="closeGlobalModal(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center"><div onclick="event.stopPropagation()" style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:420px;width:92%;text-align:center"><div style="font-size:3rem;margin-bottom:12px">🔒</div><div style="font-size:1.4rem;font-weight:800;margin-bottom:8px">'+fname+' requires '+rname+'</div><div style="color:var(--muted);font-size:.9rem;margin-bottom:20px">You are currently on the Free plan. Upgrade to '+rname+' to unlock '+fname+' and more powerful features.</div><div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-weight:700;font-size:1.1rem">'+rname+' Plan</span><span style="font-size:1.4rem;font-weight:800;color:var(--cyan)">₦'+(planPrices[required]||15000).toLocaleString()+'<span style="font-size:.7rem;color:var(--muted)">/mo</span></span></div><div style="font-size:.8rem;color:var(--muted);text-align:left;margin-bottom:12px">'+(required==='business'?'Everything in Pro, plus:':'Everything in Free, plus:')+'</div></div><button onclick="closeGlobalModal();switchTab(\'billing\')" style="width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--cyan),var(--green));color:#000;font-weight:700;font-size:1rem;cursor:pointer;margin-bottom:8px">🚀 Upgrade Now</button><button onclick="closeGlobalModal()" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--muted);font-weight:600;cursor:pointer">Maybe later</button></div></div>';
 }
 
-function switchTab(t){document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));const e=document.getElementById('tab-'+t);if(e)e.classList.add('active');if(t==='workspace')loadWorkspace();if(t==='billing')loadPricingGrid();document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));document.querySelector('[data-tab="'+t+'"]')?.classList.add('active');const titles={overview:'Overview',website:'Website Builder',leads:'Leads CRM',bookings:'Bookings',outreach:'Outreach',conductor:'Conductor Agent',engines:'Engines',agents:'Agent Frameworks',plugins:'MCP and Plugins',skills:'Skills Marketplace',integrations:'Integrations',analytics:'Analytics',billing:'Billing & Plans',insights:'AI Insights',workspace:'Workspace',cloud:'Cloud Console',employees:'AI Employees',missions:'Missions',memory:'Business Memory',scheduler:'Scheduler',health:'Health Monitor',security:'Security Center',profile:'My Profile'};document.getElementById('pageTitle').textContent=titles[t]||t;if(t==='overview')handlePaystackCallback();loadOverview();if(t==='leads')loadLeadsSupabase();if(t==='bookings')loadBookings();if(t==='engines')loadEngineStatus();if(t==='plugins'){loadMCPGrid();loadPluginsGrid()}if(t==='skills')loadSkillsGrid();if(t==='agents')loadAgentFrameworks();if(t==='integrations')loadIntegrations();if(t==='analytics')loadAnalytics();if(t==='conductor')handlePaystackCallback();checkConductorStatus();initOnboarding();if(t==='billing'){loadPricingGrid();loadPaymentHistory()}if(t==='cloud'){if(!checkPlanAccess('cloud'))return;}if(t==='employees'){if(!checkPlanAccess('employees'))return;}if(t==='missions'){if(!checkPlanAccess('missions'))return;}if(t==='memory')loadBusinessMemory();if(t==='scheduler'){if(!checkPlanAccess('scheduler'))return;}if(t==='health')loadHealthMonitor();if(t==='security')loadSecurityCenter();if(t==='insights'){loadInsights();}if(t==='profile')loadProfile();}
+function switchTab(t){
+  // Paywall checks FIRST - before any visual changes
+  var gatedTabs={cloud:'cloud',employees:'employees',missions:'missions',scheduler:'scheduler',health:'health',security:'security',workspace:'workspace',analytics:'analytics',insights:'insights',agents:'agents',skills:'skills',memory:'memory',integrations:'integrations'};
+  if(gatedTabs[t]&&!checkPlanAccess(gatedTabs[t]))return;
+  // Switch tab content
+  document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));
+  var e=document.getElementById('tab-'+t);
+  if(e)e.classList.add('active');
+  // Update nav highlighting
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+  var navItem=document.querySelector('[data-tab="'+t+'"]');
+  if(navItem)navItem.classList.add('active');
+  // Update page title
+  var titles={overview:'Overview',website:'Website Builder',leads:'Leads CRM',bookings:'Bookings',outreach:'Outreach',conductor:'Conductor Agent',engines:'Engines',agents:'Agent Frameworks',plugins:'MCP and Plugins',skills:'Skills Marketplace',integrations:'Integrations',analytics:'Analytics',billing:'Billing & Plans',insights:'AI Insights',workspace:'Workspace',cloud:'Cloud Console',employees:'AI Employees',missions:'Missions',memory:'Business Memory',scheduler:'Scheduler',health:'Health Monitor',security:'Security Center',profile:'My Profile',console:'ERGIO Console'};
+  var titleEl=document.getElementById('pageTitle');
+  if(titleEl)titleEl.textContent=titles[t]||t;
+  // Load tab-specific data (only for the active tab)
+  if(t==='overview'){handlePaystackCallback();loadOverview();}
+  if(t==='leads')loadLeadsSupabase();
+  if(t==='bookings')loadBookings();
+  if(t==='engines')loadEngineStatus();
+  if(t==='plugins'){loadMCPGrid();loadPluginsGrid();}
+  if(t==='skills')loadSkillsGrid();
+  if(t==='agents')loadAgentFrameworks();
+  if(t==='integrations')loadIntegrations();
+  if(t==='analytics')loadAnalytics();
+  if(t==='conductor'){handlePaystackCallback();checkConductorStatus();}
+  if(t==='billing'){loadPricingGrid();loadPaymentHistory();}
+  if(t==='cloud')loadCloudConsole();
+  if(t==='employees')loadEmployees();
+  if(t==='missions')loadMissions();
+  if(t==='memory')loadBusinessMemory();
+  if(t==='scheduler')loadScheduler();
+  if(t==='health')loadHealthMonitor();
+  if(t==='security')loadSecurityCenter();
+  if(t==='insights')loadInsights();
+  if(t==='profile')loadProfile();
+  if(t==='workspace')loadWorkspace();
+}
 async function loadOverview(){if(ENGINES){try{const h=await ENGINES.health();if(h.status==='healthy'){const b=document.getElementById('engineStatusBadge');b.textContent='🟢 Engine Online';b.style.color='var(--green)';b.style.background='rgba(0,255,157,.08)'}const s=await ENGINES.status();document.getElementById('kpiEngines').textContent=(s.engines||[]).length;document.getElementById('kpiEnginesTrend').textContent='All operational'}catch(e){document.getElementById('engineStatusBadge').textContent='🔴 Engine Offline';document.getElementById('engineStatusBadge').style.color='var(--red)'}}if(sbClient){try{const{count:l}=await sbClient.from('leads').select('*',{count:'exact',head:true});document.getElementById('kpiLeads').textContent=l||0;document.getElementById('kpiLeadsTrend').textContent='In CRM';const{count:b}=await sbClient.from('bookings').select('*',{count:'exact',head:true});document.getElementById('kpiBookings').textContent=b||0;document.getElementById('kpiBookingsTrend').textContent='Total';const{data:pmts}=await sbClient.from('payments').select('amount');let rev=0;(pmts||[]).forEach(p=>rev+=(p.amount||0));document.getElementById('kpiRevenue').textContent='₦'+rev.toLocaleString();document.getElementById('kpiRevTrend').textContent='From payments'}catch(e){document.getElementById('kpiLeadsTrend').textContent='DB not accessible';document.getElementById('kpiBookingsTrend').textContent='DB not accessible';document.getElementById('kpiRevTrend').textContent='DB not accessible'}}loadActivity()}
 async function loadActivity(){const c=document.getElementById('activityFeed');if(!c)return;if(sbClient){try{const{data}=await sbClient.from('analytics_events').select('*').order('created_at',{ascending:false}).limit(10);if(data&&data.length>0){c.innerHTML=data.map(e=>'<div style="display:flex;align-items:center;gap:.8rem;padding:.7rem;border:1px solid var(--border);border-radius:10px;margin-bottom:.5rem"><div style="font-size:1.2rem">'+(e.icon||'📋')+'</div><div style="flex:1"><div style="font-weight:600;font-size:.85rem">'+(e.event_type||'Event')+'</div><div style="font-size:.72rem;color:var(--muted)">'+(e.description||'')+'</div></div><span class="badge badge-cyan">'+(e.category||'system')+'</span></div>').join('');return}}catch(e){}}if(ENGINES){try{const r=await fetch(ENGINES.BASE+'/activity/history');const d=await r.json();const ev=d.events||[];if(ev.length>0){c.innerHTML=ev.map(e=>'<div style="display:flex;align-items:center;gap:.8rem;padding:.7rem;border:1px solid var(--border);border-radius:10px;margin-bottom:.5rem"><div style="font-size:1.2rem">⚡</div><div style="flex:1"><div style="font-weight:600;font-size:.85rem">'+(e.engine||e.action||'Activity')+'</div><div style="font-size:.72rem;color:var(--muted)">'+(e.action||'')+'</div></div><span class="badge badge-green">completed</span></div>').join('');return}}catch(e){}}c.innerHTML='<div class="empty"><div class="icon">📋</div><h3>No activity yet</h3><p>Run the Conductor agent or scan for leads to see activity.</p></div>'}
 /* ═════════════════════════════════════════════════════════════════════
@@ -2767,7 +2805,7 @@ function disconnectIntegration(id){const s=JSON.parse(localStorage.getItem('ergi
 async function loadAnalytics(){const c=document.getElementById('analyticsContent');if(!c)return;if(sbClient){try{const{data:ev}=await sbClient.from('analytics_events').select('*');const{data:pm}=await sbClient.from('payments').select('amount');const{data:ld}=await sbClient.from('leads').select('*');const{data:bk}=await sbClient.from('bookings').select('*');document.getElementById('anPageViews').textContent=(ev||[]).length;document.getElementById('anClicks').textContent=(ev||[]).filter(e=>e.event_type==='click').length;document.getElementById('anConversions').textContent=(bk||[]).length;document.getElementById('anEnginesRun').textContent=(ev||[]).filter(e=>e.event_type==='engine_run').length;let rev=0;(pm||[]).forEach(p=>rev+=(p.amount||0));document.getElementById('kpiRevenue').textContent='₦'+rev.toLocaleString();c.innerHTML='<table class="data-table"><thead><tr><th>Metric</th><th>Value</th><th>Source</th></tr></thead><tbody><tr><td>Total Events</td><td>'+(ev||[]).length+'</td><td>Supabase</td></tr><tr><td>Total Leads</td><td>'+(ld||[]).length+'</td><td>Supabase</td></tr><tr><td>Total Bookings</td><td>'+(bk||[]).length+'</td><td>Supabase</td></tr><tr><td>Payments</td><td>'+(pm||[]).length+'</td><td>Supabase</td></tr><tr><td>Revenue</td><td>₦'+rev.toLocaleString()+'</td><td>Supabase</td></tr></tbody></table>';return}catch(e){}}c.innerHTML='<div class="empty"><div class="icon">📊</div><h3>No analytics data</h3><p>Connect Supabase to see analytics.</p></div>'}
 function handleLogout(){if(fbAuth)try{fbAuth.signOut()}catch(e){}if(sbClient)try{sbClient.auth.signOut()}catch(e){}localStorage.removeItem('ergio_user');window.location.href='../auth/login.html'}
 
-function initDashboard(){const hashTab=window.location.hash.replace('#','');if(hashTab&&['overview','website','leads','bookings','outreach','conductor','engines','agents','plugins','skills','integrations','analytics','billing','insights','workspace','cloud','employees','missions','memory','scheduler','health','security'].includes(hashTab)){switchTab(hashTab)}else{loadOverview()}setTimeout(checkConductorStatus,500);loadPricingGrid()}
+function initDashboard(){const hashTab=window.location.hash.replace('#','');if(hashTab&&['overview','website','leads','bookings','outreach','conductor','engines','agents','plugins','skills','integrations','analytics','billing','insights','workspace','cloud','employees','missions','memory','scheduler','health','security','profile','console'].includes(hashTab)){switchTab(hashTab)}else{switchTab('overview')}setTimeout(checkConductorStatus,500);loadPricingGrid();setTimeout(initOnboarding,1500);}
 setTimeout(()=>{const su=localStorage.getItem('ergio_user');if(su){try{currentUser=JSON.parse(su);document.getElementById('userName').textContent=currentUser.name||'User';document.getElementById('userEmail').textContent=currentUser.email||'';document.getElementById('userAvatar').textContent=(currentUser.name||'U')[0].toUpperCase();initDashboard()}catch(e){}}if(!currentUser&&fbAuth){fbAuth.onAuthStateChanged(u=>{if(u){currentUser={uid:u.uid,email:u.email,name:u.displayName||u.email?.split('@')[0]};document.getElementById('userName').textContent=currentUser.name;document.getElementById('userEmail').textContent=currentUser.email;document.getElementById('userAvatar').textContent=currentUser.name[0].toUpperCase();initDashboard()}else{currentUser={uid:'demo',email:'demo@ergio.app',name:'Demo User'};initDashboard()}})}else if(!currentUser){currentUser={uid:'demo',email:'demo@ergio.app',name:'Demo User'};initDashboard()}},300);
 
 /* ══════════════════════════════════════════════════════ */
@@ -4033,11 +4071,10 @@ function confirmDeleteAccount(){
 }
 
 /* ── Load profile when tab opens ── */
-var _origSwitchTab=switchTab;
-switchTab=function(t){
-  _origSwitchTab(t);
-  if(t==='profile')loadProfile();
-};
+/* switchTab already handles profile loading */
+if(typeof loadProfile==='function'&&!window._profileHookAdded){
+  window._profileHookAdded=true;
+}
 </script>
 
 </body>
