@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Sora:wght@400;600;700;800&family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>*{margin:0;padding:0;box-sizing:border-box}:root{--primary:#FF6B35;--secondary:#09090B;--accent:#FFD23F;--bg:#09090B;--surface:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--text:#F8FAFC;--muted:#94A3B8;--cta:#FF6B35}html{scroll-behavior:smooth}body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}a{color:inherit;text-decoration:none}img{max-width:100%;height:auto}@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}@keyframes scaleIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}@keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}.reveal{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}.reveal.active{opacity:1;transform:translateY(0)}.reveal-left{opacity:0;transform:translateX(-50px);transition:all .8s cubic-bezier(.16,1,.3,1)}.reveal-left.active{opacity:1;transform:translateX(0)}.reveal-right{opacity:0;transform:translateX(50px);transition:all .8s cubic-bezier(.16,1,.3,1)}.reveal-right.active{opacity:1;transform:translateX(0)}.stagger>*{opacity:0;transform:translateY(30px);transition:all .6s cubic-bezier(.16,1,.3,1)}.stagger.active>*:nth-child(1){opacity:1;transform:none;transition-delay:.1s}.stagger.active>*:nth-child(2){opacity:1;transform:none;transition-delay:.2s}.stagger.active>*:nth-child(3){opacity:1;transform:none;transition-delay:.3s}.stagger.active>*:nth-child(4){opacity:1;transform:none;transition-delay:.4s}.stagger.active>*:nth-child(5){opacity:1;transform:none;transition-delay:.5s}.stagger.active>*:nth-child(6){opacity:1;transform:none;transition-delay:.6s}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}@media(max-width:1024px){.hero-grid{grid-template-columns:1fr!important}.about-grid{grid-template-columns:1fr!important;gap:2rem!important}.hero-visual{display:none}}@media(max-width:768px){section{padding:3rem 5%!important}.nav-links{display:none!important}h1{font-size:clamp(2rem,8vw,3rem)!important}h2{font-size:clamp(1.5rem,6vw,2.5rem)!important}}@media(max-width:480px){section{padding:2.5rem 5%!important}body{font-size:0.95rem}}@media (prefers-reduced-motion:no-preference){::view-transition-old(root),::view-transition-new(root){animation-duration:.4s}::view-transition-old(root){animation-name:fade-out}::view-transition-new(root){animation-name:fade-in}@keyframes fade-out{to{opacity:0;transform:translateY(-20px)}}@keyframes fade-in{from{opacity:0;transform:translateY(20px)}}.page-enter{animation:pageEnter .5s cubic-bezier(.16,1,.3,1) forwards}@keyframes pageEnter{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes scaleIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}}</style>
+  <title>Lagos Bistro | Fine Dining in the Heart of Lagos</title>
+    <meta name="title" content="Lagos Bistro | Fine Dining in the Heart of Lagos">
+    <meta name="description" content="A premium dining experience featuring authentic Nigerian and continental cuisine.">
+    <meta name="keywords" content="Lagos Bistro, restaurant, Lagos, Nigeria, Lunch Special, Dinner, Catering">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Lagos Bistro">
+    <link rel="canonical" href="https://lagos-bistro.ergio.app/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Lagos Bistro">
+    <meta property="og:description" content="A premium dining experience featuring authentic Nigerian and continental cuisine.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1400">
+    <meta property="og:locale" content="en_NG">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Lagos Bistro">
+    <meta name="twitter:description" content="A premium dining experience featuring authentic Nigerian and continental cuisine.">
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1400">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Restaurant","name":"Lagos Bistro","description":"A premium dining experience featuring authentic Nigerian and continental cuisine.","address":{"@type":"PostalAddress","addressLocality":"Lagos","addressCountry":"NG"},"areaServed":"Nigeria","url":"https://lagos-bistro.ergio.app/"}</script>
+</head>
+<body>
+  <a href="#main" style="position:absolute;left:-9999px" onfocus="this.style.cssText='position:fixed;left:10px;top:10px;padding:1rem;background:#000;color:#fff;z-index:9999'">Skip to main content</a>
+  <nav class="nav mega-nav" id="nav" style="display:flex;justify-content:space-between;align-items:center;padding:1.2rem 5%;position:sticky;top:0;background:rgba(0,0,0,.3);backdrop-filter:blur(20px);z-index:1000;border-bottom:1px solid rgba(255,255,255,0.08)">
+    <a href="#" class="nav-brand" style="font-weight:800;font-size:1.2rem;color:#FF6B35">Lagos Bistro</a>
+    <div class="mega-menu" style="display:flex;gap:2rem;align-items:center">
+      <div class="mega-item" style="position:relative" onmouseover="this.querySelector('.mega-dropdown').style.display='grid'" onmouseout="this.querySelector('.mega-dropdown').style.display='none'">
+        <a href="#" style="color:#94A3B8;font-weight:600;font-size:0.9rem;text-decoration:none;cursor:pointer">Services ▾</a>
+        <div class="mega-dropdown" style="display:none;position:absolute;top:100%;left:-20px;min-width:280px;grid-template-columns:1fr 1fr;gap:0.5rem;padding:1.5rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.3);z-index:100">
+          <a href="#features" style="padding:0.5rem 0.8rem;border-radius:8px;color:#94A3B8;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#FF6B3522';this.style.color='#FF6B35'" onmouseout="this.style.background='';this.style.color='#94A3B8'">→ Lunch Special</a><a href="#features" style="padding:0.5rem 0.8rem;border-radius:8px;color:#94A3B8;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#FF6B3522';this.style.color='#FF6B35'" onmouseout="this.style.background='';this.style.color='#94A3B8'">→ Dinner</a><a href="#features" style="padding:0.5rem 0.8rem;border-radius:8px;color:#94A3B8;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#FF6B3522';this.style.color='#FF6B35'" onmouseout="this.style.background='';this.style.color='#94A3B8'">→ Catering</a>
+        </div>
+      </div><div class="mega-item" style="position:relative" onmouseover="this.querySelector('.mega-dropdown').style.display='grid'" onmouseout="this.querySelector('.mega-dropdown').style.display='none'">
+        <a href="#" style="color:#94A3B8;font-weight:600;font-size:0.9rem;text-decoration:none;cursor:pointer">Company ▾</a>
+        <div class="mega-dropdown" style="display:none;position:absolute;top:100%;left:-20px;min-width:280px;grid-template-columns:1fr 1fr;gap:0.5rem;padding:1.5rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.3);z-index:100">
+          <a href="#about" style="padding:0.5rem 0.8rem;border-radius:8px;color:#94A3B8;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#FF6B3522';this.style.color='#FF6B35'" onmouseout="this.style.background='';this.style.color='#94A3B8'">→ About Us</a><a href="#team" style="padding:0.5rem 0.8rem;border-radius:8px;color:#94A3B8;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#FF6B3522';this.style.color='#FF6B35'" onmouseout="this.style.background='';this.style.color='#94A3B8'">→ Our Team</a><a href="#careers" style="padding:0.5rem 0.8rem;border-radius:8px;color:#94A3B8;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#FF6B3522';this.style.color='#FF6B35'" onmouseout="this.style.background='';this.style.color='#94A3B8'">→ Careers</a><a href="#blog" style="padding:0.5rem 0.8rem;border-radius:8px;color:#94A3B8;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#FF6B3522';this.style.color='#FF6B35'" onmouseout="this.style.background='';this.style.color='#94A3B8'">→ Blog</a>
+        </div>
+      </div><div class="mega-item" style="position:relative" onmouseover="this.querySelector('.mega-dropdown').style.display='grid'" onmouseout="this.querySelector('.mega-dropdown').style.display='none'">
+        <a href="#" style="color:#94A3B8;font-weight:600;font-size:0.9rem;text-decoration:none;cursor:pointer">Resources ▾</a>
+        <div class="mega-dropdown" style="display:none;position:absolute;top:100%;left:-20px;min-width:280px;grid-template-columns:1fr 1fr;gap:0.5rem;padding:1.5rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.3);z-index:100">
+          <a href="#faq" style="padding:0.5rem 0.8rem;border-radius:8px;color:#94A3B8;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#FF6B3522';this.style.color='#FF6B35'" onmouseout="this.style.background='';this.style.color='#94A3B8'">→ FAQ</a><a href="#gallery" style="padding:0.5rem 0.8rem;border-radius:8px;color:#94A3B8;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#FF6B3522';this.style.color='#FF6B35'" onmouseout="this.style.background='';this.style.color='#94A3B8'">→ Gallery</a><a href="#testimonials" style="padding:0.5rem 0.8rem;border-radius:8px;color:#94A3B8;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#FF6B3522';this.style.color='#FF6B35'" onmouseout="this.style.background='';this.style.color='#94A3B8'">→ Testimonials</a><a href="#pricing" style="padding:0.5rem 0.8rem;border-radius:8px;color:#94A3B8;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#FF6B3522';this.style.color='#FF6B35'" onmouseout="this.style.background='';this.style.color='#94A3B8'">→ Pricing</a>
+        </div>
+      </div>
+      <a href="#contact" style="background:#FF6B35;color:#09090B;padding:0.6rem 1.5rem;border-radius:100px;font-weight:700;font-size:0.9rem">Book a Table</a>
+    </div>
+    <button class="nav-toggle" style="display:none;background:none;border:none;color:#F8FAFC;font-size:1.5rem;cursor:pointer" onclick="document.querySelector('.mega-menu').style.display=document.querySelector('.mega-menu').style.display==='flex'?'none':'flex'">☰</button>
+  </nav>
+  <style>
+    @media(max-width:1024px){.mega-menu{display:none!important}.nav-toggle{display:block!important}}
+    .mega-dropdown{animation:fadeIn .2s ease}
+  </style>
+  <main id="main">
+    <section class="hero" style="height:100vh;display:flex;align-items:center;background:#09090B;position:relative;overflow:hidden;position:sticky;top:0">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,#FF6B3511,transparent 70%);z-index:0"></div>
+    <div style="position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:0 5%;width:100%">
+      <h1 style="font-size:clamp(3rem,12vw,8rem);font-weight:900;letter-spacing:-0.05em;line-height:0.9;margin-bottom:1.5rem;opacity:0;animation:fadeUp 1s .3s forwards">Taste the Extraordinary</h1>
+      <p style="font-size:clamp(1.2rem,4vw,2rem);color:#94A3B8;max-width:700px;opacity:0;animation:fadeUp 1s .5s forwards">Where every dish tells a story of passion and flavor</p>
+    </div>
+  </section><section id="about" style="padding:6rem 5%;background:rgba(255,255,255,0.04)" class="reveal">
+    <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center" class="about-grid">
+      <div class="reveal-left">
+        <div style="font-size:0.8rem;letter-spacing:0.15em;text-transform:uppercase;color:#FF6B35;font-weight:700;margin-bottom:1rem">About Us</div>
+        <h2 style="font-size:clamp(2rem,5vw,3.5rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:1.5rem;line-height:1.1">Taste the Extraordinary</h2>
+        <p style="color:#94A3B8;font-size:1.1rem;line-height:1.8;margin-bottom:2rem">We are a premium restaurant in the heart of Lagos, serving authentic Nigerian and continental cuisine.</p>
+        <div style="display:flex;gap:2rem;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600"><span style="color:#FF6B35;font-size:1.2rem">✓</span> Fresh Ingredients</div><div style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600"><span style="color:#FF6B35;font-size:1.2rem">✓</span> Expert Chefs</div><div style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600"><span style="color:#FF6B35;font-size:1.2rem">✓</span> Cozy Atmosphere</div>
+        </div>
+      </div>
+      <div class="reveal-right" style="position:relative">
+        <div style="aspect-ratio:4/3;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.2)">
+          <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800" alt="About Lagos Bistro" style="width:100%;height:100%;object-fit:cover" loading="lazy">
+        </div>
+      </div>
+    </div>
+  </section><section id="animations" style="padding:5rem 5%;background:rgba(255,255,255,0.04)" class="reveal">
+    <div style="max-width:1200px;margin:0 auto;text-align:center">
+      <h2 style="font-size:clamp(2rem,5vw,3.5rem);font-weight:800;margin-bottom:1rem">Why We Stand Out</h2>
+      <p style="color:#94A3B8;margin-bottom:3rem;font-size:1.1rem">Experience our difference through motion</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:2rem">
+        <div style="background:#09090B;border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:2rem;transition:transform .3s" onmouseover="this.style.transform='translateY(-8px)'" onmouseout="this.style.transform=''">
+          <div id="lottie-0" style="width:120px;height:120px;margin:0 auto 1rem"></div>
+          <h3 style="font-weight:700;font-size:1.1rem;margin-bottom:0.5rem">Growth</h3>
+          <p style="color:#94A3B8;font-size:0.9rem">Locally sourced ingredients</p>
+        </div><div style="background:#09090B;border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:2rem;transition:transform .3s" onmouseover="this.style.transform='translateY(-8px)'" onmouseout="this.style.transform=''">
+          <div id="lottie-1" style="width:120px;height:120px;margin:0 auto 1rem"></div>
+          <h3 style="font-weight:700;font-size:1.1rem;margin-bottom:0.5rem">Innovation</h3>
+          <p style="color:#94A3B8;font-size:0.9rem">Award-winning chefs</p>
+        </div><div style="background:#09090B;border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:2rem;transition:transform .3s" onmouseover="this.style.transform='translateY(-8px)'" onmouseout="this.style.transform=''">
+          <div id="lottie-2" style="width:120px;height:120px;margin:0 auto 1rem"></div>
+          <h3 style="font-weight:700;font-size:1.1rem;margin-bottom:0.5rem">Quality</h3>
+          <p style="color:#94A3B8;font-size:0.9rem">Open 7 days a week</p>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <script>
+      (function(){
+        const anims=['https://assets2.lottiefiles.com/packages/lf20_obhph3sh.json','https://assets10.lottiefiles.com/packages/lf20_4kx2q32n.json','https://assets1.lottiefiles.com/packages/lf20_5tkzkblw.json'];
+        anims.forEach((url,i)=>{
+          if(!window.lottie)return;
+          try{lottie.loadAnimation({container:document.getElementById('lottie-'+i),renderer:'svg',loop:true,autoplay:true,path:url});}catch(e){}
+        });
+        // SVG path animations
+        document.querySelectorAll('[data-svg-anim]').forEach(path=>{
+          const len=path.getTotalLength();path.style.strokeDasharray=len;path.style.strokeDashoffset=len;
+          const obs=new IntersectionObserver((e)=>{if(e[0].isIntersecting){path.style.transition='stroke-dashoffset 2s ease';path.style.strokeDashoffset=0;obs.disconnect();}},{threshold:0.3});obs.observe(path);
+        });
+      })();
+    </script>
+    <svg style="position:absolute;width:0;height:0;overflow:hidden">
+      <defs><path id="curve-LagosBistro" d="M 50,150 Q 150,50 250,150" fill="none"/></defs>
+    </svg>
+  </section><section id="showcase" style="padding:5rem 5%;background:#09090B" class="reveal">
+    <div style="max-width:900px;margin:0 auto">
+      <h2 style="font-size:clamp(2rem,5vw,3rem);font-weight:800;margin-bottom:1rem;text-align:center">Before & After</h2>
+      <p style="color:#94A3B8;text-align:center;margin-bottom:3rem">See the transformation we deliver</p>
+      <div class="ba-container" style="position:relative;width:100%;max-width:800px;margin:0 auto;overflow:hidden;border-radius:16px;cursor:col-resize;user-select:none" id="baSlider">
+        <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?w=600" alt="After" style="width:100%;display:block" draggable="false" loading="lazy">
+        <div class="ba-before" style="position:absolute;top:0;left:0;width:50%;height:100%;overflow:hidden">
+          <img src="https://images.unsplash.com/photo-1546069901-ba9599a7eaa9?w=600" alt="Before" style="width:800px;height:100%;object-fit:cover;display:block;max-width:none" draggable="false" loading="lazy">
+        </div>
+        <div class="ba-handle" style="position:absolute;top:0;left:50%;width:4px;height:100%;background:#FF6B35;transform:translateX(-50%);pointer-events:none">
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;background:#FF6B35;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#09090B;font-weight:bold;box-shadow:0 4px 20px #FF6B3566">⇆</div>
+        </div>
+        <div style="position:absolute;top:12px;left:12px;background:rgba(0,0,0,0.6);color:#fff;padding:4px 12px;border-radius:6px;font-size:0.8rem;pointer-events:none">Before</div>
+        <div style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.6);color:#fff;padding:4px 12px;border-radius:6px;font-size:0.8rem;pointer-events:none">After</div>
+      </div>
+    </div>
+    <script>
+      (function(){
+        const slider=document.getElementById('baSlider');if(!slider)return;
+        const before=slider.querySelector('.ba-before');const handle=slider.querySelector('.ba-handle');
+        let dragging=false;
+        function setPos(x){const rect=slider.getBoundingClientRect();let pct=((x-rect.left)/rect.width)*100;pct=Math.max(0,Math.min(100,pct));before.style.width=pct+'%';handle.style.left=pct+'%';}
+        slider.addEventListener('mousedown',e=>{dragging=true;setPos(e.clientX);});
+        slider.addEventListener('touchstart',e=>{dragging=true;setPos(e.touches[0].clientX);},{passive:true});
+        document.addEventListener('mousemove',e=>{if(dragging)setPos(e.clientX);});
+        document.addEventListener('touchmove',e=>{if(dragging)setPos(e.touches[0].clientX);},{passive:true});
+        document.addEventListener('mouseup',()=>dragging=false);
+        document.addEventListener('touchend',()=>dragging=false);
+      })();
+    </script>
+  </section><section style="padding:4rem 5%;background:#FF6B35;color:#09090B" class="reveal">
+    <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem;text-align:center">
+      <div>
+        <div style="font-size:clamp(2.5rem,5vw,4rem);font-weight:900;letter-spacing:-0.03em" class="counter" data-target="500">500+</div>
+        <div style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.8;margin-top:0.5rem;font-weight:600">Happy Clients</div>
+      </div><div>
+        <div style="font-size:clamp(2.5rem,5vw,4rem);font-weight:900;letter-spacing:-0.03em" class="counter" data-target="1200">1200+</div>
+        <div style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.8;margin-top:0.5rem;font-weight:600">Projects</div>
+      </div><div>
+        <div style="font-size:clamp(2.5rem,5vw,4rem);font-weight:900;letter-spacing:-0.03em" class="counter" data-target="10">10+</div>
+        <div style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.8;margin-top:0.5rem;font-weight:600">Years</div>
+      </div><div>
+        <div style="font-size:clamp(2.5rem,5vw,4rem);font-weight:900;letter-spacing:-0.03em" class="counter" data-target="100%">100%</div>
+        <div style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.8;margin-top:0.5rem;font-weight:600">Satisfaction</div>
+      </div>
+    </div>
+  </section><section id="testimonials" style="padding:6rem 5%;background:rgba(255,255,255,0.04)" class="reveal">
+    <div style="max-width:900px;margin:0 auto;text-align:center">
+      <div style="font-size:5rem;line-height:0.5;color:#FF6B35;opacity:0.3;font-family:serif;margin-bottom:1rem">"</div>
+      <blockquote style="font-size:clamp(1.3rem,3vw,2rem);line-height:1.5;font-weight:500;margin-bottom:2rem;font-style:italic">Best dining experience in Lagos!</blockquote>
+      <div style="display:flex;align-items:center;justify-content:center;gap:1rem">
+        <div style="width:50px;height:50px;border-radius:50%;background:#FF6B3533;display:flex;align-items:center;justify-content:center;font-weight:700;color:#FF6B35">C</div>
+        <div style="text-align:left"><div style="font-weight:700">Happy Client</div><div style="font-size:0.85rem;color:#94A3B8">Verified Customer</div></div>
+      </div>
+    </div>
+  </section><section id="virtual-tour" style="padding:5rem 5%;background:rgba(255,255,255,0.04)" class="reveal">
+    <div style="max-width:1000px;margin:0 auto;text-align:center">
+      <h2 style="font-size:clamp(2rem,5vw,3rem);font-weight:800;margin-bottom:1rem">Virtual Tour</h2>
+      <p style="color:#94A3B8;margin-bottom:3rem">Drag to look around — experience it in 360°</p>
+      <div id="pano-container" style="width:100%;height:400px;border-radius:16px;overflow:hidden;cursor:grab;background:#09090B;position:relative;touch-action:none">
+        <div id="pano-inner" style="width:200%;height:100%;display:flex">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/e/e6/Panorama_van_der_Graaf_Generator.jpg" alt="360 panorama" style="width:100%;height:100%;object-fit:cover;pointer-events:none" draggable="false" loading="lazy">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/e/e6/Panorama_van_der_Graaf_Generator.jpg" alt="360 panorama repeat" style="width:100%;height:100%;object-fit:cover;pointer-events:none" draggable="false" loading="lazy">
+        </div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:2rem;pointer-events:none;opacity:0.8">↺</div>
+      </div>
+    </div>
+    <script>
+      (function(){
+        const container=document.getElementById('pano-container');if(!container)return;
+        const inner=document.getElementById('pano-inner');
+        let isDragging=false,startX=0,scrollPos=0;
+        function onStart(x){isDragging=true;startX=x;container.style.cursor='grabbing';}
+        function onMove(x){if(!isDragging)return;const delta=x-startX;startX=x;scrollPos-=delta;const maxW=container.offsetWidth;if(scrollPos<=-maxW)scrollPos=0;if(scrollPos>=0)scrollPos=-maxW;inner.style.transform='translateX('+scrollPos+'px)';}
+        function onEnd(){isDragging=false;container.style.cursor='grab';}
+        container.addEventListener('mousedown',e=>onStart(e.clientX));
+        container.addEventListener('touchstart',e=>onStart(e.touches[0].clientX),{passive:true});
+        document.addEventListener('mousemove',e=>onMove(e.clientX));
+        document.addEventListener('touchmove',e=>onMove(e.touches[0].clientX),{passive:true});
+        document.addEventListener('mouseup',onEnd);
+        document.addEventListener('touchend',onEnd);
+        // Auto-rotate
+        let autoScroll=setInterval(()=>{if(!isDragging){scrollPos-=1;if(scrollPos<=-container.offsetWidth)scrollPos=0;inner.style.transform='translateX('+scrollPos+'px)';}},30);
+      })();
+    </script>
+  </section><section id="faq" style="padding:5rem 5%;background:rgba(255,255,255,0.04)" class="reveal">
+    <div style="max-width:800px;margin:0 auto">
+      <h2 style="font-size:clamp(2rem,5vw,3rem);font-weight:800;margin-bottom:3rem;text-align:center">Frequently Asked Questions</h2>
+      <details style="border:1px solid rgba(255,255,255,0.08);border-radius:12px;margin-bottom:0.8rem;overflow:hidden" open>
+        <summary style="padding:1.5rem;font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;background:#09090B">Do you take reservations?<span style="color:#FF6B35;font-size:1.5rem">+</span></summary>
+        <div style="padding:0 1.5rem 1.5rem;color:#94A3B8;line-height:1.7">Yes, book online or call us.</div>
+      </details>
+    </div>
+  </section><section id="book" style="padding:5rem 5%;background:rgba(255,255,255,0.04)" class="reveal">
+    <div style="max-width:600px;margin:0 auto">
+      <h2 style="font-size:clamp(2rem,5vw,3rem);font-weight:800;margin-bottom:1rem;text-align:center">Book an Appointment</h2>
+      <p style="color:#94A3B8;text-align:center;margin-bottom:2.5rem">Complete the steps below to schedule</p>
+      <div id="bookingForm" style="background:#09090B;border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:2rem">
+        <div class="booking-steps" style="display:flex;justify-content:space-between;margin-bottom:2rem;position:relative">
+          <div style="position:absolute;top:50%;left:10%;right:10%;height:2px;background:rgba(255,255,255,0.08);z-index:0"></div>
+          <div class="step-indicator" data-step="1" style="position:relative;z-index:1;width:36px;height:36px;border-radius:50%;background:#FF6B35;color:#09090B;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;transition:all .3s">1</div>
+          <div class="step-indicator" data-step="2" style="position:relative;z-index:1;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.08);color:#94A3B8;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;transition:all .3s">2</div>
+          <div class="step-indicator" data-step="3" style="position:relative;z-index:1;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.08);color:#94A3B8;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;transition:all .3s">3</div>
+          <div class="step-indicator" data-step="4" style="position:relative;z-index:1;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.08);color:#94A3B8;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;transition:all .3s">4</div>
+        </div>
+        <div id="step-1" class="booking-step" style="display:block">
+          <h3 style="font-weight:700;margin-bottom:1rem">Choose a Service</h3>
+          <label style="display:block;padding:1rem;border:1px solid rgba(255,255,255,0.08);border-radius:10px;margin-bottom:0.5rem;cursor:pointer;transition:all .2s" onclick="document.querySelectorAll('#step-1 label').forEach(l=>l.style.borderColor='rgba(255,255,255,0.08)');this.style.borderColor='#FF6B35'">
+            <input type="radio" name="service" value="Lunch Special" style="margin-right:0.5rem" checked>
+            <span style="font-weight:600">Lunch Special</span> <span style="color:#FFD23F;float:right">₦5,000</span>
+          </label><label style="display:block;padding:1rem;border:1px solid rgba(255,255,255,0.08);border-radius:10px;margin-bottom:0.5rem;cursor:pointer;transition:all .2s" onclick="document.querySelectorAll('#step-1 label').forEach(l=>l.style.borderColor='rgba(255,255,255,0.08)');this.style.borderColor='#FF6B35'">
+            <input type="radio" name="service" value="Dinner" style="margin-right:0.5rem" >
+            <span style="font-weight:600">Dinner</span> <span style="color:#FFD23F;float:right">₦15,000</span>
+          </label><label style="display:block;padding:1rem;border:1px solid rgba(255,255,255,0.08);border-radius:10px;margin-bottom:0.5rem;cursor:pointer;transition:all .2s" onclick="document.querySelectorAll('#step-1 label').forEach(l=>l.style.borderColor='rgba(255,255,255,0.08)');this.style.borderColor='#FF6B35'">
+            <input type="radio" name="service" value="Catering" style="margin-right:0.5rem" >
+            <span style="font-weight:600">Catering</span> <span style="color:#FFD23F;float:right">₦50,000</span>
+          </label>
+          <button onclick="goToStep(2)" style="width:100%;background:#FF6B35;color:#09090B;padding:1rem;border-radius:10px;border:none;font-weight:800;cursor:pointer;margin-top:1rem">Next →</button>
+        </div>
+        <div id="step-2" class="booking-step" style="display:none">
+          <h3 style="font-weight:700;margin-bottom:1rem">Pick a Date & Time</h3>
+          <input type="date" id="bookingDate" style="width:100%;padding:1rem;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:rgba(255,255,255,0.04);color:#F8FAFC;margin-bottom:0.5rem" min="2026-08-01">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-bottom:1rem">
+            <button onclick="document.querySelectorAll('#step-2 button').forEach(b=>b.style.background='rgba(255,255,255,0.04)');this.style.background='#FF6B35';this.style.color='#09090B'" style="padding:0.7rem;border:1px solid rgba(255,255,255,0.08);border-radius:8px;background:rgba(255,255,255,0.04);color:#F8FAFC;cursor:pointer;font-size:0.85rem" data-time="9:00 AM">9:00 AM</button><button onclick="document.querySelectorAll('#step-2 button').forEach(b=>b.style.background='rgba(255,255,255,0.04)');this.style.background='#FF6B35';this.style.color='#09090B'" style="padding:0.7rem;border:1px solid rgba(255,255,255,0.08);border-radius:8px;background:rgba(255,255,255,0.04);color:#F8FAFC;cursor:pointer;font-size:0.85rem" data-time="11:00 AM">11:00 AM</button><button onclick="document.querySelectorAll('#step-2 button').forEach(b=>b.style.background='rgba(255,255,255,0.04)');this.style.background='#FF6B35';this.style.color='#09090B'" style="padding:0.7rem;border:1px solid rgba(255,255,255,0.08);border-radius:8px;background:rgba(255,255,255,0.04);color:#F8FAFC;cursor:pointer;font-size:0.85rem" data-time="1:00 PM">1:00 PM</button><button onclick="document.querySelectorAll('#step-2 button').forEach(b=>b.style.background='rgba(255,255,255,0.04)');this.style.background='#FF6B35';this.style.color='#09090B'" style="padding:0.7rem;border:1px solid rgba(255,255,255,0.08);border-radius:8px;background:rgba(255,255,255,0.04);color:#F8FAFC;cursor:pointer;font-size:0.85rem" data-time="3:00 PM">3:00 PM</button><button onclick="document.querySelectorAll('#step-2 button').forEach(b=>b.style.background='rgba(255,255,255,0.04)');this.style.background='#FF6B35';this.style.color='#09090B'" style="padding:0.7rem;border:1px solid rgba(255,255,255,0.08);border-radius:8px;background:rgba(255,255,255,0.04);color:#F8FAFC;cursor:pointer;font-size:0.85rem" data-time="5:00 PM">5:00 PM</button><button onclick="document.querySelectorAll('#step-2 button').forEach(b=>b.style.background='rgba(255,255,255,0.04)');this.style.background='#FF6B35';this.style.color='#09090B'" style="padding:0.7rem;border:1px solid rgba(255,255,255,0.08);border-radius:8px;background:rgba(255,255,255,0.04);color:#F8FAFC;cursor:pointer;font-size:0.85rem" data-time="7:00 PM">7:00 PM</button>
+          </div>
+          <div style="display:flex;gap:0.5rem">
+            <button onclick="goToStep(1)" style="flex:1;padding:1rem;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:transparent;color:#F8FAFC;cursor:pointer;font-weight:600">← Back</button>
+            <button onclick="goToStep(3)" style="flex:1;background:#FF6B35;color:#09090B;padding:1rem;border-radius:10px;border:none;font-weight:800;cursor:pointer">Next →</button>
+          </div>
+        </div>
+        <div id="step-3" class="booking-step" style="display:none">
+          <h3 style="font-weight:700;margin-bottom:1rem">Your Details</h3>
+          <input type="text" placeholder="Full Name" style="width:100%;padding:1rem;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:rgba(255,255,255,0.04);color:#F8FAFC;margin-bottom:0.5rem">
+          <input type="email" placeholder="Email Address" style="width:100%;padding:1rem;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:rgba(255,255,255,0.04);color:#F8FAFC;margin-bottom:0.5rem">
+          <input type="tel" placeholder="Phone Number" style="width:100%;padding:1rem;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:rgba(255,255,255,0.04);color:#F8FAFC;margin-bottom:1rem">
+          <div style="display:flex;gap:0.5rem">
+            <button onclick="goToStep(2)" style="flex:1;padding:1rem;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:transparent;color:#F8FAFC;cursor:pointer;font-weight:600">← Back</button>
+            <button onclick="goToStep(4)" style="flex:1;background:#FF6B35;color:#09090B;padding:1rem;border-radius:10px;border:none;font-weight:800;cursor:pointer">Next →</button>
+          </div>
+        </div>
+        <div id="step-4" class="booking-step" style="display:none;text-align:center">
+          <div style="font-size:3rem;margin-bottom:1rem">✅</div>
+          <h3 style="font-weight:800;font-size:1.5rem;margin-bottom:0.5rem">Booking Confirmed!</h3>
+          <p style="color:#94A3B8;margin-bottom:1.5rem">We've received your request and will confirm via email shortly.</p>
+          <button onclick="document.getElementById('bookingForm').reset();goToStep(1)" style="background:#FF6B35;color:#09090B;padding:1rem 2rem;border-radius:10px;border:none;font-weight:800;cursor:pointer">Book Another</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      function goToStep(n){
+        for(let i=1;i<=4;i++){document.getElementById('step-'+i).style.display=i===n?'block':'none';}
+        document.querySelectorAll('.step-indicator').forEach(s=>{const step=parseInt(s.dataset.step);if(step<=n){s.style.background='#FF6B35';s.style.color='#09090B';}else{s.style.background='rgba(255,255,255,0.08)';s.style.color='#94A3B8';}});
+      }
+    </script>
+  </section><section id="location" style="padding:5rem 5%;background:#09090B" class="reveal">
+    <div style="max-width:1000px;margin:0 auto">
+      <h2 style="font-size:clamp(2rem,5vw,3rem);font-weight:800;margin-bottom:1rem;text-align:center">Find Us</h2>
+      <p style="color:#94A3B8;text-align:center;margin-bottom:3rem">Victoria Island, Lagos, Nigeria</p>
+      <div id="map" style="width:100%;height:400px;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08)"></div>
+    </div>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+      (function(){
+        if(!window.L)return;
+        const map=L.map('map',{zoomControl:true,scrollWheelZoom:false}).setView([6.5244,3.3792],14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map);
+        const marker=L.marker([6.5244,3.3792]).addTo(map);
+        marker.bindPopup('<strong>Lagos Bistro</strong><br>Victoria Island, Lagos, Nigeria').openPopup();
+        map.on('click',()=>map.scrollWheelZoom.enable());
+      })();
+    </script>
+  </section><section id="contact" style="padding:6rem 5%;background:#FF6B35;color:#09090B;text-align:center" class="reveal">
+    <div style="max-width:700px;margin:0 auto">
+      <h2 style="font-size:clamp(2rem,5vw,3.5rem);font-weight:900;letter-spacing:-0.02em;margin-bottom:1.5rem">Ready to Get Started?</h2>
+      <p style="font-size:1.2rem;opacity:0.9;margin-bottom:2.5rem">Join us today and grow your business</p>
+      <a href="#book" style="background:#09090B;color:#FF6B35;padding:1.2rem 3rem;border-radius:8px;text-decoration:none;font-weight:800;font-size:1.1rem;display:inline-block;transition:all .3s">Book a Table</a>
+    </div>
+  </section><section id="book" style="padding:5rem 5%;background:#09090B" class="reveal">
+    <div style="max-width:600px;margin:0 auto">
+      <h2 style="font-size:clamp(2rem,5vw,3rem);font-weight:800;margin-bottom:1rem;text-align:center">Get In Touch</h2>
+      <p style="color:#94A3B8;text-align:center;margin-bottom:2.5rem">We would love to hear from you</p>
+      <form style="display:flex;flex-direction:column;gap:1rem" onsubmit="event.preventDefault();alert('Thank you! We will get back to you.');this.reset()">
+        <input type="text" placeholder="Your Name" required aria-label="Name" style="padding:1rem;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:rgba(255,255,255,0.04);color:#F8FAFC;font-size:1rem">
+        <input type="email" placeholder="Email Address" required aria-label="Email" style="padding:1rem;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:rgba(255,255,255,0.04);color:#F8FAFC;font-size:1rem">
+        <input type="tel" placeholder="Phone Number" aria-label="Phone" style="padding:1rem;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:rgba(255,255,255,0.04);color:#F8FAFC;font-size:1rem">
+        <textarea placeholder="Your Message" rows="4" required aria-label="Message" style="padding:1rem;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:rgba(255,255,255,0.04);color:#F8FAFC;font-size:1rem;resize:vertical"></textarea>
+        <button type="submit" style="background:#FF6B35;color:#09090B;padding:1.2rem;border-radius:10px;border:none;font-weight:800;font-size:1.1rem;cursor:pointer;transition:all .3s">Book a Table</button>
+      </form>
+      <div style="display:flex;justify-content:center;gap:2rem;margin-top:2rem;font-size:0.9rem;color:#94A3B8">
+        <div>📞 +234 803 555 0192</div>
+        <div>✉️ hello@lagosbistro.com</div>
+      </div>
+    </div>
+  </section>
+  </main>
+  <footer style="padding:3rem 5%;background:rgba(255,255,255,0.04);border-top:1px solid rgba(255,255,255,0.08)">
+    <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
+      <div>
+        <div style="font-weight:800;font-size:1.3rem;color:#FF6B35">Lagos Bistro</div>
+        <p style="font-size:0.85rem;color:#94A3B8;margin-top:0.5rem">© 2026 Lagos Bistro. All rights reserved.</p>
+      </div>
+      <div style="display:flex;gap:1.5rem;font-size:0.9rem">
+        <a href="#about" style="color:#94A3B8;text-decoration:none">About</a>
+        <a href="#features" style="color:#94A3B8;text-decoration:none">Services</a>
+        <a href="#contact" style="color:#94A3B8;text-decoration:none">Contact</a>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:1.5rem;font-size:0.8rem;color:#94A3B8">Powered by <a href="https://ergio.vercel.app" target="_blank" style="color:#FF6B35;text-decoration:none">ERGIO</a> — AI Business OS for Africa</div>
+  </footer>
+  <button id="darkModeToggle" onclick="toggleDarkMode()" style="position:fixed;bottom:20px;right:20px;z-index:9998;width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.8);backdrop-filter:blur(10px);color:#fff;font-size:1.3rem;cursor:pointer;transition:all .3s;box-shadow:0 4px 20px rgba(0,0,0,.3)" title="Toggle theme" aria-label="Toggle dark mode">🌙</button>
+  <script>
+    function toggleDarkMode(){
+      const root=document.documentElement;
+      const isDark=root.getAttribute('data-theme')!=='light';
+      if(isDark){root.setAttribute('data-theme','light');document.body.style.background='#ffffff';document.body.style.color='#0f172a';localStorage.setItem('ergio-theme','light');document.getElementById('darkModeToggle').textContent='☀️';}
+      else{root.setAttribute('data-theme','dark');document.body.style.background='';document.body.style.color='';localStorage.setItem('ergio-theme','dark');document.getElementById('darkModeToggle').textContent='🌙';}
+    }
+    (function(){const saved=localStorage.getItem('ergio-theme');if(saved==='light'){document.documentElement.setAttribute('data-theme','light');document.body.style.background='#ffffff';document.body.style.color='#0f172a';const b=document.getElementById('darkModeToggle');if(b)b.textContent='☀️';}})();
+  </script>
+  <div id="exitPopup" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:2rem">
+    <div style="max-width:500px;width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:3rem;text-align:center;position:relative;animation:scaleIn .4s ease" onclick="event.stopPropagation()">
+      <button onclick="document.getElementById('exitPopup').style.display='none'" style="position:absolute;top:1rem;right:1rem;background:none;border:none;color:#94A3B8;font-size:1.5rem;cursor:pointer">×</button>
+      <div style="font-size:3rem;margin-bottom:1rem">🎁</div>
+      <h2 style="font-size:2rem;font-weight:800;margin-bottom:0.5rem;color:#F8FAFC">Wait! Before You Go...</h2>
+      <p style="color:#94A3B8;font-size:1.1rem;margin-bottom:2rem">Get an exclusive Lagos Bistro offer. Leave your email and we'll send you a special deal!</p>
+      <form onsubmit="event.preventDefault();document.getElementById('exitPopup').style.display='none';alert('Thank you! Check your inbox soon.');this.reset()" style="display:flex;gap:0.5rem;margin-bottom:1rem">
+        <input type="email" placeholder="Your email" required style="flex:1;padding:1rem;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:#09090B;color:#F8FAFC;font-size:1rem">
+        <button type="submit" style="background:#FF6B35;color:#09090B;padding:1rem 1.5rem;border-radius:10px;border:none;font-weight:700;cursor:pointer;white-space:nowrap">Get Offer</button>
+      </form>
+      <p style="font-size:0.8rem;color:#94A3B8;opacity:0.6">No spam. Unsubscribe anytime.</p>
+    </div>
+  </div>
+  <script>
+    (function(){
+      let shown=false;
+      function show(){if(shown)return;shown=true;const p=document.getElementById('exitPopup');p.style.display='flex';}
+      // Exit intent detection (desktop)
+      document.addEventListener('mouseout',e=>{if(!e.toElement&&!e.relatedTarget&&e.clientY<10&&!shown){show();}});
+      // Mobile: show after 30s if no interaction
+      setTimeout(()=>{if(!shown&&document.hidden){show();}},30000);
+      // Show after 60s regardless
+      setTimeout(show,60000);
+      document.getElementById('exitPopup').addEventListener('click',e=>{if(e.target.id==='exitPopup')e.target.style.display='none';});
+    })();
+  </script>
+  <div id="chatWidget" style="position:fixed;bottom:80px;right:20px;z-index:9998;display:none;flex-direction:column;width:340px;max-height:480px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:scaleIn .3s ease">
+    <div style="padding:1rem 1.5rem;background:#FF6B35;color:#09090B;display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;align-items:center;gap:0.5rem">
+        <div style="width:32px;height:32px;border-radius:50%;background:#09090B22;display:flex;align-items:center;justify-content:center;font-size:1rem">💬</div>
+        <div><div style="font-weight:800;font-size:0.95rem">Lagos Bistro</div><div style="font-size:0.75rem;opacity:0.8">● Online</div></div>
+      </div>
+      <button onclick="document.getElementById('chatWidget').style.display='none';document.getElementById('chatToggle').style.display='flex'" style="background:none;border:none;color:#09090B;font-size:1.2rem;cursor:pointer">×</button>
+    </div>
+    <div id="chatMessages" style="flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:0.5rem">
+      <div style="background:#09090B;padding:0.6rem 1rem;border-radius:12px;border-bottom-left-radius:4px;font-size:0.9rem;color:#F8FAFC;max-width:80%">Hi! 👋 Welcome to Lagos Bistro. How can we help you today?</div>
+    </div>
+    <div style="padding:0.8rem;border-top:1px solid rgba(255,255,255,0.08);display:flex;gap:0.5rem">
+      <input type="text" id="chatInput" placeholder="Type a message..." style="flex:1;padding:0.7rem;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:#09090B;color:#F8FAFC;font-size:0.9rem" onkeydown="if(event.key==='Enter')sendChat()">
+      <button onclick="sendChat()" style="background:#FF6B35;color:#09090B;border:none;padding:0.7rem 1rem;border-radius:10px;font-weight:700;cursor:pointer">→</button>
+    </div>
+  </div>
+  <button id="chatToggle" onclick="document.getElementById('chatWidget').style.display='flex';this.style.display='none'" style="position:fixed;bottom:20px;right:20px;z-index:9998;width:56px;height:56px;border-radius:50%;background:#FF6B35;border:none;color:#09090B;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 20px #FF6B3544;display:flex;align-items:center;justify-content:center;transition:transform .3s" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">💬</button>
+  <script>
+    function sendChat(){
+      const input=document.getElementById('chatInput');const msg=input.value.trim();if(!msg)return;
+      const container=document.getElementById('chatMessages');
+      container.innerHTML+='<div style="background:#FF6B35;color:#09090B;padding:0.6rem 1rem;border-radius:12px;border-bottom-right-radius:4px;font-size:0.9rem;max-width:80%;align-self:flex-end">'+msg+'</div>';
+      input.value='';container.scrollTop=container.scrollHeight;
+      setTimeout(()=>{
+        container.innerHTML+='<div style="background:#09090B;padding:0.6rem 1rem;border-radius:12px;border-bottom-left-radius:4px;font-size:0.9rem;color:#F8FAFC;max-width:80%">Thanks for reaching out! We'll get back to you shortly. 📩</div>';
+        container.scrollTop=container.scrollHeight;
+      },1000);
+    }
+  </script>
+  <script>
+    const observer=new IntersectionObserver((e)=>{e.forEach(en=>{if(en.isIntersecting)en.target.classList.add('active')})},{threshold:0.1,rootMargin:'0px 0px -50px 0px'});
+    document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger').forEach(el=>observer.observe(el));
+    document.querySelectorAll('.counter').forEach(el=>{const t=el.dataset.target;if(!t||isNaN(parseInt(t)))return;const n=parseInt(t);let c=0;const inc=n/50;const u=()=>{c+=inc;if(c<n){el.textContent=Math.ceil(c)+'+';requestAnimationFrame(u)}else{el.textContent=t}};const co=new IntersectionObserver((e)=>{if(e[0].isIntersecting){u();co.disconnect()}});co.observe(el)});
+    const nav=document.getElementById('nav');if(nav)window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>50));
+    const hb=document.querySelector('.hero img');if(hb)window.addEventListener('scroll',()=>hb.style.transform='translateY('+scrollY*0.3+'px)');
+    document.querySelectorAll('a[href^="#"]').forEach(b=>{b.addEventListener('mousemove',e=>{const r=b.getBoundingClientRect();const x=e.clientX-r.left-r.width/2;const y=e.clientY-r.top-r.height/2;b.style.transform='translate('+x*0.2+'px,'+y*0.2+'px)'});b.addEventListener('mouseleave',()=>b.style.transform='')});
+    if(window.matchMedia('(pointer:fine)').matches){const c=document.createElement('div');c.style.cssText='position:fixed;width:20px;height:20px;border:2px solid '+getComputedStyle(document.body).getPropertyValue('--primary').trim()+';border-radius:50%;pointer-events:none;z-index:9999;transition:transform .15s,width .2s,height .2s;mix-blend-mode:difference';document.body.appendChild(c);document.addEventListener('mousemove',e=>{c.style.left=e.clientX+'px';c.style.top=e.clientY+'px'});document.querySelectorAll('a,button,details summary').forEach(el=>{el.addEventListener('mouseenter',()=>{c.style.width='40px';c.style.height='40px';c.style.marginLeft='-10px';c.style.marginTop='-10px'});el.addEventListener('mouseleave',()=>{c.style.width='20px';c.style.height='20px';c.style.marginLeft='0';c.style.marginTop='0'})})}</script>
+  <script>
+    (function(){
+      // View Transitions API (modern browsers) + fallback
+      const supportsVT=document.startViewTransition!==undefined;
+      function navigate(url){
+        if(supportsVT){
+          document.startViewTransition(()=>{location.href=url;});
+        }else{
+          document.body.style.opacity='0';
+          document.body.style.transition='opacity .3s';
+          setTimeout(()=>location.href=url,300);
+        }
+      }
+      // Smooth page enter animation
+      document.body.style.opacity='0';
+      document.body.style.transition='opacity .4s ease';
+      requestAnimationFrame(()=>{document.body.style.opacity='1';});
+      // Intercept internal links
+      document.querySelectorAll('a[href^="/"]:not([target])').forEach(a=>{
+        a.addEventListener('click',e=>{const href=a.getAttribute('href');if(href==='/'||href.startsWith('/')){e.preventDefault();navigate(href);}});
+      });
+    })();
+  </script>
+</body>
+</html>
