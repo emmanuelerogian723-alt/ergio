@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Professional Photography Studio In Lagos | Best business in Port Harcourt Nigeria</title>
+  <meta name="description" content="Professional Photography Studio In Lagos - Professional Photography Studio In Lagos Offering Wedding, Portraits And Events is a forward-thinking business deliverin. Book online today.">
+  <meta name="keywords" content="business Nigeria, professional service">
+  <meta property="og:title" content="Professional Photography Studio In Lagos">
+  <meta property="og:description" content="Excellence delivered, every time">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1739287088635-444554e7ac0e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDAwMjk5fDB8MXxzZWFyY2h8MXx8cHJvZmVzc2lvbmFsJTIwYnVzaW5lc3MlMjBOaWdlcmlhfGVufDF8MHx8fDE3ODU2MDE5Mjd8MA&ixlib=rb-4.1.0&q=80&w=1080">
+  <meta name="robots" content="index, follow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space%20Grotesk:wght@400;600;700;800;900&family=DM%20Sans:wght@400;500;600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --primary:#ffffff;
+      --secondary:#111111;
+      --accent:#888888;
+      --bg:#0a0a0a;
+      --surface:#111111;
+      --border:rgba(255,255,255,0.1);
+      --text:#ffffff;
+      --muted:#888888;
+      --cta:#ffffff;
+      --card:rgba(255,255,255,0.03);
+      --nav:rgba(10,10,15,0.85);
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+    h1,h2,h3,h4,h5{font-family:'Space Grotesk',sans-serif}
+    
+    /* === SCROLL ANIMATIONS === */
+    .reveal{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+    .reveal.active{opacity:1;transform:translateY(0)}
+    .reveal-left{opacity:0;transform:translateX(-60px);transition:all .8s cubic-bezier(.16,1,.3,1)}
+    .reveal-left.active{opacity:1;transform:translateX(0)}
+    .reveal-right{opacity:0;transform:translateX(60px);transition:all .8s cubic-bezier(.16,1,.3,1)}
+    .reveal-right.active{opacity:1;transform:translateX(0)}
+    .reveal-scale{opacity:0;transform:scale(.8);transition:all .8s cubic-bezier(.16,1,.3,1)}
+    .reveal-scale.active{opacity:1;transform:scale(1)}
+    
+    /* === STAGGER === */
+    .stagger>*{opacity:0;transform:translateY(30px);transition:all .6s cubic-bezier(.16,1,.3,1)}
+    .stagger.active>*:nth-child(1){opacity:1;transform:translateY(0);transition-delay:.1s}
+    .stagger.active>*:nth-child(2){opacity:1;transform:translateY(0);transition-delay:.2s}
+    .stagger.active>*:nth-child(3){opacity:1;transform:translateY(0);transition-delay:.3s}
+    .stagger.active>*:nth-child(4){opacity:1;transform:translateY(0);transition-delay:.4s}
+    .stagger.active>*:nth-child(5){opacity:1;transform:translateY(0);transition-delay:.5s}
+    .stagger.active>*:nth-child(6){opacity:1;transform:translateY(0);transition-delay:.6s}
+    
+    /* === FLOATING ANIMATION === */
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+    @keyframes pulse{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.05);opacity:1}}
+    @keyframes gradient-shift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+    @keyframes spin-slow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    @keyframes glow{0%,100%{box-shadow:0 0 20px rgba(0,217,255,.3)}50%{box-shadow:0 0 40px rgba(0,217,255,.6)}}
+    
+    /* === NAVIGATION === */
+    .nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 5%;position:sticky;top:0;background:var(--nav);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:100;border-bottom:1px solid var(--border);transition:padding .3s}
+    .nav.scrolled{padding:.8rem 5%}
+    .nav-logo{display:flex;align-items:center;gap:.6rem;font-weight:800;font-size:1.2rem;color:#fff;text-decoration:none;font-family:'Space Grotesk',sans-serif}
+    .nav-logo img{width:36px;height:36px;border-radius:8px}
+    .nav-links a{color:var(--muted);text-decoration:none;margin-left:2rem;font-size:.92rem;transition:color .3s;position:relative}
+    .nav-links a:hover{color:var(--primary)}
+    .nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:var(--primary);transition:width .3s}
+    .nav-links a:hover::after{width:100%}
+    .nav-cta{background:var(--primary);color:#09090B;padding:.6rem 1.5rem;border-radius:100px;font-weight:700;text-decoration:none;font-size:.9rem;border:none;cursor:pointer;transition:all .3s}
+    .nav-cta:hover{transform:scale(1.05);box-shadow:0 0 25px rgba(0,217,255,.4)}
+    
+    /* === HERO === */
+    .hero{position:relative;min-height:90vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:4rem 5%;overflow:hidden}
+    .hero-bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;overflow:hidden}
+    .hero-bg::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,rgba(10,10,15,.3) 0%,rgba(10,10,15,.8) 100%);z-index:2}
+    .hero-bg img{width:100%;height:100%;object-fit:cover;animation:float 8s ease-in-out infinite}
+    .hero-bg::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at center,transparent 0%,rgba(10,10,15,.7) 100%);z-index:1}
+    .hero-content{position:relative;z-index:3;max-width:900px}
+    .hero h1{font-size:clamp(2.2rem,6vw,4.5rem);font-weight:900;margin-bottom:1.2rem;line-height:1.05;color:#fff;letter-spacing:-.02em}
+    .hero h1 span{background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;display:inline-block;animation:gradient-shift 4s ease infinite;background-size:200% 200%}
+    .hero p{font-size:1.25rem;color:#CBD5E1;max-width:600px;margin:0 auto 2.5rem}
+    .hero-cta{display:inline-flex;gap:1rem;flex-wrap:wrap;justify-content:center}
+    .btn-primary{background:var(--primary);color:#09090B;padding:1rem 2.5rem;border-radius:100px;font-weight:700;text-decoration:none;border:none;cursor:pointer;font-size:1.05rem;transition:all .3s;position:relative;overflow:hidden}
+    .btn-primary:hover{transform:translateY(-3px);box-shadow:0 10px 40px rgba(0,217,255,.4)}
+    .btn-primary::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,.3),transparent);transform:translateX(-100%);transition:transform .6s}
+    .btn-primary:hover::after{transform:translateX(100%)}
+    .btn-outline{background:rgba(255,255,255,.08);color:#fff;padding:1rem 2.5rem;border-radius:100px;border:1px solid rgba(255,255,255,.2);text-decoration:none;font-weight:600;font-size:1.05rem;transition:all .3s;backdrop-filter:blur(10px)}
+    .btn-outline:hover{background:rgba(255,255,255,.15);transform:translateY(-3px)}
+    
+    /* === SECTIONS === */
+    section{padding:5rem 5%;max-width:1200px;margin:0 auto}
+    .section-title{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;margin-bottom:.5rem;letter-spacing:-.02em}
+    .section-title span{background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .section-sub{color:var(--muted);text-align:center;margin-bottom:3.5rem;font-size:1.1rem}
+    
+    /* === ABOUT === */
+    .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
+    .about-text p{color:#CBD5E1;margin-bottom:1rem;font-size:1.05rem}
+    .about-img-wrap{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:4/3;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+    .about-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.16,1,.3,1)}
+    .about-img-wrap:hover img{transform:scale(1.08)}
+    .about-img-wrap::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--primary),var(--accent));opacity:.15;z-index:1}
+    
+    /* === SERVICES === */
+    .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem}
+    .service-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;transition:all .5s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden}
+    .service-card:hover{border-color:var(--primary);transform:translateY(-8px);box-shadow:0 20px 50px rgba(0,217,255,.15)}
+    .service-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,var(--primary),var(--accent));transform:scaleX(0);transform-origin:left;transition:transform .5s}
+    .service-card:hover::before{transform:scaleX(1)}
+    .service-card h3{font-size:1.4rem;margin-bottom:.5rem;font-weight:700}
+    .service-card p{color:var(--muted);margin-bottom:1.5rem}
+    .service-price{font-size:1.8rem;font-weight:900;color:var(--accent)}
+    .service-img{width:100%;height:180px;object-fit:cover;border-radius:12px;margin-bottom:1.5rem;transition:transform .5s}
+    .service-card:hover .service-img{transform:scale(1.05)}
+    
+    /* === GALLERY === */
+    .gallery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+    .gallery-item{border-radius:16px;overflow:hidden;aspect-ratio:1;position:relative;cursor:pointer}
+    .gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.16,1,.3,1)}
+    .gallery-item:hover img{transform:scale(1.15)}
+    .gallery-item::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(10,10,15,.8) 100%);opacity:0;transition:opacity .3s}
+    .gallery-item:hover::after{opacity:1}
+    
+    /* === WHY CHOOSE US === */
+    .why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem}
+    .why-item{text-align:center;padding:2rem;border-radius:20px;background:var(--card);border:1px solid var(--border);transition:all .4s}
+    .why-item:hover{border-color:var(--primary);transform:translateY(-4px)}
+    .why-item .icon{font-size:2.5rem;margin-bottom:1rem;display:inline-block;animation:float 4s ease-in-out infinite}
+    .why-item h4{margin-bottom:.5rem;font-weight:700;font-size:1.1rem}
+    .why-item p{color:var(--muted);font-size:.95rem}
+    
+    /* === TESTIMONIALS === */
+    .testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem}
+    .testimonial{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;position:relative}
+    .testimonial::before{content:'"';position:absolute;top:-10px;left:20px;font-size:5rem;color:var(--primary);opacity:.2;font-family:Georgia,serif}
+    .testimonial p{color:#CBD5E1;font-style:italic;margin-bottom:1.5rem;position:relative;z-index:1}
+    .testimonial .author{font-weight:700;font-size:1.1rem}
+    .testimonial .location{color:var(--muted);font-size:.9rem;margin-top:.2rem}
+    .testimonial .stars{color:#FBBF24;margin-bottom:1rem}
+    
+    /* === FAQ === */
+    .faq-item{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.8rem;margin-bottom:1rem;cursor:pointer;transition:all .3s}
+    .faq-item:hover{border-color:rgba(255,255,255,.15)}
+    .faq-item h4{margin-bottom:.5rem;color:var(--primary);font-size:1.15rem}
+    .faq-item p{color:var(--muted);max-height:0;overflow:hidden;transition:max-height .4s ease}
+    .faq-item.open p{max-height:200px}
+    
+    /* === CONTACT === */
+    .contact{background:linear-gradient(135deg,rgba(0,217,255,.08),rgba(0,255,157,.04));border-radius:28px;padding:4rem;text-align:center;margin:2rem 5%;border:1px solid rgba(255,255,255,.08)}
+    .contact h2{margin-bottom:1rem;font-size:2.2rem;font-weight:800}
+    .contact p{color:var(--muted);margin-bottom:2.5rem;font-size:1.1rem}
+    .contact-info{display:flex;justify-content:center;gap:2.5rem;flex-wrap:wrap;margin-top:2rem}
+    .contact-item{display:flex;align-items:center;gap:.6rem;color:var(--text);text-decoration:none;font-size:1rem;transition:color .3s}
+    .contact-item:hover{color:var(--primary)}
+    .contact-icon{width:44px;height:44px;border-radius:12px;background:rgba(0,217,255,.1);display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+    
+    /* === FOOTER === */
+    .footer{text-align:center;padding:3rem 5%;color:#64748B;font-size:.9rem;border-top:1px solid rgba(255,255,255,.06)}
+    .footer a{color:var(--primary);text-decoration:none;font-weight:600}
+    .footer-brand{display:inline-flex;align-items:center;gap:.4rem;margin-bottom:.5rem;font-weight:700;color:#94A3B8}
+    .footer-brand img{width:24px;height:24px;border-radius:6px}
+    
+    /* === MOBILE === */
+    @media(max-width:768px){
+      .about-grid{grid-template-columns:1fr}
+      .nav-links{display:none}
+      .hero{min-height:70vh}
+      section{padding:3rem 5%}
+      .contact{padding:2.5rem 1.5rem;margin:1rem 5%}
+    }
+    
+    /* === SCROLLBAR === */
+    ::-webkit-scrollbar{width:8px}
+    ::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:var(--primary);border-radius:4px}
+
+    /* === TYPE-SPECIFIC STYLES === */
+    .menu-categories{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem}
+    .menu-category{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:16px;padding:24px}
+    .menu-cat-title{font-size:1.1rem;font-weight:700;color:var(--primary);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .menu-item{display:flex;justify-content:space-between;align-items:start;padding:12px 0;border-bottom:1px dashed rgba(255,255,255,.04)}
+    .menu-item-info h4{font-size:.95rem;margin:0 0 4px}
+    .menu-item-info p{font-size:.85rem;color:var(--muted);margin:0}
+    .menu-item-price{font-weight:700;color:var(--primary);white-space:nowrap;padding-left:16px}
+    .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.5rem}
+    .product-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden;transition:all .3s}
+    .product-card:hover{transform:translateY(-4px);border-color:var(--primary)}
+    .product-info{padding:20px}
+    .product-cat{font-size:.75rem;color:var(--primary);font-weight:600;text-transform:uppercase}
+    .product-info h3{font-size:1.1rem;margin:8px 0 4px}
+    .product-info p{font-size:.85rem;color:var(--muted);margin:0 0 16px}
+    .product-bottom{display:flex;justify-content:space-between;align-items:center}
+    .product-price{font-size:1.2rem;font-weight:800;color:var(--primary)}
+    .btn-add-cart{background:var(--primary);color:#09090B;border:none;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;transition:.3s}
+    .btn-add-cart:hover{transform:scale(1.05)}
+    .project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.5rem}
+    .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;max-width:1000px;margin:0 auto}
+    .pricing-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:32px;position:relative;transition:all .3s}
+    .pricing-card.popular{transform:scale(1.05)}
+    .pricing-card:hover{border-color:var(--primary)}
+    .popular-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--primary);color:#000;padding:4px 16px;border-radius:100px;font-size:.75rem;font-weight:700}
+    .pricing-card h3{font-size:1.2rem;margin:0 0 8px}
+    .price{font-size:2.5rem;font-weight:900;margin:16px 0}
+    .price span{font-size:.9rem;font-weight:400;color:var(--muted)}
+    .price-features{list-style:none;padding:0;margin:0 0 24px}
+    .price-features li{padding:8px 0;color:var(--muted);font-size:.9rem}
+    .blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:2rem}
+    .blog-card{cursor:pointer;transition:all .3s}
+    .blog-card:hover{transform:translateY(-4px)}
+    .property-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.5rem}
+    .property-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden;transition:all .3s}
+    .property-card:hover{transform:translateY(-4px);border-color:var(--primary)}
+    .class-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem}
+    .class-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:24px;transition:all .3s}
+    .class-card:hover{border-color:var(--primary);transform:translateY(-2px)}
+    .doctors-grid,.team-grid,.course-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem}
+    .doctor-card,.team-card,.course-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:24px;transition:all .3s}
+    .doctor-card:hover,.team-card:hover,.course-card:hover{border-color:var(--primary)}
+    .process-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem}
+    .process-step{text-align:center}
+
+  </style>
+</head>
+<body>
+  <!-- NAV -->
+  <nav class="nav" id="nav">
+    <a href="#" class="nav-logo">
+      <img src="https://image.pollinations.ai/prompt/professional%20professional%20logo%20for%20professional%20modern%20logo%20for%20Professional%20Photography%20Studio%20In%20Lagos%2C%20business%2C%20minimalist%2C%20clean%2C%20vector%20style%2C%20centered%2C%20white%20background?width=512&height=512&nologo=true&seed=1785620080543" alt="Professional Photography Studio In Lagos">
+      <span>Professional Photography Studio In Lagos</span>
+    </a>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#testimonials">Reviews</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="#contact" class="nav-cta">Book Now</a>
+  </nav>
+
+  <!-- HERO with real background image -->
+  <div class="hero">
+    <div class="hero-bg">
+      <img src="https://images.unsplash.com/photo-1739287088635-444554e7ac0e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDAwMjk5fDB8MXxzZWFyY2h8MXx8cHJvZmVzc2lvbmFsJTIwYnVzaW5lc3MlMjBOaWdlcmlhfGVufDF8MHx8fDE3ODU2MDE5Mjd8MA&ixlib=rb-4.1.0&q=80&w=1080" alt="Professional Photography Studio In Lagos" loading="eager">
+    </div>
+    <div class="hero-content">
+      <h1 class="reveal active">Professional Photography Studio In Lagos</h1>
+      <p class="reveal active">Excellence delivered, every time</p>
+      <div class="hero-cta reveal active">
+        <a href="#contact" class="btn-primary">Get Started</a>
+        <a href="#services" class="btn-outline">View Services</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABOUT with real image -->
+  <section id="about">
+    <div class="about-grid">
+      <div class="about-text reveal-left">
+        <h2 class="section-title" style="text-align:left">About <span>Us</span></h2>
+        <p>Professional Photography Studio In Lagos is Port Harcourt's premier business, built on a foundation of excellence and deep roots in the Nigerian community. We combine world-class standards with an authentic local touch — ensuring every client receives an experience that truly stands out.
+
+Professional Photography Studio In Lagos Offering Wedding, Portraits And Events is a forward-thinking business delivering exceptional value to clients across Nigeria.</p>
+      </div>
+      <div class="about-img-wrap reveal-right">
+        <img src="https://images.unsplash.com/photo-1739292774739-ee38cd9a5735?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDAwMjk5fDB8MXxzZWFyY2h8MXx8bW9kZXJuJTIwb2ZmaWNlJTIwTGFnb3N8ZW58MXwwfHx8MTc4NTYwMTkyN3ww&ixlib=rb-4.1.0&q=80&w=1080" alt="Professional Photography Studio In Lagos team" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES with real images -->
+  <section id="services">
+    <h2 class="section-title reveal">Our <span>Services</span></h2>
+    <p class="section-sub reveal">Professional services tailored to your needs</p>
+    <div class="services-grid stagger">
+      
+        <div class="service-card">
+          <img src="https://pixabay.com/get/ge49430b76b23d6d798df9c77da7c308b301c24771f5a7696ef57df5dde2a003170d2691785d2604962707be0242bd26f84ca374b9ca462960db500773c22bf8e_1280.jpg" alt="Standard Service" class="service-img" loading="lazy">
+          <h3>Standard Service</h3>
+          <p>Our core offering</p>
+          <div class="service-price">₦15,000</div>
+        </div>
+      
+        <div class="service-card">
+          <img src="https://pixabay.com/get/g8a5a901c1a9c51fae585cd4bcd8d816f814f9064f31be4908c5f11914213cfec633b0b420dff9fb4481cacba2ebf89f47815f9246046be756ec16a9627a714d8_1280.jpg" alt="Premium Service" class="service-img" loading="lazy">
+          <h3>Premium Service</h3>
+          <p>Enhanced experience</p>
+          <div class="service-price">₦35,000</div>
+        </div>
+      
+        <div class="service-card">
+          <img src="https://pixabay.com/get/gb4ff6769441e10877c2126081b1d939c94c01e4756489edb0ac8c7dcb129ec3935fe1a5efe17ddf659e5590eaef8fd30506237d3570e70fbeb3f267313506a2a_1280.jpg" alt="Enterprise Package" class="service-img" loading="lazy">
+          <h3>Enterprise Package</h3>
+          <p>Full-scale solution</p>
+          <div class="service-price">₦75,000</div>
+        </div>
+      
+    </div>
+  </section>
+
+  <!-- GALLERY with real photos -->
+  
+  <section id="gallery">
+    <h2 class="section-title reveal">Our <span>Work</span></h2>
+    <p class="section-sub reveal">See what we've done</p>
+    <div class="gallery-grid stagger">
+      
+        <div class="gallery-item">
+          <img src="https://pixabay.com/get/ge49430b76b23d6d798df9c77da7c308b301c24771f5a7696ef57df5dde2a003170d2691785d2604962707be0242bd26f84ca374b9ca462960db500773c22bf8e_1280.jpg" alt="Gallery" loading="lazy">
+        </div>
+      
+        <div class="gallery-item">
+          <img src="https://pixabay.com/get/g8a5a901c1a9c51fae585cd4bcd8d816f814f9064f31be4908c5f11914213cfec633b0b420dff9fb4481cacba2ebf89f47815f9246046be756ec16a9627a714d8_1280.jpg" alt="Gallery" loading="lazy">
+        </div>
+      
+        <div class="gallery-item">
+          <img src="https://pixabay.com/get/gb4ff6769441e10877c2126081b1d939c94c01e4756489edb0ac8c7dcb129ec3935fe1a5efe17ddf659e5590eaef8fd30506237d3570e70fbeb3f267313506a2a_1280.jpg" alt="Gallery" loading="lazy">
+        </div>
+      
+        <div class="gallery-item">
+          <img src="https://pixabay.com/get/g2be309e252125f75aa2641c79fe3419f5279fb31847de115fde95e9b8ebfcfd2218aa9a1d27d65f89ce8d2b29f5f41338e4109202fb4ed464bfc24844efb6376_1280.jpg" alt="Gallery" loading="lazy">
+        </div>
+      
+    </div>
+  </section>
+
+  <!-- WHY CHOOSE US -->
+  
+  <section id="why">
+    <h2 class="section-title reveal">Why <span>Choose Us</span></h2>
+    <p class="section-sub reveal">What sets us apart</p>
+    <div class="why-grid stagger">
+      
+        <div class="why-item">
+          <div class="icon">⚡</div>
+          <h4>Expert Team</h4>
+        </div>
+      
+        <div class="why-item">
+          <div class="icon">✨</div>
+          <h4>Trusted by 500+</h4>
+        </div>
+      
+        <div class="why-item">
+          <div class="icon">🎯</div>
+          <h4>Affordable Pricing</h4>
+        </div>
+      
+        <div class="why-item">
+          <div class="icon">🚀</div>
+          <h4>Quality Guaranteed</h4>
+        </div>
+      
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  
+  
+  <section id="testimonials">
+    <h2 class="section-title reveal">Client <span>Reviews</span></h2>
+    <p class="section-sub reveal">Real reviews from happy customers</p>
+    <div class="testimonials stagger">
+      
+        <div class="testimonial">
+          <div class="stars">★★★★★</div>
+          <p>"Professional Photography Studio In Lagos is absolutely outstanding! The quality and service exceeded all my expectations."</p>
+          <div class="author">Adebayo Okonkwo</div>
+          <div class="location">Port Harcourt</div>
+        </div>
+      
+        <div class="testimonial">
+          <div class="stars">★★★★★</div>
+          <p>"I've been a loyal client for over a year. Professional, reliable, and truly world-class."</p>
+          <div class="author">Chioma Eze</div>
+          <div class="location">Lekki, Lagos</div>
+        </div>
+      
+        <div class="testimonial">
+          <div class="stars">★★★★★</div>
+          <p>"Best in Port Harcourt. I refer everyone I know here."</p>
+          <div class="author">Kunle Adeyemi</div>
+          <div class="location">Victoria Island, Lagos</div>
+        </div>
+      
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  
+  <section id="faq">
+    <h2 class="section-title reveal">Frequently Asked <span>Questions</span></h2>
+    <p class="section-sub reveal">Everything you need to know</p>
+    
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <h4>How do I get started with Professional Photography Studio In Lagos?</h4>
+        <p>Simply call us, WhatsApp us, or book online at our website. Our team responds within minutes.</p>
+      </div>
+    
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <h4>What are your operating hours?</h4>
+        <p>We are open Monday to Saturday, 8:00 AM – 8:00 PM, and Sundays 10:00 AM – 4:00 PM.</p>
+      </div>
+    
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <h4>Where are you located in Port Harcourt?</h4>
+        <p>We are centrally located in Port Harcourt, Nigeria. Contact us for the exact address or directions.</p>
+      </div>
+    
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <h4>Do you offer payment plans?</h4>
+        <p>Yes! We accept bank transfers, Paystack card payments, USSD, and cash. Flexible installments available.</p>
+      </div>
+    
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="contact reveal-scale">
+    <h2>Get In Touch</h2>
+    <p>Ready to work with us? Book your appointment today.</p>
+    <a href="#" class="btn-primary" onclick="alert('Booking powered by ERGIO');return false;">Book Appointment</a>
+    <div class="contact-info">
+      <a href="tel:+234 800 000 0000" class="contact-item"><span class="contact-icon">📞</span>+234 800 000 0000</a>
+      <a href="mailto:info@professionalphotographystudioinlagos.com" class="contact-item"><span class="contact-icon">✉️</span>info@professionalphotographystudioinlagos.com</a>
+      <a href="https://wa.me/2348000000000" class="contact-item"><span class="contact-icon">💬</span>WhatsApp</a>
+    </div>
+  </section>
+
+  <!-- FOOTER with ERGIO branding -->
+  <div class="footer">
+    <div class="footer-brand">
+      <img src="https://image.pollinations.ai/prompt/professional%20professional%20logo%20for%20professional%20modern%20logo%20for%20Professional%20Photography%20Studio%20In%20Lagos%2C%20business%2C%20minimalist%2C%20clean%2C%20vector%20style%2C%20centered%2C%20white%20background?width=512&height=512&nologo=true&seed=1785620080543" alt="Professional Photography Studio In Lagos">
+      <span>Professional Photography Studio In Lagos</span>
+    </div>
+    <p>© 2026 Professional Photography Studio In Lagos. All rights reserved.</p>
+    <p style="margin-top:.5rem">Powered by <a href="https://ergio.vercel.app" target="_blank">ERGIO</a> — AI Business Operating System for Africa</p>
+  </div>
+
+  <!-- SCROLL ANIMATION SCRIPT -->
+  <script>
+    // Nav scroll effect
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 50);
+    });
+    
+    // Intersection Observer for scroll-triggered animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+          // Keep observing for re-trigger
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+    
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .stagger').forEach(el => {
+      observer.observe(el);
+    });
+    
+    // Parallax effect on hero image
+    const heroBg = document.querySelector('.hero-bg img');
+    if (heroBg) {
+      window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        heroBg.style.transform = 'translateY(' + scrolled * 0.3 + 'px)';
+      });
+    }
+    
+    // Mouse parallax on hero
+    const hero = document.querySelector('.hero');
+    if (hero) {
+      hero.addEventListener('mousemove', (e) => {
+        const x = (e.clientX / window.innerWidth - 0.5) * 20;
+        const y = (e.clientY / window.innerHeight - 0.5) * 20;
+        if (heroBg) heroBg.style.marginLeft = x + 'px';
+      });
+    }
+  </script>
+</body>
+</html>

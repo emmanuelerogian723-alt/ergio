@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eko Visage | Best photography studio in Lagos Nigeria</title>
+  <meta name="description" content="Eko Visage - A professional photography studio based in Lagos, offering 3D interactive and immersive experiences for capturing life's. Book online today.">
+  <meta property="og:image" content="https://pixabay.com/get/g7b7f7b902d30744a82d6c9d0df51607dd3c4c1d413945502981b5db445453772e69256ded744657780ad9b7246079b8c7fb98e4f763fb66eacc056041f0529ba_1280.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--primary:#3182CE;--secondary:#F7F7F7;--accent:#F07C7C;--bg:#060608}
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:#F8FAFC;overflow-x:hidden}
+    
+    /* Three.js Canvas */
+    #three-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:.5;pointer-events:none}
+    
+    /* Scroll animations */
+    .reveal{opacity:0;transform:translateY(50px) rotateX(-10deg);transition:all 1s cubic-bezier(.16,1,.3,1)}
+    .reveal.active{opacity:1;transform:translateY(0) rotateX(0)}
+    .stagger>*{opacity:0;transform:translateY(40px) scale(.9);transition:all .7s cubic-bezier(.16,1,.3,1)}
+    .stagger.active>*:nth-child(1){opacity:1;transform:none;transition-delay:.1s}
+    .stagger.active>*:nth-child(2){opacity:1;transform:none;transition-delay:.25s}
+    .stagger.active>*:nth-child(3){opacity:1;transform:none;transition-delay:.4s}
+    .stagger.active>*:nth-child(4){opacity:1;transform:none;transition-delay:.55s}
+    .stagger.active>*:nth-child(5){opacity:1;transform:none;transition-delay:.7s}
+    .stagger.active>*:nth-child(6){opacity:1;transform:none;transition-delay:.85s}
+    
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+    @keyframes gradient-shift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    @keyframes spin-slow{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+    @keyframes glow{0%,100%{box-shadow:0 0 30px rgba(0,217,255,.2)}50%{box-shadow:0 0 60px rgba(0,217,255,.5)}}
+    @keyframes pulse-glow{0%,100%{filter:drop-shadow(0 0 10px var(--primary))}50%{filter:drop-shadow(0 0 30px var(--primary))}}
+    
+    .nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 5%;position:sticky;top:0;background:rgba(6,6,8,.7);backdrop-filter:blur(20px);z-index:100;border-bottom:1px solid rgba(255,255,255,.06)}
+    .nav-logo{display:flex;align-items:center;gap:.6rem;font-weight:800;font-size:1.2rem;color:#fff;text-decoration:none;font-family:'Space Grotesk',sans-serif}
+    .nav-logo img{width:36px;height:36px;border-radius:8px}
+    .nav-links a{color:#94A3B8;text-decoration:none;margin-left:2rem;font-size:.92rem;transition:color .3s}
+    .nav-links a:hover{color:var(--primary)}
+    .nav-cta{background:var(--primary);color:#060608;padding:.6rem 1.5rem;border-radius:100px;font-weight:700;text-decoration:none;font-size:.9rem}
+    
+    .hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;z-index:1;padding:2rem 5%}
+    .hero-bg-img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:.25;z-index:0}
+    .hero::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at center,transparent 0%,rgba(6,6,8,.8) 100%);z-index:1}
+    .hero-content{position:relative;z-index:2;max-width:900px}
+    .hero h1{font-size:clamp(2.5rem,7vw,5rem);font-weight:900;line-height:1.05;letter-spacing:-.03em;margin-bottom:1.5rem}
+    .hero h1 span{background:linear-gradient(135deg,var(--primary),var(--accent),var(--primary));background-size:200% 200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradient-shift 4s ease infinite}
+    .hero p{font-size:1.3rem;color:#CBD5E1;max-width:600px;margin:0 auto 2.5rem}
+    .btn-primary{background:var(--primary);color:#060608;padding:1.2rem 3rem;border-radius:100px;font-weight:800;text-decoration:none;font-size:1.1rem;display:inline-block;animation:glow 3s ease infinite;transition:transform .3s}
+    .btn-primary:hover{transform:scale(1.08)}
+    .btn-outline{background:rgba(255,255,255,.06);color:#fff;padding:1.2rem 3rem;border-radius:100px;border:1px solid rgba(255,255,255,.2);text-decoration:none;font-weight:600;font-size:1.1rem;backdrop-filter:blur(10px);display:inline-block;margin-left:1rem}
+    
+    section{padding:5rem 5%;max-width:1200px;margin:0 auto;position:relative;z-index:1}
+    .section-title{font-size:clamp(1.8rem,4vw,3rem);font-weight:800;letter-spacing:-.02em;margin-bottom:.5rem}
+    .section-title span{background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .section-sub{color:#94A3B8;margin-bottom:3rem;font-size:1.1rem}
+    
+    .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
+    .about-text p{color:#CBD5E1;margin-bottom:1rem}
+    .about-img-wrap{border-radius:24px;overflow:hidden;aspect-ratio:4/3;position:relative;animation:float 6s ease-in-out infinite}
+    .about-img-wrap img{width:100%;height:100%;object-fit:cover}
+    .about-img-wrap::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--primary),var(--accent));opacity:.2;mix-blend-mode:overlay}
+    
+    .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem}
+    .service-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;transition:all .5s cubic-bezier(.16,1,.3,1);perspective:1000px}
+    .service-card:hover{border-color:var(--primary);transform:translateY(-10px) rotateX(5deg);box-shadow:0 30px 60px rgba(0,217,255,.15)}
+    .service-img{width:100%;height:180px;object-fit:cover;border-radius:12px;margin-bottom:1.5rem}
+    .service-card h3{font-size:1.4rem;margin-bottom:.5rem}
+    .service-card p{color:#94A3B8;margin-bottom:1.5rem}
+    .service-price{font-size:1.8rem;font-weight:900;color:var(--accent)}
+    
+    .gallery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+    .gallery-item{border-radius:16px;overflow:hidden;aspect-ratio:1;position:relative}
+    .gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .6s}
+    .gallery-item:hover img{transform:scale(1.2)}
+    
+    .why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem}
+    .why-item{text-align:center;padding:2rem;border-radius:20px;background:var(--card);border:1px solid var(--border);transition:all .4s}
+    .why-item:hover{border-color:var(--primary);transform:translateY(-5px)}
+    .why-item .icon{font-size:2.5rem;margin-bottom:1rem;animation:float 4s ease-in-out infinite}
+    .why-item h4{margin-bottom:.5rem;font-weight:700}
+    
+    .testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem}
+    .testimonial{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem}
+    .testimonial .stars{color:#FBBF24;margin-bottom:1rem}
+    .testimonial p{color:#CBD5E1;font-style:italic;margin-bottom:1.5rem}
+    .testimonial .author{font-weight:700}
+    .testimonial .location{color:#94A3B8;font-size:.9rem}
+    
+    .faq-item{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.8rem;margin-bottom:1rem;cursor:pointer}
+    .faq-item h4{color:var(--primary);margin-bottom:.5rem}
+    .faq-item p{color:#94A3B8;max-height:0;overflow:hidden;transition:max-height .4s}
+    .faq-item.open p{max-height:200px}
+    
+    .contact{background:linear-gradient(135deg,rgba(0,217,255,.08),rgba(0,255,157,.04));border-radius:28px;padding:4rem;text-align:center;margin:2rem 5%;border:1px solid rgba(255,255,255,.08)}
+    .contact-info{display:flex;justify-content:center;gap:2.5rem;flex-wrap:wrap;margin-top:2rem}
+    .contact-info a{color:var(--primary);text-decoration:none}
+    
+    .footer{text-align:center;padding:3rem 5%;color:#64748B;border-top:1px solid rgba(255,255,255,.06)}
+    .footer a{color:var(--primary);text-decoration:none;font-weight:600}
+    .footer-brand{display:inline-flex;align-items:center;gap:.4rem;margin-bottom:.5rem;font-weight:700;color:#94A3B8}
+    .footer-brand img{width:24px;height:24px;border-radius:6px}
+    
+    @media(max-width:768px){.about-grid{grid-template-columns:1fr}.nav-links{display:none}section{padding:3rem 5%}.btn-outline{margin-left:0;margin-top:1rem}}
+  </style>
+</head>
+<body>
+  <canvas id="three-canvas"></canvas>
+  
+  <nav class="nav">
+    <a href="#" class="nav-logo">
+      <img src="https://image.pollinations.ai/prompt/professional%20professional%20logo%20for%20professional%20modern%20logo%20for%20Eko%20Visage%2C%20photography%20studio%2C%20minimalist%2C%20clean%2C%20vector%20style%2C%20centered%2C%20white%20background?width=512&height=512&nologo=true&seed=1785620198824" alt="Eko Visage">
+      <span>Eko Visage</span>
+    </a>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="#contact" class="nav-cta">Book Now</a>
+  </nav>
+
+  <div class="hero">
+    <img src="https://pixabay.com/get/g7b7f7b902d30744a82d6c9d0df51607dd3c4c1d413945502981b5db445453772e69256ded744657780ad9b7246079b8c7fb98e4f763fb66eacc056041f0529ba_1280.jpg" alt="Eko Visage" class="hero-bg-img">
+    <div class="hero-content">
+      <h1 class="reveal active">Eko Visage</h1>
+      <p class="reveal active">Capturing Your Moment</p>
+      <div class="reveal active">
+        <a href="#contact" class="btn-primary">See My Work</a>
+        <a href="#services" class="btn-outline">View Services</a>
+      </div>
+    </div>
+  </div>
+
+  <section id="about">
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <h2 class="section-title">About <span>Us</span></h2>
+        <p>Eko Visage is Lagos's premier photography studio, built on a foundation of excellence and deep roots in the Nigerian community. We combine world-class standards with an authentic local touch — ensuring every client receives an experience that truly stands out.
+
+A professional photography studio based in Lagos, offering 3D interactive and immersive experiences for capturing life's moments.</p>
+      </div>
+      <div class="about-img-wrap reveal">
+        <img src="https://images.unsplash.com/photo-1569706971306-de5d78f6418e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDAwMjk5fDB8MXxzZWFyY2h8MXx8TGFnb3MlMjBjaXR5c2NhcGUlMjBhdCUyMHN1bnNldHxlbnwxfDB8fHwxNzg1NjA1MTczfDA&ixlib=rb-4.1.0&q=80&w=1080" alt="Eko Visage" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <section id="services">
+    <h2 class="section-title reveal">Our <span>Services</span></h2>
+    <p class="section-sub reveal">Professional services tailored to your needs</p>
+    <div class="services-grid stagger">
+      
+        <div class="service-card">
+          <img src="https://pixabay.com/get/ge67556c5a17e4a1711658c67d20393368d3f4b2cb5e89d98e2d9c17ca6d59f6dcd0cb4d6e4707ed921dd488752583e50497570d176a21b759e1ba44872680cef_1280.jpg" alt="Portrait Photography" class="service-img" loading="lazy">
+          <h3>Portrait Photography</h3>
+          <p>Expertly capture your best moments</p>
+          <div class="service-price">₦20,000</div>
+        </div>
+      
+        <div class="service-card">
+          <img src="https://pixabay.com/get/g6130f2ce252d79c805aec08120f48cbea69385f6f4d91e3fca54caf3859fc45c3e34442757a2dabae8157b13328a5de60e03f21d36951a4ae99cfd206f086882_1280.jpg" alt="Event Photography" class="service-img" loading="lazy">
+          <h3>Event Photography</h3>
+          <p>Capture life's special moments</p>
+          <div class="service-price">₦30,000</div>
+        </div>
+      
+        <div class="service-card">
+          <img src="https://pixabay.com/get/gcbc7fdb5197b855558201f3568c9d526ca2e5ea19294b0840fcd5b1d3f74ec87d1b2841a61e1875005495fd27f40b83bfc06b797829192b48ac725599fbe6068_1280.jpg" alt="Commercial Photography" class="service-img" loading="lazy">
+          <h3>Commercial Photography</h3>
+          <p>High-quality images for your business</p>
+          <div class="service-price">₦40,000</div>
+        </div>
+      
+    </div>
+  </section>
+
+  
+  <section id="gallery">
+    <h2 class="section-title reveal">Our <span>Work</span></h2>
+    <p class="section-sub reveal">A gallery of our finest work</p>
+    <div class="gallery-grid stagger">
+      <div class="gallery-item"><img src="https://pixabay.com/get/ge67556c5a17e4a1711658c67d20393368d3f4b2cb5e89d98e2d9c17ca6d59f6dcd0cb4d6e4707ed921dd488752583e50497570d176a21b759e1ba44872680cef_1280.jpg" alt="Gallery" loading="lazy"></div><div class="gallery-item"><img src="https://pixabay.com/get/g6130f2ce252d79c805aec08120f48cbea69385f6f4d91e3fca54caf3859fc45c3e34442757a2dabae8157b13328a5de60e03f21d36951a4ae99cfd206f086882_1280.jpg" alt="Gallery" loading="lazy"></div><div class="gallery-item"><img src="https://pixabay.com/get/gcbc7fdb5197b855558201f3568c9d526ca2e5ea19294b0840fcd5b1d3f74ec87d1b2841a61e1875005495fd27f40b83bfc06b797829192b48ac725599fbe6068_1280.jpg" alt="Gallery" loading="lazy"></div><div class="gallery-item"><img src="https://pixabay.com/get/g5ee68b79f56b3ccfae7841fbe1ffc9491dbbb92ab8e6abc71386eb9c2589257a57b74dade102e465dff698ba45123413a4a5d90d3cc2ca40a1ab7ba96be64b3e_1280.jpg" alt="Gallery" loading="lazy"></div>
+    </div>
+  </section>
+
+  
+  <section id="why">
+    <h2 class="section-title reveal">Why <span>Choose Us</span></h2>
+    <div class="why-grid stagger">
+      <div class="why-item"><div class="icon">⚡</div><h4>Expert Team</h4></div><div class="why-item"><div class="icon">✨</div><h4>Trusted by 500+</h4></div><div class="why-item"><div class="icon">🎯</div><h4>Affordable Pricing</h4></div><div class="why-item"><div class="icon">🚀</div><h4>Quality Guaranteed</h4></div>
+    </div>
+  </section>
+
+  
+  <section id="testimonials">
+    <h2 class="section-title reveal">Client <span>Reviews</span></h2>
+    <div class="testimonials stagger">
+      <div class="testimonial"><div class="stars">★★★★★</div><p>"Eko Visage is absolutely outstanding! The quality and service exceeded all my expectations."</p><div class="author">Adebayo Okonkwo</div><div class="location">Lagos</div></div><div class="testimonial"><div class="stars">★★★★★</div><p>"I've been a loyal client for over a year. Professional, reliable, and truly world-class."</p><div class="author">Chioma Eze</div><div class="location">Lekki, Lagos</div></div><div class="testimonial"><div class="stars">★★★★★</div><p>"Best in Lagos. I refer everyone I know here."</p><div class="author">Kunle Adeyemi</div><div class="location">Victoria Island, Lagos</div></div>
+    </div>
+  </section>
+
+  
+  <section id="faq">
+    <h2 class="section-title reveal">FAQ</h2>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><h4>How do I get started with Eko Visage?</h4><p>Simply call us, WhatsApp us, or book online at our website. Our team responds within minutes.</p></div><div class="faq-item" onclick="this.classList.toggle('open')"><h4>What are your operating hours?</h4><p>We are open Monday to Saturday, 8:00 AM – 8:00 PM, and Sundays 10:00 AM – 4:00 PM.</p></div><div class="faq-item" onclick="this.classList.toggle('open')"><h4>Where are you located in Lagos?</h4><p>We are centrally located in Lagos, Nigeria. Contact us for the exact address or directions.</p></div><div class="faq-item" onclick="this.classList.toggle('open')"><h4>Do you offer payment plans?</h4><p>Yes! We accept bank transfers, Paystack card payments, USSD, and cash. Flexible installments available.</p></div>
+  </section>
+
+  <section id="contact" class="contact reveal">
+    <h2>Get In Touch</h2>
+    <p>Ready to work with us?</p>
+    <a href="#" class="btn-primary" onclick="alert('Booking powered by ERGIO');return false;">Book Appointment</a>
+    <div class="contact-info">
+      <a href="tel:+234 800 000 0000">📞 +234 800 000 0000</a>
+      <a href="mailto:info@ekovisage.com">✉️ info@ekovisage.com</a>
+      <a href="https://wa.me/2348000000000">💬 WhatsApp</a>
+    </div>
+  </section>
+
+  <div class="footer">
+    <div class="footer-brand"><img src="https://image.pollinations.ai/prompt/professional%20professional%20logo%20for%20professional%20modern%20logo%20for%20Eko%20Visage%2C%20photography%20studio%2C%20minimalist%2C%20clean%2C%20vector%20style%2C%20centered%2C%20white%20background?width=512&height=512&nologo=true&seed=1785620198824" alt="Eko Visage"><span>Eko Visage</span></div>
+    <p>© 2026 Eko Visage. All rights reserved.</p>
+    <p style="margin-top:.5rem">Powered by <a href="https://ergio.vercel.app" target="_blank">ERGIO</a> — AI Business Operating System for Africa</p>
+  </div>
+
+  <script>
+    // === THREE.JS 3D BACKGROUND ===
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({canvas: document.getElementById('three-canvas'), alpha: true, antialias: true});
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    camera.position.z = 50;
+
+    // Floating geometric shapes
+    const shapes = [];
+    const shapeCount = 60;
+    for (let i = 0; i < shapeCount; i++) {
+      let geometry;
+      const shapeType = i % 4;
+      if (shapeType === 0) geometry = new THREE.IcosahedronGeometry(Math.random() * 0.8 + 0.3, 0);
+      else if (shapeType === 1) geometry = new THREE.TorusGeometry(Math.random() * 0.6 + 0.2, 0.15, 8, 16);
+      else if (shapeType === 2) geometry = new THREE.OctahedronGeometry(Math.random() * 0.7 + 0.2);
+      else geometry = new THREE.BoxGeometry(Math.random() * 0.5 + 0.3, Math.random() * 0.5 + 0.3, Math.random() * 0.5 + 0.3);
+      
+      const color = new THREE.Color();
+      color.setHSL(Math.random() * 0.15 + 0.45, 0.8, 0.5);
+      const material = new THREE.MeshBasicMaterial({color, transparent: true, opacity: 0.5, wireframe: Math.random() > 0.5});
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.position.set((Math.random() - 0.5) * 120, (Math.random() - 0.5) * 120, (Math.random() - 0.5) * 80);
+      mesh.userData = {
+        speedX: (Math.random() - 0.5) * 0.02,
+        speedY: (Math.random() - 0.5) * 0.02,
+        speedZ: (Math.random() - 0.5) * 0.01,
+        rotSpeed: Math.random() * 0.02 + 0.005,
+        floatOffset: Math.random() * Math.PI * 2
+      };
+      scene.add(mesh);
+      shapes.push(mesh);
+    }
+
+    let mouseX = 0, mouseY = 0, scrollY = 0;
+    document.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+    });
+    window.addEventListener('scroll', () => { scrollY = window.pageYOffset * 0.01; });
+
+    let time = 0;
+    function animate() {
+      requestAnimationFrame(animate);
+      time += 0.01;
+      shapes.forEach((s, i) => {
+        s.position.x += s.userData.speedX;
+        s.position.y += s.userData.speedY + Math.sin(time + s.userData.floatOffset) * 0.02;
+        s.position.z += s.userData.speedZ;
+        s.rotation.x += s.userData.rotSpeed;
+        s.rotation.y += s.userData.rotSpeed * 1.5;
+        if (s.position.x > 60) s.position.x = -60;
+        if (s.position.x < -60) s.position.x = 60;
+        if (s.position.y > 60) s.position.y = -60;
+        if (s.position.y < -60) s.position.y = 60;
+      });
+      camera.position.x += (mouseX * 15 - camera.position.x) * 0.05;
+      camera.position.y += (-mouseY * 15 + scrollY - camera.position.y) * 0.05;
+      camera.lookAt(scene.position);
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Scroll animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal, .stagger').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
