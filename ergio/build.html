@@ -1177,6 +1177,7 @@
           <div class="scan-sub" id="scanSub">ERGIO AI is working</div>
         </div>
         <div class="scan-steps-list" id="scanStepsList"></div>
+        <button id="cancelBuildBtn" onclick="cancelBuild()" style="margin-top:1rem;padding:8px 20px;border-radius:10px;background:rgba(255,71,87,.15);border:1px solid rgba(255,71,87,.3);color:#ff4757;font-weight:600;cursor:pointer;font-size:13px;transition:all .2s;display:none">✕ Cancel Build</button>
       </div>
       <!-- Actual iframe -->
       <iframe id="previewIframe" style="display:none" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
@@ -1772,13 +1773,32 @@ function updateScanStep(stepId, state) {
   el.className = 'scan-step ' + state;
 }
 
+let buildAbortController = null;
+
+function cancelBuild() {
+  if (buildAbortController) {
+    buildAbortController.abort();
+    buildAbortController = null;
+  }
+  isBuilding = false;
+  document.getElementById('sendBtn').disabled = false;
+  document.getElementById('deployBtn').disabled = false;
+  showScanOverlay(false);
+  document.getElementById('cancelBuildBtn').style.display = 'none';
+  document.getElementById('buildProgressMsg')?.remove();
+  toast('Build cancelled', 'info');
+  addMessage('ai', '⚠️ Build cancelled. You can try again anytime.');
+}
+
 async function buildWebsite(prompt) {
   isBuilding = true;
   document.getElementById('sendBtn').disabled = true;
   document.getElementById('deployBtn').disabled = true;
+  buildAbortController = new AbortController();
   
   // Show scan overlay on preview
   showScanOverlay(true, '🧠 Analyzing your business...', 'Planning brand + content + website');
+  document.getElementById('cancelBuildBtn').style.display = 'block';
   
   // Add progress message in chat
   addProgressMsg();
@@ -1787,7 +1807,8 @@ async function buildWebsite(prompt) {
     const response = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({ prompt }),
+      signal: buildAbortController?.signal
     });
     
     if (!response.ok) throw new Error('Generation failed: ' + response.status);

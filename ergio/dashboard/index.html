@@ -466,7 +466,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
     <div class="nav-item" data-tab="security" onclick="switchTab('security')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Security Center</span></div>
 
   </div>
-  <div class="sidebar-footer"><div class="user-badge" onclick="switchTab('profile')" title="Open Profile"><div class="user-avatar" id="userAvatar" style="position:relative"><span id="userAvatarText">E</span><img id="userAvatarImg" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;inset:0"/></div><div class="user-info"><div class="user-name" id="userName">Demo User</div><div class="user-email" id="userEmail">demo@ergio.app</div></div><div style="margin-left:auto;opacity:.4;font-size:.8rem">›</div></div></div>
+  <div class="sidebar-footer"><div class="user-badge" onclick="switchTab('profile')" title="Open Profile"><div class="user-avatar" id="userAvatar" style="position:relative"><span id="userAvatarText">E</span><img id="userAvatarImg" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;inset:0"/></div><div class="user-info"><div class="user-name" id="userName">Demo User</div><div class="user-email" id="userEmail">demo@ergio.app</div></div><div style="margin-left:auto;opacity:.4;font-size:.8rem">›</div></div><button onclick="handleLogout()" title="Logout" style="width:100%;margin-top:.5rem;padding:8px;border-radius:10px;background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.15);color:var(--muted);cursor:pointer;font-size:.75rem;font-weight:500;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px">🚪 <span>Logout</span></button></div>
 </div>
 <div class="main">
   <div class="topbar"><div><h1 id="pageTitle">Overview</h1></div><div class="topbar-right"><span id="engineStatusBadge" style="font-size:.72rem;padding:.25rem .6rem;border-radius:8px;background:rgba(255,255,255,.04);color:var(--muted)">Checking...</span><button class="btn btn-ghost btn-sm" onclick="window.open('../index.html','_blank')">View Site</button><button class="btn btn-primary btn-sm" onclick="switchTab('conductor')">Conductor</button></div></div>
@@ -1359,6 +1359,16 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
           </div>
         </div>
         <button class="btn btn-ghost btn-sm" onclick="exportProfileData()">Export</button>
+      </div>
+      <div class="security-item" style="border-color:rgba(0,217,255,.2)">
+        <div class="security-item-left">
+          <div class="security-item-icon" style="background:rgba(0,217,255,.1)">🚪</div>
+          <div>
+            <div style="font-weight:600;color:var(--cyan);font-size:.88rem">Logout</div>
+            <div style="font-size:.75rem;color:var(--muted)">Sign out of your ERGIO account</div>
+          </div>
+        </div>
+        <button class="btn btn-sm" style="background:rgba(0,217,255,.1);color:var(--cyan);border:1px solid rgba(0,217,255,.3)" onclick="handleLogout()">Logout</button>
       </div>
       <div class="security-item" style="border-color:rgba(248,81,73,.2)">
         <div class="security-item-left">
@@ -2276,6 +2286,15 @@ function checkConductorStatus(){
     s.textContent='⚠️ Not loaded';s.style.color='var(--yellow)'
   }
 }
+/* sendConductorMessage — alias used by AI Employees and Missions to send tasks to the conductor */
+function sendConductorMessage(text){
+  /* Switch to conductor tab and send message */
+  switchTab('conductor');
+  var i=document.getElementById('chatInput');
+  if(i){i.value=text;i.focus();autoResize(i);}
+  /* Auto-send after a short delay to let the tab switch */
+  setTimeout(function(){sendChatMessage();},300);
+}
 function handleChatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChatMessage()}}
 function autoResize(e){e.style.height='auto';e.style.height=Math.min(e.scrollHeight,120)+'px'}
 function handleFileUpload(e){Array.from(e.target.files).forEach(f=>{attachedFiles.push(f);const c=document.getElementById('chatAttached');c.style.display='flex';c.innerHTML+='<div class="chat-attach-item"><span>📎</span>'+f.name+'<span style="cursor:pointer;color:var(--red);font-weight:700" onclick="this.parentElement.remove()">×</span></div>'});e.target.value=''}
@@ -2386,6 +2405,15 @@ function buildConductorSystemPrompt(ctx){
   p+='5. Be proactive — suggest next steps after completing tasks.\n';
   p+='6. When the user asks for something complex, break it down into steps and explain your plan.\n\n';
   if(ctx){
+    /* Add connected agent frameworks */
+    var connectedAgents=getConnectedAgents();
+    if(connectedAgents.length>0){
+      p+='CONNECTED AI AGENT FRAMEWORKS ('+connectedAgents.length+'):\n';
+      connectedAgents.forEach(function(a){
+        p+=' - '+a.name+' ['+a.id+'] (capabilities: '+a.capabilities.join(', ')+')\n';
+      });
+      p+='\nYou can delegate tasks to these AI agents. Use their specific capabilities for specialized tasks.\n\n';
+    }
     p+='CONNECTED ENGINES ('+ctx.engines.length+'):\n';
     ctx.engines.forEach(e=>p+=' - '+e+'\n');
     p+='\nCONNECTED MCP SERVERS ('+ctx.connectedMcps.length+'):\n';
@@ -3171,7 +3199,33 @@ var key=prompt('Enter your '+name+' API key:');    if(!key){      if(btn){btn.te
 if(key.length<10){      errorMsg='Key is too short. Please enter a valid API key.';    }else{      /* Try to validate with the engine backend */
 if(ENGINES){        try{          await ENGINES.connectPlugin({id:id,name:name,envVars:{api_key:key}});          valid=true;        }catch(e){errorMsg=e.message||'Validation failed';}      }else{        /* Local validation — at least check format */
 valid=true; /* Can't validate without backend */
-}    }  }    if(valid){    if(ENGINES){try{await ENGINES.connectPlugin({id:id,name:name,envVars:{}});}catch(e){}}    var s=JSON.parse(localStorage.getItem('ergio_plugins')||'{}');    s[id]={name:name,connected_at:new Date().toISOString()};    localStorage.setItem('ergio_plugins',JSON.stringify(s));    showToast('✅ '+name+' connected!','success');    if(btn){btn.textContent='✓ Connected';btn.style.background='var(--green)';btn.style.color='#000';}    setTimeout(function(){loadPluginsGrid()},500);  }else{    showToast('❌ '+(errorMsg||'Invalid key for '+name),'error');    if(btn){btn.textContent='Connect';btn.disabled=false;}  }}/* Connect agent framework to conductor — enables conductor to call agents */
+}    }  }    if(valid){    if(ENGINES){try{await ENGINES.connectPlugin({id:id,name:name,envVars:{}});}catch(e){}}    var s=JSON.parse(localStorage.getItem('ergio_plugins')||'{}');    s[id]={name:name,connected_at:new Date().toISOString()};    localStorage.setItem('ergio_plugins',JSON.stringify(s));
+    /* If this is an agent framework, connect it to the conductor */
+    var fwIds=['hermes','openclaw','composio','glama','kimi','crewai'];
+    if(fwIds.indexOf(id)>=0){
+      connectAgentToConductor(id,name,getAgentCapabilities(id));
+    }    showToast('✅ '+name+' connected!','success');    if(btn){btn.textContent='✓ Connected';btn.style.background='var(--green)';btn.style.color='#000';}    setTimeout(function(){loadPluginsGrid()},500);  }else{    showToast('❌ '+(errorMsg||'Invalid key for '+name),'error');    if(btn){btn.textContent='Connect';btn.disabled=false;}  }}/* Connect agent framework to conductor — enables conductor to call agents */
+function connectAgentToConductor(agentId, agentName, capabilities){
+  /* Store connected agents in localStorage for conductor context */
+  var agents=JSON.parse(localStorage.getItem('ergio_connected_agents')||'[]');
+  var exists=agents.find(function(a){return a.id===agentId});
+  if(!exists){
+    agents.push({id:agentId,name:agentName,capabilities:capabilities||[],connected_at:new Date().toISOString()});
+    localStorage.setItem('ergio_connected_agents',JSON.stringify(agents));
+  }
+  /* Update conductor context cache */
+  conductorContextCache=null; /* Force refresh on next message */
+  showToast('✅ '+agentName+' connected to Conductor!','success');
+}
+function getConnectedAgents(){
+  return JSON.parse(localStorage.getItem('ergio_connected_agents')||'[]');
+}
+function disconnectAgentFromConductor(agentId){
+  var agents=JSON.parse(localStorage.getItem('ergio_connected_agents')||'[]');
+  agents=agents.filter(function(a){return a.id!==agentId});
+  localStorage.setItem('ergio_connected_agents',JSON.stringify(agents));
+  conductorContextCache=null;
+}
 async function connectAgentToConductor(id,name,env){  var btn=event?event.target:null;  if(btn){btn.textContent='⏳ Connecting...';btn.disabled=true;}    /* Check if env var is needed */
 if(env&&env!=='none'){    var key=prompt('Enter your '+name+' API key (required):');    if(!key){      if(btn){btn.textContent='Connect';btn.disabled=false;}      return;    }    if(key.length<10){      showToast('❌ Key is too short. Please enter a valid API key for '+name,'error');      if(btn){btn.textContent='Connect';btn.disabled=false;}      return;    }    /* Store the key */
 var s=JSON.parse(localStorage.getItem('ergio_agents')||'{}');    s[id]={name:name,connected_at:new Date().toISOString(),env:env,has_key:true};    localStorage.setItem('ergio_agents',JSON.stringify(s));  }else{    var s2=JSON.parse(localStorage.getItem('ergio_agents')||'{}');    s2[id]={name:name,connected_at:new Date().toISOString(),env:'none',has_key:false};    localStorage.setItem('ergio_agents',JSON.stringify(s2));  }    /* Register agent with conductor */
