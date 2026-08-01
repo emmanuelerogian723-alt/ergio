@@ -2509,7 +2509,57 @@ async function sendChatMessage(){
   }
 }
 /* Build rich response from conductor output — Claude-like formatting */
-function buildConductorResponse(c,ctx){  var output='';  if(c.summary)output+=c.summary+'\n\n';  if(c.sub_tasks&&c.sub_tasks.length>0){    c.sub_tasks.forEach(function(t){      var icon=t.status==='completed'?'✅':t.status==='failed'?'❌':t.status==='blocked'?'🔒':'⏳';      output+=icon+' '+(t.engine||'')+' → '+(t.action||'')+' ['+(t.status||'?')+']\n';      if(t.result&&t.result.result){        var r=t.result.result;        if(r.leads_found)output+='   Found '+r.leads_found+' leads\n';        if(r.seo_package)output+='   SEO package generated\n';        if(r.landingPageCopy)output+='   Landing page copy ready\n';        if(r.website_html)output+='   Website HTML generated\n';        if(r.message)output+='   '+r.message+'\n';      }      /* Show blocked MCP info */
+function buildConductorResponse(c,ctx){
+  var output='';
+  if(c.summary)output+=c.summary+'\n\n';
+  /* Money Making Mode — show detected opportunities */
+  if(c.money_opportunities&&c.money_opportunities.length>0){
+    output+='💰 *Revenue Opportunities Detected:*\n';
+    c.money_opportunities.forEach(function(o){
+      output+='  • '+o.type.replace(/_/g,' ')+': '+o.value+'\n';
+    });
+    output+='\n';
+  }
+  /* Business Intelligence — show insights */
+  if(c.business_intelligence&&c.business_intelligence.performance_score!==undefined){
+    var score=c.business_intelligence.performance_score;
+    var bar='';for(var i=0;i<10;i++)bar+=i<Math.round(score/10)?'█':'░';
+    output+='📊 *Business Intelligence* (Score: '+score+'/100)\n';
+    output+='  '+bar+'\n';
+    if(c.business_intelligence.revenue&&c.business_intelligence.revenue.total!==undefined){
+      output+='  Revenue: ₦'+c.business_intelligence.revenue.total+' ('+c.business_intelligence.revenue.trend+')\n';
+    }
+    if(c.business_intelligence.recommendations){
+      c.business_intelligence.recommendations.forEach(function(r){
+        output+='  → '+r+'\n';
+      });
+    }
+    output+='\n';
+  }
+  if(c.sub_tasks&&c.sub_tasks.length>0){
+    c.sub_tasks.forEach(function(t){
+      var icon=t.status==='completed'?'✅':t.status==='failed'?'❌':t.status==='pending_approval'?'⏳':'⏸️';
+      output+=icon+' *'+t.engine.replace(/_/g,' ')+'*: '+t.action+'\n';
+      if(t.result&&t.result.result)output+='  Result: '+JSON.stringify(t.result.result).slice(0,200)+'\n';
+      if(t.status==='pending_approval')output+='  ⏳ Waiting for your approval\n';
+      if(t.status==='blocked')output+='  ⛔ Tool not connected — check MCP and Plugins tab\n';
+    });
+    output+='\n';
+  }
+  if(c.pending_approvals&&c.pending_approvals.length>0){
+    output+='⏳ *Pending Approvals:*\n';
+    c.pending_approvals.forEach(function(a){
+      output+='  - '+a.action+' → '+a.target+'\n';
+      if(a.content_preview)output+='    Preview: '+a.content_preview.slice(0,100)+'\n';
+    });
+    output+='\n';
+  }
+  if(c.next_steps&&c.next_steps.length>0){
+    output+='Next steps:\n';
+    c.next_steps.forEach(function(s){output+='   → '+s+'\n';});
+  }
+  if(!output)output=JSON.stringify(c,null,2).slice(0,1000);
+  return output;}      /* Show blocked MCP info */
 if(t.status==='blocked'&&t.result&&t.result.mcp_needed){        output+='   ⚠️ Requires: '+t.result.mcp_needed+' MCP (not connected)\n';      }    });    output+='\n';  }  if(c.pending_approvals&&c.pending_approvals.length>0){    output+='⏸ Pending approvals:\n';    c.pending_approvals.forEach(function(a){output+='   - '+(a.action||'')+' → '+(a.target||'')+'\n'});    output+='\n';  }  if(c.next_steps&&c.next_steps.length>0){    output+='Next steps:\n';    c.next_steps.forEach(function(s){output+='   → '+s+'\n'});  }  if(!output)output=JSON.stringify(c,null,2).slice(0,1000);  return output;}
 function renderStreamEvent(bubble,type,data){
   const msg=(data.message||data.summary||'').replace(/</g,'&lt;');
