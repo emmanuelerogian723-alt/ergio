@@ -60,6 +60,7 @@ export default async function handler(req, res) {
       case 'console-bridge': return await handleConsoleBridge(req, res);
       case 'console-bridge-sync': return await handleConsoleBridgeSync(req, res);
       case 'site': return await handleSite(req, res);
+      case 'preview': return await handlePreview(req, res);
       default: return success(res, { name: 'ERGIO API', version: '2.0.0', route: segments.join('/'), endpoints: ['generate','refine','auth','payments','bookings','business','leads','outreach','engines','analytics','whatsapp','social','seo','smart-pricing','card','invoices','expenses','notifications','referrals','reviews','mcp','crm','assistant','health','console-bridge','console-bridge-sync','site'] });
     }
   } catch (err) {
@@ -692,3 +693,28 @@ ${faq.length?`<section class="section"><h2>FAQ</h2>${faq.map(f=>`<div class="car
 </body></html>`;
 }
 // Cache bust Sat Jul 18 18:29:03 UTC 2026
+
+// ============ PREVIEW (serve generated HTML) ============
+async function handlePreview(req, res) {
+  const url = new URL(req.url, 'http://localhost');
+  const params = url.searchParams;
+  
+  if (req.method === 'POST') {
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+    const { html } = body;
+    if (!html) return error(res, 'html required', 400);
+    res.setHeader('Content-Type', 'text/html');
+    return res.status(200).send(html);
+  }
+  
+  if (req.method === 'GET') {
+    const html = params.get('html');
+    if (html) {
+      res.setHeader('Content-Type', 'text/html');
+      return res.status(200).send(html);
+    }
+    return error(res, 'Use POST with html in body, or GET with ?html=', 400);
+  }
+  
+  return error(res, 'Method not allowed', 405);
+}
