@@ -414,8 +414,25 @@
   .modal-overlay {
     position: fixed; inset: 0; z-index: 200;
     background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
-    display: flex; align-items: flex-end; justify-content: center;
+    display: none; align-items: flex-end; justify-content: center;
   }
+  .modal-overlay.open {
+    display: flex;
+  }
+  /* BIG, tappable close button */
+  .modal-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 44px; height: 44px;
+    background: rgba(255,255,255,0.1);
+    border: 1.5px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    color: #fff; font-size: 20px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    line-height: 1; transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .modal-close:active { background: rgba(255,71,87,0.3); border-color: #ff4757; }
+  .modal { position: relative; }
   .modal {
     background: var(--sidebar); border: 1px solid var(--border);
     border-radius: 20px 20px 0 0;
@@ -1196,9 +1213,9 @@
 </div>
 
 <!-- Deploy Modal -->
-<div class="modal-overlay" id="deployModal">
+<div class="modal-overlay" id="deployModal" onclick="handleModalOverlayClick(event)">
   <div class="modal">
-    <button class="modal-close" onclick="closeDeployModal()">×</button>
+    <button class="modal-close" onclick="closeDeployModal()" aria-label="Close">✕</button>
     <div class="modal-title">🚀 Deploy Your Website</div>
     <div class="modal-sub">Choose where to publish your website</div>
     <div class="deploy-options">
@@ -2133,6 +2150,9 @@ function downloadCode() {
   toast('File downloaded!', 'success');
 }
 
+function handleModalOverlayClick(e) {
+  if (e.target.id === 'deployModal') closeDeployModal();
+}
 function openDeployModal() {
   document.getElementById('deployModal').classList.add('open');
   document.getElementById('deployResult').style.display = 'none';
