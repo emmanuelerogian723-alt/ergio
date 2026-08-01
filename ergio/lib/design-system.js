@@ -238,6 +238,8 @@ export function autoDetectStyle(businessType, category, description = '', tone =
   if (/photo|design|creative|artist|portfolio|studio|gallery/.test(combined)) return 'canvas';
   if (/farm|agric|organic|eco|green|nature|food.production/.test(combined)) return 'terra';
   if (/construction|building|contractor|architecture|engineering/.test(combined)) return 'zinc';
+  if (/fintech|neobank|payment.*app|wallet.*app|crypto|investment.*platform|wealth.*manage/.test(combined)) return 'editorial';
+  if (/finance|bank|invest|insurance|legal|law|consult/.test(combined)) return 'slate';
   if (/church|ministry|ngo|foundation|charity/.test(combined)) return 'naija';
   if (/african|naija|nigeria|local|ankara|kente/.test(combined)) return 'kente';
   if (/luxury|premium|exclusive|vip|concierge/.test(combined)) return 'onyx';
