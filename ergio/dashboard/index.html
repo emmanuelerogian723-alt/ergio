@@ -2753,12 +2753,33 @@ function buildConductorResponse(c,ctx){
     output+='\n';
   }
   if(c.sub_tasks&&c.sub_tasks.length>0){
+    /* Check if this is a fast-path conversational response */
+    var fastPath=c.sub_tasks.length===1&&c.sub_tasks[0].engine==='conductor'&&c.sub_tasks[0].action==='chat';
+    if(fastPath&&c.sub_tasks[0].result&&c.sub_tasks[0].result.content){
+      return c.sub_tasks[0].result.content;
+    }
     c.sub_tasks.forEach(function(t){
       var icon=t.status==='completed'?'✅':t.status==='failed'?'❌':t.status==='pending_approval'?'⏳':'⏸️';
-      output+=icon+' *'+t.engine.replace(/_/g,' ')+'*: '+t.action+'\n';
-      if(t.result&&t.result.result)output+='  Result: '+JSON.stringify(t.result.result).slice(0,200)+'\n';
+      /* Extract content from various response structures */
+      var resultData=t.result||{};
+      var innerResult=resultData.result||resultData;
+      var textContent=innerResult.content||innerResult.message||innerResult.text||innerResult.response||'';
+      if(textContent&&typeof textContent==='string'&&textContent.length>20&&t.status==='completed'){
+        output+=icon+' '+textContent+'\n\n';
+      }else{
+        output+=icon+' *'+t.engine.replace(/_/g,' ')+'*: '+t.action+'\n';
+        if(textContent&&typeof textContent==='string')output+='  '+textContent.slice(0,200)+'\n';
+        else if(innerResult&&typeof innerResult==='object'){
+          var keys=Object.keys(innerResult).filter(function(k){return k!=='status'&&k!=='completed'});
+          keys.slice(0,3).forEach(function(k){
+            var v=innerResult[k];
+            if(typeof v==='string'&&v.length>0)output+='  '+k+': '+v.slice(0,120)+'\n';
+          });
+        }
+      }
       if(t.status==='pending_approval')output+='  ⏳ Waiting for your approval\n';
       if(t.status==='blocked')output+='  ⛔ Tool not connected — check MCP and Plugins tab\n';
+      if(t.status==='failed'&&resultData.error)output+='  Error: '+resultData.error+'\n';
     });
     output+='\n';
   }
