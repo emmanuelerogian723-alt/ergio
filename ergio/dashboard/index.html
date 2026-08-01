@@ -1972,6 +1972,26 @@ renderCloudServices();
 loadWorkspaceStats();
 }
 
+function editWorkspaceSection(section){
+    const titles = {profile:'Business Profile', services:'Services & Pricing', hours:'Operating Hours', team:'Team Members', faq:'FAQ Section'};
+    showToast('Editing ' + (titles[section] || section), 'info');
+    // Scroll to the section and highlight it
+    const sectionEl = document.getElementById('ws-' + section);
+    if (sectionEl) {
+        sectionEl.scrollIntoView({behavior:'smooth', block:'center'});
+        sectionEl.style.transition = 'box-shadow 0.3s';
+        sectionEl.style.boxShadow = '0 0 0 2px var(--cyan)';
+        setTimeout(() => sectionEl.style.boxShadow = '', 2000);
+        // Make inputs editable
+        sectionEl.querySelectorAll('input, textarea, select').forEach(el => {
+            el.focus();
+            el.style.transition = 'border-color 0.3s';
+            el.style.borderColor = 'var(--cyan)';
+            setTimeout(() => el.style.borderColor = '', 2000);
+        });
+    }
+}
+
 function saveWorkspaceProfile(){
 var p={name:wsBusinessName.value,industry:wsIndustry.value,country:wsCountry.value,size:wsSize.value,savedAt:Date.now()};
 localStorage.setItem('ergio_workspace',JSON.stringify(p));
