@@ -8,7 +8,10 @@
 
 import { callGroq, callGroqFast, success, error, corsHeaders, generateSlug, generateLogoUrl, getSupabase } from '../lib/ergio.js';
 import { searchImages, planImages, fetchWebsiteImages, generateAIImage, getFallbackImage } from '../lib/images.js';
-import { DESIGN_STYLES, autoDetectStyle } from '../lib/design-system.js';
+import { DESIGN_STYLES as _BASE_STYLES, EXTRA_DESIGN_STYLES, autoDetectStyle } from '../lib/design-system.js';
+
+// Merge all design styles into one lookup
+const DESIGN_STYLES = { ..._BASE_STYLES, ...EXTRA_DESIGN_STYLES };
 
 export default async function handler(req, res) {
   corsHeaders(res);
@@ -358,6 +361,8 @@ Return ONLY JSON:
       /3d|interactive|animated|immersive|motion|3dimentional/i.test(prompt + JSON.stringify(answers || {}));
     const designStyleKey = plan.designStyle || plan._design?.name?.toLowerCase() || 'nova';
     const isEditorial = ['editorial', 'split', 'bento'].includes(designStyleKey);
+    const isTransix = ['transix', 'aurora', 'darkglass'].includes(designStyleKey);
+    const isClay = designStyleKey === 'clay';
     
     let websiteHtml;
     const contentForHTML = content;
@@ -372,9 +377,13 @@ Return ONLY JSON:
     try {
       websiteHtml = is3D 
         ? generate3DWebsiteHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
-        : isEditorial
-          ? generateEditorialHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
-          : generateWebsiteHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images);
+        : isTransix
+          ? generateTransixHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
+          : isEditorial
+            ? generateEditorialHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
+            : isClay
+              ? generateClayHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
+              : generateWebsiteHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images);
     } catch(genErr) {
       console.error('HTML generation error:', genErr.message, genErr.stack);
       // Fallback minimal HTML
@@ -1227,6 +1236,730 @@ function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {})
 </html>`;
 }
 
+
+// ============ CLAY MORPHISM WEBSITE GENERATOR ============
+function generateClayHTML(plan, brand, content, colors, logoUrl, images = {}) {
+  const hero = content.hero || {};
+  const about = content.about || '';
+  const whyChooseUs = content.whyChooseUs || [];
+  const testimonials = content.testimonials || [];
+  const faq = content.faq || [];
+  const contact = content.contactInfo || {};
+  const businessName = plan.businessName || 'Your Business';
+
+  const heroImg = images.hero?.[0]?.url || '';
+  const galleryImgs = (images.gallery || []).map(i => i.url);
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${content.seoTitle || businessName}</title>
+<meta name="description" content="${content.seoDescription || plan.description || ''}">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#F0EDE8;--surface:#E8E4DE;--text:#1a1a1a;--muted:#6b6b6b;--primary:#FF6B47;--accent:#4ECDC4;--shadow:0 8px 32px rgba(0,0,0,0.06),0 2px 8px rgba(0,0,0,0.04);--shadow-lg:0 20px 60px rgba(0,0,0,0.08),0 8px 24px rgba(0,0,0,0.06)}
+html{scroll-behavior:smooth}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6}
+h1,h2,h3,h4,h5{font-family:'Nunito',sans-serif;font-weight:800}
+.reveal{opacity:0;transform:translateY(28px);transition:all .7s cubic-bezier(.16,1,.3,1)}
+.reveal.active{opacity:1;transform:translateY(0)}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+.nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 5%;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);background:rgba(240,237,232,0.85);border-bottom:1px solid rgba(0,0,0,0.06)}
+.nav-logo{display:flex;align-items:center;gap:.5rem;font-weight:800;font-size:1.1rem;text-decoration:none;color:var(--text)}
+.nav-logo-mark{width:36px;height:36px;background:var(--primary);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;box-shadow:var(--shadow)}
+.nav-links{display:flex;gap:2rem}
+.nav-links a{color:var(--muted);text-decoration:none;font-weight:600;font-size:.9rem;transition:color .2s}
+.nav-links a:hover{color:var(--primary)}
+.nav-cta{background:var(--primary);color:#fff;padding:.5rem 1.3rem;border-radius:100px;font-weight:700;font-size:.88rem;text-decoration:none;box-shadow:var(--shadow);transition:all .25s}
+.nav-cta:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+
+.hero{padding:3rem 5%;display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;min-height:75vh}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:#fff;border:1px solid rgba(0,0,0,0.06);padding:.4rem 1rem;border-radius:100px;font-size:.78rem;font-weight:700;color:var(--primary);box-shadow:var(--shadow);width:fit-content}
+.hero-title{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:900;line-height:1;letter-spacing:-.03em}
+.hero-title .accent{color:var(--primary)}
+.hero-desc{color:var(--muted);font-size:1.1rem;max-width:420px;margin-top:1rem}
+.hero-cta{display:flex;gap:1rem;margin-top:1.5rem;flex-wrap:wrap}
+.btn-primary{background:var(--primary);color:#fff;padding:.9rem 2rem;border-radius:100px;font-weight:800;font-size:.95rem;text-decoration:none;box-shadow:var(--shadow-lg);transition:all .25s;border:none;cursor:pointer}
+.btn-primary:hover{transform:translateY(-3px)}
+.btn-ghost{background:#fff;color:var(--text);padding:.9rem 2rem;border-radius:100px;font-weight:700;font-size:.95rem;text-decoration:none;border:1px solid rgba(0,0,0,0.06);box-shadow:var(--shadow);transition:all .25s}
+.btn-ghost:hover{transform:translateY(-3px)}
+.hero-visual{display:flex;align-items:center;justify-content:center;position:relative}
+.hero-card{background:#fff;border-radius:28px;padding:2rem;box-shadow:var(--shadow-lg);width:100%;max-width:380px;animation:float 5s ease-in-out infinite}
+.hero-card-img{width:100%;height:200px;border-radius:20px;object-fit:cover;margin-bottom:1.5rem}
+.hero-card-row{display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px solid rgba(0,0,0,0.06)}
+.hero-card-row:last-child{border:none}
+.hero-card-label{font-size:.85rem;color:var(--muted);font-weight:600}
+.hero-card-val{font-weight:800;color:var(--primary)}
+.hero-float{position:absolute;background:#fff;border-radius:16px;padding:.8rem 1.2rem;box-shadow:var(--shadow-lg);animation:float 4s ease-in-out infinite}
+.hero-float.f1{top:5%;left:-5%}
+.hero-float.f2{bottom:10%;right:-5%;animation-delay:1s}
+.float-emoji{font-size:1.5rem}
+.float-text{font-size:.75rem;font-weight:700;color:var(--text);margin-top:.2rem}
+
+.features{padding:4rem 5%;max-width:1200px;margin:0 auto}
+.features h2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;text-align:center;margin-bottom:.5rem}
+.features .sub{text-align:center;color:var(--muted);margin-bottom:2.5rem}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem}
+.feat-card{background:#fff;border-radius:24px;padding:2rem;box-shadow:var(--shadow);transition:all .3s;cursor:pointer}
+.feat-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg)}
+.feat-icon{width:52px;height:52px;border-radius:16px;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#fff;margin-bottom:1rem;box-shadow:var(--shadow)}
+.feat-title{font-size:1.2rem;font-weight:800;margin-bottom:.4rem}
+.feat-desc{font-size:.9rem;color:var(--muted);line-height:1.6}
+
+.svc-list{padding:4rem 5%;max-width:1200px;margin:0 auto}
+.svc-list h2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;text-align:center;margin-bottom:.5rem}
+.svc-list .sub{text-align:center;color:var(--muted);margin-bottom:2.5rem}
+.svc-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+.svc-card{background:#fff;border-radius:24px;padding:1.8rem;box-shadow:var(--shadow);transition:all .3s}
+.svc-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.svc-card-name{font-weight:800;font-size:1.1rem;margin-bottom:.3rem}
+.svc-card-desc{font-size:.85rem;color:var(--muted);margin-bottom:1rem}
+.svc-card-price{font-size:1.4rem;font-weight:900;color:var(--primary)}
+.svc-card-btn{display:block;text-align:center;background:var(--bg);color:var(--text);padding:.7rem;border-radius:100px;font-weight:700;font-size:.88rem;text-decoration:none;margin-top:1rem;transition:background .2s}
+.svc-card-btn:hover{background:var(--primary);color:#fff}
+
+.testi{padding:4rem 5%;max-width:1200px;margin:0 auto}
+.testi h2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;text-align:center;margin-bottom:2.5rem}
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+.testi-card{background:#fff;border-radius:24px;padding:2rem;box-shadow:var(--shadow)}
+.testi-stars{color:var(--primary);font-size:1.1rem;margin-bottom:1rem}
+.testi-text{font-size:.95rem;line-height:1.7;margin-bottom:1.2rem}
+.testi-author{display:flex;align-items:center;gap:.8rem}
+.testi-avatar{width:42px;height:42px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff}
+.testi-name{font-weight:700}
+.testi-loc{font-size:.8rem;color:var(--muted)}
+
+.faq{padding:4rem 5%;max-width:1200px;margin:0 auto}
+.faq h2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;text-align:center;margin-bottom:2.5rem}
+.faq-list{display:flex;flex-direction:column;gap:.75rem;max-width:700px;margin:0 auto}
+.faq-item{background:#fff;border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.faq-q{display:flex;justify-content:space-between;align-items:center;padding:1.3rem 1.5rem;cursor:pointer;font-weight:700;font-size:.95rem;gap:1rem}
+.faq-icon{font-size:1.2rem;color:var(--muted);transition:transform .3s}
+.faq-item.open .faq-icon{transform:rotate(45deg);color:var(--primary)}
+.faq-a{padding:0 1.5rem;max-height:0;overflow:hidden;transition:max-height .4s ease,padding .4s ease;color:var(--muted);font-size:.9rem;line-height:1.7}
+.faq-item.open .faq-a{max-height:300px;padding-bottom:1.3rem}
+
+.cta{margin:0 5% 4rem;padding:3rem;border-radius:28px;background:var(--primary);text-align:center;box-shadow:var(--shadow-lg)}
+.cta h2{font-size:clamp(1.6rem,3vw,2.4rem);font-weight:900;color:#fff;margin-bottom:.5rem}
+.cta p{color:rgba(255,255,255,0.8);margin-bottom:1.5rem}
+.cta .btn-white{background:#fff;color:var(--primary);padding:.9rem 2.5rem;border-radius:100px;font-weight:800;font-size:.95rem;text-decoration:none;display:inline-block;transition:transform .2s}
+.cta .btn-white:hover{transform:scale(1.05)}
+
+.footer{padding:2rem 5%;border-top:1px solid rgba(0,0,0,0.06);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.footer-left{font-weight:800}
+.footer-right{font-size:.8rem;color:var(--muted)}
+.footer-right a{color:var(--primary);text-decoration:none;font-weight:700}
+
+@media(max-width:768px){
+.hero{grid-template-columns:1fr}
+.hero-visual{display:none}
+.nav-links{display:none}
+.footer{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+<nav class="nav">
+<a href="#" class="nav-logo"><div class="nav-logo-mark">${businessName.charAt(0)}</div>${businessName}</a>
+<div class="nav-links"><a href="#features">Features</a><a href="#services">Services</a><a href="#faq">FAQ</a></div>
+<a href="#contact" class="nav-cta">Get Started</a>
+</nav>
+
+<section class="hero">
+<div>
+<div class="hero-badge reveal active">✨ ${plan.tagline || 'Trusted by 500+ happy clients'}</div>
+<h1 class="hero-title reveal active">${businessName.split(' ').slice(0,2).join(' ')}<br><span class="accent">${businessName.split(' ').slice(2).join(' ') || 'Made Easy'}</span></h1>
+<p class="hero-desc reveal">${hero.subheadline || plan.description || 'Premium quality service you can trust.'}</p>
+<div class="hero-cta reveal">
+<a href="#contact" class="btn-primary">Get Started →</a>
+<a href="#services" class="btn-ghost">View Services</a>
+</div>
+</div>
+<div class="hero-visual">
+<div class="hero-card reveal-scale">
+${heroImg ? `<img src="${heroImg}" class="hero-card-img" alt="${businessName}">` : ''}
+<div class="hero-card-row"><span class="hero-card-label">Happy Clients</span><span class="hero-card-val">500+</span></div>
+<div class="hero-card-row"><span class="hero-card-label">Rating</span><span class="hero-card-val">★ 4.9</span></div>
+<div class="hero-card-row"><span class="hero-card-label">Response</span><span class="hero-card-val">Fast</span></div>
+</div>
+<div class="hero-float f1"><div class="float-emoji">⭐</div><div class="float-text">Top Rated</div></div>
+<div class="hero-float f2"><div class="float-emoji">✅</div><div class="float-text">Verified</div></div>
+</div>
+</section>
+
+<section class="features" id="features">
+<h2 class="reveal">Why choose <span style="color:var(--primary)">us</span>?</h2>
+<p class="sub reveal">Everything you need, all in one place</p>
+<div class="feat-grid">
+${(whyChooseUs.length ? whyChooseUs : ['Expert Team','Trusted Quality','Fast Service','Best Prices']).map((w,i) => `
+<div class="feat-card reveal">
+<div class="feat-icon">${['🎯','⭐','⚡','💎'][i] || '✨'}</div>
+<div class="feat-title">${w}</div>
+<div class="feat-desc">Professional quality you can count on, every single time.</div>
+</div>`).join('')}
+</div>
+</section>
+
+<section class="svc-list" id="services">
+<h2 class="reveal">Our <span style="color:var(--primary)">Services</span></h2>
+<p class="sub reveal">Simple, transparent pricing</p>
+<div class="svc-cards">
+${(plan.services || []).map(s => `
+<div class="svc-card reveal">
+<div class="svc-card-name">${s.name}</div>
+<div class="svc-card-desc">${s.description || ''}</div>
+<div class="svc-card-price">₦${(s.price||0).toLocaleString()}</div>
+<a href="#contact" class="svc-card-btn">Book Now</a>
+</div>`).join('')}
+</div>
+</section>
+
+${testimonials.length > 0 ? `
+<section class="testi">
+<h2 class="reveal">What clients <span style="color:var(--primary)">say</span></h2>
+<div class="testi-grid">
+${testimonials.map(t => `
+<div class="testi-card reveal">
+<div class="testi-stars">★★★★★</div>
+<div class="testi-text">"${t.text}"</div>
+<div class="testi-author"><div class="testi-avatar">${(t.name||'C').charAt(0)}</div><div><div class="testi-name">${t.name}</div><div class="testi-loc">${t.location||plan.city||'Lagos'}</div></div></div>
+</div>`).join('')}
+</div>
+</section>` : ''}
+
+${faq.length > 0 ? `
+<section class="faq">
+<h2 class="reveal">Common <span style="color:var(--primary)">Questions</span></h2>
+<div class="faq-list">
+${faq.map(f => `
+<div class="faq-item reveal" onclick="this.classList.toggle('open')">
+<div class="faq-q">${f.q}<span class="faq-icon">+</span></div>
+<div class="faq-a">${f.a}</div>
+</div>`).join('')}
+</div>
+</section>` : ''}
+
+<div class="cta reveal" id="contact">
+<h2>Ready to get started?</h2>
+<p>Join 500+ happy clients in ${plan.city || 'Lagos'}</p>
+<a href="tel:${contact.phone||''}" class="btn-white">📞 Call Now</a>
+</div>
+
+<footer class="footer">
+<div class="footer-left">${businessName}</div>
+<div class="footer-right">© ${new Date().getFullYear()} ${businessName}. Built with <a href="https://ergio.vercel.app">ERGIO</a></div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal,.reveal-scale').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>`;
+}
+
+// ============ TRANSIX / AURORA / DARKGLASS WEBSITE GENERATOR ============
+// Inspired by: Transix, Stripe, Vercel, Linear — asymmetric grid, floating UI cards,
+// bold data viz, cobalt/yellow accents, glassmorphism overlays
+function generateTransixHTML(plan, brand, content, colors, logoUrl, images = {}) {
+  const hero = content.hero || {};
+  const about = content.about || '';
+  const whyChooseUs = content.whyChooseUs || [];
+  const testimonials = content.testimonials || [];
+  const faq = content.faq || [];
+  const contact = content.contactInfo || {};
+
+  const ds = DESIGN_STYLES[plan.designStyle] || DESIGN_STYLES.transix;
+  const dp = ds.palette;
+  const df = ds.fonts;
+
+  const bg = dp.bg;
+  const surface = dp.surface;
+  const borderClr = dp.border;
+  const textClr = dp.text;
+  const mutedClr = dp.muted;
+  const primaryClr = dp.primary;
+  const accentClr = dp.accent;
+  const ctaClr = dp.cta;
+  const headingFont = df.heading || 'Space Grotesk';
+  const bodyFont = df.body || 'DM Sans';
+
+  const isDark = !bg.startsWith('#f') && !bg.startsWith('#F') && !bg.startsWith('#e') && !bg.startsWith('#E');
+  const heroImg = images.hero?.[0]?.url || '';
+  const aboutImg = images.about?.[0]?.url || '';
+  const galleryImgs = (images.gallery || []).map(i => i.url);
+
+  const businessName = plan.businessName || 'Your Business';
+  const words = businessName.split(' ');
+  const heroWord1 = words.slice(0, Math.ceil(words.length / 2)).join(' ');
+  const heroWord2 = words.slice(Math.ceil(words.length / 2)).join(' ');
+
+  // Build floating stats cards
+  const floatStats = [
+    { label: 'Active Users', value: '12.4K', trend: '+24%', icon: '📈' },
+    { label: 'Uptime', value: '99.9%', trend: 'SLA', icon: '⚡' },
+    { label: 'Revenue', value: '₦8.2M', trend: '+18%', icon: '💰' },
+  ];
+
+  // Build feature grid
+  const features = (plan.services || []).slice(0, 6).map((s, i) => ({
+    title: s.name,
+    desc: s.description || 'Premium service tailored to your needs',
+    num: '0' + (i + 1),
+    icon: ['⚙️', '📊', '🛡️', '🚀', '🔗', '🎯'][i] || '✨',
+  }));
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${content.seoTitle || businessName + ' — ' + (plan.tagline || '')}</title>
+  <meta name="description" content="${content.seoDescription || plan.description || ''}">
+  <meta property="og:title" content="${businessName}">
+  <meta property="og:description" content="${plan.tagline || ''}">
+  ${heroImg ? `<meta property="og:image" content="${heroImg}">` : ''}
+  <meta name="robots" content="index, follow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --bg:${bg};
+      --surface:${surface};
+      --border:${borderClr};
+      --text:${textClr};
+      --muted:${mutedClr};
+      --primary:${primaryClr};
+      --accent:${accentClr};
+      --cta:${ctaClr};
+      --glass:${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.7)'};
+      --glass-border:${isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)'};
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'${bodyFont}',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6}
+    h1,h2,h3,h4,h5,h6{font-family:'${headingFont}',sans-serif}
+
+    ::-webkit-scrollbar{width:6px}
+    ::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:var(--primary);border-radius:3px}
+
+    /* ANIMATIONS */
+    .reveal{opacity:0;transform:translateY(32px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+    .reveal.active{opacity:1;transform:translateY(0)}
+    .reveal-scale{opacity:0;transform:scale(.85);transition:all .8s cubic-bezier(.16,1,.3,1)}
+    .reveal-scale.active{opacity:1;transform:scale(1)}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+    @keyframes floatRotate{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-8px) rotate(2deg)}}
+    @keyframes pulseGlow{0%,100%{box-shadow:0 0 20px color-mix(in srgb,var(--primary) 30%,transparent)}50%{box-shadow:0 0 40px color-mix(in srgb,var(--primary) 50%,transparent)}}
+    @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes gradientMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    @keyframes spinSlow{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+    /* AMBIENT BG */
+    .ambient{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+    .blob{position:absolute;border-radius:50%;filter:blur(120px);opacity:.3;animation:gradientMove 12s ease-in-out infinite}
+    .blob.b1{width:500px;height:500px;background:var(--primary);top:-150px;right:-100px;background-size:300% 300%}
+    .blob.b2{width:400px;height:400px;background:var(--accent);bottom:-100px;left:-50px;animation-delay:4s;background-size:300% 300%}
+
+    /* NAV */
+    .nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 5%;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:${isDark ? 'rgba(27,31,138,0.6)' : 'rgba(255,255,255,0.8)'};border-bottom:1px solid var(--glass-border)}
+    .nav-logo{display:flex;align-items:center;gap:.6rem;font-weight:800;font-size:1.15rem;color:var(--text);text-decoration:none;font-family:'${headingFont}',sans-serif}
+    .nav-logo-mark{width:32px;height:32px;background:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:${isDark ? '#1B1F8A' : '#fff'};box-shadow:0 4px 16px color-mix(in srgb,var(--primary) 40%,transparent)}
+    .nav-links{display:flex;gap:2rem;align-items:center}
+    .nav-links a{color:var(--muted);text-decoration:none;font-size:.9rem;font-weight:500;transition:color .2s}
+    .nav-links a:hover{color:var(--text)}
+    .nav-cta{background:var(--primary);color:${isDark ? '#1B1F8A' : '#fff'};padding:.55rem 1.3rem;border-radius:100px;font-weight:700;font-size:.88rem;text-decoration:none;border:none;cursor:pointer;transition:all .25s;font-family:'${headingFont}',sans-serif;box-shadow:0 4px 16px color-mix(in srgb,var(--primary) 30%,transparent)}
+    .nav-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px color-mix(in srgb,var(--primary) 50%,transparent)}
+
+    /* HERO — ASYMMETRIC */
+    .hero{position:relative;z-index:1;padding:4rem 5% 2rem;overflow:hidden}
+    .hero-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:3rem;align-items:center;min-height:75vh}
+    .hero-left{display:flex;flex-direction:column;gap:1.5rem}
+    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--glass);border:1px solid var(--glass-border);padding:.4rem 1rem;border-radius:100px;font-size:.78rem;font-weight:600;color:var(--primary);width:fit-content;backdrop-filter:blur(10px)}
+    .hero-badge .dot{width:6px;height:6px;background:var(--primary);border-radius:50%;animation:pulseGlow 2s infinite}
+    .hero-title{font-size:clamp(2.5rem,6vw,5rem);font-weight:800;line-height:1;letter-spacing:-.04em;color:var(--text)}
+    .hero-title .accent{color:var(--primary);position:relative}
+    .hero-title .accent::after{content:'';position:absolute;bottom:4px;left:0;right:0;height:6px;background:var(--accent);opacity:.4;z-index:-1;border-radius:3px}
+    .hero-desc{color:var(--muted);font-size:1.05rem;max-width:440px;line-height:1.65}
+    .hero-cta-row{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+    .btn-primary{background:var(--primary);color:${isDark ? '#1B1F8A' : '#fff'};padding:.8rem 2rem;border-radius:100px;font-weight:700;font-size:.95rem;text-decoration:none;border:none;cursor:pointer;transition:all .25s;font-family:'${headingFont}',sans-serif;display:inline-flex;align-items:center;gap:.5rem;box-shadow:0 4px 20px color-mix(in srgb,var(--primary) 35%,transparent)}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 32px color-mix(in srgb,var(--primary) 50%,transparent)}
+    .btn-ghost{background:var(--glass);color:var(--text);padding:.8rem 2rem;border-radius:100px;font-weight:600;font-size:.95rem;text-decoration:none;border:1px solid var(--glass-border);cursor:pointer;transition:all .25s;font-family:'${headingFont}',sans-serif;backdrop-filter:blur(10px)}
+    .btn-ghost:hover{border-color:var(--text);transform:translateY(-2px)}
+
+    /* HERO RIGHT — FLOATING CARDS */
+    .hero-right{position:relative;min-height:420px;display:flex;align-items:center;justify-content:center}
+    .hero-card-main{width:100%;max-width:360px;background:var(--glass);border:1px solid var(--glass-border);border-radius:24px;padding:1.5rem;backdrop-filter:blur(20px);box-shadow:0 20px 60px rgba(0,0,0,.2);animation:fadeUp 1s cubic-bezier(.16,1,.3,1) .3s both;position:relative;z-index:3}
+    .hero-card-main h4{font-size:1rem;margin-bottom:1rem;color:var(--text)}
+    .hero-card-row{display:flex;justify-content:space-between;align-items:center;padding:.7rem 0;border-bottom:1px solid var(--glass-border)}
+    .hero-card-row:last-child{border-bottom:none}
+    .hero-card-label{font-size:.8rem;color:var(--muted)}
+    .hero-card-val{font-size:.95rem;font-weight:700;color:var(--text)}
+    .hero-card-val.accent{color:var(--primary)}
+    .hero-card-chart{height:60px;display:flex;align-items:flex-end;gap:3px;margin:1rem 0}
+    .hero-card-bar{flex:1;background:linear-gradient(to top,var(--primary),var(--accent));border-radius:3px;animation:float 3s ease-in-out infinite}
+
+    .hero-float{position:absolute;background:var(--glass);border:1px solid var(--glass-border);border-radius:16px;padding:1rem 1.2rem;backdrop-filter:blur(16px);box-shadow:0 12px 40px rgba(0,0,0,.15);z-index:4}
+    .hero-float.f1{top:5%;left:-8%;animation:float 5s ease-in-out infinite}
+    .hero-float.f2{bottom:10%;right:-8%;animation:float 5s ease-in-out infinite 1s}
+    .hero-float.f3{bottom:0;left:5%;animation:floatRotate 6s ease-in-out infinite}
+    .float-icon{font-size:1.4rem;margin-bottom:.3rem}
+    .float-label{font-size:.68rem;color:var(--muted);font-weight:500}
+    .float-value{font-size:1.2rem;font-weight:800;color:var(--text)}
+    .float-trend{font-size:.72rem;font-weight:700;color:var(--primary)}
+
+    /* TRUST BAR */
+    .trust-bar{display:flex;gap:2rem;align-items:center;padding:1.5rem 5%;border-top:1px solid var(--glass-border);border-bottom:1px solid var(--glass-border);flex-wrap:wrap;position:relative;z-index:1}
+    .trust-label{font-size:.78rem;color:var(--muted);font-weight:600;white-space:nowrap}
+    .trust-item{font-size:.9rem;font-weight:700;color:var(--text);opacity:.7;transition:opacity .2s}
+    .trust-item:hover{opacity:1}
+
+    /* ASYMMETRIC FEATURE GRID */
+    .features{padding:5rem 5%;max-width:1200px;margin:0 auto;position:relative;z-index:1}
+    .features-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2.5rem;flex-wrap:wrap;gap:1rem}
+    .features-header h2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-.03em;max-width:500px;line-height:1.1}
+    .features-header h2 .accent{color:var(--primary)}
+    .features-header p{color:var(--muted);font-size:.95rem;max-width:300px}
+
+    .feat-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:1rem}
+    .feat-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2rem;transition:all .35s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden}
+    .feat-card:hover{transform:translateY(-4px);border-color:var(--primary);box-shadow:0 12px 40px color-mix(in srgb,var(--primary) 15%,transparent)}
+    .feat-card.lg{grid-column:span 6;min-height:280px;display:flex;flex-direction:column;justify-content:space-between}
+    .feat-card.md{grid-column:span 4}
+    .feat-card.sm{grid-column:span 3}
+    .feat-card.wide{grid-column:span 8}
+    .feat-card.tall{grid-column:span 4;min-height:280px}
+    .feat-card.accent{background:var(--primary);color:${isDark ? '#1B1F8A' : '#fff'}}
+    .feat-card.accent .feat-num,.feat-card.accent .feat-desc{color:${isDark ? 'rgba(27,31,138,0.7)' : 'rgba(255,255,255,0.7)'}}
+    .feat-card.accent .feat-icon{background:${isDark ? 'rgba(27,31,138,0.2)' : 'rgba(255,255,255,0.2)'}}
+    .feat-num{font-size:.75rem;font-weight:700;color:var(--muted);letter-spacing:.1em;margin-bottom:.8rem}
+    .feat-icon{width:44px;height:44px;border-radius:12px;background:var(--glass);display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:1rem}
+    .feat-title{font-size:1.2rem;font-weight:700;margin-bottom:.5rem;letter-spacing:-.02em}
+    .feat-card.lg .feat-title{font-size:1.6rem}
+    .feat-desc{font-size:.9rem;color:var(--muted);line-height:1.6}
+    .feat-card.lg .feat-desc{font-size:1rem}
+    .feat-card.accent .feat-icon{background:${isDark ? 'rgba(27,31,138,0.2)' : 'rgba(255,255,255,0.2)'}}
+
+    /* IMAGE BANNER */
+    .banner{position:relative;z-index:1;margin:0 5%;border-radius:24px;overflow:hidden;min-height:320px;background:var(--surface)}
+    .banner img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+    .banner-overlay{position:absolute;inset:0;background:linear-gradient(to right,${bg}cc,${bg}33);display:flex;align-items:center;padding:3rem}
+    .banner-content{max-width:500px}
+    .banner-content h2{font-size:clamp(1.6rem,3vw,2.4rem);font-weight:800;letter-spacing:-.03em;margin-bottom:.5rem}
+    .banner-content p{color:var(--muted);font-size:.95rem}
+
+    /* SERVICES TABLE */
+    .services{padding:5rem 5%;max-width:1200px;margin:0 auto;position:relative;z-index:1}
+    .services h2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-.03em;margin-bottom:.5rem}
+    .services h2 .accent{color:var(--primary)}
+    .services .sub{color:var(--muted);margin-bottom:2rem}
+    .svc-table{border:1px solid var(--border);border-radius:20px;overflow:hidden}
+    .svc-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:1.5rem;align-items:center;padding:1.5rem 2rem;border-bottom:1px solid var(--border);transition:background .2s;cursor:pointer}
+    .svc-row:last-child{border-bottom:none}
+    .svc-row:hover{background:var(--surface)}
+    .svc-num{font-size:.75rem;font-weight:700;color:var(--muted);width:28px}
+    .svc-name{font-weight:700;font-size:1rem}
+    .svc-desc{font-size:.85rem;color:var(--muted);margin-top:.2rem}
+    .svc-price{font-size:1.1rem;font-weight:800;color:var(--primary);font-family:'${headingFont}',sans-serif;white-space:nowrap}
+    .svc-arrow{color:var(--muted);font-size:1.3rem;transition:all .2s}
+    .svc-row:hover .svc-arrow{color:var(--primary);transform:translateX(4px)}
+
+    /* TESTIMONIALS */
+    .testi{padding:4rem 5%;max-width:1200px;margin:0 auto;position:relative;z-index:1}
+    .testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:2rem}
+    .testi-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2rem;transition:all .3s}
+    .testi-card:hover{border-color:var(--primary);transform:translateY(-3px)}
+    .testi-stars{color:var(--primary);font-size:1.1rem;margin-bottom:1rem}
+    .testi-text{font-size:.95rem;line-height:1.7;margin-bottom:1.2rem;color:var(--text)}
+    .testi-author{display:flex;align-items:center;gap:.8rem}
+    .testi-avatar{width:42px;height:42px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:800;color:${isDark ? '#1B1F8A' : '#fff'};font-size:1rem}
+    .testi-name{font-weight:700;font-size:.92rem}
+    .testi-loc{font-size:.8rem;color:var(--muted)}
+
+    /* FAQ */
+    .faq{padding:4rem 5%;max-width:1200px;margin:0 auto;position:relative;z-index:1}
+    .faq h2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-.03em;margin-bottom:.5rem}
+    .faq h2 .accent{color:var(--primary)}
+    .faq-list{display:flex;flex-direction:column;gap:.75rem;margin-top:2rem}
+    .faq-item{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .2s}
+    .faq-item:hover{border-color:var(--primary)}
+    .faq-q{display:flex;justify-content:space-between;align-items:center;padding:1.3rem 1.5rem;cursor:pointer;font-weight:600;font-size:.95rem;gap:1rem;transition:color .2s}
+    .faq-q:hover{color:var(--primary)}
+    .faq-icon{font-size:1.2rem;color:var(--muted);transition:transform .3s;flex-shrink:0}
+    .faq-item.open .faq-icon{transform:rotate(45deg);color:var(--primary)}
+    .faq-a{padding:0 1.5rem;max-height:0;overflow:hidden;transition:max-height .4s ease,padding .4s ease;color:var(--muted);font-size:.9rem;line-height:1.7}
+    .faq-item.open .faq-a{max-height:300px;padding-bottom:1.3rem}
+
+    /* CTA BANNER */
+    .cta-banner{margin:0 5% 4rem;padding:3.5rem;border-radius:24px;background:var(--primary);display:flex;justify-content:space-between;align-items:center;gap:2rem;flex-wrap:wrap;position:relative;z-index:1;overflow:hidden}
+    .cta-banner::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,color-mix(in srgb,var(--accent) 30%,transparent));opacity:.5}
+    .cta-banner > *{position:relative;z-index:1}
+    .cta-banner h2{font-size:clamp(1.6rem,3vw,2.4rem);font-weight:800;letter-spacing:-.03em;color:${isDark ? '#1B1F8A' : '#fff'};max-width:450px;line-height:1.1}
+    .cta-banner p{color:${isDark ? 'rgba(27,31,138,0.7)' : 'rgba(255,255,255,0.8)'};font-size:.95rem;margin-top:.5rem}
+    .cta-actions{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+    .btn-dark{background:${isDark ? '#1B1F8A' : '#111'};color:#fff;padding:.9rem 2rem;border-radius:100px;font-weight:700;font-size:.95rem;text-decoration:none;transition:opacity .2s;border:none;cursor:pointer;font-family:'${headingFont}',sans-serif'}
+    .btn-dark:hover{opacity:.85}
+    .contact-mini{display:flex;flex-direction:column;gap:.4rem}
+    .contact-mini a{color:${isDark ? 'rgba(27,31,138,0.7)' : 'rgba(255,255,255,0.8)'};font-size:.85rem;font-weight:500;text-decoration:none}
+    .contact-mini a:hover{color:${isDark ? '#1B1F8A' : '#fff'}}
+
+    /* FOOTER */
+    .footer{padding:2rem 5%;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;position:relative;z-index:1}
+    .footer-left{font-weight:800;font-size:.95rem;font-family:'${headingFont}',sans-serif}
+    .footer-right{font-size:.8rem;color:var(--muted)}
+    .footer-right a{color:var(--primary);text-decoration:none;font-weight:600}
+
+    /* GALLERY */
+    .gallery{padding:4rem 5%;max-width:1200px;margin:0 auto;position:relative;z-index:1}
+    .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-top:2rem}
+    .gallery-item{border-radius:16px;overflow:hidden;aspect-ratio:1;position:relative}
+    .gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.16,1,.3,1)}
+    .gallery-item:hover img{transform:scale(1.08)}
+
+    @media(max-width:768px){
+      .hero-grid{grid-template-columns:1fr;gap:2rem}
+      .hero-right{min-height:300px}
+      .feat-card.lg,.feat-card.md,.feat-card.sm,.feat-card.wide,.feat-card.tall{grid-column:span 12}
+      .nav-links{display:none}
+      .svc-row{grid-template-columns:auto 1fr auto;gap:.8rem;padding:1.2rem 1rem}
+      .svc-desc{display:none}
+      .cta-banner{padding:2rem;flex-direction:column;text-align:center}
+      .footer{flex-direction:column;text-align:center}
+      .trust-bar{gap:1rem}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- AMBIENT BG -->
+  <div class="ambient">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+  </div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-mark">${businessName.charAt(0)}</div>
+      ${businessName}
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#services">Services</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <a href="#contact" class="nav-cta">Get Started</a>
+  </nav>
+
+  <!-- HERO ASYMMETRIC -->
+  <section class="hero">
+    <div class="hero-grid">
+      <div class="hero-left">
+        <div class="hero-badge reveal active">
+          <span class="dot"></span>
+          ${plan.tagline || 'Trusted by 500+ businesses in ' + (plan.city || 'Nigeria')}
+        </div>
+        <h1 class="hero-title reveal active">
+          ${heroWord1}<br><span class="accent">${heroWord2 || 'Simplified'}</span>
+        </h1>
+        <p class="hero-desc reveal">${hero.subheadline || plan.description || 'The all-in-one platform built for modern African businesses.'}</p>
+        <div class="hero-cta-row reveal">
+          <a href="#contact" class="btn-primary">Get Started →</a>
+          <a href="#features" class="btn-ghost">Explore Features</a>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="hero-card-main">
+          <h4>Live Dashboard</h4>
+          <div class="hero-card-row">
+            <span class="hero-card-label">Total Revenue</span>
+            <span class="hero-card-val accent">₦8.2M</span>
+          </div>
+          <div class="hero-card-row">
+            <span class="hero-card-label">Active Clients</span>
+            <span class="hero-card-val">1,247</span>
+          </div>
+          <div class="hero-card-row">
+            <span class="hero-card-label">Growth</span>
+            <span class="hero-card-val accent">+24%</span>
+          </div>
+          <div class="hero-card-chart">
+            ${[40,60,45,70,55,80,65,90,75,95].map((h,i) => `<div class="hero-card-bar" style="height:${h}%;animation-delay:${i*0.15}s"></div>`).join('')}
+          </div>
+        </div>
+        ${floatStats.slice(0,2).map((s,i) => `
+        <div class="hero-float f${i+1}">
+          <div class="float-icon">${s.icon}</div>
+          <div class="float-label">${s.label}</div>
+          <div class="float-value">${s.value}</div>
+          <div class="float-trend">${s.trend}</div>
+        </div>`).join('')}
+        <div class="hero-float f3">
+          <div class="float-icon">⚡</div>
+          <div class="float-label">Response Time</div>
+          <div class="float-value">0.3s</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST BAR -->
+  <div class="trust-bar reveal">
+    <span class="trust-label">TRUSTED BY:</span>
+    <span class="trust-item">Paystack</span>
+    <span class="trust-item">Flutterwave</span>
+    <span class="trust-item">GTBank</span>
+    <span class="trust-item">Access Bank</span>
+    <span class="trust-item">Kuda</span>
+  </div>
+
+  <!-- ASYMMETRIC FEATURE GRID -->
+  <section class="features" id="features">
+    <div class="features-header reveal">
+      <h2>Everything you need <br>to <span class="accent">scale fast</span></h2>
+      <p>Built for African businesses. Designed to grow with you from your first client to your thousandth.</p>
+    </div>
+    <div class="feat-grid">
+      ${features.slice(0,2).map((f,i) => `
+        <div class="feat-card ${i===0?'lg':'tall'} reveal-scale">
+          <div>
+            <div class="feat-num">${f.num}</div>
+            <div class="feat-icon">${f.icon}</div>
+            <div class="feat-title">${f.title}</div>
+            <div class="feat-desc">${f.desc}</div>
+          </div>
+          ${i===0 ? `<div style="display:flex;gap:.5rem;margin-top:1rem"><span style="background:var(--glass);padding:.3rem .8rem;border-radius:100px;font-size:.75rem;font-weight:600">✓ Included</span><span style="background:var(--glass);padding:.3rem .8rem;border-radius:100px;font-size:.75rem;font-weight:600">⚡ Real-time</span></div>` : ''}
+        </div>`).join('')}
+      ${features.slice(2,4).map((f,i) => `
+        <div class="feat-card ${i===0?'accent':''} ${i===0?'md':'sm'} reveal-scale">
+          <div class="feat-num">${f.num}</div>
+          <div class="feat-icon">${f.icon}</div>
+          <div class="feat-title">${f.title}</div>
+          <div class="feat-desc">${f.desc}</div>
+        </div>`).join('')}
+      ${features.slice(4,6).map(f => `
+        <div class="feat-card sm reveal-scale">
+          <div class="feat-num">${f.num}</div>
+          <div class="feat-icon">${f.icon}</div>
+          <div class="feat-title">${f.title}</div>
+          <div class="feat-desc">${f.desc}</div>
+        </div>`).join('')}
+    </div>
+  </section>
+
+  <!-- IMAGE BANNER -->
+  ${heroImg ? `
+  <div class="banner reveal">
+    <img src="${heroImg}" alt="${businessName}">
+    <div class="banner-overlay">
+      <div class="banner-content">
+        <h2>Built different. Built better.</h2>
+        <p>${typeof about === 'string' ? about.slice(0,150) : plan.description || ''}</p>
+      </div>
+    </div>
+  </div>` : ''}
+
+  <!-- SERVICES TABLE -->
+  <section class="services" id="services">
+    <h2 class="reveal">Our <span class="accent">Services</span></h2>
+    <p class="sub reveal">Transparent pricing. No hidden fees.</p>
+    <div class="svc-table">
+      ${(plan.services || []).map((s,i) => `
+        <div class="svc-row reveal">
+          <span class="svc-num">0${i+1}</span>
+          <div>
+            <div class="svc-name">${s.name}</div>
+            <div class="svc-desc">${s.description || ''}</div>
+          </div>
+          <span class="svc-price">₦${(s.price || 0).toLocaleString()}</span>
+          <span class="svc-arrow">→</span>
+        </div>`).join('')}
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  ${galleryImgs.length > 0 ? `
+  <section class="gallery" id="gallery">
+    <h2 class="reveal" style="font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-.03em">Our <span style="color:var(--primary)">Work</span></h2>
+    <div class="gallery-grid">
+      ${galleryImgs.slice(0,8).map(url => `
+        <div class="gallery-item reveal-scale">
+          <img src="${url}" alt="Portfolio">
+        </div>`).join('')}
+    </div>
+  </section>` : ''}
+
+  <!-- TESTIMONIALS -->
+  ${testimonials.length > 0 ? `
+  <section class="testi" id="testimonials">
+    <h2 class="reveal" style="font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-.03em">What clients <span style="color:var(--primary)">say</span></h2>
+    <div class="testi-grid">
+      ${testimonials.map(t => `
+        <div class="testi-card reveal">
+          <div class="testi-stars">★★★★★</div>
+          <div class="testi-text">"${t.text}"</div>
+          <div class="testi-author">
+            <div class="testi-avatar">${(t.name||'C').charAt(0)}</div>
+            <div>
+              <div class="testi-name">${t.name}</div>
+              <div class="testi-loc">${t.location || plan.city || 'Lagos'}</div>
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>
+  </section>` : ''}
+
+  <!-- FAQ -->
+  ${faq.length > 0 ? `
+  <section class="faq" id="faq">
+    <h2 class="reveal">Common <span class="accent">Questions</span></h2>
+    <div class="faq-list">
+      ${faq.map(f => `
+        <div class="faq-item reveal" onclick="this.classList.toggle('open')">
+          <div class="faq-q">${f.q}<span class="faq-icon">+</span></div>
+          <div class="faq-a">${f.a}</div>
+        </div>`).join('')}
+    </div>
+  </section>` : ''}
+
+  <!-- CTA BANNER -->
+  <div class="cta-banner reveal" id="contact">
+    <div>
+      <h2>Ready to transform your business?</h2>
+      <p>Join 500+ businesses already growing with ${businessName}.</p>
+    </div>
+    <div class="cta-actions">
+      <a href="tel:${contact.phone || ''}" class="btn-dark">📞 Call Now</a>
+      ${contact.whatsapp ? `<a href="https://wa.me/${(contact.whatsapp||'').replace(/[^0-9]/g,'')}" style="color:${isDark?'#1B1F8A':'#fff'};font-weight:600;font-size:.88rem;text-decoration:none">💬 WhatsApp →</a>` : ''}
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-left">${businessName}</div>
+    <div class="footer-right">© ${new Date().getFullYear()} ${businessName}. Built with <a href="https://ergio.vercel.app">ERGIO</a></div>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal,.reveal-scale').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>`;
+}
 
 // ============ EDITORIAL / TYPOGRAPHIC WEBSITE GENERATOR ============
 // Inspired by: Flowbank, Linear, Vercel, Resend, Arc — bold oversized type, pill tags, split hero

@@ -2509,6 +2509,11 @@ const DESIGN_STYLES = [
   // ── MINIMAL ───────────────────────────────────────────────
   { name: 'aria', emoji: '✨', desc: 'Clean minimalist light — Notion & Linear style', preview: 'linear-gradient(135deg,#ffffff,#f8f9fa)', color1: '#2563eb', color2: '#7c3aed' },
   { name: 'zinc', emoji: '⚙️', desc: 'Industrial grey — manufacturing & B2B', preview: 'linear-gradient(135deg,#18181b,#27272a)', color1: '#a1a1aa', color2: '#e4e4e7' },
+  // ── PREMIUM ──────────────────────────────────────────────
+  { name: 'transix', emoji: '🔷', desc: 'Asymmetric grid, floating UI cards — tech & AI', preview: 'linear-gradient(135deg,#1B1F8A,#2328A0)', color1: '#F5D547', color2: '#7C83FF' },
+  { name: 'aurora', emoji: '🌌', desc: 'Deep space with aurora glow — AI & biotech', preview: 'linear-gradient(135deg,#030712,#0d1117)', color1: '#a78bfa', color2: '#34d399' },
+  { name: 'clay', emoji: '🏺', desc: '3D clay morphism, soft pastel — consumer apps', preview: 'linear-gradient(135deg,#F0EDE8,#E8E4DE)', color1: '#FF6B47', color2: '#4ECDC4' },
+  { name: 'darkglass', emoji: '🪟', desc: 'Dark glassmorphism, neon blur — creative agencies', preview: 'linear-gradient(135deg,#060010,#0d0118)', color1: '#00FFD1', color2: '#FF2D78' },
 ];
 
 let selectedStyle = null;
@@ -2517,7 +2522,7 @@ let editModeActive = false;
 function openStyleModal() {
   const grid = document.getElementById('styleGrid');
   // Group by category for display
-  const categories = ['DARK TECH', 'EDITORIAL', 'VIBRANT', 'NATURAL', 'AFRICAN', 'MINIMAL'];
+  const categories = ['DARK TECH', 'EDITORIAL', 'VIBRANT', 'NATURAL', 'AFRICAN', 'MINIMAL', 'PREMIUM'];
   const catStyles = {
     'DARK TECH': DESIGN_STYLES.slice(0, 4),
     'EDITORIAL': DESIGN_STYLES.slice(4, 7),
@@ -2525,6 +2530,7 @@ function openStyleModal() {
     'NATURAL':   DESIGN_STYLES.slice(10, 12),
     'AFRICAN':   DESIGN_STYLES.slice(12, 14),
     'MINIMAL':   DESIGN_STYLES.slice(14, 16),
+    'PREMIUM':   DESIGN_STYLES.slice(16, 20),
   };
   grid.innerHTML = categories.map(cat => `
     <div style="grid-column:1/-1;font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;padding:4px 0 2px;border-top:1px solid var(--border);margin-top:4px">${cat}</div>

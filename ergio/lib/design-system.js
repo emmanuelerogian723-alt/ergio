@@ -221,6 +221,13 @@ export const DESIGN_STYLES = {
 export function autoDetectStyle(businessType, category, description = '', tone = 'professional') {
   const combined = (businessType + ' ' + category + ' ' + description + ' ' + tone).toLowerCase();
 
+  // Premium specialized styles — highest priority, most specific
+  if (/logistics|fleet|telematics|supply.chain|freight|cargo|delivery.platform/.test(combined)) return 'transix';
+  if (/ai.*platform|ai.*analytics|machine.learning|deep.tech|biotech|health.tech/.test(combined)) return 'aurora';
+  if (/consumer.app|lifestyle.app|kids|playful.app|social.network/.test(combined)) return 'clay';
+  if (/cyber|esports|dark.agency|creative.studio.*dark/.test(combined)) return 'darkglass';
+
+  // Specific verticals — most specific first
   if (/restaurant|food|dining|cafe|catering|kitchen|bistro|bar|chef/.test(combined)) return 'feast';
   if (/salon|beauty|spa|hair|nail|makeup|skincare|wellness|massage/.test(combined)) return 'bloom';
   if (/gym|fitness|yoga|crossfit|workout|sport|training|athlete/.test(combined)) return 'iron';
@@ -229,18 +236,20 @@ export function autoDetectStyle(businessType, category, description = '', tone =
   if (/real.estate|property|house|apartment|housing|rent|agent|mortgage/.test(combined)) return 'estate';
   if (/fashion|clothing|boutique|wear|style|apparel/.test(combined)) return 'market';
   if (/photo|design|creative|artist|portfolio|studio|gallery/.test(combined)) return 'canvas';
-  if (/saas|software|app|platform|api|tech|startup|digital/.test(combined)) return 'nova';
-  if (/fintech|flowbank|neobank|payment.*app|wallet.*app|crypto|investment.*platform|wealth.*manage/.test(combined)) return 'editorial';
-  if (/app.*startup|saas.*product|software.*product|tech.*platform/.test(combined) && tone === 'bold') return 'split';
-  if (/finance|bank|invest|insurance|legal|law|consult/.test(combined)) return 'slate';
+  if (/farm|agric|organic|eco|green|nature|food.production/.test(combined)) return 'terra';
+  if (/construction|building|contractor|architecture|engineering/.test(combined)) return 'zinc';
   if (/church|ministry|ngo|foundation|charity/.test(combined)) return 'naija';
-  if (/african|naija|nigeria|local|market|ankara|kente/.test(combined)) return 'kente';
+  if (/african|naija|nigeria|local|ankara|kente/.test(combined)) return 'kente';
   if (/luxury|premium|exclusive|vip|concierge/.test(combined)) return 'onyx';
   if (/event|party|wedding|entertainment|nightlife|club/.test(combined)) return 'pulse';
   if (/shop|store|ecommerce|product|sell|retail/.test(combined)) return 'market';
-  if (/agency|marketing|branding|pr|advertis/.test(combined)) return 'gradient';
-  if (/farm|agric|organic|eco|green|nature|food.production/.test(combined)) return 'terra';
-  if (/construction|building|contractor|architecture|engineering/.test(combined)) return 'zinc';
+  if (/agency|marketing|branding|\bpr\b|advertis/.test(combined)) return 'gradient';
+  // Fintech BEFORE generic saas/tech
+  if (/fintech|neobank|payment.*app|wallet.*app|crypto|investment.*platform|wealth.*manage/.test(combined)) return 'editorial';
+  if (/finance|bank|invest|insurance|legal|law|consult/.test(combined)) return 'slate';
+  // Tech / SaaS
+  if (/saas|software|app|platform|api|tech|startup|digital/.test(combined)) return 'nova';
+  // Tone overrides
   if (tone === 'luxury' || tone === 'premium') return 'onyx';
   if (tone === 'casual' || tone === 'friendly') return 'aria';
 
@@ -275,3 +284,40 @@ export function generateStyleCSS(styleKey) {
 }
 
 export default DESIGN_STYLES;
+
+// ── ADDITIONAL PREMIUM STYLES (Post-Transix update) ────────
+// These are appended to the existing DESIGN_STYLES object by the generate.js merger
+export const EXTRA_DESIGN_STYLES = {
+  transix: {
+    name: 'Transix', emoji: '🔷',
+    desc: 'Asymmetric grid, floating UI cards, cobalt + yellow — tech & AI platforms',
+    palette: { bg: '#1B1F8A', surface: '#2328A0', border: 'rgba(255,255,255,0.12)',
+               text: '#FFFFFF', muted: 'rgba(255,255,255,0.6)', primary: '#F5D547', accent: '#7C83FF', cta: '#F5D547' },
+    fonts: { heading: 'Space Grotesk', body: 'DM Sans', mono: 'Fira Code' },
+    mood: 'tech ai logistics data enterprise analytics platform',
+  },
+  aurora: {
+    name: 'Aurora', emoji: '🌌',
+    desc: 'Deep space dark with aurora gradient blobs — AI, health-tech & premium SaaS',
+    palette: { bg: '#030712', surface: '#0d1117', border: 'rgba(139,92,246,0.2)',
+               text: '#f8fafc', muted: '#64748b', primary: '#a78bfa', accent: '#34d399', cta: '#a78bfa' },
+    fonts: { heading: 'Outfit', body: 'Inter', mono: 'Fira Code' },
+    mood: 'aurora deep space ai premium health biotech',
+  },
+  clay: {
+    name: 'Clay', emoji: '🏺',
+    desc: '3D clay morphism, soft shadows, pastel — product launches & consumer apps',
+    palette: { bg: '#F0EDE8', surface: '#E8E4DE', border: 'rgba(0,0,0,0.06)',
+               text: '#1a1a1a', muted: '#6b6b6b', primary: '#FF6B47', accent: '#4ECDC4', cta: '#FF6B47' },
+    fonts: { heading: 'Nunito', body: 'Nunito', mono: 'Fira Code' },
+    mood: 'clay morphism soft consumer app product fun friendly',
+  },
+  darkglass: {
+    name: 'DarkGlass', emoji: '🪟',
+    desc: 'Dark glassmorphism, blur cards, neon borders — cyberpunk & premium dark',
+    palette: { bg: '#060010', surface: 'rgba(255,255,255,0.04)', border: 'rgba(255,255,255,0.08)',
+               text: '#f8fafc', muted: '#94a3b8', primary: '#00FFD1', accent: '#FF2D78', cta: '#00FFD1' },
+    fonts: { heading: 'Sora', body: 'Inter', mono: 'JetBrains Mono' },
+    mood: 'glass dark cyber neon premium agency portfolio',
+  },
+};
