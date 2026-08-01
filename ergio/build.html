@@ -1565,13 +1565,6 @@
       }
     }, { passive: false });
 
-// (old toggleMobileSidebar replaced by new mobile sidebar control above) {
-      const sidebar = document.querySelector('.sidebar');
-      const overlay = document.querySelector('.sidebar-overlay');
-      sidebar.classList.toggle('mobile-open');
-      overlay.classList.toggle('active');
-    }
-    // (old click handler replaced by new mobile sidebar control)
 
 let currentMode = 'build';
 let currentHTML = '';
@@ -2277,7 +2270,9 @@ p{font-size:1.2rem;color:#999;max-width:560px;line-height:1.7}
   </div>
 </div>
 
-  <script src="guide-widget.js">
+</script>
+  <script src="guide-widget.js"></script>
+<script>
 // ===== CONDUCTOR AGENT CONNECTION =====
 const ENGINES_API = window.ErgioEngines || null;
 const CMD_API = window.ErgioCommand || null;
@@ -2985,7 +2980,8 @@ window.addEventListener('load', () => {
 
 </script>
 
-  <script src="guide-widget.js">
+  <script src="guide-widget.js"></script>
+<script>
 // ===== MOBILE WEB BUILDER ENHANCEMENT SCRIPT =====
 // All mobile-specific touch, gesture, performance, and stability improvements
 
