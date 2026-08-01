@@ -1584,8 +1584,9 @@ async function loadActivity(){
       return '<div style="display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid var(--border)"><div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;font-size:1.1rem">'+e.icon+'</div><div style="flex:1"><div style="font-size:.82rem;color:var(--text)">'+e.text+'</div><div style="font-size:.68rem;color:var(--muted);margin-top:2px">'+e.time+'</div></div></div>';
     }).join('');
   }
+}
 
-/* ═════════════════════════════════════════════════════════════════════
+/* ═════════════════════════════════════════════════════════════════════"
    ERGIO AI CREATIVE DIRECTOR — World's Best AI Website Builder Engine v8.0
    Every website is unique. Every design is handcrafted by AI.
    ═════════════════════════════════════════════════════════════════════ */
@@ -2732,8 +2733,7 @@ function buildConductorResponse(c,ctx){
     c.next_steps.forEach(function(s){output+='   → '+s+'\n';});
   }
   if(!output)output=JSON.stringify(c,null,2).slice(0,1000);
-  return output;}      /* Show blocked MCP info */
-if(t.status==='blocked'&&t.result&&t.result.mcp_needed){        output+='   ⚠️ Requires: '+t.result.mcp_needed+' MCP (not connected)\n';      }    });    output+='\n';  }  if(c.pending_approvals&&c.pending_approvals.length>0){    output+='⏸ Pending approvals:\n';    c.pending_approvals.forEach(function(a){output+='   - '+(a.action||'')+' → '+(a.target||'')+'\n'});    output+='\n';  }  if(c.next_steps&&c.next_steps.length>0){    output+='Next steps:\n';    c.next_steps.forEach(function(s){output+='   → '+s+'\n'});  }  if(!output)output=JSON.stringify(c,null,2).slice(0,1000);  return output;}
+  return output;}
 function renderStreamEvent(bubble,type,data){
   const msg=(data.message||data.summary||'').replace(/</g,'&lt;');
   const existing=bubble.innerHTML;
