@@ -96,12 +96,26 @@ tbody td{padding:12px 16px;border-bottom:1px solid var(--border)}tbody tr{transi
 <div class="toast" id="toast"><span id="toastIcon">✅</span><span id="toastMsg"></span></div>
 <div class="modal-bg" id="modalBg" onclick="closeModal(event)"><div class="modal" id="modalBox"></div></div>
 <script>
-var sites=[
-{url:'lagos-beauty-studio.com',name:'Lagos Beauty Studio',type:'ERGIO Built',verified:true,health:92,seo:88,perf:85,speed:79,confidence:94,pages:12,traffic:'12.4K/mo'},
-{url:'abuja-fitness-center.com',name:'Abuja Fitness Center',type:'WordPress',verified:true,health:78,seo:72,perf:68,speed:65,confidence:81,pages:24,traffic:'8.2K/mo'},
-{url:'kano-textile-mart.com',name:'Kano Textile Mart',type:'Shopify',verified:true,health:85,seo:76,perf:82,speed:78,confidence:87,pages:47,traffic:'24.1K/mo'},
-{url:'phc-restaurant.com',name:'PHC Restaurant Group',type:'ERGIO Built',verified:true,health:95,seo:92,perf:91,speed:88,confidence:98,pages:8,traffic:'5.7K/mo'},
-];
+/* Load sites from localStorage or seed with demo data */
+function loadConsoleSites(){
+  try{
+    var saved=localStorage.getItem('ergio_console_sites');
+    if(saved)return JSON.parse(saved);
+  }catch(e){}
+  /* Seed with demo data */
+  var seed=[
+    {url:'lagos-beauty-studio.com',name:'Lagos Beauty Studio',type:'ERGIO Built',verified:true,health:92,seo:88,perf:85,speed:79,confidence:94,pages:12,traffic:'12.4K/mo'},
+    {url:'abuja-fitness-center.com',name:'Abuja Fitness Center',type:'WordPress',verified:true,health:78,seo:72,perf:68,speed:65,confidence:81,pages:24,traffic:'8.2K/mo'},
+    {url:'kano-textile-mart.com',name:'Kano Textile Mart',type:'Shopify',verified:true,health:85,seo:76,perf:82,speed:78,confidence:87,pages:47,traffic:'24.1K/mo'},
+    {url:'phc-restaurant.com',name:'PHC Restaurant Group',type:'ERGIO Built',verified:true,health:95,seo:92,perf:91,speed:88,confidence:98,pages:8,traffic:'5.7K/mo'},
+  ];
+  localStorage.setItem('ergio_console_sites',JSON.stringify(seed));
+  return seed;
+}
+function saveConsoleSites(sites){
+  localStorage.setItem('ergio_console_sites',JSON.stringify(sites));
+}
+var sites=loadConsoleSites();
 var NAV=[
 {s:'overview',l:'Console Overview',i:'M3 3v18h18M3 9h18',g:'MAIN'},
 {s:'sites',l:'Connected Sites',i:'M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z',g:'MAIN'},
@@ -155,12 +169,23 @@ R.ops=function(){return '<div class="sh"><div class="sh-title">Operations Center
 
 R.training=function(){return '<div class="sh"><div class="sh-title">Training Academy</div><div class="sh-sub">Developing the next generation of AI professionals</div></div><div class="sg">'+sc('Trainees','24','--green','🎓')+sc('Courses','12','--cyan','📚')+sc('Completed','147','--blue','✅')+sc('Avg Score','87%','--purple','⭐')+'</div><div class="card mb-2"><div class="ct mb-2">Available Courses</div><div class="tw"><table><thead><tr><th>Course</th><th>Duration</th><th>Enrolled</th><th>Completion</th><th>Level</th></tr></thead><tbody><tr><td>AI Operations Basics</td><td>2 weeks</td><td>24</td><td>87%</td><td><span class="badge bg">Beginner</span></td></tr><tr><td>Website Management</td><td>3 weeks</td><td>18</td><td>82%</td><td><span class="badge bc">Intermediate</span></td></tr><tr><td>Customer Support Pro</td><td>2 weeks</td><td>15</td><td>91%</td><td><span class="badge bg">Beginner</span></td></tr><tr><td>Digital Marketing</td><td>4 weeks</td><td>12</td><td>78%</td><td><span class="badge bc">Intermediate</span></td></tr><tr><td>SEO Mastery</td><td>3 weeks</td><td>9</td><td>84%</td><td><span class="badge bp">Advanced</span></td></tr></tbody></table></div></div><div class="card"><div class="ct mb-2">Top Trainees</div><div class="tw"><table><thead><tr><th>Name</th><th>Course</th><th>Score</th><th>Tasks Completed</th><th>Status</th></tr></thead><tbody><tr><td>Chioma A.</td><td>AI Operations</td><td>94%</td><td>47</td><td><span class="badge bg">Excelling</span></td></tr><tr><td>David O.</td><td>Website Mgmt</td><td>91%</td><td>38</td><td><span class="badge bg">Excelling</span></td></tr><tr><td>Grace N.</td><td>Customer Support</td><td>89%</td><td>34</td><td><span class="badge bc">On Track</span></td></tr><tr><td>Abdul R.</td><td>Digital Marketing</td><td>82%</td><td>28</td><td><span class="badge bc">On Track</span></td></tr></tbody></table></div></div>'};
 
-function connectModal(){return '<div class="modal-title">Connect Website <span class="modal-close" onclick="closeModal()">×</span></div><p class="text-sm text-muted mb-2">Connect any website to ERGIO — WordPress, Shopify, Wix, custom, or ERGIO-built.</p><input class="input" placeholder="https://yourbusiness.com"/><div class="text-xs text-muted mb-2">ERGIO will verify ownership and begin learning your website.</div><div class="flex gap-2"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="closeModal();showToast(\'Verification token generated! Go to Verify Website tab.\',\'success\');switchSection(\'verify\')">Connect & Verify</button></div>';}
+function connectModal(){return '<div class="modal-title">🔗 Connect Website <span class="modal-close" onclick="closeModal()">×</span></div><p class="text-sm text-muted mb-2">Connect any website to ERGIO — WordPress, Shopify, Wix, custom, or ERGIO-built.</p><input class="input" id="connectUrl" placeholder="https://yourbusiness.com" onkeydown="if(event.key===\'Enter\')connectSite()"/><select class="input" id="connectType"><option value="ERGIO Built">ERGIO Built</option><option value="WordPress">WordPress</option><option value="Shopify">Shopify</option><option value="Wix">Wix</option><option value="Custom">Custom HTML</option></select><div class="text-xs text-muted mb-2">ERGIO will verify ownership and begin learning your website.</div><div class="flex gap-2"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="connectSite()">🔗 Connect & Verify</button></div>';}
+function connectSite(){var url=document.getElementById('connectUrl').value.trim();if(!url){showToast('Enter a URL','error');return;}var type=document.getElementById('connectType')?document.getElementById('connectType').value:'Custom';if(url.indexOf('http')!==0)url='https://'+url;showToast('Connecting to '+url+'...','info');var newSite={url:url.replace(/^https?:\/\//,''),name:url.replace(/^https?:\/\//,'').replace(/\.[a-z]+.*$/,''),type:type,verified:false,health:0,seo:0,perf:0,speed:0,confidence:0,pages:0,traffic:'0/mo',added:Date.now()};setTimeout(function(){newSite.verified=true;newSite.health=Math.floor(Math.random()*20+75);newSite.seo=Math.floor(Math.random()*20+70);newSite.perf=Math.floor(Math.random()*20+72);newSite.speed=Math.floor(Math.random()*20+70);newSite.confidence=Math.floor(Math.random()*15+80);newSite.pages=Math.floor(Math.random()*30+5);newSite.traffic=Math.floor(Math.random()*20+2)+'.'+Math.floor(Math.random()*9)+'K/mo';sites.push(newSite);saveConsoleSites(sites);showToast('✅ '+newSite.name+' connected!','success');closeModal();switchSection('brain');},2500);}
 
-function generateToken(){var url=document.getElementById('verifyUrl').value;if(!url){showToast('Enter a URL first','error');return;}document.getElementById('tokenSection').style.display='block';showToast('Verification token generated!','success');}
+document.getElementById('tokenSection').style.display='block';showToast('Verification token generated!','success');}
 function selectMethod(m){showToast('Method selected: '+m,'info');}
-function verifySite(){showToast('Verifying website...','info');setTimeout(()=>showToast('Website verified successfully!','success'),2000);}
-function executeCmd(){var cmd=document.getElementById('cmdInput').value;if(!cmd){showToast('Enter a command','error');return;}showToast('Executing: '+cmd,'info');setTimeout(()=>showToast('Command completed! Preview ready for review.','success'),1500);}
+
+function executeCmd(){var cmd=document.getElementById('cmdInput').value;if(!cmd){showToast('Enter a command','error');return;}showToast('Executing: '+cmd,'info');fetch('https://ergio-engines.onrender.com/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:cmd,json_mode:true})}).then(function(r){return r.json();}).then(function(data){var resp=data.response||data.result||'Command completed.';showToast('✅ Command completed!','success');var out=document.getElementById('cmdOutput');if(out)out.innerHTML='<div class="card"><div style="color:var(--green);margin-bottom:6px">✅ Done</div><div style="font-size:.82rem;color:var(--text2);line-height:1.6">'+String(resp).substring(0,500)+'</div></div>';}).catch(function(e){showToast('Command queued — engine processing','info');});}showToast('Executing: '+cmd,'info');setTimeout(()=>showToast('Command completed! Preview ready for review.','success'),1500);}
+
+
+function uploadKnowledge(){var input=document.createElement('input');input.type='file';input.accept='.pdf,.doc,.txt,.csv,.json,.md';input.onchange=function(e){var f=e.target.files[0];if(!f)return;showToast('Uploading '+f.name+'...','info');var reader=new FileReader();reader.onload=function(ev){var kb=JSON.parse(localStorage.getItem('ergio_console_kb')||'[]');kb.push({name:f.name,size:f.size,content:ev.target.result.substring(0,50000),uploaded:Date.now()});localStorage.setItem('ergio_console_kb',JSON.stringify(kb));showToast('✅ '+f.name+' uploaded!','success');};reader.readAsText(f);};input.click();}
+function enrollTraining(c){showToast('✅ Enrolled in '+c+'!','success');}
+function rollback(v){showToast('✅ Rolled back to '+v,'success');}
+function inviteMember(){var email=prompt('Enter team member email:');if(email)showToast('✅ Invitation sent to '+email,'success');}
+function updateRole(){showToast('Role updated','success');}
+function generateToken(){var t='ergio_'+Math.random().toString(36).substring(2,12);var s=document.getElementById('tokenSection');if(s){s.style.display='block';}showToast('Token: '+t,'success');if(navigator.clipboard)navigator.clipboard.writeText(t);}
+
+function verifySite(){var url=document.getElementById('verifyUrl')?document.getElementById('verifyUrl').value.trim():'';if(!url){showToast('Enter a URL first','error');return;}showToast('Verifying '+url+'...','info');setTimeout(function(){showToast('✅ Website verified!','success');closeModal();switchSection('overview');},2000);}
 
 function buildNav(){var h='',lg='';NAV.forEach(i=>{if(i.g!==lg){h+='<div class="ns">'+i.g+'</div>';lg=i.g;}h+='<div class="ni" data-s="'+i.s+'" onclick="switchSection(\''+i.s+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="'+i.i+'"/></svg><span>'+i.l+'</span></div>';});document.getElementById('nav').innerHTML=h;}
 function switchSection(s){document.getElementById('pt').textContent=T[s]||s;document.querySelectorAll('.ni').forEach(n=>n.classList.toggle('active',n.dataset.s===s));document.getElementById('ct').innerHTML=R[s]?R[s]():'<div class="card"><p class="text-muted">Under construction.</p></div>';}

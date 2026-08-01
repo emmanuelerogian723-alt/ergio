@@ -1409,7 +1409,39 @@ const ENGINES=window.ErgioEngines||null;let currentUser=null,fbAuth=null,sbClien
 try{const F=window.ERGIO_CONFIG?.firebase||{};if(F.apiKey){firebase.initializeApp(F);fbAuth=firebase.auth()}}catch(e){console.log('Firebase:',e.message)}
 try{const U=window.ERGIO_CONFIG?.supabaseUrl,K=window.ERGIO_CONFIG?.supabaseAnonKey;if(U&&K)sbClient=supabase.createClient(U,K)}catch(e){console.log('Supabase:',e.message)}
 function showToast(m,t='info'){const e=document.createElement('div');e.className='toast '+t;e.textContent=m;document.body.appendChild(e);setTimeout(()=>e.remove(),3000)}
-function switchTab(t){document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));const e=document.getElementById('tab-'+t);if(e)e.classList.add('active');if(t==='workspace')loadWorkspace();if(t==='billing')loadPricingGrid();document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));document.querySelector('[data-tab="'+t+'"]')?.classList.add('active');const titles={overview:'Overview',website:'Website Builder',leads:'Leads CRM',bookings:'Bookings',outreach:'Outreach',conductor:'Conductor Agent',engines:'Engines',agents:'Agent Frameworks',plugins:'MCP and Plugins',skills:'Skills Marketplace',integrations:'Integrations',analytics:'Analytics',billing:'Billing & Plans',insights:'AI Insights',workspace:'Workspace',cloud:'Cloud Console',employees:'AI Employees',missions:'Missions',memory:'Business Memory',scheduler:'Scheduler',health:'Health Monitor',security:'Security Center',profile:'My Profile'};document.getElementById('pageTitle').textContent=titles[t]||t;if(t==='overview')handlePaystackCallback();loadOverview();if(t==='leads')loadLeadsSupabase();if(t==='bookings')loadBookings();if(t==='engines')loadEngineStatus();if(t==='plugins'){loadMCPGrid();loadPluginsGrid()}if(t==='skills')loadSkillsGrid();if(t==='agents')loadAgentFrameworks();if(t==='integrations')loadIntegrations();if(t==='analytics')loadAnalytics();if(t==='conductor')handlePaystackCallback();checkConductorStatus();initOnboarding();if(t==='billing'){loadPricingGrid();loadPaymentHistory()}if(t==='cloud')loadCloudConsole();if(t==='employees')loadEmployees();if(t==='missions')loadMissions();if(t==='memory')loadBusinessMemory();if(t==='scheduler')loadScheduler();if(t==='health')loadHealthMonitor();if(t==='security')loadSecurityCenter();if(t==='insights'){loadInsights();}if(t==='profile')loadProfile();}
+/* ===== PAYWALL SYSTEM ===== */
+var FEATURE_PLANS={
+  // free features
+  overview:'free',website:'free',leads:'free',bookings:'free',
+  conductor:'free',engines:'free',plugins:'free',profile:'free',
+  // pro features
+  agents:'pro',skills:'pro',analytics:'pro',insights:'pro',
+  scheduler:'pro',memory:'pro',integrations:'pro',
+  // business features
+  cloud:'business',employees:'business',missions:'business',
+  health:'business',security:'business',workspace:'business',
+  // billing always accessible
+  billing:'free'
+};
+var PLAN_RANK={free:0,pro:1,business:2,enterprise:3};
+function checkPlanAccess(feature){
+  var plan=localStorage.getItem('ergio_plan')||'free';
+  var required=FEATURE_PLANS[feature]||'free';
+  if(PLAN_RANK[plan]>=PLAN_RANK[required])return true;
+  showPaywall(feature,required,plan);
+  return false;
+}
+function showPaywall(feature,required,plan){
+  var featureNames={scheduler:'Task Scheduler',missions:'Mission Engine',employees:'AI Employees',cloud:'Cloud Console',health:'Health Monitor',security:'Security Center',workspace:'Workspace',analytics:'Analytics',insights:'AI Insights',agents:'Agent Frameworks',skills:'Skills Marketplace',memory:'Business Memory',integrations:'Integrations'};
+  var planNames={pro:'Professional',business:'Business'};
+  var planPrices={pro:15000,business:50000};
+  var fname=featureNames[feature]||feature;
+  var rname=planNames[required]||required;
+  var modal=document.getElementById('globalModal')||createGlobalModal();
+  modal.innerHTML='<div class="modal-overlay" onclick="closeGlobalModal(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center"><div onclick="event.stopPropagation()" style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:420px;width:92%;text-align:center"><div style="font-size:3rem;margin-bottom:12px">🔒</div><div style="font-size:1.4rem;font-weight:800;margin-bottom:8px">'+fname+' requires '+rname+'</div><div style="color:var(--muted);font-size:.9rem;margin-bottom:20px">You are currently on the Free plan. Upgrade to '+rname+' to unlock '+fname+' and more powerful features.</div><div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-weight:700;font-size:1.1rem">'+rname+' Plan</span><span style="font-size:1.4rem;font-weight:800;color:var(--cyan)">₦'+(planPrices[required]||15000).toLocaleString()+'<span style="font-size:.7rem;color:var(--muted)">/mo</span></span></div><div style="font-size:.8rem;color:var(--muted);text-align:left;margin-bottom:12px">'+(required==='business'?'Everything in Pro, plus:':'Everything in Free, plus:')+'</div></div><button onclick="closeGlobalModal();switchTab(\'billing\')" style="width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--cyan),var(--green));color:#000;font-weight:700;font-size:1rem;cursor:pointer;margin-bottom:8px">🚀 Upgrade Now</button><button onclick="closeGlobalModal()" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--muted);font-weight:600;cursor:pointer">Maybe later</button></div></div>';
+}
+
+function switchTab(t){document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));const e=document.getElementById('tab-'+t);if(e)e.classList.add('active');if(t==='workspace')loadWorkspace();if(t==='billing')loadPricingGrid();document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));document.querySelector('[data-tab="'+t+'"]')?.classList.add('active');const titles={overview:'Overview',website:'Website Builder',leads:'Leads CRM',bookings:'Bookings',outreach:'Outreach',conductor:'Conductor Agent',engines:'Engines',agents:'Agent Frameworks',plugins:'MCP and Plugins',skills:'Skills Marketplace',integrations:'Integrations',analytics:'Analytics',billing:'Billing & Plans',insights:'AI Insights',workspace:'Workspace',cloud:'Cloud Console',employees:'AI Employees',missions:'Missions',memory:'Business Memory',scheduler:'Scheduler',health:'Health Monitor',security:'Security Center',profile:'My Profile'};document.getElementById('pageTitle').textContent=titles[t]||t;if(t==='overview')handlePaystackCallback();loadOverview();if(t==='leads')loadLeadsSupabase();if(t==='bookings')loadBookings();if(t==='engines')loadEngineStatus();if(t==='plugins'){loadMCPGrid();loadPluginsGrid()}if(t==='skills')loadSkillsGrid();if(t==='agents')loadAgentFrameworks();if(t==='integrations')loadIntegrations();if(t==='analytics')loadAnalytics();if(t==='conductor')handlePaystackCallback();checkConductorStatus();initOnboarding();if(t==='billing'){loadPricingGrid();loadPaymentHistory()}if(t==='cloud'){if(!checkPlanAccess('cloud'))return;}if(t==='employees'){if(!checkPlanAccess('employees'))return;}if(t==='missions'){if(!checkPlanAccess('missions'))return;}if(t==='memory')loadBusinessMemory();if(t==='scheduler'){if(!checkPlanAccess('scheduler'))return;}if(t==='health')loadHealthMonitor();if(t==='security')loadSecurityCenter();if(t==='insights'){loadInsights();}if(t==='profile')loadProfile();}
 async function loadOverview(){if(ENGINES){try{const h=await ENGINES.health();if(h.status==='healthy'){const b=document.getElementById('engineStatusBadge');b.textContent='🟢 Engine Online';b.style.color='var(--green)';b.style.background='rgba(0,255,157,.08)'}const s=await ENGINES.status();document.getElementById('kpiEngines').textContent=(s.engines||[]).length;document.getElementById('kpiEnginesTrend').textContent='All operational'}catch(e){document.getElementById('engineStatusBadge').textContent='🔴 Engine Offline';document.getElementById('engineStatusBadge').style.color='var(--red)'}}if(sbClient){try{const{count:l}=await sbClient.from('leads').select('*',{count:'exact',head:true});document.getElementById('kpiLeads').textContent=l||0;document.getElementById('kpiLeadsTrend').textContent='In CRM';const{count:b}=await sbClient.from('bookings').select('*',{count:'exact',head:true});document.getElementById('kpiBookings').textContent=b||0;document.getElementById('kpiBookingsTrend').textContent='Total';const{data:pmts}=await sbClient.from('payments').select('amount');let rev=0;(pmts||[]).forEach(p=>rev+=(p.amount||0));document.getElementById('kpiRevenue').textContent='₦'+rev.toLocaleString();document.getElementById('kpiRevTrend').textContent='From payments'}catch(e){document.getElementById('kpiLeadsTrend').textContent='DB not accessible';document.getElementById('kpiBookingsTrend').textContent='DB not accessible';document.getElementById('kpiRevTrend').textContent='DB not accessible'}}loadActivity()}
 async function loadActivity(){const c=document.getElementById('activityFeed');if(!c)return;if(sbClient){try{const{data}=await sbClient.from('analytics_events').select('*').order('created_at',{ascending:false}).limit(10);if(data&&data.length>0){c.innerHTML=data.map(e=>'<div style="display:flex;align-items:center;gap:.8rem;padding:.7rem;border:1px solid var(--border);border-radius:10px;margin-bottom:.5rem"><div style="font-size:1.2rem">'+(e.icon||'📋')+'</div><div style="flex:1"><div style="font-weight:600;font-size:.85rem">'+(e.event_type||'Event')+'</div><div style="font-size:.72rem;color:var(--muted)">'+(e.description||'')+'</div></div><span class="badge badge-cyan">'+(e.category||'system')+'</span></div>').join('');return}}catch(e){}}if(ENGINES){try{const r=await fetch(ENGINES.BASE+'/activity/history');const d=await r.json();const ev=d.events||[];if(ev.length>0){c.innerHTML=ev.map(e=>'<div style="display:flex;align-items:center;gap:.8rem;padding:.7rem;border:1px solid var(--border);border-radius:10px;margin-bottom:.5rem"><div style="font-size:1.2rem">⚡</div><div style="flex:1"><div style="font-weight:600;font-size:.85rem">'+(e.engine||e.action||'Activity')+'</div><div style="font-size:.72rem;color:var(--muted)">'+(e.action||'')+'</div></div><span class="badge badge-green">completed</span></div>').join('');return}}catch(e){}}c.innerHTML='<div class="empty"><div class="icon">📋</div><h3>No activity yet</h3><p>Run the Conductor agent or scan for leads to see activity.</p></div>'}
 /* ═════════════════════════════════════════════════════════════════════
@@ -2725,10 +2757,10 @@ function showSkillForm(){const f=document.getElementById('skillForm');f.style.di
 function createSkill(){const n=document.getElementById('skillName').value.trim(),d=document.getElementById('skillDesc').value.trim(),i=document.getElementById('skillInstr').value.trim(),c=document.getElementById('skillCat').value;if(!n||!d){showToast('Name and description required','error');return}const local=JSON.parse(localStorage.getItem('ergio_skills')||'[]');local.push({id:'local-'+Date.now(),name:n,desc:d,cat:c,author:currentUser?.email||'you',dl:0,rt:0});localStorage.setItem('ergio_skills',JSON.stringify(local));showToast('✅ Skill created!','success');document.getElementById('skillForm').style.display='none';loadSkillsGrid()}
 function installSkill(id,name){const inst=JSON.parse(localStorage.getItem('ergio_installed_skills')||'[]');if(!inst.includes(id)){inst.push(id);localStorage.setItem('ergio_installed_skills',JSON.stringify(inst));showToast('✅ '+name+' installed!','success')}else{showToast(name+' already installed','info')}}
 const intCats=['all','communication','payments','ai','productivity','devops','marketing','database'];
-const intCatalog=[{id:'supabase',name:'Supabase',icon:'🗄️',cat:'database',desc:'PostgreSQL database with auth, storage, realtime.',free:true,env:[]},{id:'stripe',name:'Stripe',icon:'💳',cat:'payments',desc:'Accept payments globally.',free:false,env:['STRIPE_KEY']},{id:'paystack',name:'Paystack',icon:'💰',cat:'payments',desc:'Payments for Africa.',free:false,env:['PAYSTACK_KEY']},{id:'flutterwave',name:'Flutterwave',icon:'🦋',cat:'payments',desc:'African payment gateway.',free:false,env:['FLW_KEY']},{id:'slack',name:'Slack',icon:'💬',cat:'communication',desc:'Team messaging.',free:true,env:['SLACK_TOKEN']},{id:'gmail',name:'Gmail',icon:'📧',cat:'communication',desc:'Email integration.',free:true,env:['GMAIL_KEY']},{id:'whatsapp',name:'WhatsApp',icon:'📱',cat:'communication',desc:'WhatsApp Business API.',free:false,env:['WA_KEY']},{id:'twilio',name:'Twilio',icon:'📞',cat:'communication',desc:'SMS and voice.',free:false,env:['TWILIO_KEY']},{id:'openai',name:'OpenAI',icon:'🧠',cat:'ai',desc:'GPT-4 and more.',free:false,env:['OPENAI_KEY']},{id:'groq',name:'Groq',icon:'⚡',cat:'ai',desc:'Ultra-fast inference.',free:true,env:['GROQ_KEY']},{id:'perplexity',name:'Perplexity',icon:'🔎',cat:'ai',desc:'AI search.',free:false,env:['PERP_KEY']},{id:'github',name:'GitHub',icon:'🐙',cat:'devops',desc:'Code repositories.',free:true,env:['GH_TOKEN']},{id:'vercel',name:'Vercel',icon:'▲',cat:'devops',desc:'Deploy apps.',free:true,env:['VERCEL_TOKEN']},{id:'notion',name:'Notion',icon:'📝',cat:'productivity',desc:'Notes and docs.',free:true,env:['NOTION_KEY']},{id:'gcal',name:'Google Calendar',icon:'📅',cat:'productivity',desc:'Calendar management.',free:true,env:['GCAL_KEY']},{id:'airtable',name:'Airtable',icon:'🗂️',cat:'database',desc:'Spreadsheet database.',free:true,env:['AIRTABLE_KEY']},{id:'sendgrid',name:'SendGrid',icon:'📨',cat:'marketing',desc:'Email delivery.',free:false,env:['SG_KEY']},{id:'mailchimp',name:'Mailchimp',icon:'🐵',cat:'marketing',desc:'Email marketing.',free:true,env:['MC_KEY']},{id:'figma',name:'Figma',icon:'🎨',cat:'productivity',desc:'Design files.',free:true,env:['FIGMA_KEY']},{id:'serpapi',name:'SerpAPI',icon:'🔍',cat:'marketing',desc:'Google search API.',free:false,env:['SERP_KEY']}];
+const intCatalog=[{id:'supabase',name:'Supabase',logo:'https://cdn.simpleicons.org/supabase/3ECF8E',bg:'#3ECF8E',icon:'🗄️',cat:'database',desc:'PostgreSQL database with auth, storage, realtime.',free:true,env:[]},{id:'stripe',name:'Stripe',logo:'https://cdn.simpleicons.org/stripe/635BFF',bg:'#635BFF',icon:'💳',cat:'payments',desc:'Accept payments globally.',free:false,env:['STRIPE_KEY']},{id:'paystack',name:'Paystack',logo:'https://cdn.simpleicons.org/paystack/00C3F7',bg:'#00C3F7',icon:'💰',cat:'payments',desc:'Payments for Africa.',free:false,env:['PAYSTACK_KEY']},{id:'flutterwave',name:'Flutterwave',logo:'https://cdn.simpleicons.org/flutterwave/F5A623',bg:'#F5A623',icon:'🦋',cat:'payments',desc:'African payment gateway.',free:false,env:['FLW_KEY']},{id:'slack',name:'Slack',logo:'https://cdn.simpleicons.org/slack/4A154B',bg:'#4A154B',icon:'💬',cat:'communication',desc:'Team messaging.',free:true,env:['SLACK_TOKEN']},{id:'gmail',name:'Gmail',logo:'https://cdn.simpleicons.org/gmail/EA4335',bg:'#EA4335',icon:'📧',cat:'communication',desc:'Email integration.',free:true,env:['GMAIL_KEY']},{id:'whatsapp',name:'WhatsApp',logo:'https://cdn.simpleicons.org/whatsapp/25D366',bg:'#25D366',icon:'📱',cat:'communication',desc:'WhatsApp Business API.',free:false,env:['WA_KEY']},{id:'twilio',name:'Twilio',logo:'https://cdn.simpleicons.org/twilio/F22F46',bg:'#F22F46',icon:'📞',cat:'communication',desc:'SMS and voice.',free:false,env:['TWILIO_KEY']},{id:'openai',name:'OpenAI',logo:'https://cdn.simpleicons.org/openai/FFFFFF',bg:'#000000',icon:'🧠',cat:'ai',desc:'GPT-4 and more.',free:false,env:['OPENAI_KEY']},{id:'groq',name:'Groq',logo:'https://cdn.simpleicons.org/groq/F55036',bg:'#F55036',icon:'⚡',cat:'ai',desc:'Ultra-fast inference.',free:true,env:['GROQ_KEY']},{id:'perplexity',name:'Perplexity',logo:'https://cdn.simpleicons.org/perplexity/20808D',bg:'#20808D',icon:'🔮',cat:'ai',desc:'AI search and answers.',free:false,env:['PERP_KEY']}]
 function loadIntegrations(){const cc=document.getElementById('intCategories');cc.innerHTML=intCats.map(c=>'<button class="btn '+(currentIntCategory===c?'btn-primary':'btn-ghost')+' btn-sm" onclick="setIntCategory(\''+c+'\')">'+c.charAt(0).toUpperCase()+c.slice(1)+'</button>').join('');renderIntegrationsGrid();loadConnectedIntegrations()}
 function setIntCategory(c){currentIntCategory=c;loadIntegrations()}
-function renderIntegrationsGrid(){const g=document.getElementById('integrationsGrid');if(!g)return;const f=currentIntCategory==='all'?intCatalog:intCatalog.filter(i=>i.cat===currentIntCategory);const c=JSON.parse(localStorage.getItem('ergio_integrations')||'{}');g.innerHTML=f.map(i=>{const on=c[i.id]||i.id==='supabase';return'<div class="int-card"><div class="top"><div class="int-icon">'+i.icon+'</div><div style="flex:1"><div class="name">'+i.name+'</div><div class="cat">'+i.cat+'</div></div><div class="int-dot '+(on?'on':'off')+'"></div></div><p class="desc">'+i.desc+'</p>'+(i.free?'<span class="badge badge-green">FREE</span>':'<span class="badge badge-yellow">PAID</span>')+'<button class="int-connect '+(on?'connected':'')+'" onclick="connectIntegration(\''+i.id+'\',\''+i.name+'\')">'+(on?'✅ Connected':'Connect')+'</button></div>'}).join('')}
+function renderIntegrationsGrid(){const g=document.getElementById('integrationsGrid');if(!g)return;const f=currentIntCategory==='all'?intCatalog:intCatalog.filter(i=>i.cat===currentIntCategory);const c=JSON.parse(localStorage.getItem('ergio_integrations')||'{}');g.innerHTML=f.map(i=>{const on=c[i.id]||i.id==='supabase';const logo=i.logo||'';const bg=i.bg||'#333';return'<div class="int-card" style="border-top:3px solid '+bg+'"><div class="top"><div class="int-icon" style="background:'+bg+';display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:10px;width:40px;height:40px;flex-shrink:0">'+(logo?'<img src="'+logo+'" alt="'+i.name+'" style="width:22px;height:22px" onerror="this.style.display=\'none\'">':i.icon)+'</div><div style="flex:1"><div class="name">'+i.name+'</div><div class="cat">'+i.cat+'</div></div><div class="int-dot '+(on?'on':'off')+'"></div></div><p class="desc">'+i.desc+'</p>'+(i.free?'<span class="badge badge-green">FREE</span>':'<span class="badge badge-yellow">PAID</span>')+'<button class="int-connect '+(on?'connected':'')+'" onclick="connectIntegration(\''+i.id+'\',\''+i.name+'\')">'+(on?'✅ Connected':'Connect')+'</button></div>'}).join('')}
 function connectIntegration(id,name){const int=intCatalog.find(i=>i.id===id);if(int&&int.env.length>0){const k=prompt('Enter your '+int.env[0]+' for '+name+':');if(!k)return;if(ENGINES)ENGINES.connectPlugin({id,name,envVars:{[int.env[0]]:k}}).catch(()=>{})}const s=JSON.parse(localStorage.getItem('ergio_integrations')||'{}');s[id]={name,connected_at:new Date().toISOString()};localStorage.setItem('ergio_integrations',JSON.stringify(s));showToast('✅ '+name+' connected!','success');renderIntegrationsGrid();loadConnectedIntegrations()}
 function loadConnectedIntegrations(){const c=document.getElementById('connectedList');if(!c)return;const s=JSON.parse(localStorage.getItem('ergio_integrations')||'{}');const k=Object.keys(s);if(k.length===0){c.innerHTML='<div style="color:var(--muted);padding:1rem;text-align:center;font-size:.85rem">No integrations connected yet.</div>';return}c.innerHTML=k.map(x=>'<div style="display:flex;align-items:center;justify-content:space-between;padding:.7rem 1rem;background:var(--card2);border:1px solid var(--border);border-radius:10px;margin-bottom:.5rem"><div style="display:flex;align-items:center;gap:.6rem"><div class="int-dot on"></div><div><div style="font-weight:600;font-size:.85rem">'+s[x].name+'</div><div style="font-size:.72rem;color:var(--muted)">Connected '+new Date(s[x].connected_at).toLocaleDateString()+'</div></div></div><button class="engine-btn" style="border-color:var(--red);color:var(--red)" onclick="disconnectIntegration(\''+x+'\')">Disconnect</button></div>').join('')}
 function disconnectIntegration(id){const s=JSON.parse(localStorage.getItem('ergio_integrations')||'{}');delete s[id];localStorage.setItem('ergio_integrations',JSON.stringify(s));if(ENGINES)ENGINES.disconnectPlugin(id).catch(()=>{});showToast('Disconnected','info');renderIntegrationsGrid();loadConnectedIntegrations()}
@@ -3154,8 +3186,29 @@ function fireEmployee(type){
   showToast('Employee dismissed.','info');
   loadCloudConsole();
 }
-function manageEmployee(type){showToast('Employee is working in background.','info')}
-function showHireEmployee(){showToast('Choose an available employee and click Hire Now.','info')}
+function manageEmployee(type){
+  var emp=AI_EMPLOYEES.find(function(e){return e.type===type});
+  if(!emp){showToast('Employee not found','error');return;}
+  var modal=document.getElementById('globalModal')||createGlobalModal();
+  var tasks=emp.tasksCompleted||0;
+  var perf=emp.performance||50;
+  modal.innerHTML='<div class="modal-overlay" onclick="closeGlobalModal(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center"><div onclick="event.stopPropagation()" style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:460px;width:92%;max-height:85vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div style="font-size:1.1rem;font-weight:700">🤖 Manage '+emp.name+'</div><span onclick="closeGlobalModal()" style="cursor:pointer;color:var(--muted);font-size:1.3rem">×</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px"><div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center"><div style="font-size:1.8rem;font-weight:700;color:var(--green)">'+perf+'</div><div style="font-size:.75rem;color:var(--muted)">Performance Score</div></div><div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center"><div style="font-size:1.8rem;font-weight:700;color:var(--cyan)">'+tasks+'</div><div style="font-size:.75rem;color:var(--muted)">Tasks Completed</div></div></div><div style="margin-bottom:16px"><label style="font-size:.8rem;color:var(--muted);display:block;margin-bottom:4px">Assign a new task:</label><textarea id="empTaskInput" rows="2" placeholder="e.g. Find 20 new leads today" style="width:100%;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;outline:none;resize:none"></textarea></div><div style="display:flex;gap:8px"><button onclick="assignEmployeeTask(\''+type+'\')" style="flex:1;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--cyan),var(--green));color:#000;font-weight:700;cursor:pointer">Assign Task</button><button onclick="closeGlobalModal()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-weight:600;cursor:pointer">Close</button></div><div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)"><div style="font-size:.75rem;color:var(--muted);margin-bottom:6px">Employee Status</div><div style="display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite"></div><span style="font-size:.85rem;color:var(--green)">Active — Working 24/7</span></div></div></div></div>';
+}
+function assignEmployeeTask(type){
+  var task=document.getElementById('empTaskInput').value.trim();
+  if(!task){showToast('Enter a task description','error');return;}
+  var emp=AI_EMPLOYEES.find(function(e){return e.type===type});
+  if(emp){emp.tasksCompleted=(emp.tasksCompleted||0)+1;localStorage.setItem('ergio_employees',JSON.stringify(AI_EMPLOYEES));}
+  closeGlobalModal();
+  showToast('✅ Task assigned to AI employee. It will execute in background.','success');
+  /* Send to Conductor */
+  if(typeof sendConductorMessage==='function'){
+    setTimeout(function(){sendConductorMessage(task);},300);
+  }
+}
+function showHireEmployee(){
+  switchTab('employees');
+}
 
 /* Mission Engine */
 function loadMissions(){
@@ -3196,8 +3249,71 @@ function breakdownMission(desc){
   }
   return tasks.map(function(t,i){return{text:t,status:i===0?'active':'pending',order:i}});
 }
-function manageMission(type){showToast('Opening mission plan...','info')}
-function showCreateMission(){showToast('Use the quick templates below or type in Conductor.','info')}
+function manageMission(missionId){
+  /* Find mission by id or index */
+  var mission=MISSIONS.find(function(m){return m.id===missionId||m.title===missionId||m.desc===missionId;});
+  if(!mission){
+    /* Try as a keyword search in title */
+    mission=MISSIONS.find(function(m){return (m.title||'').toLowerCase().indexOf(String(missionId).toLowerCase())>=0;});
+  }
+  if(!mission){
+    /* It might be from the hardcoded HTML — create from template */
+    var templates={'restaurant':{title:'Grow my restaurant',tasks:['Build restaurant website','Generate brand identity','Set up lead capture','Run marketing campaign','Monitor and improve SEO']},'agency':{title:'Launch AI agency',tasks:['Build agency website','Generate brand','Find 100 leads','Write outreach emails','Send campaigns','Monitor replies']}};
+    var tmpl=templates[missionId];
+    if(tmpl){
+      mission={id:'m'+Date.now(),title:tmpl.title,desc:tmpl.title,status:'active',progress:0,tasks:tmpl.tasks.map(function(t,i){return{text:t,status:i<2?'done':i===2?'active':'pending'}}),created_at:Date.now()};
+      MISSIONS.push(mission);
+      localStorage.setItem('ergio_missions',JSON.stringify(MISSIONS));
+    }
+  }
+  if(!mission){showToast('Mission not found','error');return;}
+  var modal=document.getElementById('globalModal')||createGlobalModal();
+  var tasks=mission.tasks||[];
+  var doneCount=tasks.filter(function(t){return t.status==='done';}).length;
+  var progress=mission.progress||(tasks.length?Math.round(doneCount/tasks.length*100):0);
+  modal.innerHTML='<div class="modal-overlay" onclick="closeGlobalModal(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center"><div onclick="event.stopPropagation()" style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:520px;width:92%;max-height:85vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div style="font-size:1.1rem;font-weight:700">🎯 '+mission.title+'</div><span onclick="closeGlobalModal()" style="cursor:pointer;color:var(--muted);font-size:1.3rem">×</span></div><div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);margin-bottom:6px"><span>Progress</span><span>'+progress+'%</span></div><div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+progress+'%;background:linear-gradient(90deg,var(--cyan),var(--green));border-radius:3px;transition:width .3s"></div></div></div><div style="font-size:.85rem;font-weight:600;margin-bottom:10px">Tasks ('+doneCount+'/'+tasks.length+' completed):</div><div style="display:flex;flex-direction:column;gap:6px">'+tasks.map(function(t,i){
+    var status=t.status||'pending';
+    var icon=status==='done'?'✅':status==='active'?'🔄':'⏳';
+    var color=status==='done'?'var(--green)':status==='active'?'var(--cyan)':'var(--muted)';
+    return '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px"><span style="font-size:16px">'+icon+'</span><span style="flex:1;font-size:.85rem;color:'+color+'">'+(t.text||t)+'</span>'+(status==='active'?'<span style="font-size:.7rem;color:var(--cyan)">Running</span>':'')+'</div>';
+  }).join('')+'</div><div style="margin-top:16px;display:flex;gap:8px"><button onclick="closeGlobalModal()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-weight:600;cursor:pointer">Close</button><button onclick="closeGlobalModal();switchTab(\'conductor\')" style="flex:1;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--cyan),var(--green));color:#000;font-weight:700;cursor:pointer">Open in Conductor</button></div></div></div>';
+}
+function showCreateMission(){
+  if(!checkPlanAccess('missions'))return;
+  openMissionModal();
+}
+function openMissionModal(){
+  var modal=document.getElementById('globalModal')||createGlobalModal();
+  var templates=[
+    {name:'Generate 100 leads',desc:'Find and qualify 100 potential customers',icon:'🎯'},
+    {name:'Increase monthly sales',desc:'Boost revenue through targeted campaigns',icon:'💰'},
+    {name:'Launch my SaaS',desc:'Build website, set up pricing, find early customers',icon:'🚀'},
+    {name:'Find investors',desc:'Prepare pitch deck, research and contact investors',icon:'📈'},
+    {name:'Open a new branch',desc:'Research locations, plan expansion, execute',icon:'🏢'},
+    {name:'Build my website',desc:'Generate a complete business website with AI',icon:'🌐'},
+    {name:'Run marketing campaign',desc:'Create and launch a multi-channel campaign',icon:'📣'},
+    {name:'Improve SEO ranking',desc:'Analyze and optimize for search engines',icon:'🔍'}
+  ];
+  modal.innerHTML='<div class="modal-overlay" onclick="closeGlobalModal(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center"><div onclick="event.stopPropagation()" style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:520px;width:92%;max-height:85vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div style="font-size:1.1rem;font-weight:700">🎯 New Mission</div><span onclick="closeGlobalModal()" style="cursor:pointer;color:var(--muted);font-size:1.3rem">×</span></div><div style="margin-bottom:12px"><label style="font-size:.8rem;color:var(--muted);display:block;margin-bottom:4px">Mission Goal</label><input id="missionName" type="text" placeholder="e.g. Generate 100 leads this month" style="width:100%;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;outline:none"/></div><div style="margin-bottom:16px"><label style="font-size:.8rem;color:var(--muted);display:block;margin-bottom:6px">Or choose a template:</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+templates.map(function(t){return '<button onclick="document.getElementById(\'missionName\').value=\''+t.name+'\'" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;cursor:pointer;text-align:left;transition:all .15s" onmouseover="this.style.borderColor=\'var(--cyan)\'" onmouseout="this.style.borderColor=\'var(--border)\'"><span style="font-size:18px">'+t.icon+'</span><div><div style="font-weight:600">'+t.name+'</div><div style="font-size:11px;color:var(--muted)">'+t.desc+'</div></div></button>'}).join('')+'</div></div><div style="display:flex;gap:8px"><button onclick="closeGlobalModal()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-weight:600;cursor:pointer">Cancel</button><button onclick="submitNewMission()" style="flex:1;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--cyan),var(--green));color:#000;font-weight:700;cursor:pointer">Create Mission</button></div></div></div>';
+}
+function submitNewMission(){
+  var name=document.getElementById('missionName').value.trim();
+  if(!name){showToast('Enter a mission goal','error');return;}
+  var id='m'+Date.now();
+  var tasks=breakdownMission(name);
+  var mission={id:id,title:name,desc:name,status:'planning',progress:0,tasks:tasks,created_at:Date.now()};
+  MISSIONS.push(mission);
+  localStorage.setItem('ergio_missions',JSON.stringify(MISSIONS));
+  closeGlobalModal();
+  showToast('🎯 Mission created: '+name+'. AI is breaking it into tasks...','success');
+  loadMissions();
+  /* Start the mission by sending to Conductor */
+  setTimeout(function(){
+    if(typeof sendConductorMessage==='function'){
+      sendConductorMessage('Start mission: '+name);
+    }
+  },500);
+}
 function reorderTask(mid,idx,dir){showToast('Task reordered.','info')}
 function toggleTask(mid,idx){showToast('Task toggled.','info')}
 
@@ -3257,10 +3373,55 @@ function loadScheduler(){
     container.appendChild(card);
   });
 }
-function showCreateSchedule(){showToast('Schedule builder opening. Set frequency and AI handles the rest.','info')}
+function showCreateSchedule(){
+  if(!checkPlanAccess('scheduler'))return;
+  openScheduleModal();
+}
+function openScheduleModal(){
+  var modal=document.getElementById('globalModal')||createGlobalModal();
+  modal.innerHTML='<div class="modal-overlay" onclick="closeGlobalModal(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center"><div onclick="event.stopPropagation()" style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:480px;width:92%;max-height:85vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div style="font-size:1.1rem;font-weight:700">⏰ Schedule New Task</div><span onclick="closeGlobalModal()" style="cursor:pointer;color:var(--muted);font-size:1.3rem">×</span></div><div style="margin-bottom:12px"><label style="font-size:.8rem;color:var(--muted);display:block;margin-bottom:4px">Task Name</label><input id="schedName" type="text" placeholder="e.g. Daily Lead Scan" style="width:100%;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;outline:none"/></div><div style="margin-bottom:12px"><label style="font-size:.8rem;color:var(--muted);display:block;margin-bottom:4px">What should the AI do?</label><textarea id="schedDesc" rows="2" placeholder="e.g. Scan the web for 20 new leads in my industry" style="width:100%;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;outline:none;resize:none"></textarea></div><div style="margin-bottom:12px"><label style="font-size:.8rem;color:var(--muted);display:block;margin-bottom:4px">Frequency</label><select id="schedFreq" style="width:100%;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;outline:none"><option value="daily">Every day</option><option value="weekly">Every week</option><option value="monthly">Every month</option><option value="hourly">Every hour</option><option value="custom">Custom (cron)</option></select></div><div style="margin-bottom:12px" id="schedTimeWrap"><label style="font-size:.8rem;color:var(--muted);display:block;margin-bottom:4px">Time of day</label><input id="schedTime" type="time" value="09:00" style="width:100%;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;outline:none"/></div><div style="display:flex;gap:8px;margin-top:16px"><button onclick="closeGlobalModal()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-weight:600;cursor:pointer">Cancel</button><button onclick="createScheduledTask()" style="flex:1;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--cyan),var(--green));color:#000;font-weight:700;cursor:pointer">Schedule Task</button></div></div></div>';
+}
+function createScheduledTask(){
+  var name=document.getElementById('schedName').value.trim();
+  var desc=document.getElementById('schedDesc').value.trim();
+  var freq=document.getElementById('schedFreq').value;
+  var time=document.getElementById('schedTime')?document.getElementById('schedTime').value:'09:00';
+  if(!name){showToast('Enter a task name','error');return;}
+  var task={id:'s'+Date.now(),name:name,description:desc,frequency:freq,time:time,active:true,created:Date.now(),next_run:computeNextRun(freq,time)};
+  SCHEDULED_TASKS.push(task);
+  localStorage.setItem('ergio_scheduled_tasks',JSON.stringify(SCHEDULED_TASKS));
+  closeGlobalModal();
+  showToast('✅ Task scheduled: '+name+' ('+freq+' at '+time+')','success');
+  loadScheduler();
+}
+function computeNextRun(freq,time){
+  var now=new Date();
+  var tomorrow=new Date(now);tomorrow.setDate(now.getDate()+1);
+  var parts=time.split(':');tomorrow.setHours(parseInt(parts[0]),parseInt(parts[1]),0,0);
+  if(freq==='hourly')return new Date(now.getTime()+3600000).toISOString();
+  return tomorrow.toISOString();
+}
 function toggleSchedule(el){
   el.classList.toggle('active');
-  showToast(el.classList.contains('active')?'Task scheduled and active.':'Task paused.','success');
+  var isActive=el.classList.contains('active');
+  showToast(isActive?'Task activated.':'Task paused.',isActive?'success':'info');
+}
+function pauseScheduledTask(id){
+  var t=SCHEDULED_TASKS.find(function(s){return s.id===id});
+  if(t){t.active=!t.active;localStorage.setItem('ergio_scheduled_tasks',JSON.stringify(SCHEDULED_TASKS));showToast(t.active?'Task resumed':'Task paused','success');loadScheduler();}
+}
+function removeScheduledTask(id){
+  SCHEDULED_TASKS=SCHEDULED_TASKS.filter(function(s){return s.id!==id});
+  localStorage.setItem('ergio_scheduled_tasks',JSON.stringify(SCHEDULED_TASKS));
+  showToast('Task removed','info');
+  loadScheduler();
+}
+function createGlobalModal(){
+  var d=document.createElement('div');d.id='globalModal';document.body.appendChild(d);return d;
+}
+function closeGlobalModal(e){
+  if(e&&e.target&&!e.target.classList.contains('modal-overlay')&&!e.target.onclick)return;
+  var m=document.getElementById('globalModal');if(m)m.innerHTML='';
 }
 
 /* Health Monitor */
