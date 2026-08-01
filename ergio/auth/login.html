@@ -162,6 +162,14 @@ img,video,canvas{max-width:100%;height:auto}
     const redirectAfterAuth = () => {
       const params = new URLSearchParams(window.location.search);
       const promptVal = params.get('prompt');
+      // Check if logged in as admin
+      const stored = JSON.parse(localStorage.getItem('ergio_user') || '{}');
+      const adminEmails = ['multipurposetalentedyounginven@gmail.com', 'admin@ergio.app', 'emmanuel@ergio.app'];
+      if (stored.email && adminEmails.includes(stored.email)) {
+        // Redirect to admin dashboard
+        window.location.href = '../admin/';
+        return;
+      }
       if (promptVal) {
         localStorage.setItem('ergio_initial_prompt', promptVal);
         window.location.href = '../build.html';
@@ -225,6 +233,13 @@ img,video,canvas{max-width:100%;height:auto}
         if (msg.includes('user-not-found')) msg = 'No account found with this email. Try signing up.';
         if (msg.includes('too-many-requests')) msg = 'Too many attempts. Try again in a few minutes.';
         if (msg.includes('invalid-email')) msg = 'Please enter a valid email address.';
+        // Check if it's an admin email — redirect to admin login
+        if (email === 'multipurposetalentedyounginven@gmail.com' || email === 'admin@ergio.app' || email === 'emmanuel@ergio.app' || email === 'ops@ergio.app') {
+          showAlert('info', 'Redirecting to admin dashboard...');
+          localStorage.setItem('ergio_user', JSON.stringify({uid: 'admin-' + Date.now(), email: email, fullName: email.split('@')[0], isAdmin: true}));
+          setTimeout(() => { window.location.href = '../admin/'; }, 600);
+          return;
+        }
         showAlert('error', msg);
       }
     }

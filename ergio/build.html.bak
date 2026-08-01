@@ -1,0 +1,2244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="google-site-verification" content="GOOGLE_VERIFICATION_CODE_HERE" />
+<link rel="icon" type="image/jpeg" href="/ergio/assets/ergio-logo.jpg">
+<link rel="apple-touch-icon" href="/ergio/assets/ergio-logo.jpg">
+<meta property="og:image" content="https://ergio.vercel.app/ergio/assets/ergio-logo.jpg">
+<meta name="robots" content="index, follow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERGIO Builder — Build Your Business</title>
+<link rel="icon" href="/ergio/favicon.ico">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --bg: #0A0A0F;
+    --sidebar: #111118;
+    --border: #1E1E2E;
+    --text: #E4E4F0;
+    --muted: #6B6B8A;
+    --accent: #00D9FF;
+    --green: #00FF9D;
+    --red: #FF4D6D;
+    --card: #16161F;
+    --hover: #1C1C28;
+  }
+
+  html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+
+  /* ===== LAYOUT ===== */
+  .app { display: flex; height: 100vh; width: 100vw; }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 380px;
+    min-width: 280px;
+    max-width: 480px;
+    background: var(--sidebar);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+  }
+
+  .sidebar-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo { display: flex; align-items: center; gap: 8px; }
+  .logo img { width: 28px; height: 28px; border-radius: 6px; }
+  .logo-text { font-size: 15px; font-weight: 700; color: var(--text); }
+  .logo-badge { 
+    font-size: 10px; padding: 2px 7px; border-radius: 100px;
+    background: linear-gradient(135deg, var(--accent), var(--green));
+    color: #000; font-weight: 700; text-transform: uppercase;
+  }
+
+  .sidebar-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  
+  .icon-btn {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.15s; color: var(--muted); font-size: 15px;
+  }
+  .icon-btn:hover { background: var(--hover); color: var(--text); }
+
+  /* Project name */
+  .project-name {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .project-name-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+  }
+  .project-status {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 11px; color: var(--muted);
+  }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #666; }
+  .status-dot.live { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+  /* Chat history */
+  .chat-history {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .chat-history::-webkit-scrollbar { width: 4px; }
+  .chat-history::-webkit-scrollbar-track { background: transparent; }
+  .chat-history::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  /* Empty state */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+    text-align: center;
+    gap: 16px;
+  }
+  .empty-icon { font-size: 48px; }
+  .empty-title { font-size: 18px; font-weight: 700; color: var(--text); }
+  .empty-sub { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .empty-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
+  .chip {
+    padding: 6px 14px; border-radius: 100px;
+    background: var(--card); border: 1px solid var(--border);
+    font-size: 12px; color: var(--muted); cursor: pointer;
+    transition: all 0.15s;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Message bubbles */
+  .msg { display: flex; gap: 10px; align-items: flex-start; }
+  .msg.user { flex-direction: row-reverse; }
+  .msg-avatar {
+    width: 28px; height: 28px; border-radius: 8px;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+  }
+  .msg-avatar.ai { background: linear-gradient(135deg, var(--accent), var(--green)); color: #000; font-size: 12px; }
+  .msg-avatar.user { background: var(--hover); border: 1px solid var(--border); font-size: 12px; color: var(--text); }
+  .msg-bubble {
+    max-width: 84%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .msg.ai .msg-bubble { background: var(--card); border: 1px solid var(--border); color: var(--text); border-radius: 4px 12px 12px 12px; }
+  .msg.user .msg-bubble { background: linear-gradient(135deg, #1a3a4a, #1a4a3a); border: 1px solid #234; color: var(--text); border-radius: 12px 4px 12px 12px; }
+
+  /* Build progress */
+  .build-progress {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px; margin: 4px 0;
+  }
+  .build-progress-title { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .build-step { 
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 0; font-size: 13px; color: var(--muted);
+    transition: all 0.3s;
+  }
+  .build-step.active { color: var(--text); }
+  .build-step.done { color: var(--green); }
+  .step-icon { width: 20px; text-align: center; font-size: 14px; }
+  .step-spinner { 
+    width: 14px; height: 14px; border: 2px solid var(--border); 
+    border-top-color: var(--accent); border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .step-check { color: var(--green); font-size: 14px; }
+
+  /* Build bar */
+  .build-bar-wrap { margin-top: 12px; }
+  .build-bar-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .build-bar { height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .build-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); border-radius: 4px; transition: width 0.5s ease; }
+
+  /* Input area */
+  .input-area {
+    padding: 12px;
+    border-top: 1px solid var(--border);
+    background: var(--sidebar);
+  }
+  .input-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    transition: border-color 0.2s;
+    overflow: hidden;
+  }
+  .input-wrap:focus-within { border-color: var(--accent); }
+  .input-wrap textarea {
+    width: 100%; background: none; border: none; outline: none;
+    color: var(--text); font-size: 14px; padding: 12px 14px 6px;
+    resize: none; min-height: 44px; max-height: 160px;
+    font-family: inherit; line-height: 1.5;
+  }
+  .input-wrap textarea::placeholder { color: var(--muted); }
+  .input-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 10px 8px;
+  }
+  .input-tools { display: flex; gap: 6px; }
+  .tool-btn {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: none; border: none; color: var(--muted);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; transition: all 0.15s;
+  }
+  .tool-btn:hover { color: var(--text); background: var(--hover); }
+  .send-btn {
+    width: 32px; height: 32px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--green));
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; color: #000; font-weight: 700;
+    transition: all 0.2s; flex-shrink: 0;
+  }
+  .send-btn:hover { transform: scale(1.05); box-shadow: 0 4px 16px rgba(0,217,255,0.4); }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* Mode selector */
+  .mode-select {
+    display: flex; gap: 4px; padding: 8px 12px 0;
+  }
+  .mode-btn {
+    padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
+    border: 1px solid var(--border); background: none; color: var(--muted);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .mode-btn.active { background: var(--accent); border-color: var(--accent); color: #000; }
+  .mode-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+
+  /* ===== PREVIEW PANEL ===== */
+  .preview-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #1A1A24;
+    overflow: hidden;
+  }
+
+  .preview-header {
+    height: 48px;
+    background: var(--sidebar);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  /* Browser chrome */
+  .browser-dots { display: flex; gap: 6px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.red { background: #FF5F57; }
+  .dot.yellow { background: #FFBD2E; }
+  .dot.green { background: #28C840; }
+
+  .url-bar {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 360px;
+  }
+  .url-bar-lock { color: var(--green); font-size: 11px; }
+  .url-bar-text { color: var(--text); font-family: monospace; font-size: 12px; }
+
+  .preview-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  
+  .deploy-btn {
+    padding: 6px 16px;
+    background: linear-gradient(135deg, var(--accent), var(--green));
+    border: none; border-radius: 8px; cursor: pointer;
+    font-size: 12px; font-weight: 700; color: #000;
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.2s;
+  }
+  .deploy-btn:hover { transform: scale(1.03); box-shadow: 0 4px 16px rgba(0,217,255,0.3); }
+  .deploy-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .device-toggle { display: flex; gap: 4px; }
+  .device-btn {
+    width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border);
+    background: none; color: var(--muted); cursor: pointer; font-size: 13px;
+    display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+  }
+  .device-btn.active { background: var(--card); color: var(--text); border-color: var(--accent); }
+
+  /* Preview frame */
+  .preview-frame {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+
+  .preview-frame.mobile { 
+    display: flex; align-items: center; justify-content: center;
+    background: #0D0D16;
+    padding: 20px;
+  }
+  .preview-frame.mobile .frame-wrap {
+    width: 390px; height: 100%;
+    border-radius: 20px; overflow: hidden;
+    border: 4px solid #333;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+
+  .preview-frame iframe {
+    width: 100%; height: 100%; border: none;
+    background: white;
+  }
+
+  /* Empty preview */
+  .preview-empty {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; gap: 16px; text-align: center; padding: 40px;
+    color: var(--muted);
+  }
+  .preview-empty-icon { font-size: 64px; opacity: 0.4; }
+  .preview-empty-title { font-size: 22px; font-weight: 700; color: var(--text); opacity: 0.6; }
+  .preview-empty-sub { font-size: 14px; color: var(--muted); line-height: 1.7; max-width: 360px; }
+
+  /* Build scanning animation */
+  .scanning-overlay {
+    position: absolute; inset: 0;
+    background: #0A0A0F;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 24px; z-index: 10;
+  }
+  .scan-ring {
+    width: 80px; height: 80px; border-radius: 50%;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    animation: spin 1s linear infinite;
+    position: relative;
+  }
+  .scan-ring::after {
+    content: '⚡';
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; animation: spin 1s linear infinite reverse;
+  }
+  .scan-label { font-size: 16px; font-weight: 600; color: var(--text); }
+  .scan-sub { font-size: 13px; color: var(--muted); }
+  .scan-steps-list { display: flex; flex-direction: column; gap: 8px; }
+  .scan-step {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: var(--muted); padding: 8px 16px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    min-width: 260px; transition: all 0.3s;
+  }
+  .scan-step.active { border-color: var(--accent); color: var(--text); }
+  .scan-step.done { border-color: var(--green); color: var(--green); }
+
+  /* Deploy modal */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+    z-index: 100;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--sidebar); border: 1px solid var(--border);
+    border-radius: 20px; padding: 32px; width: 480px; max-width: 95vw;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+  }
+  .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+  .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+  .deploy-options { display: flex; flex-direction: column; gap: 12px; }
+  .deploy-option {
+    padding: 16px; border-radius: 12px; border: 1px solid var(--border);
+    background: var(--card); cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .deploy-option:hover { border-color: var(--accent); }
+  .deploy-option-icon { font-size: 28px; }
+  .deploy-option-info h4 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .deploy-option-info p { font-size: 12px; color: var(--muted); }
+  .deploy-option-badge { 
+    margin-left: auto; font-size: 10px; padding: 3px 8px;
+    border-radius: 100px; font-weight: 700;
+  }
+  .badge-free { background: rgba(0,255,157,0.15); color: var(--green); }
+  .badge-pro { background: rgba(0,217,255,0.15); color: var(--accent); }
+  .modal-close {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    cursor: pointer; color: var(--muted); font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    float: right; margin-top: -8px;
+  }
+  .modal-close:hover { color: var(--text); }
+
+  /* Tabs */
+  .sidebar-tabs {
+    display: flex; border-bottom: 1px solid var(--border);
+    padding: 0 12px; gap: 4px;
+  }
+  .sidebar-tab {
+    padding: 10px 14px; font-size: 12px; font-weight: 600; color: var(--muted);
+    cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .sidebar-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .sidebar-tab:hover:not(.active) { color: var(--text); }
+
+  /* Version history */
+  .version-item {
+    padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--card); cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .version-item:hover { border-color: var(--accent); }
+  .version-num { font-size: 11px; font-weight: 700; color: var(--accent); }
+  .version-desc { font-size: 12px; color: var(--text); }
+  .version-time { font-size: 11px; color: var(--muted); margin-left: auto; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .app { flex-direction: column; }
+    .sidebar {
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 70vh;
+      max-height: 70vh;
+      border-right: none;
+      border-top: 1px solid var(--border);
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+      z-index: 200;
+      overflow-y: auto;
+    }
+    .sidebar.mobile-open { transform: translateY(0); }
+    .preview-panel { height: 100vh; flex: 1; }
+    .mobile-toggle {
+      display: flex !important;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--accent, #00d1ff);
+      color: #000;
+      border: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 201;
+      box-shadow: 0 4px 16px rgba(0,209,255,.4);
+    }
+    .sidebar-overlay {
+      display: block;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,.6);
+      z-index: 199;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+    .builder-header { padding: 0.5rem 1rem; }
+    .builder-header h1 { font-size: 1.1rem; }
+    .sidebar-section { padding: 0.75rem; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; font-size: 16px;
+    }
+  }
+
+  /* Notifications */
+  .toast-container {
+    position: fixed; bottom: 24px; right: 24px; z-index: 1000;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .toast {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 16px;
+    font-size: 13px; display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    animation: slideIn 0.3s ease;
+    max-width: 320px;
+  }
+  .toast.success { border-color: var(--green); }
+  .toast.error { border-color: var(--red); }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+  /* Code view */
+  .code-view {
+    display: none; flex: 1; flex-direction: column; overflow: hidden;
+  }
+  .code-view.visible { display: flex; }
+  .code-toolbar {
+    padding: 8px 16px; background: var(--sidebar); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted);
+  }
+  .code-pre {
+    flex: 1; overflow: auto; padding: 16px; font-family: 'Fira Code', monospace;
+    font-size: 12px; line-height: 1.6; color: #ABB2BF; background: #0D0D16;
+  }
+
+  /* ===== PLUGIN TAB ===== */
+  .plugin-panel {
+    flex: 1; overflow-y: auto; padding: 16px;
+  }
+  .plugin-panel::-webkit-scrollbar { width: 4px; }
+  .plugin-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  .plugin-header {
+    font-size: 12px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;
+  }
+  .plugin-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px;
+  }
+  .plugin-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px; cursor: pointer; transition: all 0.2s; position: relative;
+  }
+  .plugin-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .plugin-card.active { border-color: var(--green); background: rgba(0,255,157,0.05); }
+  .plugin-card.active::after {
+    content: '✓'; position: absolute; top: 8px; right: 8px;
+    color: var(--green); font-size: 14px;
+  }
+  .plugin-icon { font-size: 24px; margin-bottom: 8px; }
+  .plugin-name { font-size: 12px; font-weight: 600; color: var(--text); }
+  .plugin-desc { font-size: 10px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+  .plugin-badge {
+    display: inline-block; padding: 2px 6px; border-radius: 4px;
+    font-size: 9px; font-weight: 600; margin-top: 6px;
+    background: rgba(0,217,255,0.1); color: var(--accent);
+  }
+  .plugin-section-title {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    margin: 16px 0 8px; text-transform: uppercase; letter-spacing: 0.5px;
+    border-top: 1px solid var(--border); padding-top: 12px;
+  }
+  .style-engine-display {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px; margin-bottom: 12px;
+  }
+  .style-engine-display .style-name {
+    font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px;
+  }
+  .style-engine-display .style-name::before {
+    content: '🎨'; font-size: 16px;
+  }
+  .style-engine-display .style-desc {
+    font-size: 11px; color: var(--muted); margin-top: 4px;
+  }
+  .style-pick-btn {
+    width: 100%; padding: 8px; margin-top: 8px;
+    background: var(--hover); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--muted); font-size: 11px; cursor: pointer; transition: all 0.2s;
+  }
+  .style-pick-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ===== POINT TO EDIT OVERLAY ===== */
+  .edit-overlay {
+    position: absolute; inset: 0; z-index: 5;
+    display: none; cursor: crosshair;
+  }
+  .edit-overlay.active { display: block; }
+  .edit-marker {
+    position: absolute; width: 28px; height: 28px;
+    border: 2px solid var(--accent); border-radius: 50%;
+    background: rgba(0,217,255,0.15); pointer-events: none;
+    transform: translate(-50%, -50%);
+    animation: pulseMarker 1.5s infinite;
+  }
+  @keyframes pulseMarker {
+    0%,100% { box-shadow: 0 0 0 0 rgba(0,217,255,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(0,217,255,0); }
+  }
+  .edit-tooltip {
+    position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+    background: var(--accent); color: #000; padding: 4px 10px;
+    border-radius: 6px; font-size: 11px; font-weight: 600;
+    white-space: nowrap; pointer-events: none;
+  }
+  .edit-mode-btn {
+    padding: 6px 12px; border-radius: 8px; font-size: 12px;
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--muted); cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .edit-mode-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .edit-mode-btn.active {
+    background: var(--accent); border-color: var(--accent); color: #000;
+  }
+  .edit-highlight {
+    outline: 2px dashed var(--accent) !important;
+    outline-offset: 2px;
+  }
+
+  /* ===== GITHUB DEPLOY ===== */
+  .deploy-github-section {
+    padding: 16px; border-top: 1px solid var(--border);
+  }
+  .gh-input {
+    width: 100%; padding: 8px 12px; margin-bottom: 8px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-size: 13px; font-family: inherit;
+  }
+  .gh-input::placeholder { color: var(--muted); }
+  .gh-input:focus { outline: none; border-color: var(--accent); }
+  .gh-deploy-btn {
+    width: 100%; padding: 10px; border-radius: 10px;
+    background: linear-gradient(135deg, #6e7681, #58a6ff);
+    border: none; color: #fff; font-weight: 700; font-size: 13px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .gh-deploy-btn:hover { transform: scale(1.02); box-shadow: 0 4px 16px rgba(88,166,255,0.3); }
+  .gh-deploy-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ===== STYLE PICKER MODAL ===== */
+  .style-modal {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+    display: none; align-items: center; justify-content: center;
+  }
+  .style-modal.open { display: flex; }
+  .style-modal-content {
+    background: var(--sidebar); border: 1px solid var(--border); border-radius: 20px;
+    padding: 24px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;
+  }
+  .style-modal-title { font-size: 20px; font-weight: 800; margin-bottom: 16px; }
+  .style-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .style-option {
+    background: var(--card); border: 2px solid var(--border); border-radius: 12px;
+    padding: 16px; cursor: pointer; transition: all 0.2s; text-align: center;
+  }
+  .style-option:hover { border-color: var(--accent); transform: scale(1.03); }
+  .style-option.selected { border-color: var(--green); }
+  .style-preview {
+    width: 100%; height: 60px; border-radius: 8px; margin-bottom: 8px;
+  }
+  .style-option-name { font-size: 12px; font-weight: 600; }
+  .style-option-desc { font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+  
+/* ===== RESPONSIVE + ACCESSIBILITY ENHANCEMENTS ===== */
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #00d9ff;outline-offset:2px}
+button,a[role="button"]{min-height:44px;min-width:44px}
+img,video,canvas{max-width:100%;height:auto}
+*,*::before,*::after{max-width:100%}
+@media(max-width:480px){html{font-size:14px}body{padding:.5rem}input,textarea,select{font-size:16px!important;width:100%}}
+@media(max-width:768px){.container,.wrapper,.main{max-width:100%;padding:0 1rem}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+@media print{.nav,.hero-bg{display:none}body{background:#fff;color:#000}}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ===== SIDEBAR ===== -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div style="width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,#00D9FF,#00FF9D);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;color:#000">E</div>
+        <span class="logo-text">ERGIO</span>
+        <span class="logo-badge">AI</span>
+      </div>
+      <div class="sidebar-actions">
+        <button class="icon-btn" onclick="showHistory()" title="Version history">🕐</button>
+        <button class="icon-btn" onclick="window.location='dashboard/index.html'" title="Dashboard">📊</button>
+        <button class="icon-btn" onclick="window.location='/'" title="Home">🏠</button>
+      </div>
+    </div>
+
+    <div class="project-name" id="projectNameBar" style="display:none">
+      <span class="project-name-text" id="projectNameText">My Business</span>
+      <div class="project-status">
+        <div class="status-dot live" id="statusDot"></div>
+        <span id="statusText">Live</span>
+      </div>
+    </div>
+
+    <div class="sidebar-tabs">
+      <div class="sidebar-tab active" onclick="switchTab('chat')" id="tab-chat">💬 Chat</div>
+      <div class="sidebar-tab" onclick="switchTab('history')" id="tab-history">🕐 History</div>
+      <div class="sidebar-tab" onclick="switchTab('files')" id="tab-files">📁 Files</div>
+      <div class="sidebar-tab" onclick="switchTab('plugins')" id="tab-plugins">🔌 Plugins</div>
+      <div class="sidebar-tab" onclick="switchTab('agent')" id="tab-agent" style="color:var(--accent)">⚡ Agent</div>
+    </div>
+
+    <!-- CHAT TAB -->
+    <div id="tab-content-chat" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div class="chat-history" id="chatHistory">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">✨</div>
+          <div class="empty-title">What are you building?</div>
+          <div class="empty-sub">Describe your business idea and ERGIO will build your full website, brand, payments, and booking system instantly.</div>
+          <div class="empty-chips">
+            <div class="chip" onclick="useExample('A modern restaurant in Lagos')">🍽️ Restaurant</div>
+            <div class="chip" onclick="useExample('Online fashion store for women')">👗 Fashion</div>
+            <div class="chip" onclick="useExample('Freelance graphic design studio')">🎨 Design Studio</div>
+            <div class="chip" onclick="useExample('Real estate agency in Abuja')">🏠 Real Estate</div>
+            <div class="chip" onclick="useExample('Hair salon and spa in Lagos')">💇 Salon</div>
+            <div class="chip" onclick="useExample('Tech startup building a SaaS product')">🚀 SaaS</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORY TAB -->
+    <div id="tab-content-history" style="display:none;flex:1;overflow-y:auto;padding:12px;flex-direction:column;gap:8px">
+      <div id="versionList" style="display:flex;flex-direction:column;gap:8px">
+        <div style="text-align:center;color:var(--muted);font-size:13px;padding:24px">No versions yet. Build something first!</div>
+      </div>
+    </div>
+
+    <!-- FILES TAB -->
+    <div id="tab-content-files" style="display:none;flex:1;overflow-y:auto;padding:12px">
+      <div id="filesList" style="font-size:13px;color:var(--muted);text-align:center;padding:24px">No files yet.</div>
+    </div>
+
+
+    <!-- PLUGINS TAB -->
+    <div id="tab-content-plugins" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div style="overflow-y:auto;padding:16px;flex:1">
+        <div class="style-engine-display" id="styleEngineDisplay" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:16px">
+          <div style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px">
+            <span style="font-size:16px">🎨</span> <span id="currentStyleName">Auto-selected</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px" id="currentStyleDesc">ERGIO picks the best design style for your business</div>
+          <button style="width:100%;padding:8px;margin-top:8px;background:var(--hover);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:11px;cursor:pointer;transition:all 0.2s" onclick="openStyleModal()">🎨 Choose a different style</button>
+        </div>
+
+        <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px">🔌 Built-in Tools</div>
+        <div class="plugin-grid" id="builtinToolsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px"></div>
+
+        <div style="font-size:11px;font-weight:700;color:var(--muted);margin:16px 0 8px;text-transform:uppercase;letter-spacing:0.5px;border-top:1px solid var(--border);padding-top:12px">🚀 MCP Plugins</div>
+        <div class="plugin-grid" id="mcpPluginsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px"></div>
+
+        <div style="font-size:11px;font-weight:700;color:var(--muted);margin:16px 0 8px;text-transform:uppercase;letter-spacing:0.5px;border-top:1px solid var(--border);padding-top:12px">⚙️ Connected Servers</div>
+        <div id="connectedServers" style="font-size:12px;color:var(--muted);padding:8px 0">
+          No MCP servers connected yet.
+        </div>
+
+        <div style="font-size:11px;font-weight:700;color:var(--muted);margin:16px 0 8px;text-transform:uppercase;letter-spacing:0.5px;border-top:1px solid var(--border);padding-top:12px">📦 GitHub Deploy</div>
+        <div style="padding:8px 0">
+          <input style="width:100%;padding:8px 12px;margin-bottom:8px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit" id="ghRepoInput" placeholder="repo-name (e.g. my-business-site)" />
+          <input style="width:100%;padding:8px 12px;margin-bottom:8px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit" id="ghTokenInput" type="password" placeholder="GitHub token (ghp_...)" />
+          <button style="width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#6e7681,#58a6ff);border:none;color:#fff;font-weight:700;font-size:13px;cursor:pointer;transition:all 0.2s" id="ghDeployBtn" onclick="deployToGitHub()">
+            🚀 Deploy to GitHub
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AGENT PANEL — Conductor Connection -->
+    <div id="tab-content-agent" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div style="overflow-y:auto;padding:16px;flex:1">
+        <div style="background:linear-gradient(135deg,rgba(0,217,255,.08),rgba(99,102,241,.08));border:1px solid rgba(0,217,255,.2);border-radius:12px;padding:16px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#00D9FF,#6366f1);display:flex;align-items:center;justify-content:center;font-size:1.2rem">⚡</div>
+            <div>
+              <div style="font-weight:700;font-size:14px;color:var(--text)">ERGIO Conductor</div>
+              <div style="font-size:11px;color:var(--muted)">AI Business Agent — orchestrates all 10 engines</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:11px">
+            <div id="agentStatusDot" style="width:8px;height:8px;border-radius:50%;background:var(--muted)"></div>
+            <span id="agentStatusText" style="color:var(--muted)">Checking connection...</span>
+          </div>
+        </div>
+
+        <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">🚀 Quick Actions</div>
+        <div style="display:grid;gap:8px;margin-bottom:16px">
+          <button onclick="agentAction('lead','Find me clients for this business')" style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;cursor:pointer;transition:all .2s;text-align:left;width:100%" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+            <span style="font-size:18px">🔍</span> <div><div style="font-weight:600">Find Leads</div><div style="font-size:11px;color:var(--muted)">Scan the internet for paying clients</div></div>
+          </button>
+          <button onclick="agentAction('outreach','Send outreach emails to my leads')" style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;cursor:pointer;transition:all .2s;text-align:left;width:100%" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+            <span style="font-size:18px">📧</span> <div><div style="font-weight:600">AI Outreach</div><div style="font-size:11px;color:var(--muted)">Write & send cold emails automatically</div></div>
+          </button>
+          <button onclick="agentAction('invoice','Generate an invoice for my latest client')" style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;cursor:pointer;transition:all .2s;text-align:left;width:100%" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+            <span style="font-size:18px">🧾</span> <div><div style="font-weight:600">Create Invoice</div><div style="font-size:11px;color:var(--muted)">Generate a professional invoice</div></div>
+          </button>
+          <button onclick="agentAction('analytics','Show me my business analytics')" style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;cursor:pointer;transition:all .2s;text-align:left;width:100%" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+            <span style="font-size:18px">📊</span> <div><div style="font-weight:600">Analytics</div><div style="font-size:11px;color:var(--muted)">Revenue, leads, bookings overview</div></div>
+          </button>
+          <button onclick="agentAction('content','Create social media content for my business')" style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;cursor:pointer;transition:all .2s;text-align:left;width:100%" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+            <span style="font-size:18px">📝</span> <div><div style="font-weight:600">Content Studio</div><div style="font-size:11px;color:var(--muted)">Social media posts & marketing copy</div></div>
+          </button>
+          <button onclick="agentAction('reputation','Check my online reviews')" style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;cursor:pointer;transition:all .2s;text-align:left;width:100%" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+            <span style="font-size:18px">⭐</span> <div><div style="font-weight:600">Reputation</div><div style="font-size:11px;color:var(--muted)">Monitor & collect reviews</div></div>
+          </button>
+        </div>
+
+        <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">💬 Ask the Conductor</div>
+        <div id="agentChatLog" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;max-height:200px;overflow-y:auto">
+          <div style="color:var(--muted);font-size:12px;text-align:center;padding:8px">The conductor can run any engine for you. Try a quick action above or type below.</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input id="agentChatInput" type="text" placeholder="Ask the conductor anything..." style="flex:1;padding:10px 14px;border-radius:10px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:13px;outline:none" onkeydown="if(event.key==='Enter')sendAgentMessage()">
+          <button onclick="sendAgentMessage()" style="padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,#00D9FF,#6366f1);border:none;color:#000;font-weight:700;font-size:13px;cursor:pointer">⚡</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- INPUT AREA -->
+    <div class="input-area">
+      <div class="mode-select">
+        <button class="mode-btn active" id="modeBuild" onclick="setMode('build')">🔨 Build</button>
+        <button class="mode-btn" id="modeEdit" onclick="setMode('edit')">✏️ Edit</button>
+        <button class="mode-btn" id="modeRefine" onclick="setMode('refine')">💬 Chat</button>
+      </div>
+      <div class="input-wrap" style="margin-top:8px">
+        <textarea id="promptInput" placeholder="Describe your business idea... e.g. A modern salon in Lagos with online bookings" rows="2" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <div class="input-footer">
+          <div class="input-tools">
+            <button class="tool-btn" title="Attach file" onclick="document.getElementById('fileUploadInput').click()">📎</button>
+            <button class="tool-btn" title="Voice input" onclick="startVoice()">🎤</button>
+            <button class="tool-btn" title="Examples" onclick="cycleExample()">💡</button>
+            <button class="tool-btn plugin-trigger" title="Built-in Tools & Plugins" onclick="openPluginPicker()" style="background:rgba(0,217,255,0.08);border-color:rgba(0,217,255,0.2);color:#00D9FF;font-size:10px;padding:4px 8px;width:auto;gap:3px;display:flex;align-items:center">
+              🔌 <span>Plugins</span>
+            </button>
+            <button class="tool-btn mcp-trigger" title="MCP Servers" onclick="openMcpPicker()" style="background:rgba(124,58,237,0.08);border-color:rgba(124,58,237,0.2);color:#a78bfa;font-size:10px;padding:4px 8px;width:auto;gap:3px;display:flex;align-items:center">
+              ⚡ <span>MCP</span>
+            </button>
+          </div>
+          <input type="file" id="fileUploadInput" style="display:none" accept="image/*,.pdf,.doc,.docx" onchange="handleFileAttach(this)">
+          <button class="send-btn" id="sendBtn" onclick="sendPrompt()" title="Build">→</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PREVIEW PANEL ===== -->
+  <div class="preview-panel">
+    <div class="preview-header">
+      <div class="browser-dots">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+      </div>
+      <div class="url-bar">
+        <span class="url-bar-lock">🔒</span>
+        <span class="url-bar-text" id="urlBarText">ergio.vercel.app/preview</span>
+      </div>
+      <div class="device-toggle">
+        <button class="device-btn active" id="deviceDesktop" onclick="setDevice('desktop')" title="Desktop">🖥️</button>
+        <button class="device-btn" id="deviceMobile" onclick="setDevice('mobile')" title="Mobile">📱</button>
+      </div>
+      <div class="preview-actions">
+        <button class="edit-mode-btn" id="editModeBtn" onclick="toggleEditMode()" title="Click any element on the preview to edit it" style="padding:6px 12px;border-radius:8px;font-size:12px;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px">
+          🎯 Point-to-Edit
+        </button>
+        <button class="icon-btn" onclick="refreshPreview()" title="Refresh">🔄</button>
+        <button class="icon-btn" onclick="toggleCode()" id="codeToggle" title="View Code">💻</button>
+        <button class="deploy-btn" id="deployBtn" onclick="openDeployModal()" disabled>
+          🚀 Deploy
+        </button>
+      </div>
+    </div>
+
+    <!-- Preview Frame -->
+    <div class="preview-frame" id="previewFrame" style="position:relative">
+      <div class="edit-overlay" id="editOverlay" style="position:absolute;inset:0;z-index:5;display:none;cursor:crosshair;pointer-events:none"></div>
+      <div class="preview-empty" id="previewEmpty">
+        <div class="preview-empty-icon">🌐</div>
+        <div class="preview-empty-title">Your website will appear here</div>
+        <div class="preview-empty-sub">Type your business idea in the chat and ERGIO will build a complete website instantly — live preview updates in real-time.</div>
+      </div>
+      <!-- Build animation overlay -->
+      <div class="scanning-overlay" id="scanOverlay" style="display:none">
+        <div class="scan-ring"></div>
+        <div>
+          <div class="scan-label" id="scanLabel">Building your business...</div>
+          <div class="scan-sub" id="scanSub">ERGIO AI is working</div>
+        </div>
+        <div class="scan-steps-list" id="scanStepsList"></div>
+      </div>
+      <!-- Actual iframe -->
+      <iframe id="previewIframe" style="display:none" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+    </div>
+
+    <!-- Code view -->
+    <div class="code-view" id="codeView">
+      <div class="code-toolbar">
+        <span>📄 index.html</span>
+        <button onclick="copyCode()" style="margin-left:auto;padding:4px 12px;border-radius:6px;background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:11px">Copy</button>
+        <button onclick="downloadCode()" style="padding:4px 12px;border-radius:6px;background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:11px">Download</button>
+      </div>
+      <pre class="code-pre" id="codePre"></pre>
+    </div>
+  </div>
+</div>
+
+<!-- Deploy Modal -->
+<div class="modal-overlay" id="deployModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeDeployModal()">×</button>
+    <div class="modal-title">🚀 Deploy Your Website</div>
+    <div class="modal-sub">Choose where to publish your website</div>
+    <div class="deploy-options">
+      <div class="deploy-option" onclick="deployTo('ergio')">
+        <div class="deploy-option-icon">⚡</div>
+        <div class="deploy-option-info">
+          <h4>ERGIO Hosting</h4>
+          <p>Instant deploy at <span id="ergioDomain">ergio.vercel.app/s/...</span></p>
+        </div>
+        <div class="deploy-option-badge badge-free">FREE</div>
+      </div>
+      <div class="deploy-option" onclick="deployTo('github')">
+        <div class="deploy-option-icon">🐙</div>
+        <div class="deploy-option-info">
+          <h4>GitHub + Vercel</h4>
+          <p>Push to GitHub repo, auto-deploy on Vercel</p>
+        </div>
+        <div class="deploy-option-badge badge-free">FREE</div>
+      </div>
+      <div class="deploy-option" onclick="deployTo('netlify')">
+        <div class="deploy-option-icon">🔷</div>
+        <div class="deploy-option-info">
+          <h4>Netlify</h4>
+          <p>Deploy to Netlify with custom domain support</p>
+        </div>
+        <div class="deploy-option-badge badge-pro">PRO</div>
+      </div>
+      <div class="deploy-option" onclick="deployTo('download')">
+        <div class="deploy-option-icon">💾</div>
+        <div class="deploy-option-info">
+          <h4>Download HTML</h4>
+          <p>Download the complete website files</p>
+        </div>
+        <div class="deploy-option-badge badge-free">FREE</div>
+      </div>
+    </div>
+    <div id="deployResult" style="margin-top:16px;display:none">
+      <div style="background:var(--card);border:1px solid var(--green);border-radius:12px;padding:16px">
+        <div style="font-size:13px;color:var(--green);font-weight:700;margin-bottom:8px">✅ Successfully Deployed!</div>
+        <div style="font-size:12px;color:var(--muted)" id="deployResultText"></div>
+        <a id="deployResultLink" href="#" target="_blank" style="display:inline-block;margin-top:10px;padding:8px 18px;background:linear-gradient(135deg,#00D9FF,#00FF9D);border-radius:8px;font-size:12px;font-weight:700;color:#000;text-decoration:none">Open Site →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="config.js"></script>
+<script src="lib/engines-api.js"></script>
+<script src="lib/ergio-command.js"></script>
+<script>
+    function toggleMobileSidebar() {
+      const sidebar = document.querySelector('.sidebar');
+      const overlay = document.querySelector('.sidebar-overlay');
+      sidebar.classList.toggle('mobile-open');
+      overlay.classList.toggle('active');
+    }
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(e) {
+      if (window.innerWidth <= 768 && e.target.classList.contains('sidebar-overlay')) {
+        toggleMobileSidebar();
+      }
+    });
+
+let currentMode = 'build';
+let currentHTML = '';
+let isBuilding = false;
+let buildData = null;
+let versions = [];
+let versionCount = 0;
+let currentDevice = 'desktop';
+let codeVisible = false;
+
+// Build steps definition
+const BUILD_STEPS = [
+  { id: 'plan', icon: '🧠', label: 'Analyzing business vision' },
+  { id: 'brand', icon: '🎨', label: 'Creating brand identity' },
+  { id: 'images', icon: '📸', label: 'Sourcing real photos' },
+  { id: 'content', icon: '✍️', label: 'Writing premium copy' },
+  { id: 'website', icon: '🌐', label: 'Building website' },
+  { id: 'seo', icon: '🔍', label: 'Optimizing for search engines' },
+  { id: 'engines', icon: '⚡', label: 'Activating client engines' },
+  { id: 'launch', icon: '🚀', label: 'Launching your business' }
+];
+
+function useExample(text) {
+  document.getElementById('promptInput').value = text;
+  autoResize(document.getElementById('promptInput'));
+  sendPrompt();
+}
+
+function cycleExample() {
+  const examples = [
+    'A premium hair salon in Victoria Island Lagos',
+    'Online store selling handmade jewelry',
+    'Tech consulting firm for SMEs in Nigeria',
+    'Fitness center and gym in Abuja',
+    'Legal firm specializing in corporate law',
+    'Food delivery service in Lagos'
+  ];
+  const i = Math.floor(Math.random() * examples.length);
+  document.getElementById('promptInput').value = examples[i];
+  autoResize(document.getElementById('promptInput'));
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendPrompt();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+}
+
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('mode' + mode.charAt(0).toUpperCase() + mode.slice(1))?.classList.add('active');
+  
+  const placeholders = {
+    build: 'Describe your business idea...',
+    edit: 'Tell me what to change — e.g. "Make the header blue"',
+    refine: 'Ask anything — e.g. "Add a contact form" or "Change the font"'
+  };
+  document.getElementById('promptInput').placeholder = placeholders[mode] || placeholders.build;
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab)?.classList.add('active');
+  
+  const tabs = ['chat', 'history', 'files', 'plugins', 'agent'];
+  tabs.forEach(t => {
+    const el = document.getElementById('tab-content-' + t);
+    if (el) el.style.display = t === tab ? 'flex' : 'none';
+  });
+}
+
+function showHistory() {
+  switchTab('history');
+}
+
+async function sendPrompt() {
+  const input = document.getElementById('promptInput');
+  const prompt = input.value.trim();
+  if (!prompt || isBuilding) return;
+
+  const isFirstBuild = !currentHTML;
+  
+  // Clear input
+  input.value = '';
+  autoResize(input);
+  
+  // Hide empty state
+  document.getElementById('emptyState').style.display = 'none';
+  
+  // Add user message
+  addMessage('user', prompt);
+  
+  if (currentMode === 'build' || isFirstBuild) {
+    await buildWebsite(prompt);
+  } else {
+    await refineWebsite(prompt);
+  }
+}
+
+function addMessage(role, content, type = 'text') {
+  const history = document.getElementById('chatHistory');
+  const msg = document.createElement('div');
+  msg.className = 'msg ' + role;
+  
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar ' + role;
+  avatar.textContent = role === 'ai' ? 'E' : '👤';
+  
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  
+  if (type === 'progress') {
+    bubble.innerHTML = content;
+  } else {
+    bubble.textContent = content;
+  }
+  
+  msg.appendChild(avatar);
+  msg.appendChild(bubble);
+  history.appendChild(msg);
+  history.scrollTop = history.scrollHeight;
+  return msg;
+}
+
+function addProgressMsg() {
+  const history = document.getElementById('chatHistory');
+  const msg = document.createElement('div');
+  msg.className = 'msg ai';
+  msg.id = 'buildProgressMsg';
+  
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar ai';
+  avatar.textContent = 'E';
+  
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.style.width = '100%';
+  bubble.innerHTML = `
+    <div class="build-progress">
+      <div class="build-progress-title">🔨 Building your website</div>
+      <div id="progressStepsContainer">
+        ${BUILD_STEPS.map(s => `
+          <div class="build-step" id="pstep-${s.id}">
+            <span class="step-icon">⏳</span>
+            <span>${s.label}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="build-bar-wrap">
+        <div class="build-bar-label">
+          <span id="progressTaskLabel">Starting...</span>
+          <span id="progressPercent">0%</span>
+        </div>
+        <div class="build-bar">
+          <div class="build-bar-fill" id="progressBarFill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  msg.appendChild(avatar);
+  msg.appendChild(bubble);
+  history.appendChild(msg);
+  history.scrollTop = history.scrollHeight;
+  return msg;
+}
+
+function updateStep(stepId, state) {
+  const step = document.getElementById('pstep-' + stepId);
+  if (!step) return;
+  
+  step.className = 'build-step ' + state;
+  const icon = step.querySelector('.step-icon');
+  if (state === 'active') {
+    icon.innerHTML = '<div class="step-spinner"></div>';
+    step.style.fontWeight = '600';
+  } else if (state === 'done') {
+    icon.textContent = '✓';
+  }
+}
+
+function updateProgress(step, total, task) {
+  const pct = Math.round((step / total) * 100);
+  const fill = document.getElementById('progressBarFill');
+  const label = document.getElementById('progressTaskLabel');
+  const pctEl = document.getElementById('progressPercent');
+  if (fill) fill.style.width = pct + '%';
+  if (label) label.textContent = task;
+  if (pctEl) pctEl.textContent = pct + '%';
+}
+
+function showScanOverlay(show, label = '', sub = '') {
+  const overlay = document.getElementById('scanOverlay');
+  if (!overlay) return;
+  overlay.style.display = show ? 'flex' : 'none';
+  if (show) {
+    document.getElementById('scanLabel').textContent = label || 'Building your business...';
+    document.getElementById('scanSub').textContent = sub || 'ERGIO AI is working';
+    document.getElementById('previewEmpty').style.display = 'none';
+    document.getElementById('previewIframe').style.display = 'none';
+    
+    // Init scan steps
+    const list = document.getElementById('scanStepsList');
+    list.innerHTML = BUILD_STEPS.slice(0, 4).map(s => `
+      <div class="scan-step" id="sscan-${s.id}">${s.icon} ${s.label}</div>
+    `).join('');
+  }
+}
+
+function updateScanStep(stepId, state) {
+  const el = document.getElementById('sscan-' + stepId);
+  if (!el) return;
+  el.className = 'scan-step ' + state;
+}
+
+async function buildWebsite(prompt) {
+  isBuilding = true;
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('deployBtn').disabled = true;
+  
+  // Show scan overlay on preview
+  showScanOverlay(true, '🧠 Analyzing your business...', 'Planning brand + content + website');
+  
+  // Add progress message in chat
+  addProgressMsg();
+  
+  try {
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    
+    if (!response.ok) throw new Error('Generation failed: ' + response.status);
+    
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    
+    const stepMap = {1:'plan',2:'brand',3:'images',4:'content',5:'website',6:'seo',7:'engines',8:'launch'};
+    let prevStep = 0;
+    
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const event = JSON.parse(line.slice(6));
+          handleSSE(event, stepMap, prevStep);
+          if (event.type === 'status') {
+            prevStep = event.data.step;
+          }
+        } catch {}
+      }
+    }
+    
+  } catch (err) {
+    console.error('Build error:', err);
+    showScanOverlay(false);
+    
+    // Remove progress message
+    document.getElementById('buildProgressMsg')?.remove();
+    
+    // Show fallback template
+    const fallbackHTML = generateFallbackTemplate(prompt);
+    showPreview(fallbackHTML, 'Preview Business');
+    
+    addMessage('ai', '⚠️ AI generation hit a limit — showing your website preview with smart defaults. You can refine it by chatting below!');
+    toast('Using smart template fallback', 'info');
+  }
+  
+  isBuilding = false;
+  document.getElementById('sendBtn').disabled = false;
+}
+
+function handleSSE(event, stepMap, prevStep) {
+  const { type, data } = event;
+  
+  if (type === 'status') {
+    const stepId = stepMap[data.step] || 'plan';
+    
+    // Mark previous as done
+    if (prevStep > 0) {
+      const prevId = stepMap[prevStep];
+      if (prevId) {
+        updateStep(prevId, 'done');
+        updateScanStep(prevId, 'done');
+      }
+    }
+    
+    // Mark current as active
+    updateStep(stepId, 'active');
+    updateScanStep(stepId, 'active');
+    updateProgress(data.step, data.total, data.task);
+    
+    // Update overlay text
+    document.getElementById('scanLabel').textContent = data.task;
+  }
+  
+  else if (type === 'plan') {
+    buildData = { plan: data.plan };
+    // Update project name
+    const name = data.plan?.businessName || 'My Business';
+    document.getElementById('projectNameText').textContent = name;
+    document.getElementById('projectNameBar').style.display = 'flex';
+    document.getElementById('ergioDomain').textContent = 'ergio.vercel.app/s/' + (data.plan?.slug || 'mybiz');
+    document.title = name + ' — ERGIO Builder';
+    document.getElementById('urlBarText').textContent = 'ergio.vercel.app/s/' + (data.plan?.slug || 'mybiz');
+    
+    // Show detected design style
+    if (data.designConfig) {
+      const dc = data.designConfig;
+      document.getElementById('currentStyleName').textContent = dc.emoji + ' ' + dc.name;
+      document.getElementById('currentStyleDesc').textContent = dc.desc;
+      addMessage('system', \`🎨 Design style detected: <b>\${dc.emoji} \${dc.name}</b> — \${dc.desc}\`);
+    }
+    
+    // Show business category chip
+    const cat = data.plan?.websiteCategory || 'landing';
+    const catEmoji = {restaurant:'🍽️',salon:'💇',fitness:'💪',clinic:'🏥',ecommerce:'🛍️',realestate:'🏠',saas:'🚀',portfolio:'🎨',agency:'🏢',education:'🎓',events:'🎉',landing:'✨'}[cat] || '🌐';
+    addMessage('system', \`\${catEmoji} Building a <b>\${cat}</b> website for \${name} in \${data.plan?.city || 'Nigeria'}\`);
+    
+    updateStep('plan', 'done');
+    updateScanStep('plan', 'done');
+  }
+  
+  else if (type === 'brand') {
+    if (buildData) buildData.brand = data.brand;
+    updateStep('brand', 'done');
+    updateScanStep('brand', 'done');
+  }
+  
+  else if (type === 'images') {
+    updateStep('images', 'done');
+    updateScanStep('images', 'done');
+  }
+  
+  else if (type === 'content') {
+    updateStep('content', 'done');
+    updateScanStep('content', 'done');
+    document.getElementById('scanLabel').textContent = '🌐 Building your website...';
+  }
+  
+  else if (type === 'website') {
+    currentHTML = data.html;
+    updateStep('website', 'done');
+    updateStep('seo', 'done');
+    // Show partial preview
+    showPreview(data.html, buildData?.plan?.businessName || 'Preview');
+  }
+  
+  else if (type === 'complete') {
+    const biz = data.business || {};
+    currentHTML = biz.websiteHtml || currentHTML;
+    buildData = { ...buildData, ...biz };
+    
+    // Mark all done
+    BUILD_STEPS.forEach(s => updateStep(s.id, 'done'));
+    
+    // Show final preview
+    showPreview(currentHTML, biz.businessName || 'Your Website');
+    
+    // Add version
+    addVersion(biz.businessName || 'v1', 'Initial build');
+    
+    // Update files tab
+    updateFilesTab(biz);
+    
+    // Remove progress msg, add success msg
+    document.getElementById('buildProgressMsg')?.remove();
+    addMessage('ai', `✅ ${biz.businessName || 'Your website'} is live! 🎉\n\n📍 Deploy it to make it public, or keep chatting to refine it.`);
+    
+    // Enable deploy
+    document.getElementById('deployBtn').disabled = false;
+    document.getElementById('statusDot').className = 'status-dot live';
+    document.getElementById('statusText').textContent = 'Live';
+    
+    toast('Website built successfully! 🚀', 'success');
+    
+    isBuilding = false;
+    document.getElementById('sendBtn').disabled = false;
+  }
+  
+  else if (type === 'error') {
+    addMessage('ai', '❌ ' + (data.message || 'Build failed. Try again.'));
+    showScanOverlay(false);
+    document.getElementById('buildProgressMsg')?.remove();
+    isBuilding = false;
+    document.getElementById('sendBtn').disabled = false;
+  }
+}
+
+function showPreview(html, title = 'Preview') {
+  const iframe = document.getElementById('previewIframe');
+  const empty = document.getElementById('previewEmpty');
+  const overlay = document.getElementById('scanOverlay');
+  
+  overlay.style.display = 'none';
+  empty.style.display = 'none';
+  iframe.style.display = 'block';
+  
+  // Write HTML to iframe
+  const doc = iframe.contentDocument || iframe.contentWindow.document;
+  doc.open();
+  doc.write(html);
+  doc.close();
+  
+  currentHTML = html;
+  
+  // Update code view
+  document.getElementById('codePre').textContent = html;
+}
+
+async function refineWebsite(prompt) {
+  if (!currentHTML) {
+    addMessage('ai', 'No website built yet! Describe your business first and I will build it.');
+    return;
+  }
+  
+  isBuilding = true;
+  document.getElementById('sendBtn').disabled = true;
+  
+  const thinkingMsg = addMessage('ai', '🔄 Refining your website...');
+  
+  try {
+    const res = await fetch('/api/refine', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, currentHtml: currentHTML.substring(0, 8000) })
+    });
+    
+    if (!res.ok) throw new Error('Refine failed');
+    
+    const result = await res.json();
+    const newHtml = result.html || result.data?.html;
+    
+    if (newHtml) {
+      showPreview(newHtml);
+      addVersion('edit', prompt.substring(0, 30));
+      thinkingMsg.querySelector('.msg-bubble').textContent = '✅ Done! ' + (result.summary || 'Website updated.');
+      toast('Website updated!', 'success');
+    } else {
+      thinkingMsg.querySelector('.msg-bubble').textContent = '⚠️ Could not apply that change. Try being more specific.';
+    }
+  } catch (err) {
+    thinkingMsg.querySelector('.msg-bubble').textContent = '❌ Refine failed. Please try again.';
+  }
+  
+  isBuilding = false;
+  document.getElementById('sendBtn').disabled = false;
+}
+
+function addVersion(name, desc) {
+  versionCount++;
+  const v = { num: versionCount, name, desc, time: new Date(), html: currentHTML };
+  versions.unshift(v);
+  
+  const list = document.getElementById('versionList');
+  const item = document.createElement('div');
+  item.className = 'version-item';
+  item.innerHTML = `
+    <span class="version-num">v${v.num}</span>
+    <div>
+      <div class="version-desc">${name}</div>
+      <div style="font-size:11px;color:var(--muted)">${desc}</div>
+    </div>
+    <span class="version-time">now</span>
+  `;
+  item.onclick = () => showPreview(v.html, name);
+  
+  if (list.querySelector('[style*="No versions"]')) list.innerHTML = '';
+  list.insertBefore(item, list.firstChild);
+}
+
+function updateFilesTab(biz) {
+  const files = document.getElementById('filesList');
+  files.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Project Files</div>
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:8px;cursor:pointer" onclick="toggleCode()">
+        <span>📄</span><span style="font-size:13px;color:var(--text)">index.html</span>
+        <span style="margin-left:auto;font-size:11px;color:var(--muted)">${currentHTML.length > 1000 ? Math.round(currentHTML.length/1024) + 'kb' : currentHTML.length + 'b'}</span>
+      </div>
+      ${biz?.seoPages?.length ? `<div style="padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:8px;font-size:13px">📂 seo/ (${biz.seoPages.length} pages)</div>` : ''}
+      <div style="padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:8px;font-size:13px">🖼️ assets/</div>
+    </div>
+  `;
+}
+
+function setDevice(device) {
+  currentDevice = device;
+  document.getElementById('deviceDesktop').classList.toggle('active', device === 'desktop');
+  document.getElementById('deviceMobile').classList.toggle('active', device === 'mobile');
+  
+  const frame = document.getElementById('previewFrame');
+  const iframe = document.getElementById('previewIframe');
+  
+  if (device === 'mobile') {
+    frame.className = 'preview-frame mobile';
+    let wrap = frame.querySelector('.frame-wrap');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.className = 'frame-wrap';
+      frame.appendChild(wrap);
+    }
+    wrap.appendChild(iframe);
+  } else {
+    frame.className = 'preview-frame';
+    frame.appendChild(iframe);
+    const wrap = frame.querySelector('.frame-wrap');
+    if (wrap) wrap.remove();
+    iframe.style.width = '100%';
+  }
+}
+
+function refreshPreview() {
+  if (currentHTML) showPreview(currentHTML);
+  toast('Preview refreshed', 'info');
+}
+
+function toggleCode() {
+  codeVisible = !codeVisible;
+  const codeView = document.getElementById('codeView');
+  const previewFrame = document.getElementById('previewFrame');
+  const btn = document.getElementById('codeToggle');
+  
+  codeView.classList.toggle('visible', codeVisible);
+  previewFrame.style.display = codeVisible ? 'none' : 'flex';
+  btn.style.background = codeVisible ? 'var(--accent)' : '';
+  btn.style.color = codeVisible ? '#000' : '';
+}
+
+function copyCode() {
+  navigator.clipboard.writeText(currentHTML).then(() => toast('Code copied!', 'success'));
+}
+
+function downloadCode() {
+  const blob = new Blob([currentHTML], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (buildData?.plan?.businessName || 'ergio-website').replace(/\s+/g, '-').toLowerCase() + '.html';
+  a.click();
+  toast('File downloaded!', 'success');
+}
+
+function openDeployModal() {
+  document.getElementById('deployModal').classList.add('open');
+  document.getElementById('deployResult').style.display = 'none';
+}
+
+function closeDeployModal() {
+  document.getElementById('deployModal').classList.remove('open');
+}
+
+async function deployTo(target) {
+  if (!currentHTML) return;
+  
+  const resultEl = document.getElementById('deployResult');
+  const resultText = document.getElementById('deployResultText');
+  const resultLink = document.getElementById('deployResultLink');
+  
+  if (target === 'download') {
+    downloadCode();
+    closeDeployModal();
+    return;
+  }
+  
+  if (target === 'ergio') {
+    const slug = buildData?.plan?.slug || ('biz-' + Date.now());
+    try {
+      toast('Deploying to ERGIO...', 'info');
+      const res = await fetch('/api/site', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, html: currentHTML, businessId: buildData?.id || 'preview' })
+      });
+      const data = await res.json();
+      const url = data.url || `https://ergio.vercel.app/s/${slug}`;
+      
+      resultEl.style.display = 'block';
+      resultText.textContent = 'Your website is live at:';
+      resultLink.href = url;
+      resultLink.textContent = url + ' →';
+      document.getElementById('urlBarText').textContent = url.replace('https://', '');
+      toast('🚀 Deployed!', 'success');
+    } catch {
+      const url = `https://ergio.vercel.app/s/${slug}`;
+      resultEl.style.display = 'block';
+      resultText.textContent = 'Deployed at:';
+      resultLink.href = url;
+      resultLink.textContent = url + ' →';
+      toast('Deployed!', 'success');
+    }
+  }
+  
+  if (target === 'github') {
+    // Switch to plugins tab to show GitHub deploy section
+    switchTab('plugins');
+    document.getElementById('ghRepoInput').focus();
+    closeDeployModal();
+    toast('Enter your repo name and GitHub token in the Plugins tab to deploy directly!', 'info');
+    return;
+  }
+  
+  if (target === 'netlify') {
+    resultEl.style.display = 'block';
+    resultText.innerHTML = 'Netlify deploy requires PRO plan. Download your HTML and drag-drop at <a href="https://app.netlify.com/drop" target="_blank" style="color:var(--accent)">netlify.com/drop</a>';
+    resultLink.textContent = '💾 Download HTML →';
+    resultLink.href = '#';
+    resultLink.onclick = (e) => { e.preventDefault(); downloadCode(); };
+    toast('Download HTML to deploy on Netlify for free!', 'info');
+  }
+}
+
+function generateFallbackTemplate(prompt) {
+  const name = prompt.split(' ').slice(0, 3).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>${name}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#fff}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 50%,#16213e 100%)}
+h1{font-size:clamp(2rem,6vw,4rem);font-weight:900;background:linear-gradient(135deg,#00d9ff,#00ff9d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px}
+p{font-size:1.2rem;color:#999;max-width:560px;line-height:1.7}
+.cta{margin-top:32px;padding:16px 40px;background:linear-gradient(135deg,#00d9ff,#00ff9d);border:none;border-radius:100px;font-size:1rem;font-weight:700;color:#000;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="hero">
+<h1>${name}</h1>
+<p>We're building something amazing. Your full website is being crafted by ERGIO AI. Check back soon!</p>
+<button class="cta">Get in Touch →</button>
+</div>
+
+<!-- Style Picker Modal -->
+<div class="style-modal" id="styleModal">
+  <div class="style-modal-content">
+    <div class="style-modal-title">🎨 Choose a Design Style</div>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Each style gives your website a completely different look. Pick one or let ERGIO auto-select.</p>
+    <div class="style-grid" id="styleGrid"></div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="gh-deploy-btn" style="flex:1;background:var(--card);border:1px solid var(--border)" onclick="closeStyleModal()">Cancel</button>
+      <button class="gh-deploy-btn" style="flex:1" onclick="applyStyle()">Apply & Rebuild</button>
+    </div>
+  </div>
+</div>
+
+  <script src="guide-widget.js">
+// ===== CONDUCTOR AGENT CONNECTION =====
+const ENGINES_API = window.ErgioEngines || null;
+const CMD_API = window.ErgioCommand || null;
+
+async function checkAgentStatus() {
+  const dot = document.getElementById('agentStatusDot');
+  const text = document.getElementById('agentStatusText');
+  if (!dot || !text) return;
+  if (!ENGINES_API) {
+    dot.style.background = '#f59e0b';
+    text.textContent = 'Engine API not loaded — using Vercel fallback';
+    text.style.color = '#f59e0b';
+    return;
+  }
+  try {
+    await ENGINES_API.health();
+    dot.style.background = '#22c55e';
+    text.textContent = 'Connected — all engines online';
+    text.style.color = '#22c55e';
+  } catch(e) {
+    dot.style.background = '#ef4444';
+    text.textContent = 'Backend offline — deploy on Render';
+    text.style.color = '#ef4444';
+  }
+}
+
+async function agentAction(engine, prompt) {
+  const log = document.getElementById('agentChatLog');
+  if (!log) return;
+  // Clear placeholder
+  if (log.children.length === 1 && log.children[0].style.color) log.innerHTML = '';
+  log.innerHTML += '<div style="align-self:flex-end;background:rgba(0,217,255,.15);padding:8px 12px;border-radius:8px 8px 0 8px;font-size:12px;max-width:85%">' + prompt + '</div>';
+  log.innerHTML += '<div id="agentLoading" style="align-self:flex-start;background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:8px 8px 8px 0;font-size:12px;color:var(--muted)">⚡ Running ' + engine + ' engine...</div>';
+  log.scrollTop = log.scrollHeight;
+  try {
+    let result;
+    if (ENGINES_API && ENGINES_API.conductor) {
+      result = await ENGINES_API.conductor(prompt, localStorage.getItem('ergio_business_id'), null);
+    } else if (CMD_API && CMD_API.command) {
+      result = await CMD_API.command(prompt, localStorage.getItem('ergio_business_id'), null);
+    } else {
+      // Fallback to Vercel API
+      const r = await fetch('/api/engines', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ engine: engine, action: 'run', prompt: prompt })
+      });
+      result = await r.json();
+    }
+    var loading = document.getElementById('agentLoading');
+    if (loading) loading.remove();
+    var summary = result.summary || result.message || result.result || 'Done';
+    if (typeof summary === 'object') summary = JSON.stringify(summary, null, 2);
+    log.innerHTML += '<div style="align-self:flex-start;background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:8px 8px 8px 0;font-size:12px;max-width:85%;color:var(--text);white-space:pre-wrap">✅ ' + summary + '</div>';
+    log.scrollTop = log.scrollHeight;
+  } catch(e) {
+    var loading = document.getElementById('agentLoading');
+    if (loading) loading.remove();
+    log.innerHTML += '<div style="color:var(--red);font-size:12px">❌ ' + e.message + '</div>';
+    log.scrollTop = log.scrollHeight;
+  }
+}
+
+async function sendAgentMessage() {
+  const input = document.getElementById('agentChatInput');
+  if (!input || !input.value.trim()) return;
+  const msg = input.value.trim();
+  input.value = '';
+  const log = document.getElementById('agentChatLog');
+  if (!log) return;
+  if (log.children.length === 1 && log.children[0].style.color) log.innerHTML = '';
+  log.innerHTML += '<div style="align-self:flex-end;background:rgba(0,217,255,.15);padding:8px 12px;border-radius:8px 8px 0 8px;font-size:12px;max-width:85%">' + msg + '</div>';
+  log.innerHTML += '<div id="agentLoading" style="align-self:flex-start;background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:8px 8px 8px 0;font-size:12px;color:var(--muted)">⚡ Thinking...</div>';
+  log.scrollTop = log.scrollHeight;
+  try {
+    let result;
+    if (ENGINES_API && ENGINES_API.streamConductor) {
+      var loadingEl = document.getElementById('agentLoading');
+      if (loadingEl) loadingEl.remove();
+      await ENGINES_API.streamConductor(msg, localStorage.getItem('ergio_business_id'), null, function(type, data) {
+        var m = data.message || '';
+        if (type === 'task_start' || type === 'task_done' || type === 'status' || type === 'result') {
+          log.innerHTML += '<div style="align-self:flex-start;padding:4px 12px;font-size:11px;color:' + (type==='task_done'?'#22c55e':type==='result'?'#22c55e':'var(--muted)') + '">' + (type==='task_done'?'✅ ':type==='result'?'🎯 ':'⚡ ') + m + '</div>';
+          log.scrollTop = log.scrollHeight;
+        }
+      });
+    } else if (ENGINES_API && ENGINES_API.conductor) {
+      result = await ENGINES_API.conductor(msg, localStorage.getItem('ergio_business_id'), null);
+      var loadingEl = document.getElementById('agentLoading');
+      if (loadingEl) loadingEl.remove();
+      var summary = result.summary || result.message || 'Done';
+      if (typeof summary === 'object') summary = JSON.stringify(summary, null, 2);
+      log.innerHTML += '<div style="align-self:flex-start;background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:8px 8px 8px 0;font-size:12px;max-width:85%;color:var(--text);white-space:pre-wrap">✅ ' + summary + '</div>';
+    } else if (CMD_API && CMD_API.command) {
+      result = await CMD_API.command(msg, localStorage.getItem('ergio_business_id'), null);
+      var loadingEl = document.getElementById('agentLoading');
+      if (loadingEl) loadingEl.remove();
+      log.innerHTML += '<div style="align-self:flex-start;background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:8px 8px 8px 0;font-size:12px;max-width:85%;color:var(--text)">✅ ' + (result.summary || 'Done') + '</div>';
+    } else {
+      // Vercel fallback
+      const r = await fetch('/api/engines', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ engine: 'conductor', action: 'run', prompt: msg })
+      });
+      result = await r.json();
+      var loadingEl = document.getElementById('agentLoading');
+      if (loadingEl) loadingEl.remove();
+      log.innerHTML += '<div style="align-self:flex-start;background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:8px 8px 8px 0;font-size:12px;max-width:85%;color:var(--text)">✅ ' + (result.message || result.summary || 'Done') + '</div>';
+    }
+    log.scrollTop = log.scrollHeight;
+  } catch(e) {
+    var loadingEl = document.getElementById('agentLoading');
+    if (loadingEl) loadingEl.remove();
+    log.innerHTML += '<div style="color:var(--red);font-size:12px">❌ ' + e.message + '</div>';
+    log.scrollTop = log.scrollHeight;
+  }
+}
+
+// Init agent status on load
+setTimeout(checkAgentStatus, 1000);
+</script>
+</body>
+</html>`;
+}
+
+function startVoice() {
+  if (!('webkitSpeechRecognition' in window)) {
+    toast('Voice input not supported in this browser', 'error');
+    return;
+  }
+  const recognition = new webkitSpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = 'en-NG';
+  recognition.onresult = (e) => {
+    document.getElementById('promptInput').value = e.results[0][0].transcript;
+    autoResize(document.getElementById('promptInput'));
+    toast('Voice captured!', 'success');
+  };
+  recognition.start();
+  toast('🎤 Listening...', 'info');
+}
+
+function toast(msg, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  el.innerHTML = `<span>${icons[type] || '💬'}</span><span>${msg}</span>`;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+// Load from localStorage if coming from landing page
+window.addEventListener('load', () => {
+  const savedPrompt = localStorage.getItem('ergio_initial_prompt');
+  const savedHtml = localStorage.getItem('ergio_preview_html');
+  const savedBiz = localStorage.getItem('ergio_preview_biz');
+  
+  if (savedHtml) {
+    // Show the already-generated preview
+    try {
+      buildData = JSON.parse(savedBiz || '{}');
+    } catch {}
+    showPreview(savedHtml, buildData?.businessName || 'Your Website');
+    addVersion('Initial Build', buildData?.businessName || '');
+    
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('projectNameText').textContent = buildData?.businessName || 'My Business';
+    document.getElementById('projectNameBar').style.display = 'flex';
+    document.getElementById('deployBtn').disabled = false;
+    
+    addMessage('ai', `✅ ${buildData?.businessName || 'Your website'} is ready! You can keep chatting to refine it.`);
+    
+    localStorage.removeItem('ergio_initial_prompt');
+    localStorage.removeItem('ergio_preview_html');
+    localStorage.removeItem('ergio_preview_biz');
+  } else if (savedPrompt) {
+    // Build from prompt
+    document.getElementById('promptInput').value = savedPrompt;
+    localStorage.removeItem('ergio_initial_prompt');
+    setTimeout(() => sendPrompt(), 500);
+  }
+  
+  // Focus input
+  document.getElementById('promptInput').focus();
+});
+
+// Keyboard shortcut
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeDeployModal();
+});
+
+
+// ===== DESIGN STYLES ENGINE =====
+const DESIGN_STYLES = [
+  { name: 'aurora-dark', desc: 'Dark with glassmorphism, gradient text', preview: 'linear-gradient(135deg,#09090B,#1a1a2e)', color1: '#00D9FF', color2: '#00FF9D' },
+  { name: 'editorial-light', desc: 'Clean white, serif headings, magazine feel', preview: 'linear-gradient(135deg,#FAFAF9,#fff)', color1: '#1A1A1A', color2: '#666' },
+  { name: 'brutalist-bold', desc: 'Raw, bold, outlined text, square edges', preview: 'linear-gradient(135deg,#0A0A0A,#1a1a1a)', color1: '#fff', color2: '#333' },
+  { name: 'organic-soft', desc: 'Warm, rounded corners, soft shadows', preview: 'linear-gradient(135deg,#F5F3EE,#fff)', color1: '#D97706', color2: '#B45309' },
+  { name: 'neon-cyber', desc: 'Cyberpunk neon glow, mono font', preview: 'linear-gradient(135deg,#05050A,#0a0a1a)', color1: '#00D9FF', color2: '#00FF9D' },
+  { name: 'magazine-clean', desc: 'Minimal, split layouts, editorial', preview: 'linear-gradient(135deg,#fff,#f8f8f8)', color1: '#1A1A1A', color2: '#0066ff' },
+];
+
+let selectedStyle = null;
+let editModeActive = false;
+
+function openStyleModal() {
+  const grid = document.getElementById('styleGrid');
+  grid.innerHTML = DESIGN_STYLES.map((s, i) => `
+    <div class="style-option ${selectedStyle === s.name ? 'selected' : ''}" onclick="selectStyle('${s.name}')" id="styleOpt-${s.name}">
+      <div class="style-preview" style="background:${s.preview}"></div>
+      <div class="style-option-name">${s.name.replace('-', ' ')}</div>
+      <div class="style-option-desc">${s.desc}</div>
+    </div>
+  `).join('');
+  document.getElementById('styleModal').classList.add('open');
+}
+
+function closeStyleModal() {
+  document.getElementById('styleModal').classList.remove('open');
+}
+
+function selectStyle(name) {
+  selectedStyle = name;
+  document.querySelectorAll('.style-option').forEach(o => o.classList.remove('selected'));
+  document.getElementById('styleOpt-' + name)?.classList.add('selected');
+  document.getElementById('currentStyleName').textContent = name.replace(/-/g, ' ');
+  const style = DESIGN_STYLES.find(s => s.name === name);
+  if (style) document.getElementById('currentStyleDesc').textContent = style.desc;
+}
+
+function applyStyle() {
+  closeStyleModal();
+  if (!selectedStyle) { toast('Pick a style first', 'info'); return; }
+  // Trigger rebuild with selected style
+  const input = document.getElementById('promptInput');
+  if (currentHTML) {
+    // If we have a site, ask AI to restyle it
+    input.value = 'Restyle this website using the ' + selectedStyle + ' design style';
+    sendPrompt();
+  } else {
+    toast('Style selected! Type your business idea to build with this style.', 'success');
+  }
+}
+
+// ===== PLUGIN SYSTEM =====
+const BUILTIN_TOOLS_LIST = [
+  { name: 'web_search', icon: '🔍', desc: 'Search the web', category: 'Search' },
+  { name: 'http_fetch', icon: '🌐', desc: 'Fetch any URL', category: 'Web' },
+  { name: 'scrape_page', icon: '🕷️', desc: 'Scrape web pages', category: 'Web' },
+  { name: 'image_generate', icon: '🎨', desc: 'Generate images', category: 'AI' },
+  { name: 'ai_generate', icon: '🤖', desc: 'AI text generation', category: 'AI' },
+  { name: 'send_email', icon: '📧', desc: 'Send emails', category: 'Email' },
+];
+
+const MCP_PLUGINS = [
+  { id: 'figma', name: 'Figma MCP', icon: '🎨', desc: 'Import Figma designs directly into your website', category: 'Design', popular: true },
+  { id: 'github', name: 'GitHub MCP', icon: '🐙', desc: 'Access repos, deploy code', category: 'Developer', popular: true },
+  { id: 'supabase', name: 'Supabase MCP', icon: '🗄️', desc: 'Database queries & management', category: 'Database', popular: true },
+  { id: 'slack', name: 'Slack MCP', icon: '💬', desc: 'Send Slack messages', category: 'Communication', popular: true },
+  { id: 'puppeteer', icon: '🎭', name: 'Puppeteer MCP', desc: 'Browser automation', category: 'Developer', popular: true },
+  { id: 'custom', name: 'Custom MCP', icon: '🔌', desc: 'Add any MCP server by URL', category: 'Custom', popular: false },
+];
+
+let activePlugins = new Set();
+
+function initPlugins() {
+  // Render built-in tools
+  const builtinGrid = document.getElementById('builtinToolsGrid');
+  builtinGrid.innerHTML = BUILTIN_TOOLS_LIST.map(t => `
+    <div class="plugin-card active" onclick="togglePlugin('${t.name}')">
+      <div class="plugin-icon">${t.icon}</div>
+      <div class="plugin-name">${t.name.replace(/_/g, ' ')}</div>
+      <div class="plugin-desc">${t.desc}</div>
+    </div>
+  `).join('');
+  
+  // Render MCP plugins
+  const mcpGrid = document.getElementById('mcpPluginsGrid');
+  mcpGrid.innerHTML = MCP_PLUGINS.map(p => `
+    <div class="plugin-card ${p.popular ? '' : ''}" id="plugin-${p.id}" onclick="togglePlugin('${p.id}')">
+      <div class="plugin-icon">${p.icon}</div>
+      <div class="plugin-name">${p.name}</div>
+      <div class="plugin-desc">${p.desc}</div>
+      ${p.popular ? '<span class="plugin-badge">Popular</span>' : ''}
+    </div>
+  `).join('');
+  
+  // Load connected servers
+  loadConnectedServers();
+}
+
+function togglePlugin(id) {
+  const card = document.getElementById('plugin-' + id);
+  if (!card) return;
+  
+  if (activePlugins.has(id)) {
+    activePlugins.delete(id);
+    card.classList.remove('active');
+    toast('Plugin ' + id + ' disabled', 'info');
+  } else {
+    activePlugins.add(id);
+    card.classList.add('active');
+    toast('Plugin ' + id + ' enabled — ERGIO AI will use it when building', 'success');
+    
+    // If Figma, prompt for file URL
+    if (id === 'figma') {
+      setTimeout(() => {
+        const figmaUrl = prompt('Paste your Figma file URL (e.g. https://figma.com/file/...)');
+        if (figmaUrl) {
+          // Store for build
+          localStorage.setItem('ergio_figma_url', figmaUrl);
+          toast('Figma design loaded! ERGIO will use it as design reference.', 'success');
+        }
+      }, 300);
+    }
+    
+    // If custom MCP, prompt for server URL
+    if (id === 'custom') {
+      setTimeout(() => {
+        const mcpUrl = prompt('Paste your MCP server URL');
+        if (mcpUrl) {
+          localStorage.setItem('ergio_mcp_url', mcpUrl);
+          addConnectedServer(mcpUrl);
+          toast('MCP server connected!', 'success');
+        }
+      }, 300);
+    }
+  }
+}
+
+function addConnectedServer(url) {
+  const container = document.getElementById('connectedServers');
+  if (container.querySelector('[style*="No MCP"]')) container.innerHTML = '';
+  const item = document.createElement('div');
+  item.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:6px';
+  item.innerHTML = `<span>🟢</span><span style="font-size:12px;color:var(--text);flex:1">${url.substring(0, 40)}...</span><span style="font-size:10px;color:var(--green)">Connected</span>`;
+  container.appendChild(item);
+}
+
+async function loadConnectedServers() {
+  try {
+    const res = await fetch((window.ERGIO_CONFIG?.apiBase || '') + '/api/mcp?action=marketplace');
+    if (res.ok) {
+      const data = await res.json();
+      // Could render marketplace data here
+    }
+  } catch {}
+}
+
+// ===== POINT-TO-EDIT FEATURE =====
+function toggleEditMode() {
+  editModeActive = !editModeActive;
+  const btn = document.getElementById('editModeBtn');
+  const overlay = document.getElementById('editOverlay');
+  const iframe = document.getElementById('previewIframe');
+  
+  if (editModeActive) {
+    btn.classList.add('active');
+    btn.innerHTML = '✅ Done Editing';
+    overlay.classList.add('active');
+    toast('Point-to-Edit ON — click any element on the preview to edit it', 'success');
+    
+    // Inject click handler into iframe
+    try {
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+      const script = iframeDoc.createElement('script');
+      script.textContent = `
+        document.body.addEventListener('click', function(e) {
+          if (!window.parent.editModeActive) return;
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Remove previous highlights
+          document.querySelectorAll('.edit-highlight').forEach(el => el.classList.remove('edit-highlight'));
+          
+          // Highlight clicked element
+          e.target.classList.add('edit-highlight');
+          
+          // Get element info
+          const tag = e.target.tagName.toLowerCase();
+          const id = e.target.id || '';
+          const cls = e.target.className || '';
+          const text = (e.target.textContent || '').substring(0, 100);
+          const styles = window.getComputedStyle(e.target);
+          
+          // Send to parent
+          window.parent.postMessage({
+            type: 'ergio-edit-click',
+            element: { tag, id, cls, text, 
+              color: styles.color, 
+              bg: styles.backgroundColor,
+              fontSize: styles.fontSize,
+              fontFamily: styles.fontFamily
+            }
+          }, '*');
+        }, true);
+        
+        // Add edit highlight CSS
+        const style = document.createElement('style');
+        style.textContent = '.edit-highlight{outline:3px dashed #00D9FF !important;outline-offset:3px;cursor:pointer !important}';
+        document.head.appendChild(style);
+      `;
+      iframeDoc.head.appendChild(script);
+    } catch(e) { console.log('Cannot access iframe:', e); }
+    
+    // Listen for messages from iframe
+    window.ergioEditHandler = (e) => {
+      if (e.data.type === 'ergio-edit-click') {
+        const el = e.data.element;
+        const desc = el.tag + (el.id ? '#' + el.id : '') + (el.cls ? '.' + String(el.cls).split(' ')[0] : '');
+        
+        // Add marker at click position
+        const marker = document.createElement('div');
+        marker.className = 'edit-marker';
+        marker.style.left = '50%';
+        marker.style.top = '50%';
+        marker.innerHTML = '<div class="edit-tooltip">' + desc + '</div>';
+        overlay.appendChild(marker);
+        setTimeout(() => marker.remove(), 3000);
+        
+        // Pre-fill the chat with edit instructions
+        const input = document.getElementById('promptInput');
+        const editPrompt = 'Edit the ' + desc + ' element' + 
+          (el.text ? ' (currently: "' + el.text.substring(0, 50) + '...")' : '') +
+          '. Current style: ' + el.color + ' / ' + el.bg + ' / ' + el.fontSize + '.';
+        input.value = editPrompt;
+        autoResize(input);
+        input.focus();
+        
+        // Switch to edit mode
+        setMode('edit');
+        toast('Element selected! Describe what to change and press Enter', 'info');
+        
+        // Switch to chat tab
+        switchTab('chat');
+      }
+    };
+    window.addEventListener('message', window.ergioEditHandler);
+    
+  } else {
+    btn.classList.remove('active');
+    btn.innerHTML = '🎯 Point-to-Edit';
+    overlay.classList.remove('active');
+    // Clear markers
+    overlay.innerHTML = '';
+    // Remove highlights from iframe
+    try {
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+      iframeDoc.querySelectorAll('.edit-highlight').forEach(el => el.classList.remove('edit-highlight'));
+    } catch {}
+    window.removeEventListener('message', window.ergioEditHandler);
+  }
+}
+
+// Make editModeActive accessible to iframe
+window.editModeActive = false;
+Object.defineProperty(window, 'editModeActiveState', {
+  get: () => editModeActive,
+  set: (v) => { editModeActive = v; window.editModeActive = v; }
+});
+
+// ===== GITHUB DEPLOY =====
+async function deployToGitHub() {
+  const repo = document.getElementById('ghRepoInput').value.trim();
+  const token = document.getElementById('ghTokenInput').value.trim();
+  const btn = document.getElementById('ghDeployBtn');
+  
+  if (!repo || !token) {
+    toast('Enter repo name and GitHub token', 'error');
+    return;
+  }
+  if (!currentHTML) {
+    toast('Build a website first', 'error');
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.textContent = '⏳ Deploying...';
+  
+  try {
+    // Create or update file in GitHub repo via API
+    const content = btoa(unescape(encodeURIComponent(currentHTML)));
+    const owner = 'emmanuelerogian723-alt';
+    
+    // Try to create the file
+    const res = await fetch('https://api.github.com/repos/' + owner + '/' + repo + '/contents/index.html', {
+      method: 'PUT',
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: '🚀 Deploy website via ERGIO Builder',
+        content: content,
+        committer: { name: 'ERGIO AI', email: 'deploy@ergio.app' }
+      })
+    });
+    
+    const data = await res.json();
+    
+    if (res.ok) {
+      const pageUrl = 'https://' + owner + '.github.io/' + repo + '/';
+      btn.textContent = '✅ Deployed!';
+      toast('Deployed to GitHub! Pages URL: ' + pageUrl, 'success');
+      
+      // Show result
+      const resultEl = document.getElementById('deployResult');
+      const resultText = document.getElementById('deployResultText');
+      const resultLink = document.getElementById('deployResultLink');
+      resultEl.style.display = 'block';
+      resultText.textContent = 'Your website is live at:';
+      resultLink.href = pageUrl;
+      resultLink.textContent = pageUrl + ' →';
+      
+      // Enable GitHub Pages if not enabled
+      try {
+        await fetch('https://api.github.com/repos/' + owner + '/' + repo + '/pages', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ source: { branch: 'main', path: '/' } })
+        });
+      } catch {}
+      
+    } else if (data.message && data.message.includes('already exists')) {
+      // File exists — update it
+      const sha = data.content?.sha || '';
+      const res2 = await fetch('https://api.github.com/repos/' + owner + '/' + repo + '/contents/index.html', {
+        method: 'PUT',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: '🔄 Update website via ERGIO Builder',
+          content: content,
+          sha: sha,
+          committer: { name: 'ERGIO AI', email: 'deploy@ergio.app' }
+        })
+      });
+      if (res2.ok) {
+        toast('Website updated on GitHub!', 'success');
+        btn.textContent = '✅ Updated!';
+      }
+    } else {
+      toast('Deploy failed: ' + (data.message || 'Unknown error'), 'error');
+      btn.textContent = '🚀 Try Again';
+    }
+  } catch (err) {
+    toast('Deploy error: ' + err.message, 'error');
+    btn.textContent = '🚀 Try Again';
+  }
+  
+  btn.disabled = false;
+  setTimeout(() => { btn.textContent = '🚀 Deploy to GitHub'; }, 3000);
+}
+
+// ===== ENHANCED BUILD WITH PLUGINS =====
+const originalSendPrompt = sendPrompt;
+sendPrompt = async function() {
+  // If plugins are active, include them in the build context
+  const input = document.getElementById('promptInput');
+  const prompt = input.value.trim();
+  
+  // Check for Figma reference
+  const figmaUrl = localStorage.getItem('ergio_figma_url');
+  if (figmaUrl && activePlugins.has('figma') && prompt) {
+    input.value = prompt + ' [Reference: Use this Figma design as inspiration: ' + figmaUrl + ']';
+  }
+  
+  // Check for active plugins and add to prompt context
+  if (activePlugins.size > 0 && prompt && !prompt.includes('[Plugins:')) {
+    const pluginList = Array.from(activePlugins).filter(p => !['figma'].includes(p));
+    if (pluginList.length > 0) {
+      // Will be used by the AI to know which tools are available
+      input.value = input.value + ' [Available plugins: ' + pluginList.join(', ') + ']';
+    }
+  }
+  
+  // Include selected style
+  if (selectedStyle && prompt && !prompt.includes('[Style:')) {
+    input.value = input.value + ' [Design style: ' + selectedStyle + ']';
+  }
+  
+  await originalSendPrompt.call(this);
+};
+
+// Initialize plugins when page loads
+window.addEventListener('load', () => {
+  setTimeout(() => initPlugins(), 100);
+});
+
+</script>
+
+  <script src="guide-widget.js"></script>
+</body>
+</html>

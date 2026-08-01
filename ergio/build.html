@@ -8,6 +8,11 @@
 <meta property="og:image" content="https://ergio.vercel.app/ergio/assets/ergio-logo.jpg">
 <meta name="robots" content="index, follow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ERGIO Builder">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#0A0A0F">
 <title>ERGIO Builder — Build Your Business</title>
 <link rel="icon" href="/ergio/favicon.ico">
@@ -136,7 +141,7 @@
     flex: 1; position: relative; overflow: auto;
     background: #1a1a1a; min-height: 0;
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-x pan-y;
+    touch-action: pan-x pan-y pinch-zoom;
   }
   .preview-frame.mobile {
     display: flex; align-items: center; justify-content: center;
@@ -166,7 +171,7 @@
   .preview-empty-sub { font-size: 13px; color: var(--muted); line-height: 1.6; max-width: 300px; }
 
   /* ===== SIDEBAR (bottom sheet on mobile) ===== */
-  .sidebar {
+  .sidebar { scroll-behavior: smooth;
     background: var(--sidebar);
     display: flex;
     flex-direction: column;
@@ -226,7 +231,7 @@
 
   /* ===== CHAT HISTORY ===== */
   .chat-history {
-    flex: 1; overflow-y: auto; padding: 10px;
+    flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 10px;
     -webkit-overflow-scrolling: touch;
   }
   .chat-history::-webkit-scrollbar { width: 4px; }
@@ -335,7 +340,7 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 15px; color: #000; font-weight: 700;
     transition: all 0.2s; flex-shrink: 0;
-  }
+  ; min-width: 44px; min-height: 44px; }
   .send-btn:active { transform: scale(0.92); }
   .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
@@ -386,7 +391,7 @@
 
   /* ===== PLUGIN PANEL ===== */
   .plugin-panel {
-    overflow-y: auto; padding: 14px; flex: 1;
+    overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px; flex: 1;
     -webkit-overflow-scrolling: touch;
   }
   .plugin-panel::-webkit-scrollbar { width: 4px; }
@@ -415,7 +420,7 @@
     background: var(--sidebar); border: 1px solid var(--border);
     border-radius: 20px 20px 0 0;
     padding: 24px 20px; padding-bottom: max(24px, var(--safe-bottom));
-    max-width: 500px; width: 100%; max-height: 85vh; overflow-y: auto;
+    max-width: 500px; width: 100%; max-height: 85vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
     -webkit-overflow-scrolling: touch;
     animation: slideUp 0.3s ease;
   }
@@ -591,6 +596,362 @@
   
   /* ===== PRINT ===== */
   @media print { .nav, .hero-bg { display: none; } body { background: #fff; color: #000; } }
+
+    /* ===== MOBILE UX IMPROVEMENTS ===== */
+    
+    /* Better touch targets on mobile */
+    @media (max-width: 768px) {
+      .sidebar-tab {
+        min-height: 48px;
+        padding: 12px 14px;
+      }
+      .sidebar-tab span {
+        font-size: 13px;
+      }
+      .chip {
+        min-height: 40px;
+        padding: 10px 16px;
+        font-size: 13px;
+      }
+      .icon-btn {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        font-size: 18px;
+      }
+      .deploy-btn {
+        padding: 10px 18px;
+        font-size: 14px;
+        min-height: 44px;
+      }
+      .preview-header {
+        min-height: 52px;
+        padding: 8px 10px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .preview-header::-webkit-scrollbar { display: none; }
+      .device-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+      }
+      .edit-mode-btn {
+        padding: 10px 14px;
+        font-size: 13px;
+        min-height: 44px;
+      }
+      .url-bar {
+        font-size: 11px;
+        padding: 6px 10px;
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      
+      /* Fix preview header not scrolling on narrow screens */
+      .preview-actions {
+        gap: 4px;
+      }
+      
+      /* Chat input area mobile improvements */
+      .chat-input-area {
+        padding: 8px 12px calc(8px + var(--safe-bottom));
+      }
+      .chat-input-area textarea {
+        font-size: 16px !important; /* Prevent iOS zoom */
+        min-height: 44px;
+        border-radius: 22px;
+        padding: 12px 18px;
+      }
+      .send-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        font-size: 20px;
+      }
+      
+      /* Version items touch-friendly */
+      .version-item {
+        min-height: 56px;
+        padding: 12px 14px;
+      }
+      
+      /* Plugin cards touch-friendly */
+      .plugin-card {
+        min-height: 72px;
+        padding: 12px;
+      }
+      
+      /* Drag handle more visible */
+      .drag-handle {
+        height: 36px;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+      }
+      .drag-handle::after {
+        content: '';
+        width: 40px;
+        height: 4px;
+        border-radius: 2px;
+        background: var(--muted);
+        opacity: 0.5;
+      }
+      
+      /* Bottom sheet snap points */
+      .sidebar {
+        transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+      }
+      
+      /* FAB position respects safe area */
+      .mobile-toggle {
+        bottom: calc(20px + var(--safe-bottom)) !important;
+        right: 20px;
+      }
+      
+      /* Scan overlay mobile */
+      .scanning-overlay {
+        padding: 20px;
+      }
+      .scan-label {
+        font-size: 16px;
+      }
+      
+      /* Code view mobile */
+      .code-view pre {
+        font-size: 11px;
+        -webkit-text-size-adjust: 100%;
+      }
+      
+      /* Deploy modal mobile */
+      .deploy-modal-content {
+        max-width: 100%;
+        width: 95%;
+        margin: 0 2.5%;
+      }
+      .deploy-option {
+        padding: 16px;
+        min-height: 64px;
+      }
+      
+      /* Auto-save indicator mobile */
+      .auto-save-indicator {
+        font-size: 10px;
+        padding: 4px 8px;
+      }
+    }
+    
+    /* Very small screens */
+    @media (max-width: 380px) {
+      .device-toggle {
+        gap: 2px;
+      }
+      .url-bar {
+        max-width: 80px;
+      }
+      .edit-mode-btn {
+        padding: 8px 10px;
+      }
+    }
+    
+    /* Landscape mode on mobile */
+    @media (max-width: 768px) and (orientation: landscape) {
+      .sidebar {
+        width: 50%;
+        max-width: 50%;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        border-top: none;
+        border-right: 1px solid var(--border);
+        border-radius: 0 20px 20px 0;
+        transform: translateX(-100%);
+        bottom: 0;
+        top: 0;
+        left: 0;
+      }
+      .sidebar.expanded,
+      .sidebar.mobile-open {
+        transform: translateX(0);
+      }
+      .sidebar.collapsed {
+        transform: translateX(-100%);
+      }
+      .drag-handle {
+        display: none !important;
+      }
+      .preview-panel {
+        flex: 1;
+      }
+    }
+    
+    /* Focus states for accessibility */
+    .icon-btn:focus-visible,
+    .device-btn:focus-visible,
+    .deploy-btn:focus-visible,
+    .edit-mode-btn:focus-visible,
+    .send-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    
+    /* Reduce motion */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+    
+    /* In-place editing styles (injected into iframe) */
+    .ergio-editing-active [contenteditable="true"] {
+      outline: 2px solid #00D9FF !important;
+      outline-offset: 2px;
+      cursor: text !important;
+      background: rgba(0, 217, 255, 0.05) !important;
+      border-radius: 2px;
+    }
+    .ergio-editing-active [contenteditable="true"]:focus {
+      outline: 3px solid #00FF9D !important;
+      background: rgba(0, 255, 157, 0.08) !important;
+    }
+    
+    /* Resize handle styles */
+    .ergio-resize-handle {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: #00D9FF;
+      border: 2px solid #000;
+      border-radius: 50%;
+      cursor: nwse-resize;
+      z-index: 9999;
+      touch-action: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .ergio-resize-handle:after {
+      content: '⤡';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 12px;
+      color: #000;
+    }
+    .ergio-resize-handle.br { bottom: -12px; right: -12px; }
+    .ergio-resize-handle.bl { bottom: -12px; left: -12px; }
+    .ergio-resize-handle.tr { top: -12px; right: -12px; }
+    .ergio-resize-handle.tl { top: -12px; left: -12px; }
+    
+    .ergio-selected-element {
+      outline: 2px dashed #00D9FF !important;
+      outline-offset: 4px !important;
+      position: relative !important;
+    }
+    
+    /* Long-press context menu */
+    .ergio-context-menu {
+      position: fixed;
+      background: #16161F;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 6px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      z-index: 10000;
+      min-width: 180px;
+      animation: ergio-menu-in 0.15s ease;
+    }
+    @keyframes ergio-menu-in {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .ergio-context-menu-item {
+      padding: 12px 16px;
+      font-size: 14px;
+      color: var(--text);
+      cursor: pointer;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.15s;
+      min-height: 44px;
+    }
+    .ergio-context-menu-item:hover {
+      background: var(--hover);
+    }
+    .ergio-context-menu-item:active {
+      background: var(--accent);
+      color: #000;
+    }
+    .ergio-context-menu-separator {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+    
+    /* Pinch zoom indicator */
+    .ergio-zoom-indicator {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      z-index: 10001;
+      backdrop-filter: blur(10px);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .ergio-zoom-indicator.visible {
+      opacity: 1;
+    }
+    
+    /* Loading skeleton for lazy components */
+    .ergio-skeleton {
+      background: linear-gradient(90deg, var(--card) 25%, var(--hover) 50%, var(--card) 75%);
+      background-size: 200% 100%;
+      animation: ergio-shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+    @keyframes ergio-shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    
+    /* Error recovery banner */
+    .ergio-error-banner {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: linear-gradient(135deg, #FF4D6D, #FF6B6B);
+      color: #fff;
+      padding: 12px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      z-index: 10002;
+      transform: translateY(-100%);
+      transition: transform 0.3s ease;
+    }
+    .ergio-error-banner.visible {
+      transform: translateY(0);
+    }
+    .ergio-error-banner button {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: #fff;
+      padding: 6px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-left: 12px;
+      font-weight: 600;
+    }
+
 </style>
 </head>
 <body>
@@ -2473,6 +2834,924 @@ window.addEventListener('load', () => {
 
 </script>
 
-  <script src="guide-widget.js"></script>
+  <script src="guide-widget.js">
+// ===== MOBILE WEB BUILDER ENHANCEMENT SCRIPT =====
+// All mobile-specific touch, gesture, performance, and stability improvements
+
+(function() {
+  'use strict';
+  
+  // =================================================================
+  // 1. CRASH & BLANK SCREEN PREVENTION
+  // =================================================================
+  
+  // Global error handler — prevents blank screens on JS errors
+  window.addEventListener('error', function(e) {
+    console.warn('[ERGIO] Caught error:', e.message);
+    // Don't let errors kill the page
+    e.preventDefault();
+    e.stopPropagation();
+    return true;
+  });
+  
+  // Unhandled promise rejections
+  window.addEventListener('unhandledrejection', function(e) {
+    console.warn('[ERGIO] Unhandled rejection:', e.reason);
+    e.preventDefault();
+  });
+  
+  // Detect blank iframe and auto-recover
+  let blankCheckInterval = setInterval(function() {
+    const iframe = document.getElementById('previewIframe');
+    if (!iframe || iframe.style.display === 'none') return;
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      if (doc && (!doc.body || doc.body.innerHTML.length < 10) && currentHTML && currentHTML.length > 100) {
+        console.warn('[ERGIO] Blank iframe detected — re-rendering');
+        showPreview(currentHTML, buildData?.plan?.businessName || 'Preview');
+      }
+    } catch(e) { /* cross-origin */ }
+  }, 3000);
+  
+  // Memory cleanup — prevent crashes on low-end devices
+  let memoryCleanupInterval = setInterval(function() {
+    // Limit version history to 15 entries
+    if (typeof versions !== 'undefined' && versions.length > 15) {
+      versions = versions.slice(0, 15);
+    }
+    // Clear old chat messages if too many (keep last 30)
+    const chatHistory = document.getElementById('chatHistory');
+    if (chatHistory && chatHistory.children.length > 30) {
+      while (chatHistory.children.length > 30) {
+        chatHistory.removeChild(chatHistory.firstChild);
+      }
+    }
+  }, 60000);
+  
+  // =================================================================
+  // 2. VISUAL VIEWPORT API — KEYBOARD HANDLING
+  // =================================================================
+  
+  // Fix: iOS Safari viewport jumps when keyboard opens
+  if (window.visualViewport) {
+    let initialHeight = window.visualViewport.height;
+    let keyboardTimer = null;
+    
+    window.visualViewport.addEventListener('resize', function() {
+      const vh = window.visualViewport.height;
+      const isKeyboard = (initialHeight - vh) > 50;
+      
+      if (isKeyboard) {
+        // Keyboard is open — adjust layout
+        document.documentElement.style.setProperty('--vh', vh + 'px');
+        document.body.style.height = vh + 'px';
+        
+        // Scroll active element into view
+        const active = document.activeElement;
+        if (active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT')) {
+          clearTimeout(keyboardTimer);
+          keyboardTimer = setTimeout(function() {
+            active.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 100);
+        }
+      } else {
+        // Keyboard closed — restore
+        document.documentElement.style.setProperty('--vh', window.innerHeight + 'px');
+        document.body.style.height = '';
+      }
+    });
+    
+    window.visualViewport.addEventListener('scroll', function() {
+      // Prevent page scroll when keyboard is adjusting
+      if (window.visualViewport.height < initialHeight * 0.8) {
+        window.scrollTo(0, 0);
+      }
+    });
+  }
+  
+  // Use --vh CSS variable for proper viewport sizing
+  function setViewportHeight() {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', vh + 'px');
+  }
+  setViewportHeight();
+  window.addEventListener('resize', setViewportHeight);
+  
+  // =================================================================
+  // 3. ORIENTATION CHANGE HANDLING
+  // =================================================================
+  
+  let orientationTimer = null;
+  window.addEventListener('orientationchange', function() {
+    // Show a brief loading state during rotation
+    const app = document.querySelector('.app');
+    if (app) app.style.opacity = '0.8';
+    
+    clearTimeout(orientationTimer);
+    orientationTimer = setTimeout(function() {
+      setViewportHeight();
+      if (app) app.style.opacity = '1';
+      
+      // Re-render preview if visible
+      if (currentHTML && currentHTML.length > 100) {
+        const iframe = document.getElementById('previewIframe');
+        if (iframe && iframe.style.display !== 'none') {
+          showPreview(currentHTML, buildData?.plan?.businessName || 'Preview');
+        }
+      }
+      
+      // Re-check sidebar state
+      if (window.innerWidth > 768) {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+          sidebar.classList.remove('mobile-open', 'collapsed');
+        }
+      }
+    }, 300);
+  });
+  
+  // =================================================================
+  // 4. PINCH-TO-ZOOM ON PREVIEW
+  // =================================================================
+  
+  let pinchScale = 1;
+  let pinchStartDist = 0;
+  let isPinching = false;
+  let zoomIndicator = null;
+  
+  function createZoomIndicator() {
+    if (!zoomIndicator) {
+      zoomIndicator = document.createElement('div');
+      zoomIndicator.className = 'ergio-zoom-indicator';
+      zoomIndicator.textContent = '100%';
+      document.body.appendChild(zoomIndicator);
+    }
+    return zoomIndicator;
+  }
+  
+  function showZoom(level) {
+    const ind = createZoomIndicator();
+    ind.textContent = Math.round(level * 100) + '%';
+    ind.classList.add('visible');
+    clearTimeout(ind._timer);
+    ind._timer = setTimeout(function() {
+      ind.classList.remove('visible');
+    }, 1500);
+  }
+  
+  const previewFrame = document.getElementById('previewFrame');
+  if (previewFrame) {
+    previewFrame.addEventListener('touchstart', function(e) {
+      if (editModeActive) return;
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        isPinching = true;
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        pinchStartDist = Math.sqrt(dx*dx + dy*dy);
+        previewFrame.style.transformOrigin = 'center center';
+      }
+    }, { passive: false });
+    
+    previewFrame.addEventListener('touchmove', function(e) {
+      if (!isPinching || e.touches.length !== 2) return;
+      e.preventDefault();
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      const scale = Math.max(0.5, Math.min(3, pinchScale * (dist / pinchStartDist)));
+      previewFrame.style.transform = 'scale(' + scale + ')';
+      showZoom(scale);
+    }, { passive: false });
+    
+    previewFrame.addEventListener('touchend', function(e) {
+      if (!isPinching) return;
+      isPinching = false;
+      const dx = e.changedTouches[0].clientX - (e.changedTouches[1] ? e.changedTouches[1].clientX : 0);
+      // Determine final scale from last known transform
+      const match = previewFrame.style.transform.match(/scale\(([\d.]+)\)/);
+      if (match) pinchScale = parseFloat(match[1]);
+      
+      // Reset zoom if too small or too large
+      if (pinchScale < 0.6 || pinchScale > 2.5) {
+        previewFrame.style.transform = '';
+        previewFrame.style.transformOrigin = '';
+        pinchScale = 1;
+      }
+    }, { passive: true });
+  }
+  
+  // Double-tap to reset zoom
+  let lastTap = 0;
+  previewFrame?.addEventListener('touchend', function(e) {
+    const now = Date.now();
+    if (now - lastTap < 300) {
+      // Double tap — reset zoom
+      previewFrame.style.transform = '';
+      previewFrame.style.transformOrigin = '';
+      pinchScale = 1;
+      showZoom(1);
+    }
+    lastTap = now;
+  }, { passive: true });
+  
+  // =================================================================
+  // 5. LONG-PRESS CONTEXT MENU
+  // =================================================================
+  
+  let longPressTimer = null;
+  let longPressTarget = null;
+  
+  document.addEventListener('touchstart', function(e) {
+    if (window.innerWidth > 768) return;
+    if (editModeActive) return;
+    
+    const target = e.target.closest('.icon-btn, .device-btn, .deploy-btn, .version-item, .plugin-card, .sidebar-tab');
+    if (!target) return;
+    
+    longPressTarget = target;
+    
+    longPressTimer = setTimeout(function() {
+      if (longPressTarget) {
+        navigator.vibrate?.(50);
+        showContextMenu(longPressTarget, e.touches[0]?.clientX || 0, e.touches[0]?.clientY || 0);
+      }
+    }, 600);
+  }, { passive: true });
+  
+  document.addEventListener('touchmove', function() {
+    clearTimeout(longPressTimer);
+  }, { passive: true });
+  
+  document.addEventListener('touchend', function() {
+    clearTimeout(longPressTimer);
+  }, { passive: true });
+  
+  function showContextMenu(element, x, y) {
+    // Remove existing menu
+    document.querySelectorAll('.ergio-context-menu').forEach(m => m.remove());
+    
+    const menu = document.createElement('div');
+    menu.className = 'ergio-context-menu';
+    
+    // Determine menu items based on element type
+    let items = [];
+    if (element.classList.contains('version-item')) {
+      items = [
+        { icon: '👁️', label: 'Preview this version', action: () => element.click() },
+        { icon: '📋', label: 'Copy version name', action: () => { 
+          const name = element.querySelector('.version-desc')?.textContent || '';
+          navigator.clipboard.writeText(name).then(() => toast('Copied!', 'success'));
+        }},
+      ];
+    } else if (element.classList.contains('plugin-card')) {
+      items = [
+        { icon: '🔄', label: 'Toggle plugin', action: () => element.click() },
+        { icon: 'ℹ️', label: 'Plugin info', action: () => {
+          const name = element.querySelector('.plugin-name')?.textContent || '';
+          toast(name + ' — click to toggle on/off', 'info');
+        }},
+      ];
+    } else if (element.classList.contains('sidebar-tab')) {
+      items = [
+        { icon: '📂', label: 'Open this tab', action: () => element.click() },
+      ];
+    } else {
+      items = [
+        { icon: '⚡', label: 'Activate', action: () => element.click() },
+      ];
+    }
+    
+    items.forEach((item, i) => {
+      const itemEl = document.createElement('div');
+      itemEl.className = 'ergio-context-menu-item';
+      itemEl.innerHTML = '<span>' + item.icon + '</span><span>' + item.label + '</span>';
+      itemEl.addEventListener('click', function() {
+        item.action();
+        menu.remove();
+      });
+      menu.appendChild(itemEl);
+      if (i < items.length - 1) {
+        const sep = document.createElement('div');
+        sep.className = 'ergio-context-menu-separator';
+        menu.appendChild(sep);
+      }
+    });
+    
+    // Position menu — keep it on screen
+    menu.style.left = Math.min(x, window.innerWidth - 200) + 'px';
+    menu.style.top = Math.min(y, window.innerHeight - 200) + 'px';
+    document.body.appendChild(menu);
+    
+    // Close on outside tap
+    setTimeout(function() {
+      const closeHandler = function(e) {
+        if (!menu.contains(e.target)) {
+          menu.remove();
+          document.removeEventListener('click', closeHandler, true);
+          document.removeEventListener('touchstart', closeHandler, true);
+        }
+      };
+      document.addEventListener('click', closeHandler, true);
+      document.addEventListener('touchstart', closeHandler, true);
+    }, 100);
+  }
+  
+  // =================================================================
+  // 6. IN-PLACE TEXT EDITING (contenteditable in iframe)
+  // =================================================================
+  
+  // Extend the existing edit mode with direct text editing
+  const originalToggleEditMode = window.toggleEditMode;
+  window.toggleEditMode = function() {
+    originalToggleEditMode();
+    
+    if (editModeActive) {
+      // After enabling edit mode, inject contenteditable capability
+      setTimeout(function() {
+        const iframe = document.getElementById('previewIframe');
+        if (!iframe || iframe.style.display === 'none') return;
+        
+        try {
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+          
+          // Add enhanced editing script
+          const enhanceScript = iframeDoc.createElement('script');
+          enhanceScript.textContent = `
+            (function() {
+              var editOverlay = document.createElement('div');
+              editOverlay.id = 'ergio-inline-editor';
+              editOverlay.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#00D9FF;color:#000;padding:8px 16px;font-size:12px;font-weight:600;z-index:99999;display:none;align-items:center;gap:12px;justify-content:space-between';
+              editOverlay.innerHTML = '<span>📝 Inline editing active — tap any text to edit</span><button onclick="document.body.classList.remove(\'ergio-editing-active\');this.parentElement.style.display=\'none\'" style="background:#000;color:#fff;border:none;padding:6px 14px;border-radius:8px;cursor:pointer">Done</button>';
+              document.body.appendChild(editOverlay);
+              document.body.classList.add('ergio-editing-active');
+              editOverlay.style.display = 'flex';
+              
+              // Make text elements contenteditable on tap
+              var tapTimer = null;
+              var lastTapEl = null;
+              
+              document.addEventListener('touchstart', function(e) {
+                if (!window.parent.editModeActive) return;
+                var el = e.target;
+                // Only make text-containing elements editable
+                var editableTags = ['H1','H2','H3','H4','H5','H6','P','SPAN','A','BUTTON','LI','LABEL','DIV','BLOCKQUOTE','FIGCAPTION'];
+                if (editableTags.indexOf(el.tagName) === -1) return;
+                if (el.children.length > 3) return; // Don't edit complex containers
+                
+                tapTimer = setTimeout(function() {
+                  // Remove contenteditable from all
+                  document.querySelectorAll('[contenteditable]').forEach(function(e) {
+                    e.removeAttribute('contenteditable');
+                    e.classList.remove('ergio-editing');
+                  });
+                  
+                  // Make this element editable
+                  el.setAttribute('contenteditable', 'true');
+                  el.classList.add('ergio-editing');
+                  el.focus();
+                  
+                  // Select all text
+                  var range = document.createRange();
+                  range.selectNodeContents(el);
+                  var sel = window.getSelection();
+                  sel.removeAllRanges();
+                  sel.addRange(range);
+                  
+                  // Notify parent
+                  window.parent.postMessage({
+                    type: 'ergio-inline-edit-start',
+                    tag: el.tagName,
+                    text: el.textContent.substring(0, 100)
+                  }, '*');
+                }, 400);
+              }, { passive: true });
+              
+              document.addEventListener('touchmove', function() {
+                clearTimeout(tapTimer);
+              }, { passive: true });
+              
+              document.addEventListener('touchend', function() {
+                clearTimeout(tapTimer);
+              }, { passive: true });
+              
+              // Also support click-to-edit on desktop
+              document.addEventListener('click', function(e) {
+                if (!window.parent.editModeActive) return;
+                var el = e.target;
+                if (el.hasAttribute('contenteditable')) return; // Already editing
+                var editableTags = ['H1','H2','H3','H4','H5','H6','P','SPAN','A','BUTTON','LI','LABEL','DIV'];
+                if (editableTags.indexOf(el.tagName) === -1) return;
+                if (el.children.length > 3) return;
+                
+                document.querySelectorAll('[contenteditable]').forEach(function(e) {
+                  e.removeAttribute('contenteditable');
+                  e.classList.remove('ergio-editing');
+                });
+                
+                el.setAttribute('contenteditable', 'true');
+                el.classList.add('ergio-editing');
+                el.focus();
+              }, true);
+              
+              // Capture edited content and send to parent
+              document.addEventListener('input', function(e) {
+                if (e.target.hasAttribute('contenteditable')) {
+                  window.parent.postMessage({
+                    type: 'ergio-inline-edit',
+                    tag: e.target.tagName,
+                    text: e.target.textContent,
+                    html: e.target.innerHTML
+                  }, '*');
+                }
+              }, true);
+              
+              // Save edits on blur
+              document.addEventListener('blur', function(e) {
+                if (e.target.hasAttribute && e.target.hasAttribute('contenteditable')) {
+                  e.target.removeAttribute('contenteditable');
+                  e.target.classList.remove('ergio-editing');
+                  window.parent.postMessage({
+                    type: 'ergio-inline-edit-save',
+                    tag: e.target.tagName,
+                    text: e.target.textContent,
+                    html: e.target.innerHTML
+                  }, '*');
+                }
+              }, true);
+            })();
+          `;
+          iframeDoc.head.appendChild(enhanceScript);
+        } catch(e) { console.log('Cannot inject inline editor:', e); }
+      }, 200);
+      
+      // Listen for inline edit messages
+      window.addEventListener('message', inlineEditHandler);
+    } else {
+      window.removeEventListener('message', inlineEditHandler);
+      // Clean up iframe
+      try {
+        const iframe = document.getElementById('previewIframe');
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        iframeDoc.body?.classList.remove('ergio-editing-active');
+        const editor = iframeDoc.getElementById('ergio-inline-editor');
+        if (editor) editor.remove();
+        iframeDoc.querySelectorAll('[contenteditable]').forEach(el => {
+          el.removeAttribute('contenteditable');
+          el.classList.remove('ergio-editing');
+        });
+      } catch(e) {}
+    }
+  };
+  
+  function inlineEditHandler(e) {
+    if (e.data.type === 'ergio-inline-edit-start') {
+      toast('Editing: ' + (e.data.tag || '').toLowerCase() + ' — type to change text', 'info');
+    } else if (e.data.type === 'ergio-inline-edit-save') {
+      // Update the current HTML with the edited content
+      try {
+        const iframe = document.getElementById('previewIframe');
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        const fullHTML = '<!DOCTYPE html>\n' + iframeDoc.documentElement.outerHTML;
+        currentHTML = fullHTML;
+        document.getElementById('codePre').textContent = fullHTML;
+        scheduleAutoSave();
+        toast('Text updated ✓', 'success');
+      } catch(e) {
+        console.log('Save inline edit failed:', e);
+      }
+    }
+  }
+  
+  // =================================================================
+  // 7. TOUCH ELEMENT RESIZE HANDLES
+  // =================================================================
+  
+  // Add resize handles when an element is selected in edit mode
+  let selectedElement = null;
+  let resizeHandles = [];
+  
+  function clearResizeHandles() {
+    resizeHandles.forEach(h => h.remove());
+    resizeHandles = [];
+    if (selectedElement) {
+      selectedElement.classList.remove('ergio-selected-element');
+      selectedElement = null;
+    }
+  }
+  
+  function addResizeHandlesToElement(el, iframeDoc) {
+    clearResizeHandles();
+    selectedElement = el;
+    el.classList.add('ergio-selected-element');
+    
+    const positions = ['br', 'bl', 'tr', 'tl'];
+    positions.forEach(pos => {
+      const handle = iframeDoc.createElement('div');
+      handle.className = 'ergio-resize-handle ' + pos;
+      handle.style.cssText = 'position:absolute;width:24px;height:24px;background:#00D9FF;border:2px solid #000;border-radius:50%;z-index:9999;touch-action:none;box-shadow:0 2px 8px rgba(0,0,0,0.3)';
+      
+      if (pos === 'br') { handle.style.bottom = '-12px'; handle.style.right = '-12px'; }
+      else if (pos === 'bl') { handle.style.bottom = '-12px'; handle.style.left = '-12px'; }
+      else if (pos === 'tr') { handle.style.top = '-12px'; handle.style.right = '-12px'; }
+      else { handle.style.top = '-12px'; handle.style.left = '-12px'; }
+      
+      handle.innerHTML = '⤡';
+      handle.style.fontSize = '12px';
+      handle.style.display = 'flex';
+      handle.style.alignItems = 'center';
+      handle.style.justifyContent = 'center';
+      handle.style.color = '#000';
+      
+      // Touch resize logic
+      handle.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const startX = e.touches[0].clientX;
+        const startY = e.touches[0].clientY;
+        const startW = el.offsetWidth;
+        const startH = el.offsetHeight;
+        const startLeft = el.offsetLeft;
+        const startTop = el.offsetTop;
+        
+        function onMove(ev) {
+          ev.preventDefault();
+          const dx = ev.touches[0].clientX - startX;
+          const dy = ev.touches[0].clientY - startY;
+          
+          if (pos.includes('r')) el.style.width = Math.max(50, startW + dx) + 'px';
+          if (pos.includes('b')) el.style.height = Math.max(30, startH + dy) + 'px';
+          if (pos.includes('l')) {
+            el.style.width = Math.max(50, startW - dx) + 'px';
+            el.style.left = (startLeft + dx) + 'px';
+          }
+          if (pos.includes('t')) {
+            el.style.height = Math.max(30, startH - dy) + 'px';
+            el.style.top = (startTop + dy) + 'px';
+          }
+        }
+        
+        function onEnd() {
+          document.removeEventListener('touchmove', onMove);
+          document.removeEventListener('touchend', onEnd);
+          // Update parent HTML
+          try {
+            const fullHTML = '<!DOCTYPE html>\n' + iframeDoc.documentElement.outerHTML;
+            currentHTML = fullHTML;
+            document.getElementById('codePre').textContent = fullHTML;
+            scheduleAutoSave();
+          } catch(e) {}
+        }
+        
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('touchend', onEnd, { passive: true });
+      }, { passive: false });
+      
+      el.appendChild(handle);
+      resizeHandles.push(handle);
+    });
+  }
+  
+  // =================================================================
+  // 8. PERFORMANCE OPTIMIZATIONS
+  // =================================================================
+  
+  // Lazy load plugins tab (only when opened)
+  let pluginsLoaded = false;
+  const originalInitPlugins = window.initPlugins;
+  window.initPlugins = function() {
+    if (pluginsLoaded) return;
+    pluginsLoaded = true;
+    // Use requestIdleCallback if available
+    if (window.requestIdleCallback) {
+      window.requestIdleCallback(function() { originalInitPlugins(); }, { timeout: 2000 });
+    } else {
+      setTimeout(originalInitPlugins, 200);
+    }
+  };
+  
+  // Debounce scroll/resize handlers
+  function debounce(fn, ms) {
+    let t;
+    return function() {
+      clearTimeout(t);
+      t = setTimeout(fn, ms);
+    };
+  }
+  
+  // Debounced resize handler
+  window.addEventListener('resize', debounce(setViewportHeight, 150));
+  
+  // Preload critical resources
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          // Lazy load any data-* attributes
+          const el = entry.target;
+          const lazySrc = el.dataset.lazySrc;
+          if (lazySrc) {
+            el.src = lazySrc;
+            el.removeAttribute('data-lazy-src');
+          }
+          io.unobserve(el);
+        }
+      });
+    });
+    // Observe images that should be lazy loaded
+    document.querySelectorAll('img[data-lazy-src]').forEach(function(img) {
+      io.observe(img);
+    });
+  }
+  
+  // Reduce network requests — cache API responses
+  const apiCache = new Map();
+  const originalFetch = window.fetch;
+  window.fetch = function() {
+    const url = arguments[0];
+    const opts = arguments[1] || {};
+    
+    // Only cache GET requests
+    if (opts.method && opts.method !== 'GET') return originalFetch.apply(this, arguments);
+    
+    const cacheKey = typeof url === 'string' ? url : url.url;
+    if (apiCache.has(cacheKey)) {
+      const cached = apiCache.get(cacheKey);
+      if (Date.now() - cached.time < 30000) { // 30 second cache
+        return Promise.resolve(cached.response.clone());
+      }
+    }
+    
+    return originalFetch.apply(this, arguments).then(function(response) {
+      if (response.ok && typeof url === 'string') {
+        apiCache.set(url, { response: response.clone(), time: Date.now() });
+      }
+      return response;
+    });
+  };
+  
+  // =================================================================
+  // 9. ENHANCED AUTO-SAVE WITH INDEXEDDB FALLBACK
+  // =================================================================
+  
+  // IndexedDB fallback for when localStorage quota is exceeded
+  function idbSave(data) {
+    return new Promise(function(resolve, reject) {
+      if (!window.indexedDB) { reject(new Error('No IndexedDB')); return; }
+      
+      const req = indexedDB.open('ergio_builder', 1);
+      req.onupgradeneeded = function(e) {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('saves')) {
+          db.createObjectStore('saves', { keyPath: 'id' });
+        }
+      };
+      req.onsuccess = function(e) {
+        const db = e.target.result;
+        const tx = db.transaction('saves', 'readwrite');
+        const store = tx.objectStore('saves');
+        store.put({ id: 'autosave', data: data, timestamp: Date.now() });
+        tx.oncomplete = function() { resolve(true); };
+        tx.onerror = function() { reject(tx.error); };
+      };
+      req.onerror = function() { reject(req.error); };
+    });
+  }
+  
+  function idbLoad() {
+    return new Promise(function(resolve) {
+      if (!window.indexedDB) { resolve(null); return; }
+      
+      const req = indexedDB.open('ergio_builder', 1);
+      req.onupgradeneeded = function(e) {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('saves')) {
+          db.createObjectStore('saves', { keyPath: 'id' });
+        }
+      };
+      req.onsuccess = function(e) {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('saves')) { resolve(null); return; }
+        const tx = db.transaction('saves', 'readonly');
+        const store = tx.objectStore('saves');
+        const getReq = store.get('autosave');
+        getReq.onsuccess = function() { resolve(getReq.result || null); };
+        getReq.onerror = function() { resolve(null); };
+      };
+      req.onerror = function() { resolve(null); };
+    });
+  }
+  
+  // Enhance the existing autoSave function
+  const originalAutoSave = window.autoSave;
+  if (originalAutoSave) {
+    window.autoSave = function() {
+      try {
+        originalAutoSave();
+      } catch(e) {
+        console.warn('[ERGIO] localStorage save failed, trying IndexedDB:', e);
+        if (currentHTML) {
+          idbSave({
+            html: currentHTML,
+            buildData: buildData,
+            timestamp: Date.now()
+          }).then(function() {
+            const ind = document.getElementById('autoSaveIndicator');
+            if (ind) {
+              ind.classList.add('visible');
+              document.getElementById('autoSaveText').textContent = 'Saved (IDB)';
+              setTimeout(function() { ind.classList.remove('visible'); }, 2000);
+            }
+          }).catch(function(e) {
+            console.warn('[ERGIO] All save methods failed:', e);
+          });
+        }
+      }
+    };
+  }
+  
+  // Enhanced loadAutoSave — try IndexedDB if localStorage fails
+  const originalLoadAutoSave = window.loadAutoSave;
+  if (originalLoadAutoSave) {
+    window.loadAutoSave = function() {
+      const restored = originalLoadAutoSave();
+      if (!restored) {
+        // Try IndexedDB
+        idbLoad().then(function(result) {
+          if (result && result.data && result.data.html && result.data.html.length > 100) {
+            const ageMinutes = (Date.now() - result.timestamp) / 60000;
+            if (ageMinutes < 30 && confirm('Found unsaved work from ' + Math.round(ageMinutes) + ' minutes ago. Restore it?')) {
+              currentHTML = result.data.html;
+              buildData = result.data.buildData || {};
+              showPreview(currentHTML, buildData?.businessName || 'Your Website');
+              addMessage('ai', '📥 Your previous session was restored from backup!');
+              toast('Work recovered from backup storage', 'success');
+            }
+          }
+        }).catch(function() {});
+      }
+      return restored;
+    };
+  }
+  
+  // =================================================================
+  // 10. TOUCH-FRIENDLY PREVIEW INTERACTIONS
+  // =================================================================
+  
+  // Smooth scroll on preview with momentum
+  const previewFrameEl = document.getElementById('previewFrame');
+  if (previewFrameEl) {
+    let scrollTimer = null;
+    previewFrameEl.addEventListener('scroll', debounce(function() {
+      // Show scroll position indicator
+      const scrollPercent = Math.round((previewFrameEl.scrollTop / (previewFrameEl.scrollHeight - previewFrameEl.clientHeight)) * 100);
+      if (!isNaN(scrollPercent) && scrollPercent > 0 && scrollPercent < 100) {
+        // Could show a scroll indicator
+      }
+    }, 100));
+  }
+  
+  // =================================================================
+  // 11. NETWORK STATUS & OFFLINE INDICATOR
+  // =================================================================
+  
+  // Show offline banner
+  function updateOnlineStatus() {
+    if (navigator.onLine) {
+      document.querySelectorAll('.ergio-error-banner').forEach(b => b.remove());
+    } else {
+      const banner = document.createElement('div');
+      banner.className = 'ergio-error-banner visible';
+      banner.innerHTML = '⚠️ You are offline. Your work is still being saved locally. <button onclick="this.parentElement.remove()">Dismiss</button>';
+      document.body.appendChild(banner);
+    }
+  }
+  
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+  // Check on load
+  setTimeout(updateOnlineStatus, 500);
+  
+  // =================================================================
+  // 12. PREVENT ACCIDENTAL NAVIGATION (mobile back button)
+  // =================================================================
+  
+  // Warn before leaving if there's unsaved work
+  let hasUnsavedWork = false;
+  const originalScheduleAutoSave = window.scheduleAutoSave;
+  if (originalScheduleAutoSave) {
+    window.scheduleAutoSave = function() {
+      hasUnsavedWork = true;
+      originalScheduleAutoSave();
+    };
+  }
+  
+  // Mark saved after auto-save completes
+  const originalAutoSaveInner = window.autoSave;
+  if (originalAutoSaveInner) {
+    window.autoSave = function() {
+      originalAutoSaveInner();
+      hasUnsavedWork = false;
+    };
+  }
+  
+  window.addEventListener('beforeunload', function(e) {
+    if (hasUnsavedWork && currentHTML && currentHTML.length > 100) {
+      e.preventDefault();
+      e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+      return e.returnValue;
+    }
+  });
+  
+  // =================================================================
+  // 13. iOS SAFARI SPECIFIC FIXES
+  // =================================================================
+  
+  // Fix: iOS Safari 100vh issue
+  function setIOSViewport() {
+    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+      document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
+      // Fix body height
+      document.body.style.minHeight = window.innerHeight + 'px';
+    }
+  }
+  setIOSViewport();
+  
+  // Fix: iOS double-tap zoom on buttons
+  document.addEventListener('touchend', function(e) {
+    if (e.target.closest('button, .sidebar-tab, .version-item, .plugin-card, .chip')) {
+      e.preventDefault();
+      // Manually trigger click
+      setTimeout(function() {
+        e.target.closest('button, .sidebar-tab, .version-item, .plugin-card, .chip')?.click();
+      }, 0);
+    }
+  }, { passive: false });
+  
+  // =================================================================
+  // 14. ANDROID SPECIFIC FIXES
+  // =================================================================
+  
+  // Fix: Android Chrome pull-to-refresh interfering
+  if (/Android/.test(navigator.userAgent)) {
+    document.body.style.overscrollBehavior = 'none';
+    // Prevent chrome's pull-to-refresh
+    document.body.style.touchAction = 'pan-y';
+  }
+  
+  // Fix: Android keyboard resize
+  let androidKeyboardTimer = null;
+  if (/Android/.test(navigator.userAgent)) {
+    window.addEventListener('resize', function() {
+      clearTimeout(androidKeyboardTimer);
+      androidKeyboardTimer = setTimeout(function() {
+        setViewportHeight();
+      }, 100);
+    });
+  }
+  
+  // =================================================================
+  // 15. REQUEST ANIMATION FRAME FOR SMOOTH UI
+  // =================================================================
+  
+  // Use rAF for smooth sidebar animations on mobile
+  let rafSidebar = null;
+  const originalOpenSidebar = window.openSidebar;
+  const originalCloseSidebar = window.closeSidebar;
+  
+  if (originalOpenSidebar) {
+    window.openSidebar = function() {
+      if (rafSidebar) cancelAnimationFrame(rafSidebar);
+      rafSidebar = requestAnimationFrame(function() {
+        originalOpenSidebar();
+      });
+    };
+  }
+  
+  if (originalCloseSidebar) {
+    window.closeSidebar = function() {
+      if (rafSidebar) cancelAnimationFrame(rafSidebar);
+      rafSidebar = requestAnimationFrame(function() {
+        originalCloseSidebar();
+      });
+    };
+  }
+  
+  // =================================================================
+  // INITIALIZATION
+  // =================================================================
+  
+  console.log('[ERGIO] Mobile Web Builder enhancements loaded');
+  
+  // Initial setup
+  setViewportHeight();
+  setIOSViewport();
+  
+  // Mark as loaded
+  window.ergioMobileEnhanced = true;
+  
+})();
+
+</script>
 </body>
 </html>
