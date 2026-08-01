@@ -158,11 +158,14 @@ Rules:
       else plan.websiteCategory = 'landing';
     }
 
-    // Auto-detect best design style — AI returns generic words like 'modern', always override with our system
+    // Auto-detect best design style — always prefer our detection system over AI's choice
+    // AI often picks generic styles; our autoDetect knows the right vertical match
     const detectedStyle = autoDetectStyle(plan.type || '', plan.websiteCategory || '', plan.description || '', plan.tone || 'professional');
     const validStyleKeys = Object.keys(DESIGN_STYLES);
-    // Only keep AI's designStyle if it exactly matches a valid key; otherwise use autoDetect
-    if (!validStyleKeys.includes(plan.designStyle)) {
+    // Use autoDetect result if it's a valid key; only fall back to AI choice if autoDetect returns 'nova' (default) AND AI picked a specific valid key
+    if (validStyleKeys.includes(detectedStyle) && detectedStyle !== 'nova') {
+      plan.designStyle = detectedStyle;
+    } else if (!validStyleKeys.includes(plan.designStyle)) {
       plan.designStyle = detectedStyle;
     }
     const designConfig = DESIGN_STYLES[plan.designStyle] || DESIGN_STYLES.nova;
