@@ -160,28 +160,46 @@ export default async function handler(req, res) {
       }
 
       // If full insert failed (missing columns), try minimal insert with just html
+      let recordId = null;
       if (saveError) {
         console.log('[site] Full insert failed, trying minimal:', saveError.message);
         try {
-          const { error: err2 } = await supabase.from('generated_websites').insert({
-            html: finalHtml
-          });
+          const { data: insertData, error: err2 } = await supabase
+            .from('generated_websites')
+            .insert({ html: finalHtml })
+            .select('id')
+            .single();
           if (err2) {
             console.error('[site] Minimal insert also failed:', err2.message);
-            // Return success anyway — localStorage will still work
+          } else if (insertData) {
+            recordId = insertData.id;
+            console.log('[site] Minimal insert succeeded, id:', recordId);
           }
         } catch (e2) {
           console.error('[site] Minimal insert exception:', e2.message);
         }
+      } else {
+        // Full insert worked — get the ID from a follow-up query
+        try {
+          const { data: recentData } = await supabase
+            .from('generated_websites')
+            .select('id')
+            .order('created_date', { ascending: false })
+            .limit(1)
+            .single();
+          if (recentData) recordId = recentData.id;
+        } catch (e) { /* ignore */ }
       }
 
-      // Always return success — the HTML is in localStorage on the client too
-      const deployUrl = `https://ergio.vercel.app/s/${bodySlug}`;
+      // Always return success — use recordId as slug if slug column doesn't exist
+      const finalSlug = recordId || bodySlug;
+      const deployUrl = `https://ergio.vercel.app/s/${finalSlug}`;
       return res.status(200).json({
         success: true,
-        slug: bodySlug,
+        slug: finalSlug,
+        siteId: recordId,
         deployUrl,
-        previewUrl: `https://ergio.vercel.app/preview.html?site=${bodySlug}`,
+        previewUrl: `https://ergio.vercel.app/preview.html?site=${finalSlug}`,
         message: 'Website deployed and ready to share'
       });
     } catch (e) {

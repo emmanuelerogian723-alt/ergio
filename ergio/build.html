@@ -2615,7 +2615,9 @@ async function deployTo(target) {
         })
       });
       const deployData = await deployRes.json();
-      const liveUrl = deployData.deployUrl || deployData.url || deployUrl;
+      // Use the actual record ID returned by the API (works even without slug column)
+      const actualSlug = deployData.slug || deployData.siteId || slug;
+      const liveUrl = deployData.deployUrl || `https://ergio.vercel.app/s/${actualSlug}`;
       
       resultEl.style.display = 'block';
       resultEl.style.background = 'rgba(0,255,157,.08)';
@@ -2638,7 +2640,8 @@ async function deployTo(target) {
         savedSites[existingIdx].deployUrl = liveUrl;
       } else {
         savedSites.unshift({
-          id: slug,
+          id: actualSlug,
+          slug: slug,
           name: bizName,
           html: currentHTML,
           deployed: true,

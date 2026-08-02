@@ -121,7 +121,7 @@
 
       // First try: localStorage (if deployed from the same browser)
       const savedSites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
-      const localSite = savedSites.find(s => s.id === slug || 
+      const localSite = savedSites.find(s => s.id === slug || s.slug === slug ||
         (s.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-') === slug);
       
       if (localSite && localSite.html) {
