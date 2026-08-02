@@ -1,33 +1,131 @@
-async function callGroq(messages) {
+// ========================================
+// ERGIO API — /api/refine (v2.0 JSON)
+// Surgical website editing — returns clean JSON, NOT SSE
+// Also handles Design Linter (mode: 'lint') and auto-fix (mode: 'fix-layout')
+// maxDuration: 60s (set in vercel.json)
+// ========================================
+
+import { lintWebsite, autoFixHtml } from '../lib/design-linter.js';
+
+async function callGroq(messages, maxTokens = 16000) {
   const key = process.env.GROQ_API_KEY || process.env.OPENROUTER_API_KEY || '';
+  if (!key) throw new Error('No AI API key configured');
   const isOR = !process.env.GROQ_API_KEY;
   const url = isOR ? 'https://openrouter.ai/api/v1/chat/completions' : 'https://api.groq.com/openai/v1/chat/completions';
   const model = isOR ? 'meta-llama/llama-3.3-70b-instruct' : 'llama-3.3-70b-versatile';
-  const resp = await fetch(url, { method:'POST', headers:{'Authorization':`Bearer ${key}`,'Content-Type':'application/json'}, body: JSON.stringify({ model, messages, max_tokens:2000, temperature:0.7 }) });
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model, messages, max_tokens: maxTokens, temperature: 0.4 })
+  });
+  if (!resp.ok) {
+    const errText = await resp.text();
+    throw new Error(`AI API error ${resp.status}: ${errText.slice(0, 200)}`);
+  }
   const d = await resp.json();
   return d.choices?.[0]?.message?.content || '';
 }
+
+// Surgical edit rules — the AI returns only the changed portion, not the full HTML
+const SURGICAL_SYSTEM_PROMPT = `You are ERGIO's surgical website editor. You make precise, targeted edits to HTML.
+
+RULES:
+1. Return ONLY the modified HTML. No explanations, no markdown fences.
+2. Keep all existing sections intact unless told to remove one.
+3. Preserve all CSS classes, IDs, and structure.
+4. If the instruction is about layout, fix spacing, alignment, or visual issues.
+5. If the instruction is about content, update text only.
+6. If the instruction is about style, modify CSS values.
+7. Always return complete valid HTML document.
+8. Keep the "Powered by ERGIO" footer intact.`;
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method === 'GET') return res.json({ status:'ok', service:'Website Refine' });
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  const send = (type, data) => res.write(`data: ${JSON.stringify({type,data})}\n\n`);
-  const { instruction, currentHtml, businessName } = req.body;
+  if (req.method === 'GET') return res.json({ status: 'ok', service: 'Website Refine v2', mode: 'json' });
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Use POST' });
+
+  const { instruction, currentHtml, businessName, mode } = req.body;
+
+  if (!instruction) return res.status(400).json({ error: 'Instruction is required' });
+  if (!currentHtml) return res.status(400).json({ error: 'currentHtml is required' });
+
   try {
-    send('status', { message: 'Refining your website...' });
-    const result = await callGroq([
-      { role:'system', content:`You are ERGIO website editor. The user has a business website and wants to refine it. Return only the complete updated HTML. No explanations.` },
-      { role:'user', content:`Business: ${businessName}\nInstruction: "${instruction}"\nCurrent HTML (first 3000 chars): ${(currentHtml||'').slice(0,3000)}\n\nApply the requested change and return the full updated HTML.` }
-    ]);
-    send('refined', { html: result, instruction });
-    send('done', { success: true });
-    res.end();
-  } catch(e) {
-    send('error', { message: e.message });
-    res.end();
+    // ── LINT MODE: return linter score without calling AI ──
+    if (mode === 'lint') {
+      const result = lintWebsite(currentHtml, { name: businessName });
+      return res.json({ success: true, linter: result });
+    }
+
+    // ── FIX-LAYOUT MODE: run auto-fix then AI refine ──
+    if (mode === 'fix-layout') {
+      const fixedHtml = autoFixHtml(currentHtml, { name: businessName });
+      const lintBefore = lintWebsite(currentHtml, { name: businessName });
+      const lintAfter = lintWebsite(fixedHtml, { name: businessName });
+      return res.json({
+        success: true,
+        html: fixedHtml,
+        linter: lintAfter,
+        linterBefore: lintBefore,
+        instruction: 'Auto-fix layout issues',
+        editType: 'fix-layout',
+        message: `Score improved from ${lintBefore.score} to ${lintAfter.score}`
+      });
+    }
+
+    // Determine edit type from instruction
+    const editType = mode || detectEditType(instruction);
+
+    const messages = [
+      { role: 'system', content: SURGICAL_SYSTEM_PROMPT },
+      {
+        role: 'user',
+        content: `Business: ${businessName || 'My Business'}
+Edit Type: ${editType}
+Instruction: "${instruction}"
+
+Current HTML:
+${currentHtml.slice(0, 50000)}
+
+Apply the requested change and return the complete updated HTML.`
+      }
+    ];
+
+    const result = await callGroq(messages, 16000);
+
+    // Clean up — strip markdown fences if present
+    const cleanHtml = result
+      .replace(/```html\s*/gi, '')
+      .replace(/```\s*/g, '')
+      .trim();
+
+    // Validate we got HTML back
+    if (!cleanHtml.includes('<') || !cleanHtml.includes('>')) {
+      return res.status(500).json({ error: 'AI did not return valid HTML', raw: result.slice(0, 500) });
+    }
+
+    return res.json({
+      success: true,
+      html: cleanHtml,
+      instruction,
+      editType,
+      message: 'Website refined successfully'
+    });
+  } catch (e) {
+    console.error('Refine error:', e);
+    return res.status(500).json({ error: e.message || 'Refine failed' });
   }
+}
+
+function detectEditType(instruction) {
+  const i = instruction.toLowerCase();
+  if (i.match(/layout|spacing|align|center|padding|margin|grid|flex|position/)) return 'layout';
+  if (i.match(/color|font|size|background|style|theme/)) return 'style';
+  if (i.match(/text|word|content|heading|title|paragraph|write|change.*to/)) return 'content';
+  if (i.match(/add|new|insert|create|section/)) return 'add';
+  if (i.match(/remove|delete|hide/)) return 'remove';
+  return 'general';
 }

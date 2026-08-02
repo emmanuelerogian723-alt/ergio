@@ -107,6 +107,22 @@
   .device-btn.active { background: var(--accent); border-color: var(--accent); color: #000; }
 
   .preview-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+  #linterBadge { display: none; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; }
+  #linterBadge.grade-A { background: rgba(0,255,157,.15); color: #00FF9D; border: 1px solid rgba(0,255,157,.3); }
+  #linterBadge.grade-B { background: rgba(0,217,255,.15); color: #00D9FF; border: 1px solid rgba(0,217,255,.3); }
+  #linterBadge.grade-C { background: rgba(255,200,0,.15); color: #ffc800; border: 1px solid rgba(255,200,0,.3); }
+  #linterBadge.grade-D { background: rgba(255,140,0,.15); color: #ff8c00; border: 1px solid rgba(255,140,0,.3); }
+  #linterBadge.grade-F { background: rgba(255,71,87,.15); color: #ff4757; border: 1px solid rgba(255,71,87,.3); }
+  #linterPanel { position: absolute; bottom: 12px; right: 12px; width: 320px; max-height: 400px; overflow-y: auto; background: rgba(9,9,11,.95); border: 1px solid rgba(0,217,255,.2); border-radius: 12px; padding: 16px; z-index: 50; display: none; font-size: 13px; backdrop-filter: blur(12px); }
+  #linterPanel .linter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  #linterPanel .linter-issue { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.05); display: flex; gap: 8px; align-items: start; }
+  #linterPanel .linter-pass { color: #00FF9D; font-size: 12px; padding: 3px 0; }
+  #linterPanel .severity-error { color: #ff4757; }
+  #linterPanel .severity-warn { color: #ffc800; }
+  #linterPanel .severity-info { color: #00D9FF; }
+  #fixLayoutBtn { background: rgba(0,217,255,.1); border: 1px solid rgba(0,217,255,.25); color: #00D9FF; cursor: pointer; border-radius: 8px; transition: all .2s; }
+  #fixLayoutBtn:hover { background: rgba(0,217,255,.2); }
+  #linterBtn { cursor: pointer; }
   
   .edit-mode-btn {
     padding: 8px 12px; border-radius: 8px; font-size: 12px;
@@ -1172,6 +1188,15 @@
         </button>
         <button class="icon-btn" onclick="refreshPreview()" title="Refresh">🔄</button>
         <button class="icon-btn" onclick="toggleCode()" id="codeToggle" title="View Code">💻</button>
+        <button class="icon-btn" id="linterBtn" onclick="runLinter()" title="Run Design Linter" style="display:none;font-size:14px;">
+          📊
+        </button>
+        <div id="linterBadge" style="display:none;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:700;gap:4px;align-items:center;">
+          <span id="linterGrade"></span> <span id="linterScore"></span>
+        </div>
+        <button class="icon-btn" id="fixLayoutBtn" onclick="fixLayout()" title="Auto-fix layout issues" style="display:none;font-size:13px;padding:6px 10px;">
+          🔧 Fix Layout
+        </button>
         <button class="deploy-btn" id="deployBtn" onclick="openDeployModal()" disabled>
           🚀 Deploy
         </button>
@@ -1198,6 +1223,14 @@
       </div>
       <!-- Actual iframe -->
       <iframe id="previewIframe" style="display:none" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+      <!-- Design Linter Panel -->
+      <div id="linterPanel">
+        <div class="linter-header">
+          <span style="font-weight:700;color:#fff;">📊 Design Linter</span>
+          <button onclick="document.getElementById('linterPanel').style.display='none'" style="background:none;border:none;color:#888;cursor:pointer;font-size:16px;">✕</button>
+        </div>
+        <div id="linterContent"></div>
+      </div>
     </div>
 
     <!-- Code view -->
@@ -1953,12 +1986,17 @@ function handleSSE(event, stepMap, prevStep) {
   
   else if (type === 'website') {
     currentHTML = data.html;
+    currentBuildHtml = data.html;
     updateStep('website', 'done');
     updateStep('seo', 'done');
     // Show partial preview
     showPreview(data.html, buildData?.plan?.businessName || 'Preview');
   }
   
+  else if (type === 'linter') {
+    handleLinterEvent(data);
+  }
+
   else if (type === 'complete') {
     const biz = data.business || {};
     currentHTML = biz.websiteHtml || currentHTML;
@@ -3929,6 +3967,156 @@ window.addEventListener('load', () => {
   
 })();
 
+
+// ===== DESIGN LINTER =====
+let lastLinterResult = null;
+let currentBuildHtml = null;
+
+function handleLinterEvent(data) {
+  lastLinterResult = data;
+  showLinterBadge(data.score, data.grade);
+
+  // Show Fix Layout button if there are issues
+  const hasFixable = data.issues && data.issues.some(i => i.severity === 'error' || i.severity === 'warn');
+  const fixBtn = document.getElementById('fixLayoutBtn');
+  if (hasFixable) {
+    fixBtn.style.display = 'flex';
+    fixBtn.title = data.summary.errors + ' errors, ' + data.summary.warnings + ' warnings — click to auto-fix';
+  }
+}
+
+function showLinterBadge(score, grade) {
+  const badge = document.getElementById('linterBadge');
+  const gradeEl = document.getElementById('linterGrade');
+  const scoreEl = document.getElementById('linterScore');
+  const linterBtn = document.getElementById('linterBtn');
+
+  badge.style.display = 'flex';
+  linterBtn.style.display = 'flex';
+  badge.className = 'grade-' + grade;
+  gradeEl.textContent = grade;
+  scoreEl.textContent = score + '/100';
+}
+
+function runLinter() {
+  const panel = document.getElementById('linterPanel');
+  if (panel.style.display === 'block' && !lastLinterResult) {
+    panel.style.display = 'none';
+    return;
+  }
+
+  if (!lastLinterResult) {
+    // Run linter by fetching from API
+    if (!currentBuildHtml) {
+      const iframe = document.getElementById('previewIframe');
+      if (iframe && iframe.contentDocument) {
+        currentBuildHtml = '<!DOCTYPE html>\n' + iframe.contentDocument.documentElement.outerHTML;
+      }
+    }
+    if (!currentBuildHtml) return;
+
+    fetch('/api/refine', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ instruction: 'run linter only', currentHtml: currentBuildHtml, mode: 'lint' })
+    }).then(r => r.json()).then(data => {
+      if (data.linter) {
+        lastLinterResult = data.linter;
+        showLinterBadge(data.linter.score, data.linter.grade);
+        renderLinterPanel(data.linter);
+      }
+    }).catch(e => console.error('Linter fetch error:', e));
+  } else {
+    renderLinterPanel(lastLinterResult);
+  }
+
+  panel.style.display = 'block';
+}
+
+function renderLinterPanel(result) {
+  const content = document.getElementById('linterContent');
+  let html = '<div style="margin-bottom:12px;color:#888;font-size:12px;">' +
+    result.summary.passed + ' passed · ' + result.summary.errors + ' errors · ' +
+    result.summary.warnings + ' warnings · ' + result.summary.info + ' tips</div>';
+
+  if (result.issues && result.issues.length) {
+    html += '<div style="font-weight:600;color:#fff;margin-bottom:8px;">Issues:</div>';
+    result.issues.forEach(issue => {
+      const icon = issue.severity === 'error' ? '❌' : issue.severity === 'warn' ? '⚠️' : '💡';
+      html += '<div class="linter-issue"><span>' + icon + '</span><span class="severity-' + issue.severity + '">' + issue.message + '</span></div>';
+    });
+  }
+
+  if (result.passes && result.passes.length) {
+    html += '<div style="font-weight:600;color:#fff;margin:10px 0 6px;">Passing:</div>';
+    result.passes.forEach(p => {
+      html += '<div class="linter-pass">✓ ' + p + '</div>';
+    });
+  }
+
+  content.innerHTML = html;
+}
+
+async function fixLayout() {
+  const btn = document.getElementById('fixLayoutBtn');
+  btn.textContent = '⏳ Fixing...';
+  btn.disabled = true;
+
+  try {
+    const iframe = document.getElementById('previewIframe');
+    let html = currentBuildHtml;
+    if (!html && iframe && iframe.contentDocument) {
+      html = '<!DOCTYPE html>\n' + iframe.contentDocument.documentElement.outerHTML;
+    }
+    if (!html) { btn.textContent = '🔧 Fix Layout'; btn.disabled = false; return; }
+
+    const resp = await fetch('/api/refine', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        instruction: 'Fix all layout issues: ensure proper spacing, alignment, responsive design, and visual consistency. Add any missing meta tags, alt text, and semantic HTML.',
+        currentHtml: html,
+        businessName: (window.buildData && window.buildData.plan && window.buildData.plan.businessName) || 'Business',
+        mode: 'fix-layout'
+      })
+    });
+
+    const data = await resp.json();
+
+    if (data.success && data.html) {
+      currentBuildHtml = data.html;
+      if (iframe && iframe.contentDocument) {
+        iframe.contentDocument.open();
+        iframe.contentDocument.write(data.html);
+        iframe.contentDocument.close();
+      }
+
+      // Re-run linter on fixed HTML
+      const lintResp = await fetch('/api/refine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ instruction: 'run linter only', currentHtml: data.html, mode: 'lint' })
+      });
+      const lintData = await lintResp.json();
+      if (lintData.linter) {
+        lastLinterResult = lintData.linter;
+        showLinterBadge(lintData.linter.score, lintData.linter.grade);
+        renderLinterPanel(lintData.linter);
+      }
+
+      btn.textContent = '✅ Fixed';
+      setTimeout(() => { btn.textContent = '🔧 Fix Layout'; btn.disabled = false; }, 2000);
+    } else {
+      btn.textContent = '❌ Failed';
+      setTimeout(() => { btn.textContent = '🔧 Fix Layout'; btn.disabled = false; }, 2000);
+    }
+  } catch(e) {
+    console.error('Fix layout error:', e);
+    btn.textContent = '❌ Error';
+    setTimeout(() => { btn.textContent = '🔧 Fix Layout'; btn.disabled = false; }, 2000);
+  }
+}
+// ===== END DESIGN LINTER =====
 </script>
 </body>
 </html>

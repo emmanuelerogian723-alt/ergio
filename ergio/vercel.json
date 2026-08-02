@@ -3,6 +3,33 @@
     "api/[[...route]].js": {
       "maxDuration": 120
     },
+    "api/refine.js": {
+      "maxDuration": 60
+    },
+    "api/generate.js": {
+      "maxDuration": 120
+    },
+    "api/critique.js": {
+      "maxDuration": 60
+    },
+    "api/advisor.js": {
+      "maxDuration": 60
+    },
+    "api/transform.js": {
+      "maxDuration": 120
+    },
+    "api/ai-assistant.js": {
+      "maxDuration": 60
+    },
+    "api/smart-pricing.js": {
+      "maxDuration": 60
+    },
+    "api/social.js": {
+      "maxDuration": 60
+    },
+    "api/outreach.js": {
+      "maxDuration": 60
+    },
     "api/setup.js": {
       "maxDuration": 30
     }
