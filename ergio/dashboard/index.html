@@ -1457,7 +1457,37 @@ async function loadMyWebsites() {
   // Load from both localStorage AND the API
   var websites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
   
-  // Also fetch from ERGIO Engines API
+  // Also fetch from Vercel /api/websites (Supabase-backed) AND ERGIO Engines API
+  // 1. Fetch from Vercel API (primary — always available)
+  try {
+    var vercelSites = await Promise.race([
+      fetch('/api/websites').then(function(r) { return r.json(); }),
+      new Promise(function(_, reject) { setTimeout(reject, 5000); })
+    ]);
+    if (vercelSites && vercelSites.websites && vercelSites.websites.length > 0) {
+      var existingIds = websites.map(function(w) { return w.slug || w.id; });
+      vercelSites.websites.forEach(function(s) {
+        if (existingIds.indexOf(s.slug) === -1) {
+          websites.push({
+            id: s.id,
+            name: s.business_name,
+            type: s.business_type,
+            slug: s.slug,
+            category: s.website_category,
+            deployed: s.website_type === 'deployed',
+            deployUrl: 'https://ergio.vercel.app/site/' + s.slug,
+            createdAt: s.created_date,
+            fromAPI: true,
+            source: 'vercel'
+          });
+        }
+      });
+    }
+  } catch(e) {
+    console.log('[Websites] Vercel API fetch failed:', e.message);
+  }
+
+  // 2. Also fetch from ERGIO Engines API (if Render backend is deployed)
   if (typeof ENGINES !== 'undefined' && ENGINES && ENGINES.listWebsites) {
     try {
       var apiSites = await Promise.race([
@@ -1465,7 +1495,6 @@ async function loadMyWebsites() {
         new Promise(function(_, reject) { setTimeout(reject, 5000); })
       ]);
       if (apiSites && apiSites.websites && apiSites.websites.length > 0) {
-        // Merge: add API websites that aren't already in localStorage
         var existingIds = websites.map(function(w) { return w.slug || w.id; });
         apiSites.websites.forEach(function(s) {
           if (existingIds.indexOf(s.slug) === -1) {
@@ -1477,13 +1506,14 @@ async function loadMyWebsites() {
               deployed: s.website_type === 'deployed',
               deployUrl: 'https://ergio.vercel.app/site/' + s.slug,
               createdAt: s.created_date,
-              fromAPI: true
+              fromAPI: true,
+              source: 'render'
             });
           }
         });
       }
     } catch(e) {
-      console.log('[Websites] API fetch failed, using local only:', e.message);
+      console.log('[Websites] Render API fetch skipped:', e.message);
     }
   }
   

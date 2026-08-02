@@ -32,13 +32,14 @@ import logo from '../ergio/api/logo.js';
 import critique from '../ergio/api/critique.js';
 import paystack from '../ergio/api/paystack.js';
 import site from '../ergio/api/site.js';
+import websites from '../ergio/api/websites.js';
 
 const handlers = {
   auth, engines, business, bookings, payments, generate,
   leads, outreach, reviews, referrals, seo, analytics,
   notifications, card, expenses, invoices,
   'smart-pricing': smartPricing, social, upload, whatsapp, refine,
-  transform, agents, mcp, advisor, logo, critique, paystack, site
+  transform, agents, mcp, advisor, logo, critique, paystack, site, websites
 };
 
 export default async function handler(req, res) {
