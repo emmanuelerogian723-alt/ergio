@@ -10,6 +10,8 @@ import { assemblePremiumWebsite, assemblePremiumWebsiteV4, selectLayout, LAYOUT_
 import { callGroq, callGroqFast, success, error, corsHeaders, generateSlug, generateLogoUrl, getSupabase } from '../lib/ergio.js';
 import { searchImages, planImages, fetchWebsiteImages, generateAIImage, getFallbackImage } from '../lib/images.js';
 import { DESIGN_STYLES as _BASE_STYLES, EXTRA_DESIGN_STYLES, autoDetectStyle } from '../lib/design-system.js';
+import { getSectionPreset, assembleFromSections, SECTIONS, SECTION_PRESETS } from '../lib/section-library.js';
+import { lintWebsite, autoFixHtml } from '../lib/design-linter.js';
 
 // Merge all design styles into one lookup
 const DESIGN_STYLES = { ..._BASE_STYLES, ...EXTRA_DESIGN_STYLES };
@@ -501,6 +503,27 @@ Return ONLY JSON:
     const deployUrl = `https://ergio.vercel.app/site/${slug}`;
     const previewUrl = `https://ergio.vercel.app/preview.html?site=${slug}`;
     
+    // ============ DESIGN LINTER SCORE ============
+    try {
+      const linterResult = lintWebsite(websiteHtml, { name: plan.businessName, ...planForHTML });
+      send('linter', {
+        score: linterResult.score,
+        grade: linterResult.grade,
+        issues: linterResult.issues,
+        passes: linterResult.passes,
+        summary: linterResult.summary
+      });
+
+      // Auto-fix critical issues
+      const fixedHtml = autoFixHtml(websiteHtml, { name: plan.businessName, colors, ...planForHTML });
+      if (fixedHtml !== websiteHtml) {
+        websiteHtml = fixedHtml;
+        send('status', { task: '✅ Design Linter auto-fixed ' + linterResult.issues.filter(i => i.severity === "error").length + ' critical issues', step: 8, total: 8 });
+      }
+    } catch(lintErr) {
+      console.error('Linter error:', lintErr.message);
+    }
+
     send('complete', {
       business: {
         name: plan.businessName,
