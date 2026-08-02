@@ -1,5 +1,5 @@
 // ========================================
-import { assemblePremiumWebsite, selectLayout, LAYOUT_ARCHETYPES } from '../lib/premium-engine.js';
+import { assemblePremiumWebsite, assemblePremiumWebsiteV4, selectLayout, LAYOUT_ARCHETYPES, generateMultiPageSite, generateSitemapMultiPage, generateRobotsTxt } from '../lib/premium-engine.js';
 // ERGIO API — /api/generate (v5.0 AGENTIC)
 // The AI Conductor: plans → searches images → generates website
 // With REAL photos from Pixabay + Unsplash
@@ -359,7 +359,28 @@ Return ONLY JSON:
     send('status', { task: '🏗️ Building with motion graphics...', step: 5, total: 8 });
 
     // ============ STEP 5: GENERATE WEBSITE HTML WITH REAL IMAGES ============
-    const colors = plan.brandColors || { primary: '#00D9FF', secondary: '#09090B', accent: '#00FF9D', bg: '#09090B' };
+    // Merge design-system palette with AI brandColors for all CSS variables.
+    // When the AI's bg color conflicts with the design palette (e.g. light bg vs dark design),
+    // derive surface/text/muted from the AI's bg so the site looks visually consistent.
+    const _dp = plan._design?.palette || {};
+    const _aiBg = plan.brandColors?.bg || _dp.bg || '#09090B';
+    const _isLightBg = _aiBg === '#fff' || _aiBg === '#ffffff' || 
+      (_aiBg.startsWith('#') && parseInt(_aiBg.slice(1, 3), 16) > 200 &&
+       parseInt(_aiBg.slice(3, 5), 16) > 200 && parseInt(_aiBg.slice(5, 7), 16) > 200);
+    // Use design palette colors only if the bg tones match; otherwise derive from AI's bg
+    const _bgMatchesDesign = _isLightBg === (_dp.bg === '#fff' || _dp.bg === '#ffffff' ||
+      (_dp.bg?.startsWith('#') && parseInt(_dp.bg.slice(1, 3), 16) > 200));
+    const colors = {
+      primary: plan.brandColors?.primary || _dp.primary || '#00D9FF',
+      secondary: plan.brandColors?.secondary || _dp.secondary || _dp.surface || '#09090B',
+      accent: plan.brandColors?.accent || _dp.accent || '#00FF9D',
+      bg: _aiBg,
+      surface: _bgMatchesDesign ? (_dp.surface || '#111827') : (_isLightBg ? '#f8f9fa' : '#111827'),
+      border: _bgMatchesDesign ? (_dp.border || 'rgba(255,255,255,0.1)') : (_isLightBg ? '#e5e7eb' : 'rgba(255,255,255,0.08)'),
+      text: _bgMatchesDesign ? (_dp.text || '#f0f4ff') : (_isLightBg ? '#111827' : '#f0f4ff'),
+      muted: _bgMatchesDesign ? (_dp.muted || '#8892a4') : (_isLightBg ? '#6b7280' : '#8892a4'),
+      cta: plan.brandColors?.primary || _dp.cta || _dp.primary || '#00D9FF',
+    };
 
     const is3D = plan.websiteType === '3d' || 
       /3d|interactive|animated|immersive|motion|3dimentional/i.test(prompt + JSON.stringify(answers || {}));
@@ -384,10 +405,27 @@ Return ONLY JSON:
       const usePremium = !is3D && !isClay; // Premium handles most styles; 3D and clay keep dedicated generators
       if (usePremium) {
         try {
-          websiteHtml = assemblePremiumWebsite(planForHTML, contentForHTML, colors, logoUrl, images, layoutKey);
-          send('status', { task: `✨ Layout: ${LAYOUT_ARCHETYPES[layoutKey]?.name || layoutKey} — premium engine v3`, step: 5, total: 8 });
+          // Premium Engine v4.0 — all 15 features
+          const v4Options = {
+            megaMenu: true,
+            lottie: true,
+            beforeAfter: planForHTML.websiteCategory === 'realestate' || planForHTML.websiteCategory === 'fitness' || planForHTML.websiteCategory === 'clinic',
+            virtualTour: planForHTML.websiteCategory === 'realestate' || planForHTML.websiteCategory === 'restaurant',
+            interactiveMap: true,
+            bookingForm: ['restaurant','clinic','fitness','salon','agency','events'].includes(planForHTML.websiteCategory),
+            minifyCSS: true,
+            heroVideo: contentForHTML.hero?.videoUrl || '',
+            gltfModel: planForHTML.websiteType === '3d' ? 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF/Duck.gltf' : '',
+          };
+          websiteHtml = assemblePremiumWebsiteV4(planForHTML, contentForHTML, colors, logoUrl, images, layoutKey, v4Options);
+          send('status', { task: `✨ Layout: ${LAYOUT_ARCHETYPES[layoutKey]?.name || layoutKey} — premium engine v4 with ${Object.values(v4Options).filter(Boolean).length} features`, step: 5, total: 8 });
         } catch(premiumErr) {
-          console.error('Premium engine error, falling back:', premiumErr.message);
+          console.error('Premium engine v4 error, falling back to v3:', premiumErr.message);
+          try {
+            websiteHtml = assemblePremiumWebsite(planForHTML, contentForHTML, colors, logoUrl, images, layoutKey);
+          } catch(e) {
+            console.error('V3 fallback also failed:', e.message);
+          }
         }
       }
       if (!websiteHtml) {

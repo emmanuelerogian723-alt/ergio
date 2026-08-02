@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Sora:wght@400;600;700;800&family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>*{margin:0;padding:0;box-sizing:border-box}:root{--primary:#333333;--secondary:#6E707A;--accent:#F7A275;--bg:#FAFAFA;--surface:undefined;--border:undefined;--text:undefined;--muted:undefined;--cta:#333333}html{scroll-behavior:smooth}body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}a{color:inherit;text-decoration:none}img{max-width:100%;height:auto}@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}@keyframes scaleIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}@keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}.reveal{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}.reveal.active{opacity:1;transform:translateY(0)}.reveal-left{opacity:0;transform:translateX(-50px);transition:all .8s cubic-bezier(.16,1,.3,1)}.reveal-left.active{opacity:1;transform:translateX(0)}.reveal-right{opacity:0;transform:translateX(50px);transition:all .8s cubic-bezier(.16,1,.3,1)}.reveal-right.active{opacity:1;transform:translateX(0)}.stagger>*{opacity:0;transform:translateY(30px);transition:all .6s cubic-bezier(.16,1,.3,1)}.stagger.active>*:nth-child(1){opacity:1;transform:none;transition-delay:.1s}.stagger.active>*:nth-child(2){opacity:1;transform:none;transition-delay:.2s}.stagger.active>*:nth-child(3){opacity:1;transform:none;transition-delay:.3s}.stagger.active>*:nth-child(4){opacity:1;transform:none;transition-delay:.4s}.stagger.active>*:nth-child(5){opacity:1;transform:none;transition-delay:.5s}.stagger.active>*:nth-child(6){opacity:1;transform:none;transition-delay:.6s}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}@media(max-width:1024px){.hero-grid{grid-template-columns:1fr!important}.about-grid{grid-template-columns:1fr!important;gap:2rem!important}.hero-visual{display:none}}@media(max-width:768px){section{padding:3rem 5%!important}.nav-links{display:none!important}h1{font-size:clamp(2rem,8vw,3rem)!important}h2{font-size:clamp(1.5rem,6vw,2.5rem)!important}}@media(max-width:480px){section{padding:2.5rem 5%!important}body{font-size:0.95rem}}@media (prefers-reduced-motion:no-preference){::view-transition-old(root),::view-transition-new(root){animation-duration:.4s}::view-transition-old(root){animation-name:fade-out}::view-transition-new(root){animation-name:fade-in}@keyframes fade-out{to{opacity:0;transform:translateY(-20px)}}@keyframes fade-in{from{opacity:0;transform:translateY(20px)}}.page-enter{animation:pageEnter .5s cubic-bezier(.16,1,.3,1) forwards}@keyframes pageEnter{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes scaleIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}}</style>
+  <title>Lagos Bistro | Savoring Taste, Elevating Culture</title>
+    <meta name="title" content="Lagos Bistro | Savoring Taste, Elevating Culture">
+    <meta name="description" content="Lagos Bistro serves authentic Nigerian and continental cuisine with lunch specials, fine dining dinners, and event catering services. Our mission is to provide exceptional dining experiences that showcase the rich flavors of Africa. We take pride in our commitment to quality, hospitality, and community.">
+    <meta name="keywords" content="Lagos Bistro, restaurant, Victoria Island, Lagos, Nigeria, Lunch Specials, Fine Dining Dinner, Event Catering">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Lagos Bistro">
+    <link rel="canonical" href="https://lagos-bistro.ergio.app/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Lagos Bistro">
+    <meta property="og:description" content="Lagos Bistro serves authentic Nigerian and continental cuisine with lunch specials, fine dining dinners, and event catering services. Our mission is to provide exceptional dining experiences that showcase the rich flavors of Africa. We take pride in our commitment to quality, hospitality, and community.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1567386541432-d28c0728598f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDAwMjk5fDB8MXxzZWFyY2h8MXx8QWZyaWNhbiUyMHJlc3RhdXJhbnQlMjBpbnRlcmlvcnxlbnwxfDB8fHwxNzg1NTg5NzExfDA&ixlib=rb-4.1.0&q=80&w=1080">
+    <meta property="og:locale" content="en_NG">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Lagos Bistro">
+    <meta name="twitter:description" content="Lagos Bistro serves authentic Nigerian and continental cuisine with lunch specials, fine dining dinners, and event catering services. Our mission is to provide exceptional dining experiences that showcase the rich flavors of Africa. We take pride in our commitment to quality, hospitality, and community.">
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1567386541432-d28c0728598f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDAwMjk5fDB8MXxzZWFyY2h8MXx8QWZyaWNhbiUyMHJlc3RhdXJhbnQlMjBpbnRlcmlvcnxlbnwxfDB8fHwxNzg1NTg5NzExfDA&ixlib=rb-4.1.0&q=80&w=1080">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"LocalBusiness","name":"Lagos Bistro","description":"Lagos Bistro serves authentic Nigerian and continental cuisine with lunch specials, fine dining dinners, and event catering services. Our mission is to provide exceptional dining experiences that showcase the rich flavors of Africa. We take pride in our commitment to quality, hospitality, and community.","address":{"@type":"PostalAddress","addressLocality":"Victoria Island, Lagos","addressCountry":"NG"},"areaServed":"Nigeria","url":"https://lagos-bistro.ergio.app/"}</script>
+</head>
+<body>
+  <a href="#main" style="position:absolute;left:-9999px" onfocus="this.style.cssText='position:fixed;left:10px;top:10px;padding:1rem;background:#000;color:#fff;z-index:9999'">Skip to main content</a>
+  <nav class="nav mega-nav" id="nav" style="display:flex;justify-content:space-between;align-items:center;padding:1.2rem 5%;position:sticky;top:0;background:rgba(0,0,0,.3);backdrop-filter:blur(20px);z-index:1000;border-bottom:1px solid undefined">
+    <a href="#" class="nav-brand" style="font-weight:800;font-size:1.2rem;color:#333333">Lagos Bistro</a>
+    <div class="mega-menu" style="display:flex;gap:2rem;align-items:center">
+      <div class="mega-item" style="position:relative" onmouseover="this.querySelector('.mega-dropdown').style.display='grid'" onmouseout="this.querySelector('.mega-dropdown').style.display='none'">
+        <a href="#" style="color:undefined;font-weight:600;font-size:0.9rem;text-decoration:none;cursor:pointer">Services ▾</a>
+        <div class="mega-dropdown" style="display:none;position:absolute;top:100%;left:-20px;min-width:280px;grid-template-columns:1fr 1fr;gap:0.5rem;padding:1.5rem;background:undefined;border:1px solid undefined;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.3);z-index:100">
+          <a href="#features" style="padding:0.5rem 0.8rem;border-radius:8px;color:undefined;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#33333322';this.style.color='#333333'" onmouseout="this.style.background='';this.style.color='undefined'">→ Lunch Specials</a><a href="#features" style="padding:0.5rem 0.8rem;border-radius:8px;color:undefined;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#33333322';this.style.color='#333333'" onmouseout="this.style.background='';this.style.color='undefined'">→ Fine Dining Dinner</a><a href="#features" style="padding:0.5rem 0.8rem;border-radius:8px;color:undefined;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#33333322';this.style.color='#333333'" onmouseout="this.style.background='';this.style.color='undefined'">→ Event Catering</a>
+        </div>
+      </div><div class="mega-item" style="position:relative" onmouseover="this.querySelector('.mega-dropdown').style.display='grid'" onmouseout="this.querySelector('.mega-dropdown').style.display='none'">
+        <a href="#" style="color:undefined;font-weight:600;font-size:0.9rem;text-decoration:none;cursor:pointer">Company ▾</a>
+        <div class="mega-dropdown" style="display:none;position:absolute;top:100%;left:-20px;min-width:280px;grid-template-columns:1fr 1fr;gap:0.5rem;padding:1.5rem;background:undefined;border:1px solid undefined;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.3);z-index:100">
+          <a href="#about" style="padding:0.5rem 0.8rem;border-radius:8px;color:undefined;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#33333322';this.style.color='#333333'" onmouseout="this.style.background='';this.style.color='undefined'">→ About Us</a><a href="#team" style="padding:0.5rem 0.8rem;border-radius:8px;color:undefined;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#33333322';this.style.color='#333333'" onmouseout="this.style.background='';this.style.color='undefined'">→ Our Team</a><a href="#careers" style="padding:0.5rem 0.8rem;border-radius:8px;color:undefined;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#33333322';this.style.color='#333333'" onmouseout="this.style.background='';this.style.color='undefined'">→ Careers</a><a href="#blog" style="padding:0.5rem 0.8rem;border-radius:8px;color:undefined;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#33333322';this.style.color='#333333'" onmouseout="this.style.background='';this.style.color='undefined'">→ Blog</a>
+        </div>
+      </div><div class="mega-item" style="position:relative" onmouseover="this.querySelector('.mega-dropdown').style.display='grid'" onmouseout="this.querySelector('.mega-dropdown').style.display='none'">
+        <a href="#" style="color:undefined;font-weight:600;font-size:0.9rem;text-decoration:none;cursor:pointer">Resources ▾</a>
+        <div class="mega-dropdown" style="display:none;position:absolute;top:100%;left:-20px;min-width:280px;grid-template-columns:1fr 1fr;gap:0.5rem;padding:1.5rem;background:undefined;border:1px solid undefined;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.3);z-index:100">
+          <a href="#faq" style="padding:0.5rem 0.8rem;border-radius:8px;color:undefined;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#33333322';this.style.color='#333333'" onmouseout="this.style.background='';this.style.color='undefined'">→ FAQ</a><a href="#gallery" style="padding:0.5rem 0.8rem;border-radius:8px;color:undefined;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#33333322';this.style.color='#333333'" onmouseout="this.style.background='';this.style.color='undefined'">→ Gallery</a><a href="#testimonials" style="padding:0.5rem 0.8rem;border-radius:8px;color:undefined;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#33333322';this.style.color='#333333'" onmouseout="this.style.background='';this.style.color='undefined'">→ Testimonials</a><a href="#pricing" style="padding:0.5rem 0.8rem;border-radius:8px;color:undefined;font-size:0.85rem;transition:all .2s;display:flex;align-items:center;gap:0.5rem" onmouseover="this.style.background='#33333322';this.style.color='#333333'" onmouseout="this.style.background='';this.style.color='undefined'">→ Pricing</a>
+        </div>
+      </div>
+      <a href="#contact" style="background:#333333;color:#FAFAFA;padding:0.6rem 1.5rem;border-radius:100px;font-weight:700;font-size:0.9rem">Reserve a Table</a>
+    </div>
+    <button class="nav-toggle" style="display:none;background:none;border:none;color:undefined;font-size:1.5rem;cursor:pointer" onclick="document.querySelector('.mega-menu').style.display=document.querySelector('.mega-menu').style.display==='flex'?'none':'flex'">☰</button>
+  </nav>
+  <style>
+    @media(max-width:1024px){.mega-menu{display:none!important}.nav-toggle{display:block!important}}
+    .mega-dropdown{animation:fadeIn .2s ease}
+  </style>
+  <main id="main">
+    <section class="hero" style="height:100vh;display:flex;align-items:center;background:#FAFAFA;position:relative;overflow:hidden;position:sticky;top:0">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,#33333311,transparent 70%);z-index:0"></div>
+    <div style="position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:0 5%;width:100%">
+      <h1 style="font-size:clamp(3rem,12vw,8rem);font-weight:900;letter-spacing:-0.05em;line-height:0.9;margin-bottom:1.5rem;opacity:0;animation:fadeUp 1s .3s forwards">Lagos Bistro</h1>
+      <p style="font-size:clamp(1.2rem,4vw,2rem);color:undefined;max-width:700px;opacity:0;animation:fadeUp 1s .5s forwards">Savoring Taste, Elevating Culture</p>
+    </div>
+  </section><section id="about" style="padding:6rem 5%;background:undefined" class="reveal">
+    <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center" class="about-grid">
+      <div class="reveal-left">
+        <div style="font-size:0.8rem;letter-spacing:0.15em;text-transform:uppercase;color:#333333;font-weight:700;margin-bottom:1rem">About Us</div>
+        <h2 style="font-size:clamp(2rem,5vw,3.5rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:1.5rem;line-height:1.1">Lagos Bistro</h2>
+        <p style="color:undefined;font-size:1.1rem;line-height:1.8;margin-bottom:2rem">Lagos Bistro is Victoria Island, Lagos's premier restaurant, built on a foundation of excellence and deep roots in the Nigerian community. We combine world-class standards with an authentic local touch — ensuring every client receives an experience that truly stands out.
+
+Lagos Bistro serves authentic Nigerian and continental cuisine with lunch specials, fine dining dinners, and event catering services. Our mission is to provide exceptional dining experiences that showcase the rich flavors of Africa. We take pride in our commitment to quality, hospitality, and community.</p>
+        <div style="display:flex;gap:2rem;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600"><span style="color:#333333;font-size:1.2rem">✓</span> Authentic Flavors</div><div style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600"><span style="color:#333333;font-size:1.2rem">✓</span> Farm-Fresh Ingredients</div><div style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;font-weight:600"><span style="color:#333333;font-size:1.2rem">✓</span> Expert Chefs</div>
+        </div>
+      </div>
+      <div class="reveal-right" style="position:relative">
+        <div style="aspect-ratio:4/3;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.2)">
+          <div style="width:100%;height:100%;background:linear-gradient(135deg,#33333333,#F7A27522);display:flex;align-items:center;justify-content:center;font-size:4rem">✨</div>
+        </div>
+      </div>
+    </div>
+  </section><section id="animations" style="padding:5rem 5%;background:undefined" class="reveal">
+    <div style="max-width:1200px;margin:0 auto;text-align:center">
+      <h2 style="font-size:clamp(2rem,5vw,3.5rem);font-weight:800;margin-bottom:1rem">Why We Stand Out</h2>
+      <p style="color:undefined;margin-bottom:3rem;font-size:1.1rem">Experience our difference through motion</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:2rem">
+        <div style="background:#FAFAFA;border:1px solid undefined;border-radius:20px;padding:2rem;transition:transform .3s" onmouseover="this.style.transform='translateY(-8px)'" onmouseout="this.style.transform=''">
+          <div id="lottie-0" style="width:120px;height:120px;margin:0 auto 1rem"></div>
+          <h3 style="font-weight:700;font-size:1.1rem;margin-bottom:0.5rem">Growth</h3>
+          <p style="color:undefined;font-size:0.9rem">Delivering excellence every step of the way</p>
+        </div><div style="background:#FAFAFA;border:1px solid undefined;border-radius:20px;padding:2rem;transition:transform .3s" onmouseover="this.style.transform='translateY(-8px)'" onmouseout="this.style.transform=''">
+          <div id="lottie-1" style="width:120px;height:120px;margin:0 auto 1rem"></div>
+          <h3 style="font-weight:700;font-size:1.1rem;margin-bottom:0.5rem">Innovation</h3>
+          <p style="color:undefined;font-size:0.9rem">Delivering excellence every step of the way</p>
+        </div><div style="background:#FAFAFA;border:1px solid undefined;border-radius:20px;padding:2rem;transition:transform .3s" onmouseover="this.style.transform='translateY(-8px)'" onmouseout="this.style.transform=''">
+          <div id="lottie-2" style="width:120px;height:120px;margin:0 auto 1rem"></div>
+          <h3 style="font-weight:700;font-size:1.1rem;margin-bottom:0.5rem">Quality</h3>
+          <p style="color:undefined;font-size:0.9rem">Delivering excellence every step of the way</p>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <script>
+      (function(){
+        const anims=['https://assets2.lottiefiles.com/packages/lf20_obhph3sh.json','https://assets10.lottiefiles.com/packages/lf20_4kx2q32n.json','https://assets1.lottiefiles.com/packages/lf20_5tkzkblw.json'];
+        anims.forEach((url,i)=>{
+          if(!window.lottie)return;
+          try{lottie.loadAnimation({container:document.getElementById('lottie-'+i),renderer:'svg',loop:true,autoplay:true,path:url});}catch(e){}
+        });
+        // SVG path animations
+        document.querySelectorAll('[data-svg-anim]').forEach(path=>{
+          const len=path.getTotalLength();path.style.strokeDasharray=len;path.style.strokeDashoffset=len;
+          const obs=new IntersectionObserver((e)=>{if(e[0].isIntersecting){path.style.transition='stroke-dashoffset 2s ease';path.style.strokeDashoffset=0;obs.disconnect();}},{threshold:0.3});obs.observe(path);
+        });
+      })();
+    </script>
+    <svg style="position:absolute;width:0;height:0;overflow:hidden">
+      <defs><path id="curve-LagosBistro" d="M 50,150 Q 150,50 250,150" fill="none"/></defs>
+    </svg>
+  </section><section style="padding:4rem 5%;background:#333333;color:#FAFAFA" class="reveal">
+    <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem;text-align:center">
+      <div>
+        <div style="font-size:clamp(2.5rem,5vw,4rem);font-weight:900;letter-spacing:-0.03em" class="counter" data-target="500">500+</div>
+        <div style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.8;margin-top:0.5rem;font-weight:600">Happy Clients</div>
+      </div><div>
+        <div style="font-size:clamp(2.5rem,5vw,4rem);font-weight:900;letter-spacing:-0.03em" class="counter" data-target="1200">1200+</div>
+        <div style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.8;margin-top:0.5rem;font-weight:600">Projects</div>
+      </div><div>
+        <div style="font-size:clamp(2.5rem,5vw,4rem);font-weight:900;letter-spacing:-0.03em" class="counter" data-target="10">10+</div>
+        <div style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.8;margin-top:0.5rem;font-weight:600">Years</div>
+      </div><div>
+        <div style="font-size:clamp(2.5rem,5vw,4rem);font-weight:900;letter-spacing:-0.03em" class="counter" data-target="100%">100%</div>
+        <div style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.8;margin-top:0.5rem;font-weight:600">Satisfaction</div>
+      </div>
+    </div>
+  </section><section id="testimonials" style="padding:6rem 5%;background:undefined" class="reveal">
+    <div style="max-width:900px;margin:0 auto;text-align:center">
+      <div style="font-size:5rem;line-height:0.5;color:#333333;opacity:0.3;font-family:serif;margin-bottom:1rem">"</div>
+      <blockquote style="font-size:clamp(1.3rem,3vw,2rem);line-height:1.5;font-weight:500;margin-bottom:2rem;font-style:italic">Lagos Bistro is absolutely outstanding! The quality and service exceeded all my expectations.</blockquote>
+      <div style="display:flex;align-items:center;justify-content:center;gap:1rem">
+        <div style="width:50px;height:50px;border-radius:50%;background:#33333333;display:flex;align-items:center;justify-content:center;font-weight:700;color:#333333">C</div>
+        <div style="text-align:left"><div style="font-weight:700">Happy Client</div><div style="font-size:0.85rem;color:undefined">Verified Customer</div></div>
+      </div>
+    </div>
+  </section><section id="virtual-tour" style="padding:5rem 5%;background:undefined" class="reveal">
+    <div style="max-width:1000px;margin:0 auto;text-align:center">
+      <h2 style="font-size:clamp(2rem,5vw,3rem);font-weight:800;margin-bottom:1rem">Virtual Tour</h2>
+      <p style="color:undefined;margin-bottom:3rem">Drag to look around — experience it in 360°</p>
+      <div id="pano-container" style="width:100%;height:400px;border-radius:16px;overflow:hidden;cursor:grab;background:#FAFAFA;position:relative;touch-action:none">
+        <div id="pano-inner" style="width:200%;height:100%;display:flex">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/e/e6/Panorama_van_der_Graaf_Generator.jpg" alt="360 panorama" style="width:100%;height:100%;object-fit:cover;pointer-events:none" draggable="false" loading="lazy">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/e/e6/Panorama_van_der_Graaf_Generator.jpg" alt="360 panorama repeat" style="width:100%;height:100%;object-fit:cover;pointer-events:none" draggable="false" loading="lazy">
+        </div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:2rem;pointer-events:none;opacity:0.8">↺</div>
+      </div>
+    </div>
+    <script>
+      (function(){
+        const container=document.getElementById('pano-container');if(!container)return;
+        const inner=document.getElementById('pano-inner');
+        let isDragging=false,startX=0,scrollPos=0;
+        function onStart(x){isDragging=true;startX=x;container.style.cursor='grabbing';}
+        function onMove(x){if(!isDragging)return;const delta=x-startX;startX=x;scrollPos-=delta;const maxW=container.offsetWidth;if(scrollPos<=-maxW)scrollPos=0;if(scrollPos>=0)scrollPos=-maxW;inner.style.transform='translateX('+scrollPos+'px)';}
+        function onEnd(){isDragging=false;container.style.cursor='grab';}
+        container.addEventListener('mousedown',e=>onStart(e.clientX));
+        container.addEventListener('touchstart',e=>onStart(e.touches[0].clientX),{passive:true});
+        document.addEventListener('mousemove',e=>onMove(e.clientX));
+        document.addEventListener('touchmove',e=>onMove(e.touches[0].clientX),{passive:true});
+        document.addEventListener('mouseup',onEnd);
+        document.addEventListener('touchend',onEnd);
+        // Auto-rotate
+        let autoScroll=setInterval(()=>{if(!isDragging){scrollPos-=1;if(scrollPos<=-container.offsetWidth)scrollPos=0;inner.style.transform='translateX('+scrollPos+'px)';}},30);
+      })();
+    </script>
+  </section><section id="faq" style="padding:5rem 5%;background:undefined" class="reveal">
+    <div style="max-width:800px;margin:0 auto">
+      <h2 style="font-size:clamp(2rem,5vw,3rem);font-weight:800;margin-bottom:3rem;text-align:center">Frequently Asked Questions</h2>
+      <details style="border:1px solid undefined;border-radius:12px;margin-bottom:0.8rem;overflow:hidden" open>
+        <summary style="padding:1.5rem;font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;background:#FAFAFA">How do I get started with Lagos Bistro?<span style="color:#333333;font-size:1.5rem">+</span></summary>
+        <div style="padding:0 1.5rem 1.5rem;color:undefined;line-height:1.7">Simply call us, WhatsApp us, or book online at our website. Our team responds within minutes.</div>
+      </details><details style="border:1px solid undefined;border-radius:12px;margin-bottom:0.8rem;overflow:hidden" >
+        <summary style="padding:1.5rem;font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;background:#FAFAFA">What are your operating hours?<span style="color:#333333;font-size:1.5rem">+</span></summary>
+        <div style="padding:0 1.5rem 1.5rem;color:undefined;line-height:1.7">We are open Monday to Saturday, 8:00 AM – 8:00 PM, and Sundays 10:00 AM – 4:00 PM.</div>
+      </details><details style="border:1px solid undefined;border-radius:12px;margin-bottom:0.8rem;overflow:hidden" >
+        <summary style="padding:1.5rem;font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;background:#FAFAFA">Where are you located in Victoria Island, Lagos?<span style="color:#333333;font-size:1.5rem">+</span></summary>
+        <div style="padding:0 1.5rem 1.5rem;color:undefined;line-height:1.7">We are centrally located in Victoria Island, Lagos, Nigeria. Contact us for the exact address or directions.</div>
+      </details><details style="border:1px solid undefined;border-radius:12px;margin-bottom:0.8rem;overflow:hidden" >
+        <summary style="padding:1.5rem;font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;background:#FAFAFA">Do you offer payment plans?<span style="color:#333333;font-size:1.5rem">+</span></summary>
+        <div style="padding:0 1.5rem 1.5rem;color:undefined;line-height:1.7">Yes! We accept bank transfers, Paystack card payments, USSD, and cash. Flexible installments available.</div>
+      </details>
+    </div>
+  </section><section id="book" style="padding:5rem 5%;background:undefined" class="reveal">
+    <div style="max-width:600px;margin:0 auto">
+      <h2 style="font-size:clamp(2rem,5vw,3rem);font-weight:800;margin-bottom:1rem;text-align:center">Book an Appointment</h2>
+      <p style="color:undefined;text-align:center;margin-bottom:2.5rem">Complete the steps below to schedule</p>
+      <div id="bookingForm" style="background:#FAFAFA;border:1px solid undefined;border-radius:20px;padding:2rem">
+        <div class="booking-steps" style="display:flex;justify-content:space-between;margin-bottom:2rem;position:relative">
+          <div style="position:absolute;top:50%;left:10%;right:10%;height:2px;background:undefined;z-index:0"></div>
+          <div class="step-indicator" data-step="1" style="position:relative;z-index:1;width:36px;height:36px;border-radius:50%;background:#333333;color:#FAFAFA;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;transition:all .3s">1</div>
+          <div class="step-indicator" data-step="2" style="position:relative;z-index:1;width:36px;height:36px;border-radius:50%;background:undefined;color:undefined;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;transition:all .3s">2</div>
+          <div class="step-indicator" data-step="3" style="position:relative;z-index:1;width:36px;height:36px;border-radius:50%;background:undefined;color:undefined;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;transition:all .3s">3</div>
+          <div class="step-indicator" data-step="4" style="position:relative;z-index:1;width:36px;height:36px;border-radius:50%;background:undefined;color:undefined;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;transition:all .3s">4</div>
+        </div>
+        <div id="step-1" class="booking-step" style="display:block">
+          <h3 style="font-weight:700;margin-bottom:1rem">Choose a Service</h3>
+          <label style="display:block;padding:1rem;border:1px solid undefined;border-radius:10px;margin-bottom:0.5rem;cursor:pointer;transition:all .2s" onclick="document.querySelectorAll('#step-1 label').forEach(l=>l.style.borderColor='undefined');this.style.borderColor='#333333'">
+            <input type="radio" name="service" value="Lunch Specials" style="margin-right:0.5rem" checked>
+            <span style="font-weight:600">Lunch Specials</span> <span style="color:#F7A275;float:right">₦12,000</span>
+          </label><label style="display:block;padding:1rem;border:1px solid undefined;border-radius:10px;margin-bottom:0.5rem;cursor:pointer;transition:all .2s" onclick="document.querySelectorAll('#step-1 label').forEach(l=>l.style.borderColor='undefined');this.style.borderColor='#333333'">
+            <input type="radio" name="service" value="Fine Dining Dinner" style="margin-right:0.5rem" >
+            <span style="font-weight:600">Fine Dining Dinner</span> <span style="color:#F7A275;float:right">₦25,000</span>
+          </label><label style="display:block;padding:1rem;border:1px solid undefined;border-radius:10px;margin-bottom:0.5rem;cursor:pointer;transition:all .2s" onclick="document.querySelectorAll('#step-1 label').forEach(l=>l.style.borderColor='undefined');this.style.borderColor='#333333'">
+            <input type="radio" name="service" value="Event Catering" style="margin-right:0.5rem" >
+            <span style="font-weight:600">Event Catering</span> <span style="color:#F7A275;float:right">₦50,000</span>
+          </label>
+          <button onclick="goToStep(2)" style="width:100%;background:#333333;color:#FAFAFA;padding:1rem;border-radius:10px;border:none;font-weight:800;cursor:pointer;margin-top:1rem">Next →</button>
+        </div>
+        <div id="step-2" class="booking-step" style="display:none">
+          <h3 style="font-weight:700;margin-bottom:1rem">Pick a Date & Time</h3>
+          <input type="date" id="bookingDate" style="width:100%;padding:1rem;border:1px solid undefined;border-radius:10px;background:undefined;color:undefined;margin-bottom:0.5rem" min="2026-08-01">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-bottom:1rem">
+            <button onclick="document.querySelectorAll('#step-2 button').forEach(b=>b.style.background='undefined');this.style.background='#333333';this.style.color='#FAFAFA'" style="padding:0.7rem;border:1px solid undefined;border-radius:8px;background:undefined;color:undefined;cursor:pointer;font-size:0.85rem" data-time="9:00 AM">9:00 AM</button><button onclick="document.querySelectorAll('#step-2 button').forEach(b=>b.style.background='undefined');this.style.background='#333333';this.style.color='#FAFAFA'" style="padding:0.7rem;border:1px solid undefined;border-radius:8px;background:undefined;color:undefined;cursor:pointer;font-size:0.85rem" data-time="11:00 AM">11:00 AM</button><button onclick="document.querySelectorAll('#step-2 button').forEach(b=>b.style.background='undefined');this.style.background='#333333';this.style.color='#FAFAFA'" style="padding:0.7rem;border:1px solid undefined;border-radius:8px;background:undefined;color:undefined;cursor:pointer;font-size:0.85rem" data-time="1:00 PM">1:00 PM</button><button onclick="document.querySelectorAll('#step-2 button').forEach(b=>b.style.background='undefined');this.style.background='#333333';this.style.color='#FAFAFA'" style="padding:0.7rem;border:1px solid undefined;border-radius:8px;background:undefined;color:undefined;cursor:pointer;font-size:0.85rem" data-time="3:00 PM">3:00 PM</button><button onclick="document.querySelectorAll('#step-2 button').forEach(b=>b.style.background='undefined');this.style.background='#333333';this.style.color='#FAFAFA'" style="padding:0.7rem;border:1px solid undefined;border-radius:8px;background:undefined;color:undefined;cursor:pointer;font-size:0.85rem" data-time="5:00 PM">5:00 PM</button><button onclick="document.querySelectorAll('#step-2 button').forEach(b=>b.style.background='undefined');this.style.background='#333333';this.style.color='#FAFAFA'" style="padding:0.7rem;border:1px solid undefined;border-radius:8px;background:undefined;color:undefined;cursor:pointer;font-size:0.85rem" data-time="7:00 PM">7:00 PM</button>
+          </div>
+          <div style="display:flex;gap:0.5rem">
+            <button onclick="goToStep(1)" style="flex:1;padding:1rem;border:1px solid undefined;border-radius:10px;background:transparent;color:undefined;cursor:pointer;font-weight:600">← Back</button>
+            <button onclick="goToStep(3)" style="flex:1;background:#333333;color:#FAFAFA;padding:1rem;border-radius:10px;border:none;font-weight:800;cursor:pointer">Next →</button>
+          </div>
+        </div>
+        <div id="step-3" class="booking-step" style="display:none">
+          <h3 style="font-weight:700;margin-bottom:1rem">Your Details</h3>
+          <input type="text" placeholder="Full Name" style="width:100%;padding:1rem;border:1px solid undefined;border-radius:10px;background:undefined;color:undefined;margin-bottom:0.5rem">
+          <input type="email" placeholder="Email Address" style="width:100%;padding:1rem;border:1px solid undefined;border-radius:10px;background:undefined;color:undefined;margin-bottom:0.5rem">
+          <input type="tel" placeholder="Phone Number" style="width:100%;padding:1rem;border:1px solid undefined;border-radius:10px;background:undefined;color:undefined;margin-bottom:1rem">
+          <div style="display:flex;gap:0.5rem">
+            <button onclick="goToStep(2)" style="flex:1;padding:1rem;border:1px solid undefined;border-radius:10px;background:transparent;color:undefined;cursor:pointer;font-weight:600">← Back</button>
+            <button onclick="goToStep(4)" style="flex:1;background:#333333;color:#FAFAFA;padding:1rem;border-radius:10px;border:none;font-weight:800;cursor:pointer">Next →</button>
+          </div>
+        </div>
+        <div id="step-4" class="booking-step" style="display:none;text-align:center">
+          <div style="font-size:3rem;margin-bottom:1rem">✅</div>
+          <h3 style="font-weight:800;font-size:1.5rem;margin-bottom:0.5rem">Booking Confirmed!</h3>
+          <p style="color:undefined;margin-bottom:1.5rem">We've received your request and will confirm via email shortly.</p>
+          <button onclick="document.getElementById('bookingForm').reset();goToStep(1)" style="background:#333333;color:#FAFAFA;padding:1rem 2rem;border-radius:10px;border:none;font-weight:800;cursor:pointer">Book Another</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      function goToStep(n){
+        for(let i=1;i<=4;i++){document.getElementById('step-'+i).style.display=i===n?'block':'none';}
+        document.querySelectorAll('.step-indicator').forEach(s=>{const step=parseInt(s.dataset.step);if(step<=n){s.style.background='#333333';s.style.color='#FAFAFA';}else{s.style.background='undefined';s.style.color='undefined';}});
+      }
+    </script>
+  </section><section id="location" style="padding:5rem 5%;background:#FAFAFA" class="reveal">
+    <div style="max-width:1000px;margin:0 auto">
+      <h2 style="font-size:clamp(2rem,5vw,3rem);font-weight:800;margin-bottom:1rem;text-align:center">Find Us</h2>
+      <p style="color:undefined;text-align:center;margin-bottom:3rem">Victoria Island, Lagos, Nigeria</p>
+      <div id="map" style="width:100%;height:400px;border-radius:16px;overflow:hidden;border:1px solid undefined"></div>
+    </div>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+      (function(){
+        if(!window.L)return;
+        const map=L.map('map',{zoomControl:true,scrollWheelZoom:false}).setView([6.5244,3.3792],14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map);
+        const marker=L.marker([6.5244,3.3792]).addTo(map);
+        marker.bindPopup('<strong>Lagos Bistro</strong><br>Victoria Island, Lagos, Nigeria').openPopup();
+        map.on('click',()=>map.scrollWheelZoom.enable());
+      })();
+    </script>
+  </section><section id="contact" style="padding:6rem 5%;background:#333333;color:#FAFAFA;text-align:center" class="reveal">
+    <div style="max-width:700px;margin:0 auto">
+      <h2 style="font-size:clamp(2rem,5vw,3.5rem);font-weight:900;letter-spacing:-0.02em;margin-bottom:1.5rem">Ready to Get Started?</h2>
+      <p style="font-size:1.2rem;opacity:0.9;margin-bottom:2.5rem">Join us today and grow your business</p>
+      <a href="#book" style="background:#FAFAFA;color:#333333;padding:1.2rem 3rem;border-radius:8px;text-decoration:none;font-weight:800;font-size:1.1rem;display:inline-block;transition:all .3s">Reserve a Table</a>
+    </div>
+  </section><section id="book" style="padding:5rem 5%;background:#FAFAFA" class="reveal">
+    <div style="max-width:600px;margin:0 auto">
+      <h2 style="font-size:clamp(2rem,5vw,3rem);font-weight:800;margin-bottom:1rem;text-align:center">Get In Touch</h2>
+      <p style="color:undefined;text-align:center;margin-bottom:2.5rem">We would love to hear from you</p>
+      <form style="display:flex;flex-direction:column;gap:1rem" onsubmit="event.preventDefault();alert('Thank you! We will get back to you.');this.reset()">
+        <input type="text" placeholder="Your Name" required aria-label="Name" style="padding:1rem;border:1px solid undefined;border-radius:10px;background:undefined;color:undefined;font-size:1rem">
+        <input type="email" placeholder="Email Address" required aria-label="Email" style="padding:1rem;border:1px solid undefined;border-radius:10px;background:undefined;color:undefined;font-size:1rem">
+        <input type="tel" placeholder="Phone Number" aria-label="Phone" style="padding:1rem;border:1px solid undefined;border-radius:10px;background:undefined;color:undefined;font-size:1rem">
+        <textarea placeholder="Your Message" rows="4" required aria-label="Message" style="padding:1rem;border:1px solid undefined;border-radius:10px;background:undefined;color:undefined;font-size:1rem;resize:vertical"></textarea>
+        <button type="submit" style="background:#333333;color:#FAFAFA;padding:1.2rem;border-radius:10px;border:none;font-weight:800;font-size:1.1rem;cursor:pointer;transition:all .3s">Reserve a Table</button>
+      </form>
+      <div style="display:flex;justify-content:center;gap:2rem;margin-top:2rem;font-size:0.9rem;color:undefined">
+        <div>📞 +234 800 000 0000</div>
+        <div>✉️ info@lagosbistro.com</div>
+      </div>
+    </div>
+  </section>
+  </main>
+  <footer style="padding:3rem 5%;background:undefined;border-top:1px solid undefined">
+    <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
+      <div>
+        <img src="https://image.pollinations.ai/prompt/professional%20luxury%20logo%20for%20A%20stylized%2C%20modern%20logo%20featuring%20a%20combination%20of%20African%20patterns%20and%20a%20fork%20and%20spoon%20crossed%20over%20a%20map%20of%20Lagos%2C%20with%20the%20brand%20name%20'Lagos%20Bistro'%20written%20in%20a%20sleek%2C%20golden%20font%20next%20to%20it%2C%20conveying%20a%20sense%20of%20luxury%2C%20cultural%20heritage%2C%20and%20fine%20dining.%2C%20minimalist%2C%20clean%2C%20vector%20style%2C%20centered%2C%20white%20background?width=512&height=512&nologo=true&seed=1785628207226" alt="Lagos Bistro" style="height:40px">
+        <p style="font-size:0.85rem;color:undefined;margin-top:0.5rem">© 2026 Lagos Bistro. All rights reserved.</p>
+      </div>
+      <div style="display:flex;gap:1.5rem;font-size:0.9rem">
+        <a href="#about" style="color:undefined;text-decoration:none">About</a>
+        <a href="#features" style="color:undefined;text-decoration:none">Services</a>
+        <a href="#contact" style="color:undefined;text-decoration:none">Contact</a>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:1.5rem;font-size:0.8rem;color:undefined">Powered by <a href="https://ergio.vercel.app" target="_blank" style="color:#333333;text-decoration:none">ERGIO</a> — AI Business OS for Africa</div>
+  </footer>
+  <button id="darkModeToggle" onclick="toggleDarkMode()" style="position:fixed;bottom:20px;right:20px;z-index:9998;width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.8);backdrop-filter:blur(10px);color:#fff;font-size:1.3rem;cursor:pointer;transition:all .3s;box-shadow:0 4px 20px rgba(0,0,0,.3)" title="Toggle theme" aria-label="Toggle dark mode">🌙</button>
+  <script>
+    function toggleDarkMode(){
+      const root=document.documentElement;
+      const isDark=root.getAttribute('data-theme')!=='light';
+      if(isDark){root.setAttribute('data-theme','light');document.body.style.background='#ffffff';document.body.style.color='#0f172a';localStorage.setItem('ergio-theme','light');document.getElementById('darkModeToggle').textContent='☀️';}
+      else{root.setAttribute('data-theme','dark');document.body.style.background='';document.body.style.color='';localStorage.setItem('ergio-theme','dark');document.getElementById('darkModeToggle').textContent='🌙';}
+    }
+    (function(){const saved=localStorage.getItem('ergio-theme');if(saved==='light'){document.documentElement.setAttribute('data-theme','light');document.body.style.background='#ffffff';document.body.style.color='#0f172a';const b=document.getElementById('darkModeToggle');if(b)b.textContent='☀️';}})();
+  </script>
+  <div id="exitPopup" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:2rem">
+    <div style="max-width:500px;width:100%;background:undefined;border:1px solid undefined;border-radius:24px;padding:3rem;text-align:center;position:relative;animation:scaleIn .4s ease" onclick="event.stopPropagation()">
+      <button onclick="document.getElementById('exitPopup').style.display='none'" style="position:absolute;top:1rem;right:1rem;background:none;border:none;color:undefined;font-size:1.5rem;cursor:pointer">×</button>
+      <div style="font-size:3rem;margin-bottom:1rem">🎁</div>
+      <h2 style="font-size:2rem;font-weight:800;margin-bottom:0.5rem;color:undefined">Wait! Before You Go...</h2>
+      <p style="color:undefined;font-size:1.1rem;margin-bottom:2rem">Get an exclusive Lagos Bistro offer. Leave your email and we'll send you a special deal!</p>
+      <form onsubmit="event.preventDefault();document.getElementById('exitPopup').style.display='none';alert('Thank you! Check your inbox soon.');this.reset()" style="display:flex;gap:0.5rem;margin-bottom:1rem">
+        <input type="email" placeholder="Your email" required style="flex:1;padding:1rem;border:1px solid undefined;border-radius:10px;background:#FAFAFA;color:undefined;font-size:1rem">
+        <button type="submit" style="background:#333333;color:#FAFAFA;padding:1rem 1.5rem;border-radius:10px;border:none;font-weight:700;cursor:pointer;white-space:nowrap">Get Offer</button>
+      </form>
+      <p style="font-size:0.8rem;color:undefined;opacity:0.6">No spam. Unsubscribe anytime.</p>
+    </div>
+  </div>
+  <script>
+    (function(){
+      let shown=false;
+      function show(){if(shown)return;shown=true;const p=document.getElementById('exitPopup');p.style.display='flex';}
+      // Exit intent detection (desktop)
+      document.addEventListener('mouseout',e=>{if(!e.toElement&&!e.relatedTarget&&e.clientY<10&&!shown){show();}});
+      // Mobile: show after 30s if no interaction
+      setTimeout(()=>{if(!shown&&document.hidden){show();}},30000);
+      // Show after 60s regardless
+      setTimeout(show,60000);
+      document.getElementById('exitPopup').addEventListener('click',e=>{if(e.target.id==='exitPopup')e.target.style.display='none';});
+    })();
+  </script>
+  <div id="chatWidget" style="position:fixed;bottom:80px;right:20px;z-index:9998;display:none;flex-direction:column;width:340px;max-height:480px;background:undefined;border:1px solid undefined;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:scaleIn .3s ease">
+    <div style="padding:1rem 1.5rem;background:#333333;color:#FAFAFA;display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;align-items:center;gap:0.5rem">
+        <div style="width:32px;height:32px;border-radius:50%;background:#FAFAFA22;display:flex;align-items:center;justify-content:center;font-size:1rem">💬</div>
+        <div><div style="font-weight:800;font-size:0.95rem">Lagos Bistro</div><div style="font-size:0.75rem;opacity:0.8">● Online</div></div>
+      </div>
+      <button onclick="document.getElementById('chatWidget').style.display='none';document.getElementById('chatToggle').style.display='flex'" style="background:none;border:none;color:#FAFAFA;font-size:1.2rem;cursor:pointer">×</button>
+    </div>
+    <div id="chatMessages" style="flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:0.5rem">
+      <div style="background:#FAFAFA;padding:0.6rem 1rem;border-radius:12px;border-bottom-left-radius:4px;font-size:0.9rem;color:undefined;max-width:80%">Hi! 👋 Welcome to Lagos Bistro. How can we help you today?</div>
+    </div>
+    <div style="padding:0.8rem;border-top:1px solid undefined;display:flex;gap:0.5rem">
+      <input type="text" id="chatInput" placeholder="Type a message..." style="flex:1;padding:0.7rem;border:1px solid undefined;border-radius:10px;background:#FAFAFA;color:undefined;font-size:0.9rem" onkeydown="if(event.key==='Enter')sendChat()">
+      <button onclick="sendChat()" style="background:#333333;color:#FAFAFA;border:none;padding:0.7rem 1rem;border-radius:10px;font-weight:700;cursor:pointer">→</button>
+    </div>
+  </div>
+  <button id="chatToggle" onclick="document.getElementById('chatWidget').style.display='flex';this.style.display='none'" style="position:fixed;bottom:20px;right:20px;z-index:9998;width:56px;height:56px;border-radius:50%;background:#333333;border:none;color:#FAFAFA;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 20px #33333344;display:flex;align-items:center;justify-content:center;transition:transform .3s" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">💬</button>
+  <script>
+    function sendChat(){
+      const input=document.getElementById('chatInput');const msg=input.value.trim();if(!msg)return;
+      const container=document.getElementById('chatMessages');
+      container.innerHTML+='<div style="background:#333333;color:#FAFAFA;padding:0.6rem 1rem;border-radius:12px;border-bottom-right-radius:4px;font-size:0.9rem;max-width:80%;align-self:flex-end">'+msg+'</div>';
+      input.value='';container.scrollTop=container.scrollHeight;
+      setTimeout(()=>{
+        container.innerHTML+='<div style="background:#FAFAFA;padding:0.6rem 1rem;border-radius:12px;border-bottom-left-radius:4px;font-size:0.9rem;color:undefined;max-width:80%">Thanks for reaching out! We'll get back to you shortly. 📩</div>';
+        container.scrollTop=container.scrollHeight;
+      },1000);
+    }
+  </script>
+  <script>
+    const observer=new IntersectionObserver((e)=>{e.forEach(en=>{if(en.isIntersecting)en.target.classList.add('active')})},{threshold:0.1,rootMargin:'0px 0px -50px 0px'});
+    document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger').forEach(el=>observer.observe(el));
+    document.querySelectorAll('.counter').forEach(el=>{const t=el.dataset.target;if(!t||isNaN(parseInt(t)))return;const n=parseInt(t);let c=0;const inc=n/50;const u=()=>{c+=inc;if(c<n){el.textContent=Math.ceil(c)+'+';requestAnimationFrame(u)}else{el.textContent=t}};const co=new IntersectionObserver((e)=>{if(e[0].isIntersecting){u();co.disconnect()}});co.observe(el)});
+    const nav=document.getElementById('nav');if(nav)window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>50));
+    const hb=document.querySelector('.hero img');if(hb)window.addEventListener('scroll',()=>hb.style.transform='translateY('+scrollY*0.3+'px)');
+    document.querySelectorAll('a[href^="#"]').forEach(b=>{b.addEventListener('mousemove',e=>{const r=b.getBoundingClientRect();const x=e.clientX-r.left-r.width/2;const y=e.clientY-r.top-r.height/2;b.style.transform='translate('+x*0.2+'px,'+y*0.2+'px)'});b.addEventListener('mouseleave',()=>b.style.transform='')});
+    if(window.matchMedia('(pointer:fine)').matches){const c=document.createElement('div');c.style.cssText='position:fixed;width:20px;height:20px;border:2px solid '+getComputedStyle(document.body).getPropertyValue('--primary').trim()+';border-radius:50%;pointer-events:none;z-index:9999;transition:transform .15s,width .2s,height .2s;mix-blend-mode:difference';document.body.appendChild(c);document.addEventListener('mousemove',e=>{c.style.left=e.clientX+'px';c.style.top=e.clientY+'px'});document.querySelectorAll('a,button,details summary').forEach(el=>{el.addEventListener('mouseenter',()=>{c.style.width='40px';c.style.height='40px';c.style.marginLeft='-10px';c.style.marginTop='-10px'});el.addEventListener('mouseleave',()=>{c.style.width='20px';c.style.height='20px';c.style.marginLeft='0';c.style.marginTop='0'})})}</script>
+  <script>
+    (function(){
+      // View Transitions API (modern browsers) + fallback
+      const supportsVT=document.startViewTransition!==undefined;
+      function navigate(url){
+        if(supportsVT){
+          document.startViewTransition(()=>{location.href=url;});
+        }else{
+          document.body.style.opacity='0';
+          document.body.style.transition='opacity .3s';
+          setTimeout(()=>location.href=url,300);
+        }
+      }
+      // Smooth page enter animation
+      document.body.style.opacity='0';
+      document.body.style.transition='opacity .4s ease';
+      requestAnimationFrame(()=>{document.body.style.opacity='1';});
+      // Intercept internal links
+      document.querySelectorAll('a[href^="/"]:not([target])').forEach(a=>{
+        a.addEventListener('click',e=>{const href=a.getAttribute('href');if(href==='/'||href.startsWith('/')){e.preventDefault();navigate(href);}});
+      });
+    })();
+  </script>
+</body>
+</html>
