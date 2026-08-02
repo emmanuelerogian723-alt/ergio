@@ -356,11 +356,11 @@ export function detectBusinessProfile(prompt, businessType, websiteCategory) {
     let score = 0;
     for (const keyword of profile.keywords) {
       if (combined.includes(keyword)) {
-        score += keyword.length > 5 ? 3 : 2;
+        score += keyword.length > 8 ? 5 : keyword.length > 5 ? 3 : 2;
       }
     }
     if (websiteCategory && key === websiteCategory.toLowerCase()) {
-      score += 5;
+      score += 2;
     }
     if (score > bestScore) {
       bestScore = score;
