@@ -346,7 +346,8 @@ export const BUSINESS_PROFILES = {
  * Returns the profile key (e.g. 'fitness', 'restaurant', 'salon')
  */
 export function detectBusinessProfile(prompt, businessType, websiteCategory) {
-  const combined = ((prompt || '') + ' ' + (businessType || '') + ' ' + (websiteCategory || '')).toLowerCase();
+  // Search keywords in prompt + businessType only (NOT websiteCategory — it gets its own bonus)
+  const combined = ((prompt || '') + ' ' + (businessType || '')).toLowerCase();
   
   let bestProfile = 'default';
   let bestScore = 0;
