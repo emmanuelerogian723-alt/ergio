@@ -268,17 +268,35 @@ Return JSON:
     try {
       images = await Promise.race([
         fetchWebsiteImages(imagePlan),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Images timeout')), 6000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Images timeout')), 12000))
       ]);
     } catch(e) {
-      console.log('Images timeout, using placeholders:', e.message);
-      // Use Pollinations placeholder images
+      console.log('Images timeout, falling back to Pollinations AI images:', e.message);
+      // Pollinations AI-generated images — always look great
+      const seed1 = Math.floor(Math.random() * 999999);
+      const seed2 = seed1 + 1;
+      const seed3 = seed1 + 2;
+      const heroQ = encodeURIComponent((plan.imageSearchQueries?.[0] || plan.type + ' business') + ' professional high quality photography');
+      const aboutQ = encodeURIComponent((plan.imageSearchQueries?.[1] || 'professional team ' + plan.city) + ' Nigeria high quality');
+      const galleryQ = encodeURIComponent((plan.imageSearchQueries?.[2] || plan.type + ' work portfolio') + ' stunning');
       images = {
-        hero: [`https://image.pollinations.ai/prompt/${encodeURIComponent(plan.type + ' business in Lagos Nigeria professional')}&width=1200&height=600&nologo=true`],
-        about: [`https://image.pollinations.ai/prompt/${encodeURIComponent('professional team ' + plan.city + ' Nigeria')}&width=800&height=600&nologo=true`],
-        gallery: []
+        hero: [{ url: `https://image.pollinations.ai/prompt/${heroQ}&width=1400&height=800&nologo=true&model=flux&seed=${seed1}`, source: 'pollinations' }],
+        about: [{ url: `https://image.pollinations.ai/prompt/${aboutQ}&width=900&height=700&nologo=true&model=flux&seed=${seed2}`, source: 'pollinations' }],
+        gallery: [
+          { url: `https://image.pollinations.ai/prompt/${galleryQ}&width=800&height=800&nologo=true&model=flux&seed=${seed3}`, source: 'pollinations' },
+          { url: `https://image.pollinations.ai/prompt/${galleryQ}&width=800&height=800&nologo=true&model=flux&seed=${seed3+1}`, source: 'pollinations' }
+        ]
       };
     }
+    
+    // Normalize images format — ensure all are objects with .url
+    Object.keys(images).forEach(placement => {
+      if (Array.isArray(images[placement])) {
+        images[placement] = images[placement].map(img => 
+          typeof img === 'string' ? { url: img, source: 'unknown' } : img
+        );
+      }
+    });
     
     // Count found images
     const totalImages = Object.values(images).reduce((sum, arr) => sum + arr.length, 0);
@@ -429,15 +447,20 @@ Return ONLY JSON:
           const v4Options = {
             megaMenu: true,
             lottie: true,
-            beforeAfter: planForHTML.websiteCategory === 'realestate' || planForHTML.websiteCategory === 'fitness' || planForHTML.websiteCategory === 'clinic',
-            virtualTour: planForHTML.websiteCategory === 'realestate' || planForHTML.websiteCategory === 'restaurant',
+            beforeAfter: true,           // Enable for ALL categories — it's a premium showcase feature
+            virtualTour: true,           // Enable for ALL categories
             interactiveMap: true,
-            bookingForm: ['restaurant','clinic','fitness','salon','agency','events'].includes(planForHTML.websiteCategory),
+            bookingForm: true,           // Enable for ALL categories
             minifyCSS: true,
             heroVideo: contentForHTML.hero?.videoUrl || '',
             gltfModel: planForHTML.websiteType === '3d' ? 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF/Duck.gltf' : '',
           };
-          websiteHtml = assemblePremiumWebsiteV4(planForHTML, contentForHTML, colors, logoUrl, images, layoutKey, v4Options);
+          // Normalize image objects for premium engine
+          const normalizedImages = {};
+          Object.keys(images).forEach(k => {
+            normalizedImages[k] = (images[k] || []).map(img => typeof img === 'string' ? { url: img } : img);
+          });
+          websiteHtml = assemblePremiumWebsiteV4(planForHTML, contentForHTML, colors, logoUrl, normalizedImages, layoutKey, v4Options);
           send('status', { task: `✨ Layout: ${LAYOUT_ARCHETYPES[layoutKey]?.name || layoutKey} — premium engine v4 with ${Object.values(v4Options).filter(Boolean).length} features`, step: 5, total: 8 });
         } catch(premiumErr) {
           console.error('Premium engine v4 error, falling back to v3:', premiumErr.message);

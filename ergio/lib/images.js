@@ -124,25 +124,33 @@ export async function searchImages(query, options = {}) {
 /**
  * Agentic image planner — decides what images the website needs based on business type
  */
+// Business type → specific image search queries for highest quality results
+const TYPE_IMAGE_QUERIES = {
+  restaurant: { hero: 'upscale restaurant interior ambient lighting', about: 'chef cooking kitchen professional', gallery: 'plated food gourmet dish' },
+  salon: { hero: 'luxury hair salon interior modern', about: 'hairdresser styling client professional', gallery: 'hair coloring salon treatment' },
+  fitness: { hero: 'modern gym interior equipment', about: 'personal trainer workout coaching', gallery: 'fitness class exercise group' },
+  clinic: { hero: 'modern medical clinic reception', about: 'doctor consulting patient professional', gallery: 'medical equipment healthcare' },
+  tattoo: { hero: 'tattoo studio interior dark aesthetic', about: 'tattoo artist working professional', gallery: 'tattoo design artwork portfolio' },
+  agency: { hero: 'creative agency office modern workspace', about: 'team working together office', gallery: 'design work creative portfolio' },
+  ecommerce: { hero: 'modern retail store interior', about: 'customer shopping experience quality', gallery: 'product photography white background' },
+  realestate: { hero: 'luxury property exterior modern', about: 'real estate agent professional', gallery: 'interior design living room luxury' },
+  portfolio: { hero: 'creative studio workspace photography', about: 'photographer designer working professional', gallery: 'creative portfolio design work' },
+  education: { hero: 'modern classroom students learning', about: 'teacher student education professional', gallery: 'education books studying library' },
+  events: { hero: 'grand event venue setup elegant', about: 'event coordinator planning professional', gallery: 'event decoration setup beautiful' },
+  default: { hero: 'professional business office modern', about: 'business team meeting professional', gallery: 'business service professional quality' }
+};
+
 export async function planImages(businessName, businessType, services, city) {
-  const imagePlan = [
-    { placement: 'hero', query: `${businessType} business professional`, orientation: 'landscape', count: 3 },
-    { placement: 'about', query: `${businessType} team working ${city || 'office'}`, orientation: 'landscape', count: 2 },
-    { placement: 'services', query: `${businessType} service quality`, orientation: 'landscape', count: 2 },
-    { placement: 'gallery', query: `${businessType} portfolio work`, orientation: 'square', count: 4 }
-  ];
+  const t = (businessType||'business').toLowerCase();
+  const queries = TYPE_IMAGE_QUERIES[Object.keys(TYPE_IMAGE_QUERIES).find(k => t.includes(k)) || 'default'];
+  const cityStr = city || 'Lagos';
   
-  // Add service-specific images
-  if (services && services.length) {
-    services.slice(0, 3).forEach(s => {
-      imagePlan.push({
-        placement: `service-${s.name}`,
-        query: `${s.name} ${businessType}`,
-        orientation: 'landscape',
-        count: 1
-      });
-    });
-  }
+  const imagePlan = [
+    { placement: 'hero', query: `${queries.hero} ${cityStr}`, orientation: 'landscape', count: 3 },
+    { placement: 'about', query: `${queries.about}`, orientation: 'landscape', count: 2 },
+    { placement: 'gallery', query: `${queries.gallery}`, orientation: 'square', count: 4 },
+    { placement: 'services', query: `${businessType} service premium quality`, orientation: 'landscape', count: 2 }
+  ];
   
   return imagePlan;
 }
@@ -155,10 +163,35 @@ export async function fetchWebsiteImages(imagePlan) {
   const results = {};
   
   const promises = imagePlan.map(async (item) => {
-    const images = await searchImages(item.query, {
-      orientation: item.orientation,
-      perPage: item.count
-    });
+    let images = [];
+    
+    // Try real image APIs first (Pixabay, Unsplash)
+    try {
+      images = await Promise.race([
+        searchImages(item.query, {
+          orientation: item.orientation,
+          perPage: item.count || 3
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 6000))
+      ]);
+    } catch(e) {
+      images = [];
+    }
+    
+    // If no real images found, use Pollinations AI as fallback
+    if (!images || images.length === 0) {
+      const seed = Math.floor(Math.random() * 999999);
+      const aiQuery = item.query || 'professional business Nigeria';
+      const dims = item.orientation === 'square' ? '800x800' : '1200x800';
+      const [w, h] = dims.split('x');
+      images = [{
+        url: `https://image.pollinations.ai/prompt/${encodeURIComponent(aiQuery + ' professional high quality photography')}&width=${w}&height=${h}&nologo=true&model=flux&seed=${seed}`,
+        source: 'pollinations',
+        credit: '',
+        tags: aiQuery
+      }];
+    }
+    
     results[item.placement] = images.map(img => ({
       url: img.url,
       source: img.source,

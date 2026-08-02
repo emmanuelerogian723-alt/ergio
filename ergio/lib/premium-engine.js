@@ -97,19 +97,18 @@ function heroBillboard(d) {
           </div>`).join('')}
       </div>
     </div>
-    <!-- Right: Full-bleed image -->
+    <!-- Right: Full-bleed image (real or AI-generated via Pollinations) -->
     <div style="position:relative;overflow:hidden;min-height:100vh">
       ${heroImg 
-        ? `<img src="${heroImg}" alt="${d.businessName}" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.85) contrast(1.05)">`
-        : `<div style="width:100%;height:100%;background:linear-gradient(145deg,${primary}22 0%,${bg} 100%);display:flex;align-items:center;justify-content:center">
-            <div style="font-size:8rem;opacity:.3">🏢</div>
-          </div>`}
-      <!-- Overlay gradient -->
-      <div style="position:absolute;inset:0;background:linear-gradient(to right,${bg} 0%,transparent 25%,transparent 75%,${bg}88 100%)"></div>
-      <!-- Floating badge -->
-      <div style="position:absolute;bottom:2rem;right:2rem;background:rgba(0,0,0,.7);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:1rem 1.4rem">
-        <div style="font-size:.65rem;color:${muted};text-transform:uppercase;letter-spacing:.1em;font-weight:600">Based in</div>
-        <div style="font-size:1rem;font-weight:800;color:${text};margin-top:.2rem">${d.city || 'Nigeria'}</div>
+        ? `<img src="${heroImg}" alt="${d.businessName}" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.88) contrast(1.05)" loading="eager" onerror="this.src='https://image.pollinations.ai/prompt/${encodeURIComponent((d.category||d.type||'business')+' '+d.businessName+' professional photography high quality')}&width=1200&height=900&nologo=true&model=flux&seed=42';this.onerror=null">`
+        : `<img src="https://image.pollinations.ai/prompt/${encodeURIComponent((d.category||d.type||'business') + ' ' + (d.city||'Lagos') + ' professional photography stunning interior high quality')}&width=1200&height=900&nologo=true&model=flux&seed=${Math.floor(Math.random()*9999)}" alt="${d.businessName}" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.88) contrast(1.05)" loading="eager" onerror="this.parentElement.style.background='linear-gradient(145deg,${primary}33 0%,${bg} 100%)'">
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg,${primary}22,${bg}aa);z-index:0;pointer-events:none"></div>`}
+      <!-- Overlay gradient for text legibility -->
+      <div style="position:absolute;inset:0;background:linear-gradient(to right,${bg} 0%,transparent 30%,transparent 70%,${bg}66 100%);z-index:1;pointer-events:none"></div>
+      <!-- Floating location badge -->
+      <div style="position:absolute;bottom:2rem;right:2rem;background:rgba(0,0,0,.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:1rem 1.5rem;z-index:2;box-shadow:0 8px 32px rgba(0,0,0,.3)">
+        <div style="font-size:.65rem;color:${muted};text-transform:uppercase;letter-spacing:.12em;font-weight:600">Based in</div>
+        <div style="font-size:1rem;font-weight:800;color:${text};margin-top:.25rem">${d.city || 'Nigeria'} 📍</div>
       </div>
     </div>
     <!-- Scroll indicator -->
@@ -166,17 +165,49 @@ function heroGradient(d) {
 }
 
 function heroGlass(d) {
-  return `<section class="hero" style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:${d.colors.bg};position:relative;overflow:hidden">
-    <div style="position:absolute;width:600px;height:600px;border-radius:50%;background:${d.colors.primary};filter:blur(120px);opacity:0.3;top:-100px;left:-100px;animation:float 6s ease-in-out infinite"></div>
-    <div style="position:absolute;width:500px;height:500px;border-radius:50%;background:${d.colors.accent};filter:blur(100px);opacity:0.2;bottom:-50px;right:-50px;animation:float 8s ease-in-out infinite reverse"></div>
-    <div style="position:relative;z-index:2;text-align:center;padding:0 5%;max-width:800px">
-      <div style="background:rgba(255,255,255,0.08);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.12);border-radius:24px;padding:3rem 2rem;box-shadow:0 8px 32px rgba(0,0,0,0.1)">
-        <h1 style="font-size:clamp(2.5rem,7vw,5rem);font-weight:800;letter-spacing:-0.03em;line-height:1.05;margin-bottom:1.5rem;opacity:0;animation:fadeUp .8s .2s forwards">${d.headline}</h1>
-        <p style="font-size:clamp(1rem,2.5vw,1.4rem);color:${d.colors.muted};margin-bottom:2.5rem;opacity:0;animation:fadeUp .8s .3s forwards">${d.subheadline}</p>
-        <div style="opacity:0;animation:fadeUp .8s .4s forwards">
-          <a href="#contact" style="background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);color:${d.colors.text};padding:1rem 2.5rem;border-radius:100px;font-weight:700;text-decoration:none;display:inline-block;transition:all .3s">${d.cta||'Get Started'}</a>
-        </div>
+  const p = d.colors?.primary || '#00D9FF';
+  const ac = d.colors?.accent || '#7c3aed';
+  const bg = d.colors?.bg || '#09090B';
+  const tx = d.colors?.text || '#ffffff';
+  const mu = d.colors?.muted || '#888888';
+  const heroImg = d.heroImage || '';
+  // Detect if light bg (Canvas-style, portfolio, clean designs)
+  const isLight = bg === '#ffffff' || bg === '#fff' || bg === '#fafafa' || bg === '#f9fafb';
+  
+  // For Canvas / creative styles: premium soft gradient hero matching the screenshot
+  return `<section class="hero" style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};position:relative;overflow:hidden">
+    <!-- Gradient orbs -->
+    <div style="position:absolute;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,${p}40,transparent 70%);top:-200px;right:-100px;pointer-events:none;z-index:0"></div>
+    <div style="position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,${ac}30,transparent 70%);bottom:-100px;left:-100px;pointer-events:none;z-index:0;animation:float 10s ease-in-out infinite reverse"></div>
+    ${heroImg ? `<!-- Background image with overlay -->
+    <div style="position:absolute;inset:0;z-index:0"><img src="${heroImg}" alt="${d.businessName||''}" style="width:100%;height:100%;object-fit:cover;opacity:0.18" loading="eager" onerror="this.style.display='none'"></div>` : ''}
+    <!-- Content -->
+    <div style="position:relative;z-index:2;text-align:center;padding:5rem 5%;max-width:900px;margin:0 auto;width:100%">
+      <!-- Badge -->
+      <div style="display:inline-flex;align-items:center;gap:.5rem;background:${isLight?'rgba(0,0,0,0.06)':'rgba(255,255,255,0.08)'};border:1px solid ${isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.12)'};border-radius:100px;padding:.35rem 1rem;font-size:.78rem;font-weight:600;color:${p};letter-spacing:.06em;text-transform:uppercase;margin-bottom:2rem;opacity:0;animation:fadeUp .6s .1s forwards">
+        ✦ ${d.category||d.type||'Business'} · ${d.city||'Nigeria'}
       </div>
+      <!-- Headline -->
+      <h1 style="font-size:clamp(2.8rem,8vw,5.5rem);font-weight:900;letter-spacing:-0.04em;line-height:1.0;margin-bottom:1.5rem;opacity:0;animation:fadeUp .8s .2s forwards;background:linear-gradient(135deg,${tx} 0%,${tx}cc 60%,${p}88 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${d.headline||d.businessName}</h1>
+      <!-- Subheadline -->
+      <p style="font-size:clamp(1rem,2.5vw,1.35rem);color:${mu};margin:0 auto 2.5rem;max-width:580px;line-height:1.7;opacity:0;animation:fadeUp .8s .35s forwards">${d.subheadline||d.tagline||''}</p>
+      <!-- CTAs -->
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;opacity:0;animation:fadeUp .8s .5s forwards">
+        <a href="#contact" style="display:inline-flex;align-items:center;gap:.5rem;background:${p};color:${isLight?'#fff':bg};padding:1rem 2.2rem;border-radius:100px;font-weight:700;font-size:1rem;text-decoration:none;box-shadow:0 8px 30px ${p}44;transition:all .3s;letter-spacing:-.01em" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 40px ${p}66'" onmouseout="this.style.transform='';this.style.boxShadow='0 8px 30px ${p}44'">${d.cta||'Get Started'} →</a>
+        <a href="#about" style="display:inline-flex;align-items:center;gap:.5rem;background:${isLight?'rgba(0,0,0,0.05)':'rgba(255,255,255,0.08)'};border:1px solid ${isLight?'rgba(0,0,0,0.12)':'rgba(255,255,255,0.15)'};color:${tx};padding:1rem 2rem;border-radius:100px;font-weight:600;font-size:1rem;text-decoration:none;transition:all .3s;backdrop-filter:blur(10px)">See Our Work</a>
+      </div>
+      <!-- Scroll hint -->
+      <div style="margin-top:4rem;opacity:0;animation:fadeIn 1s 1.2s forwards;display:flex;align-items:center;justify-content:center;gap:.8rem;color:${mu};font-size:.78rem;font-weight:500;letter-spacing:.06em">
+        <div style="width:1px;height:30px;background:linear-gradient(to bottom,transparent,${mu}66)"></div>
+        SCROLL TO EXPLORE
+        <div style="width:1px;height:30px;background:linear-gradient(to bottom,${mu}66,transparent)"></div>
+      </div>
+    </div>
+    <!-- Floating ambient card (bottom right) -->
+    <div style="position:absolute;bottom:2.5rem;right:2.5rem;background:${isLight?'rgba(255,255,255,0.9)':'rgba(0,0,0,0.5)'};backdrop-filter:blur(20px);border:1px solid ${isLight?'rgba(0,0,0,0.08)':'rgba(255,255,255,0.1)'};border-radius:16px;padding:1rem 1.4rem;opacity:0;animation:fadeIn 1s 1.5s forwards;box-shadow:0 8px 32px rgba(0,0,0,0.15);max-width:220px">
+      <div style="font-size:.65rem;color:${mu};text-transform:uppercase;letter-spacing:.1em;font-weight:600">Based in</div>
+      <div style="font-size:1rem;font-weight:800;color:${tx};margin:.25rem 0 .5rem">${d.city||'Nigeria'} 📍</div>
+      <div style="width:100%;height:3px;border-radius:3px;background:linear-gradient(90deg,${p},${ac})"></div>
     </div>
   </section>`;
 }
@@ -212,14 +243,33 @@ function hero3D(d) {
 }
 
 function heroCinematic(d) {
-  return `<section class="hero" style="min-height:100vh;display:flex;align-items:flex-end;background:linear-gradient(180deg,${d.colors.bg} 0%,${d.colors.surface} 100%);position:relative;overflow:hidden">
-    ${d.heroImage?`<div style="position:absolute;inset:0;z-index:0"><img src="${d.heroImage}" alt="${d.businessName}" style="width:100%;height:100%;object-fit:cover;opacity:0.3" loading="eager"></div><div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,${d.colors.bg} 100%);z-index:1"></div>`:''}
+  const p = d.colors?.primary || '#D4AF37';
+  const bg = d.colors?.bg || '#0a0a0a';
+  const tx = d.colors?.text || '#ffffff';
+  const mu = d.colors?.muted || '#888';
+  const heroImg = d.heroImage || '';
+  const aiImg = `https://image.pollinations.ai/prompt/${encodeURIComponent((d.type||'luxury') + ' ' + (d.businessName||'business') + ' cinematic photography dark dramatic high quality')}&width=1600&height=900&nologo=true&model=flux&seed=777`;
+  
+  return `<section class="hero" style="min-height:100vh;display:flex;align-items:flex-end;background:${bg};position:relative;overflow:hidden">
+    <!-- Full-bleed background image -->
+    <div style="position:absolute;inset:0;z-index:0">
+      <img src="${heroImg || aiImg}" alt="${d.businessName||''}" style="width:100%;height:100%;object-fit:cover;opacity:${heroImg ? 0.45 : 0.35}" loading="eager" onerror="this.style.display='none'">
+    </div>
+    <!-- Dramatic gradient overlay -->
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.15) 0%,rgba(0,0,0,.4) 40%,${bg} 100%);z-index:1"></div>
+    <!-- Horizontal vignette -->
+    <div style="position:absolute;inset:0;background:linear-gradient(90deg,${bg}ee 0%,transparent 40%);z-index:1"></div>
+    <!-- Content -->
     <div style="position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:0 5% 6rem;width:100%">
-      <div style="width:60px;height:2px;background:${d.colors.primary};margin-bottom:2rem;opacity:0;animation:fadeIn 1s .3s forwards"></div>
-      <h1 style="font-family:serif;font-size:clamp(3rem,8vw,6rem);font-weight:400;line-height:1.05;letter-spacing:-0.02em;margin-bottom:1.5rem;opacity:0;animation:fadeUp 1.2s .4s forwards">${d.headline}</h1>
-      <p style="font-size:clamp(1rem,2.5vw,1.4rem);color:${d.colors.muted};font-style:italic;margin-bottom:2.5rem;max-width:600px;opacity:0;animation:fadeUp 1.2s .6s forwards">${d.subheadline}</p>
-      <div style="opacity:0;animation:fadeUp 1.2s .8s forwards">
-        <a href="#contact" style="background:transparent;border:1px solid ${d.colors.primary};color:${d.colors.primary};padding:1rem 3rem;text-decoration:none;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;font-size:0.85rem;transition:all .3s;display:inline-block">${d.cta||'Discover'}</a>
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:2rem;opacity:0;animation:fadeIn 1s .3s forwards">
+        <div style="width:48px;height:2px;background:${p}"></div>
+        <span style="font-size:.7rem;font-weight:700;color:${p};letter-spacing:.18em;text-transform:uppercase">${d.category||d.type||'Luxury'} · ${d.city||'Nigeria'}</span>
+      </div>
+      <h1 style="font-family:'Playfair Display',serif;font-size:clamp(2.8rem,8vw,6rem);font-weight:700;line-height:1.0;letter-spacing:-0.02em;margin-bottom:1.5rem;opacity:0;animation:fadeUp 1.2s .4s forwards;color:${tx}">${d.headline}</h1>
+      <p style="font-size:clamp(1rem,2.5vw,1.3rem);color:${mu};font-style:italic;margin-bottom:3rem;max-width:580px;line-height:1.7;opacity:0;animation:fadeUp 1.2s .6s forwards">${d.subheadline}</p>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;opacity:0;animation:fadeUp 1.2s .8s forwards">
+        <a href="#contact" style="background:${p};color:#000;padding:1rem 2.5rem;text-decoration:none;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.88rem;transition:all .3s;display:inline-block;box-shadow:0 8px 30px ${p}44">${d.cta||'Discover'}</a>
+        <a href="#about" style="background:transparent;border:1px solid rgba(255,255,255,.3);color:${tx};padding:1rem 2.2rem;text-decoration:none;font-weight:600;letter-spacing:.04em;font-size:.88rem;transition:all .3s;display:inline-block;backdrop-filter:blur(8px)">Our Story</a>
       </div>
     </div>
   </section>`;
@@ -237,11 +287,38 @@ function heroRaw(d) {
 }
 
 function heroFullscreen(d) {
-  return `<section class="hero" style="height:100vh;display:flex;align-items:center;justify-content:center;background:${d.colors.bg};position:relative;overflow:hidden">
-    ${d.heroImage?`<div style="position:absolute;inset:0;z-index:0"><img src="${d.heroImage}" alt="${d.businessName}" style="width:100%;height:100%;object-fit:cover" loading="eager"></div><div style="position:absolute;inset:0;background:linear-gradient(180deg,${d.colors.bg}33 0%,${d.colors.bg}cc 100%);z-index:1"></div>`:''}
-    <div style="position:relative;z-index:2;text-align:center;padding:0 5%">
-      <h1 style="font-size:clamp(3rem,10vw,8rem);font-weight:700;letter-spacing:-0.03em;line-height:1;margin-bottom:1rem;opacity:0;animation:fadeUp 1.5s .5s forwards">${d.headline}</h1>
-      <p style="font-size:clamp(1.2rem,4vw,2rem);color:${d.colors.muted};margin-bottom:0;opacity:0;animation:fadeUp 1.5s 1s forwards">${d.subheadline}</p>
+  const p = d.colors?.primary || '#00D9FF';
+  const ac = d.colors?.accent || '#7c3aed';
+  const bg = d.colors?.bg || '#09090B';
+  const tx = d.colors?.text || '#ffffff';
+  const mu = d.colors?.muted || '#888888';
+  const heroImg = d.heroImage || '';
+  const aiImg = `https://image.pollinations.ai/prompt/${encodeURIComponent((d.type||'business') + ' ' + (d.businessName||'') + ' stunning professional photography high quality premium')}&width=1600&height=900&nologo=true&model=flux&seed=${Math.floor(Math.random()*99999)}`;
+  
+  return `<section class="hero" style="height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};position:relative;overflow:hidden">
+    <!-- Full-bleed background -->
+    <div style="position:absolute;inset:0;z-index:0">
+      <img src="${heroImg || aiImg}" alt="${d.businessName||''}" style="width:100%;height:100%;object-fit:cover;opacity:0.4" loading="eager" onerror="this.style.opacity='0'">
+    </div>
+    <!-- Gradient overlay -->
+    <div style="position:absolute;inset:0;background:linear-gradient(135deg,${bg}ee 0%,${bg}99 50%,${bg}bb 100%);z-index:1"></div>
+    <!-- Content -->
+    <div style="position:relative;z-index:2;text-align:center;max-width:900px;padding:0 5%">
+      <div style="display:inline-block;padding:.4rem 1.2rem;border-radius:100px;background:${p}20;border:1px solid ${p}33;color:${p};font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2rem;opacity:0;animation:fadeUp .6s .1s forwards">${d.category||d.type||'Business'}</div>
+      <h1 style="font-size:clamp(3.5rem,10vw,7.5rem);font-weight:900;letter-spacing:-0.04em;line-height:0.92;margin-bottom:1.8rem;opacity:0;animation:fadeUp .8s .2s forwards;text-shadow:0 4px 30px rgba(0,0,0,.3)">${d.headline||d.businessName}</h1>
+      <p style="font-size:clamp(1.1rem,2.8vw,1.5rem);color:${mu};margin:0 auto 3rem;max-width:600px;line-height:1.65;opacity:0;animation:fadeUp .8s .4s forwards">${d.subheadline||d.tagline||''}</p>
+      <div style="display:flex;gap:1.2rem;justify-content:center;flex-wrap:wrap;opacity:0;animation:fadeUp .8s .6s forwards">
+        <a href="#contact" style="background:${p};color:${bg};padding:1.2rem 3rem;border-radius:100px;font-weight:800;text-decoration:none;font-size:1rem;transition:all .3s;box-shadow:0 10px 40px ${p}55;letter-spacing:-.01em">${d.cta||'Get Started'}</a>
+        <a href="#about" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:${tx};padding:1.2rem 2.5rem;border-radius:100px;font-weight:600;text-decoration:none;font-size:1rem;transition:all .3s;backdrop-filter:blur(12px)">Learn More</a>
+      </div>
+      <!-- Bottom stats strip -->
+      <div style="display:flex;justify-content:center;gap:3rem;margin-top:4rem;padding-top:2.5rem;border-top:1px solid rgba(255,255,255,.08);opacity:0;animation:fadeIn .8s 1s forwards">
+        ${(d.stats||[{label:'Happy Clients',value:'500+'},{label:'Years Experience',value:'10+'},{label:'Success Rate',value:'98%'}]).slice(0,3).map(s => `
+          <div style="text-align:center">
+            <div style="font-size:1.8rem;font-weight:900;color:${p};letter-spacing:-.03em">${s.value}</div>
+            <div style="font-size:.7rem;color:${mu};text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-top:.3rem">${s.label}</div>
+          </div>`).join('')}
+      </div>
     </div>
   </section>`;
 }
@@ -298,8 +375,11 @@ function featureSplit(d) {
         </div>
       </div>
       <div class="reveal-right" style="position:relative">
-        <div style="aspect-ratio:4/3;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.2)">
-          ${d.aboutImage?`<img src="${d.aboutImage}" alt="About ${d.businessName}" style="width:100%;height:100%;object-fit:cover" loading="lazy">`:`<div style="width:100%;height:100%;background:linear-gradient(135deg,${d.colors.primary}33,${d.colors.accent}22);display:flex;align-items:center;justify-content:center;font-size:4rem">${d.emoji||'🎨'}</div>`}
+        <div style="aspect-ratio:4/3;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25)">
+          ${d.aboutImage
+            ? `<img src="${d.aboutImage}" alt="About ${d.businessName}" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.src='https://image.pollinations.ai/prompt/${encodeURIComponent((d.type||'business') + ' ' + (d.city||'Lagos') + ' team professional')}&width=800&height=600&nologo=true&model=flux&seed=123';this.onerror=null">`
+            : `<img src="https://image.pollinations.ai/prompt/${encodeURIComponent((d.type||'business') + ' ' + (d.businessName||'') + ' professional team Nigeria high quality')}&width=800&height=600&nologo=true&model=flux&seed=456" alt="About ${d.businessName||''}" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.parentElement.style.background='linear-gradient(135deg,'+d.colors.primary+'33,'+d.colors.accent+'22)'">
+          `}
         </div>
       </div>
     </div>
@@ -570,7 +650,7 @@ export function assemblePremiumWebsite(plan, content, colors, logoUrl, images, l
     cta:content.hero?.cta||'Get Started',category:plan.type,type:plan.type,city:plan.city,
     tagline:plan.tagline,description:plan.description,
     about:content.about||plan.description||'',aboutTitle:plan.businessName,
-    aboutImage:images.about?.[0]?.url,heroImage:images.hero?.[0]?.url,logoUrl,colors,
+    aboutImage:(images.about?.[0]?.url||images.about?.[0]||''),heroImage:(images.hero?.[0]?.url||images.hero?.[0]||''),logoUrl,colors,
     features:(content.whyChooseUs||['Expert Team','Trusted Quality','Fast Service','Best Prices']).map((w,i)=>({title:w,description:content.features?.[i]||''})),
     featuresTitle:'Why Choose Us',featuresSub:'Everything you need',
     stats:content.stats||[{label:'Happy Clients',value:'500+',numericValue:500},{label:'Projects',value:'1200+',numericValue:1200},{label:'Years',value:'10+',numericValue:10},{label:'Satisfaction',value:'100%'}],
@@ -1243,6 +1323,13 @@ export function pageTransitionCSS() {
 // ════════════════════════════════════════════════════════════
 export function assemblePremiumWebsiteV4(plan, content, colors, logoUrl, images, layoutKey, options = {}) {
   const layout = LAYOUT_ARCHETYPES[layoutKey] || LAYOUT_ARCHETYPES.apple;
+  // Normalize: images may be objects with .url or plain strings
+  const _imgUrl = (arr) => {
+    if (!arr || !arr.length) return undefined;
+    const item = arr[0];
+    return typeof item === 'string' ? item : (item?.url || undefined);
+  };
+  
   const d = {
     businessName: plan.businessName,
     headline: content.hero?.headline || plan.businessName,
@@ -1251,8 +1338,8 @@ export function assemblePremiumWebsiteV4(plan, content, colors, logoUrl, images,
     category: plan.type, type: plan.type, city: plan.city,
     tagline: plan.tagline, description: plan.description,
     about: content.about || plan.description || '',
-    aboutImage: images.about?.[0]?.url,
-    heroImage: images.hero?.[0]?.url,
+    aboutImage: _imgUrl(images.about),
+    heroImage: _imgUrl(images.hero),
     heroVideo: options.heroVideo || content.hero?.videoUrl || '',
     beforeImage: options.beforeImage || images.gallery?.[0]?.url,
     afterImage: options.afterImage || images.gallery?.[1]?.url || images.gallery?.[0]?.url,
