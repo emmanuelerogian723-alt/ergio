@@ -83,8 +83,8 @@ window.ErgioEngines = (function () {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt: prompt + '\n\nRespond in plain text, not JSON.',
-          system: sys + '\nYou must include the word json in your response.',
-          json_mode: true
+          system: sys,
+          json_mode: false
         }),
       });
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
@@ -97,6 +97,9 @@ window.ErgioEngines = (function () {
       else if (data.message) text = data.message;
       else if (data.answer) text = data.answer;
       else if (data.content) text = data.content;
+      else if (data.raw) {
+        text = data.raw;
+      }
       else {
         // Try to find any string value in the JSON
         let found = false;
