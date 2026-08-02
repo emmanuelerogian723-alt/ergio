@@ -1428,6 +1428,170 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 </div>
 </div>
 </div>
+<style>
+.site-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all .2s;cursor:pointer}
+.site-card:hover{transform:translateY(-3px);border-color:var(--cyan);box-shadow:0 8px 24px rgba(0,217,255,.08)}
+.site-thumb{width:100%;height:160px;background:linear-gradient(135deg,var(--card2),var(--surface));display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
+.site-thumb iframe{width:1024px;height:600px;transform:scale(.27);transform-origin:top left;pointer-events:none;border:none;opacity:.8}
+.site-thumb .thumb-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 60%,var(--card) 100%)}
+.site-thumb .thumb-badge{position:absolute;top:8px;right:8px;padding:3px 10px;border-radius:100px;font-size:.65rem;font-weight:700}
+.thumb-badge.deployed{background:rgba(0,255,157,.15);color:var(--green);border:1px solid rgba(0,255,157,.3)}
+.thumb-badge.draft{background:rgba(255,184,0,.15);color:var(--yellow);border:1px solid rgba(255,184,0,.3)}
+.site-thumb .linter-badge{position:absolute;top:8px;left:8px;padding:3px 10px;border-radius:100px;font-size:.65rem;font-weight:700;background:rgba(0,217,255,.15);color:var(--cyan);border:1px solid rgba(0,217,255,.3)}
+.site-info{padding:1rem}
+.site-name{font-weight:700;font-size:.95rem;margin-bottom:.2rem}
+.site-meta{font-size:.75rem;color:var(--muted);display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-bottom:.6rem}
+.site-actions{display:flex;gap:.4rem;flex-wrap:wrap}
+.site-action-btn{padding:.4rem .7rem;border-radius:8px;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid var(--border2);background:var(--card2);color:var(--text)}
+.site-action-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.site-action-btn.danger{color:var(--red)}
+.site-action-btn.danger:hover{border-color:var(--red)}
+.site-action-btn.primary{background:linear-gradient(135deg,var(--cyan),var(--blue));color:#fff;border:none}
+</style>
+<script>
+// My Websites Management
+function loadMyWebsites() {
+  const grid = document.getElementById('myWebsitesGrid');
+  if (!grid) return;
+  
+  const websites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
+  const badge = document.getElementById('websitesBadge');
+  
+  if (badge) {
+    if (websites.length > 0) {
+      badge.style.display = 'inline-block';
+      badge.textContent = websites.length;
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+  
+  if (websites.length === 0) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="icon">🌐</div><h3>No websites yet</h3><p>Build your first website with ERGIO and it will appear here automatically.</p><button class="btn btn-primary" onclick="window.open('/build.html','_blank')">🚀 Build a Website</button></div>';
+    return;
+  }
+  
+  grid.innerHTML = websites.map(w => {
+    const date = new Date(w.createdAt || Date.now()).toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' });
+    const statusBadge = w.deployed 
+      ? '<span class="thumb-badge deployed">🟢 Deployed</span>'
+      : '<span class="thumb-badge draft">📝 Draft</span>';
+    const linterBadge = w.linterScore 
+      ? `<span class="linter-badge">${w.linterGrade || 'B'} ${w.linterScore}/100</span>`
+      : '';
+    const deployUrl = w.deployUrl || `https://ergio.vercel.app/s/${w.id}`;
+    
+    // Create thumbnail from HTML
+    const thumbId = 'thumb-' + w.id;
+    
+    return `<div class="site-card" data-id="${w.id}">
+      <div class="site-thumb">
+        <iframe id="${thumbId}" sandbox="allow-same-origin" loading="lazy"></iframe>
+        <div class="thumb-overlay"></div>
+        ${statusBadge}
+        ${linterBadge}
+      </div>
+      <div class="site-info">
+        <div class="site-name">${w.name || 'Untitled'}</div>
+        <div class="site-meta">
+          <span>${w.type || 'business'}</span>
+          ${w.city ? '<span>·</span><span>' + w.city + '</span>' : ''}
+          <span>·</span><span>${date}</span>
+        </div>
+        <div class="site-actions">
+          <button class="site-action-btn primary" onclick="openWebsite('${w.id}')" title="Open in builder">✏️ Edit</button>
+          <button class="site-action-btn" onclick="viewWebsite('${w.id}')" title="View live">👁️ View</button>
+          <button class="site-action-btn" onclick="deployWebsite('${w.id}')" title="Deploy">🚀 Deploy</button>
+          <button class="site-action-btn danger" onclick="deleteWebsite('${w.id}')" title="Delete">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  
+  // Set thumbnails
+  websites.forEach(w => {
+    const iframe = document.getElementById('thumb-' + w.id);
+    if (iframe && w.html) {
+      try {
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        doc.open();
+        doc.write(w.html.substring(0, 5000));
+        doc.close();
+      } catch(e) {}
+    }
+  });
+}
+
+function openWebsite(id) {
+  const websites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
+  const w = websites.find(w => w.id === id);
+  if (!w) return;
+  
+  // Save to builder autosave so it loads in the builder
+  const saveData = {
+    html: w.html,
+    buildData: { businessName: w.name, plan: { businessName: w.name, type: w.type, city: w.city, slug: w.id, tagline: w.tagline }, id: w.id, logoUrl: w.logoUrl },
+    versions: [],
+    mode: 'build',
+    timestamp: Date.now()
+  };
+  localStorage.setItem('ergio_builder_autosave', JSON.stringify(saveData));
+  localStorage.setItem('ergio_business_id', w.id);
+  
+  window.open('/build.html', '_blank');
+}
+
+function viewWebsite(id) {
+  const websites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
+  const w = websites.find(w => w.id === id);
+  if (!w) return;
+  
+  // Write HTML to blob and open
+  const blob = new Blob([w.html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+}
+
+function deployWebsite(id) {
+  const websites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
+  const w = websites.find(w => w.id === id);
+  if (!w) return;
+  
+  fetch('/api/site', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ slug: w.id, html: w.html, businessId: w.id })
+  }).then(r => r.json()).then(data => {
+    const url = data.url || `https://ergio.vercel.app/s/${w.id}`;
+    
+    // Update website record
+    w.deployed = true;
+    w.deployUrl = url;
+    localStorage.setItem('ergio_saved_websites', JSON.stringify(websites));
+    
+    if (typeof showToast === 'function') showToast('🚀 Deployed to ' + url, 'success');
+    loadMyWebsites();
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(url).catch(() => {});
+  }).catch(err => {
+    if (typeof showToast === 'function') showToast('Deploy failed: ' + err.message, 'error');
+  });
+}
+
+function deleteWebsite(id) {
+  if (!confirm('Delete this website? This cannot be undone.')) return;
+  
+  let websites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
+  websites = websites.filter(w => w.id !== id);
+  localStorage.setItem('ergio_saved_websites', JSON.stringify(websites));
+  
+  loadMyWebsites();
+  if (typeof showToast === 'function') showToast('Website deleted', 'info');
+}
+</script>
+
+<script>window.addEventListener("DOMContentLoaded", function() { setTimeout(loadMyWebsites, 300); });</script>
 <script>
 
 
@@ -2067,172 +2231,7 @@ async function buildWebsite(){
   var styleCSS=erStyleCSS(analysis.style,pal,fonts,animStyle);
   var fontLinks='<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family='+fonts.hUrl+':wght@'+fonts.hWeight+';'+fonts.hWeightBold+'&family='+fonts.bUrl+':wght@300;400;500;600;700&display=swap" rel="stylesheet">';
   var scrollScript='<scr'+'ipt>var sp=document.querySelector(".er-progress");window.addEventListener("scroll",function(){var h=document.documentElement.scrollHeight-window.innerHeight;var p=(window.scrollY/h)*100;if(sp)sp.style.width=p+"%"});var io=new IntersectionObserver(function(e){e.forEach(function(el){if(el.isIntersecting)el.target.classList.add("in")})},{threshold:0.1});document.querySelectorAll(".reveal,.reveal-scale,.reveal-left").forEach(function(el){io.observe(el)});</scr'+'ipt>';
-  var fullHTML='<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>'+n+' | '+content.tagline+'</title><meta name="description" content="'+analysis.description.slice(0,160)+'"><meta property="og:title" content="'+n+'"><meta property="og:description" content="'+content.tagline+'"><meta property="og:image" content="'+imgs[0]+'"><meta property="og:type" content="website"><meta name="twitter:card" content="summary_large_image">'+fontLinks+'<style>'+styleCSS+animCSS+'</style></head><body><div class="er-progress" style="width:0"></div>'+sectionsHTML+scrollScript+'
-<style>
-.site-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all .2s;cursor:pointer}
-.site-card:hover{transform:translateY(-3px);border-color:var(--cyan);box-shadow:0 8px 24px rgba(0,217,255,.08)}
-.site-thumb{width:100%;height:160px;background:linear-gradient(135deg,var(--card2),var(--surface));display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
-.site-thumb iframe{width:1024px;height:600px;transform:scale(.27);transform-origin:top left;pointer-events:none;border:none;opacity:.8}
-.site-thumb .thumb-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 60%,var(--card) 100%)}
-.site-thumb .thumb-badge{position:absolute;top:8px;right:8px;padding:3px 10px;border-radius:100px;font-size:.65rem;font-weight:700}
-.thumb-badge.deployed{background:rgba(0,255,157,.15);color:var(--green);border:1px solid rgba(0,255,157,.3)}
-.thumb-badge.draft{background:rgba(255,184,0,.15);color:var(--yellow);border:1px solid rgba(255,184,0,.3)}
-.site-thumb .linter-badge{position:absolute;top:8px;left:8px;padding:3px 10px;border-radius:100px;font-size:.65rem;font-weight:700;background:rgba(0,217,255,.15);color:var(--cyan);border:1px solid rgba(0,217,255,.3)}
-.site-info{padding:1rem}
-.site-name{font-weight:700;font-size:.95rem;margin-bottom:.2rem}
-.site-meta{font-size:.75rem;color:var(--muted);display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-bottom:.6rem}
-.site-actions{display:flex;gap:.4rem;flex-wrap:wrap}
-.site-action-btn{padding:.4rem .7rem;border-radius:8px;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid var(--border2);background:var(--card2);color:var(--text)}
-.site-action-btn:hover{border-color:var(--cyan);color:var(--cyan)}
-.site-action-btn.danger{color:var(--red)}
-.site-action-btn.danger:hover{border-color:var(--red)}
-.site-action-btn.primary{background:linear-gradient(135deg,var(--cyan),var(--blue));color:#fff;border:none}
-</style>
-<script>
-// My Websites Management
-function loadMyWebsites() {
-  const grid = document.getElementById('myWebsitesGrid');
-  if (!grid) return;
-  
-  const websites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
-  const badge = document.getElementById('websitesBadge');
-  
-  if (badge) {
-    if (websites.length > 0) {
-      badge.style.display = 'inline-block';
-      badge.textContent = websites.length;
-    } else {
-      badge.style.display = 'none';
-    }
-  }
-  
-  if (websites.length === 0) {
-    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="icon">🌐</div><h3>No websites yet</h3><p>Build your first website with ERGIO and it will appear here automatically.</p><button class="btn btn-primary" onclick="window.open('/build.html','_blank')">🚀 Build a Website</button></div>';
-    return;
-  }
-  
-  grid.innerHTML = websites.map(w => {
-    const date = new Date(w.createdAt || Date.now()).toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' });
-    const statusBadge = w.deployed 
-      ? '<span class="thumb-badge deployed">🟢 Deployed</span>'
-      : '<span class="thumb-badge draft">📝 Draft</span>';
-    const linterBadge = w.linterScore 
-      ? `<span class="linter-badge">${w.linterGrade || 'B'} ${w.linterScore}/100</span>`
-      : '';
-    const deployUrl = w.deployUrl || `https://ergio.vercel.app/s/${w.id}`;
-    
-    // Create thumbnail from HTML
-    const thumbId = 'thumb-' + w.id;
-    
-    return `<div class="site-card" data-id="${w.id}">
-      <div class="site-thumb">
-        <iframe id="${thumbId}" sandbox="allow-same-origin" loading="lazy"></iframe>
-        <div class="thumb-overlay"></div>
-        ${statusBadge}
-        ${linterBadge}
-      </div>
-      <div class="site-info">
-        <div class="site-name">${w.name || 'Untitled'}</div>
-        <div class="site-meta">
-          <span>${w.type || 'business'}</span>
-          ${w.city ? '<span>·</span><span>' + w.city + '</span>' : ''}
-          <span>·</span><span>${date}</span>
-        </div>
-        <div class="site-actions">
-          <button class="site-action-btn primary" onclick="openWebsite('${w.id}')" title="Open in builder">✏️ Edit</button>
-          <button class="site-action-btn" onclick="viewWebsite('${w.id}')" title="View live">👁️ View</button>
-          <button class="site-action-btn" onclick="deployWebsite('${w.id}')" title="Deploy">🚀 Deploy</button>
-          <button class="site-action-btn danger" onclick="deleteWebsite('${w.id}')" title="Delete">🗑️</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-  
-  // Set thumbnails
-  websites.forEach(w => {
-    const iframe = document.getElementById('thumb-' + w.id);
-    if (iframe && w.html) {
-      try {
-        const doc = iframe.contentDocument || iframe.contentWindow.document;
-        doc.open();
-        doc.write(w.html.substring(0, 5000));
-        doc.close();
-      } catch(e) {}
-    }
-  });
-}
-
-function openWebsite(id) {
-  const websites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
-  const w = websites.find(w => w.id === id);
-  if (!w) return;
-  
-  // Save to builder autosave so it loads in the builder
-  const saveData = {
-    html: w.html,
-    buildData: { businessName: w.name, plan: { businessName: w.name, type: w.type, city: w.city, slug: w.id, tagline: w.tagline }, id: w.id, logoUrl: w.logoUrl },
-    versions: [],
-    mode: 'build',
-    timestamp: Date.now()
-  };
-  localStorage.setItem('ergio_builder_autosave', JSON.stringify(saveData));
-  localStorage.setItem('ergio_business_id', w.id);
-  
-  window.open('/build.html', '_blank');
-}
-
-function viewWebsite(id) {
-  const websites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
-  const w = websites.find(w => w.id === id);
-  if (!w) return;
-  
-  // Write HTML to blob and open
-  const blob = new Blob([w.html], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  window.open(url, '_blank');
-}
-
-function deployWebsite(id) {
-  const websites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
-  const w = websites.find(w => w.id === id);
-  if (!w) return;
-  
-  fetch('/api/site', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ slug: w.id, html: w.html, businessId: w.id })
-  }).then(r => r.json()).then(data => {
-    const url = data.url || `https://ergio.vercel.app/s/${w.id}`;
-    
-    // Update website record
-    w.deployed = true;
-    w.deployUrl = url;
-    localStorage.setItem('ergio_saved_websites', JSON.stringify(websites));
-    
-    if (typeof showToast === 'function') showToast('🚀 Deployed to ' + url, 'success');
-    loadMyWebsites();
-    
-    // Copy to clipboard
-    navigator.clipboard.writeText(url).catch(() => {});
-  }).catch(err => {
-    if (typeof showToast === 'function') showToast('Deploy failed: ' + err.message, 'error');
-  });
-}
-
-function deleteWebsite(id) {
-  if (!confirm('Delete this website? This cannot be undone.')) return;
-  
-  let websites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
-  websites = websites.filter(w => w.id !== id);
-  localStorage.setItem('ergio_saved_websites', JSON.stringify(websites));
-  
-  loadMyWebsites();
-  if (typeof showToast === 'function') showToast('Website deleted', 'info');
-}
-</script>
-
-<script>window.addEventListener("DOMContentLoaded", function() { setTimeout(loadMyWebsites, 300); });</script>
-</body></html>';
+  var fullHTML='<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>'+n+' | '+content.tagline+'</title><meta name="description" content="'+analysis.description.slice(0,160)+'"><meta property="og:title" content="'+n+'"><meta property="og:description" content="'+content.tagline+'"><meta property="og:image" content="'+imgs[0]+'"><meta property="og:type" content="website"><meta name="twitter:card" content="summary_large_image">'+fontLinks+'<style>'+styleCSS+animCSS+'</style></head><body><div class="er-progress" style="width:0"></div>'+sectionsHTML+scrollScript+'<\/body><\/html>';
   var quality=erScore(analysis,layout,pal,fonts,content);
   var prev=document.getElementById('wbPreview');
   if(prev){prev.srcdoc=fullHTML;prev.style.display='block'}
