@@ -35,7 +35,7 @@ const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 export async function callGroq(messages, options = {}) {
-  const model = options.model || 'meta-llama/llama-3.3-70b-instruct';
+  const model = options.model || 'openai/gpt-oss-120b';
   const temperature = options.temperature ?? 0.7;
   const maxTokens = options.maxTokens || 4096;
   
@@ -57,7 +57,7 @@ export async function callGroq(messages, options = {}) {
   if (groqKey) {
     providers.push({
       url: GROQ_URL, key: groqKey,
-      model: model.includes('/') ? model.split('/').pop() : model,
+      model: model.startsWith('openai/') ? model : (model.includes('/') ? model.split('/').pop() : model),
       label: 'Groq', headers: {}
     });
   }
@@ -118,7 +118,7 @@ export async function callGroq(messages, options = {}) {
 }
 
 export async function callGroqFast(messages, options = {}) {
-  return callGroq(messages, { ...options, model: 'meta-llama/llama-3.1-8b-instruct' });
+  return callGroq(messages, { ...options, model: 'openai/gpt-oss-20b' });
 }
 
 // ============ SEARXNG SEARCH ENGINE =====

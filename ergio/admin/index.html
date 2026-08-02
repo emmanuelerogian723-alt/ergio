@@ -444,7 +444,10 @@ logA('API','POST /conductor — testing...');showToast('Testing conductor...','i
 var r=await apiPost('/conductor',{request:'What are my capabilities?',business_id:null,user_id:null});
 logA('API','POST /conductor — '+(r?'success':'failed'));
 if(r){
-var html='<div class="modal-title">Conductor Response</div><p style="font-size:0.84rem;line-height:1.6">'+(r.summary||'')+'</p>';
+var html='<div class="modal-title">Conductor Response</div><p style="font-size:0.84rem;line-height:1.6"><b>'+(r.summary||'')+'</b></p>';
+  (r.sub_tasks||[]).forEach(function(t){
+    html+='<div style="margin-top:8px;padding:8px;background:var(--bg2);border-radius:8px"><span style="color:'+(t.status==='completed'?'var(--green)':'var(--red)')+'">'+(t.status==='completed'?'✅':'❌')+'</span> <b>'+t.engine+'</b>/'+t.action+' — '+t.status+'</div>';
+  });
 if(r.sub_tasks){html+='<div class="mt-2"><strong>Sub Tasks:</strong><ul style="font-size:0.78rem;color:var(--text2);padding-left:20px;margin-top:8px">'+r.sub_tasks.map(function(t){return '<li>'+t.engine+' → '+t.action+' ('+t.status+')</li>'}).join('')+'</ul></div>';}
 if(r.business_intelligence&&r.business_intelligence.recommendations){html+='<div class="mt-2"><strong>Recommendations:</strong><ul style="font-size:0.78rem;color:var(--text2);padding-left:20px;margin-top:8px">'+r.business_intelligence.recommendations.map(function(r){return '<li>'+r+'</li>'}).join('')+'</ul></div>';}
 openModal(html);showToast('Conductor responded','success');
@@ -467,7 +470,19 @@ chat.innerHTML+='<div class="chat-msg bot" id="condThinking"><span class="spinne
 chat.scrollTop=chat.scrollHeight;logA('API','POST /conductor — "'+msg+'"');
 var r=await apiPost('/conductor',{request:msg});
 var thinking=document.getElementById('condThinking');
-if(r){thinking.innerHTML=(r.summary||'Done')+'<div class="mt-1 text-xs" style="opacity:0.7">'+((r.business_intelligence||{}).recommendations||[]).slice(0,2).map(function(x){return '• '+x;}).join('<br>')+'</div>';logA('API','Conductor responded: '+(r.summary||'OK'));}else{thinking.innerHTML='❌ Failed to get response. Check if ERGIO Engines is running.';logA('ERROR','Conductor request failed');}
+if(r){
+  var tasksHtml='';
+  (r.sub_tasks||[]).forEach(function(t){
+    var st=t.status==='completed'?'✅':'❌';
+    var content=t.result&&t.result.content?t.result.content:t.result&&t.result.result?t.result.result:'';
+    if(typeof content==='object')content=JSON.stringify(content).substring(0,200);
+    content=String(content).substring(0,300);
+    tasksHtml+='<div style="margin-top:4px;font-size:0.78rem">'+st+' <b>'+t.engine+'</b>/'+t.action+(content?' — '+content:'')+'</div>';
+  });
+  var recs=((r.business_intelligence||{}).recommendations||[]).slice(0,2).map(function(x){return '• '+x;}).join('<br>');
+  thinking.innerHTML='<b>'+(r.summary||'Done')+'</b>'+(tasksHtml?'<div class="mt-1">'+tasksHtml+'</div>':'')+(recs?'<div class="mt-1 text-xs" style="opacity:0.7">'+recs+'</div>':'');
+  logA('API','Conductor responded: '+(r.summary||'OK'));
+}else{thinking.innerHTML='❌ Failed to get response. Check if ERGIO Engines is running.';logA('ERROR','Conductor request failed');}
 chat.scrollTop=chat.scrollHeight;
 }
 

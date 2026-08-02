@@ -21,7 +21,7 @@
   <script>
     // Extract slug from URL path: /site/business-name → business-name
     const path = window.location.pathname;
-    const slug = path.replace(/^\/site\//, '').replace(/\/$/, '');
+    const slug = path.replace(/^\/(site|s)\//, '').replace(/\/$/, '');
     
     if (!slug || slug === '/site') {
       document.getElementById('msg').textContent = 'No site slug provided. Go to ergio.vercel.app to create a website.';

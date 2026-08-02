@@ -1,5 +1,6 @@
 // ERGIO Unified API Router
 import { callGroq, callGroqFast, searxngSearch, scrapePage, getSupabase, success, error, corsHeaders, generateSlug, generateLogoUrl, paystackInit, paystackVerify, delay } from '../lib/ergio.js';
+import { getPremiumCSS, getAnimationJS, getGoogleFonts } from '../lib/premium-template.js';
 import mcpHandler from './mcp.js';
 import crmHandler from './crm.js';
 import assistantHandler from './ai-assistant.js';
@@ -140,7 +141,29 @@ async function handleSite(req, res) {
     });
   }
   if (req.method === 'GET') {
-    return success(res, { message: 'Use POST to save a site', method: 'POST', params: ['businessName', 'html', 'slug'] });
+    const url = new URL(req.url, 'http://localhost');
+    const slug = url.searchParams.get('slug');
+    if (!slug) return error(res, 'slug parameter required', 400);
+    
+    try {
+      const supabase = getSupabase(req);
+      const { data, error: dbErr } = await supabase
+        .from('generated_websites')
+        .select('html_content, business_name')
+        .eq('slug', slug)
+        .order('created_date', { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (dbErr || !data) {
+        return error(res, `Site "${slug}" not found`, 404);
+      }
+      
+      res.setHeader('Content-Type', 'text/html');
+      return res.status(200).send(data.html_content);
+    } catch(e) {
+      return error(res, 'Failed to load site: ' + e.message, 500);
+    }
   }
   return error(res, 'Method not allowed', 405);
 }
@@ -152,8 +175,11 @@ async function handleGenerate(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
   
   const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-  const { prompt } = body;
+  const { prompt, uploadedImages } = body;
   if (!prompt) return res.status(400).json({ error: 'Prompt required' });
+  
+  // User-uploaded photos (data URLs) — use these instead of stock photos
+  const userPhotos = Array.isArray(uploadedImages) ? uploadedImages : [];
   
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -169,7 +195,7 @@ async function handleGenerate(req, res) {
       const planResult = await Promise.race([
         callGroqFast([
           { role: 'system', content: 'You are ERGIO, an expert business strategist. Return only valid JSON, no markdown.' },
-          { role: 'user', content: `Create a business plan for: "${prompt}". Return JSON: {businessName,tagline,type,description,brandColors:{primary,secondary,accent,bg},city:"Lagos",services:[{name,description,price,duration}],seoKeywords:[],targetMarket,tone,imageSearchQueries:[]}. Prices in NGN, 3-5 services.` }
+          { role: 'user', content: `Analyze this business request and create a comprehensive plan: "${prompt}". Return JSON: {businessName:catchy professional name,tagline:memorable one-liner,type:business category,description:2-3 sentence compelling description,brandColors:{primary:hex that matches the industry vibe,secondary:complementary hex,accent:vibrant accent hex,bg:dark background hex like #09090B},city:"Lagos" unless specified,websiteCategory:landing|ecommerce|portfolio|restaurant|agency,services:[4-6 detailed services with name,description,price in NGN,duration],seoKeywords:[5 relevant keywords],targetMarket:ideal customer description,tone:professional|friendly|luxury|bold,designStyle:modern|luxury|bold|minimal|editorial|vibrant,imageSearchQueries:[3-5 image terms]}. Make brand colors sophisticated and industry-appropriate. Prices should be realistic for Nigeria.` }
         ], { temperature: 0.8, response_format: { type: 'json_object' } }),
         new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000))
       ]);
@@ -241,20 +267,96 @@ async function handleGenerate(req, res) {
     send('status', { task: '🏗️ Building with motion graphics...', step: 5, total: 8 });
     const colors = plan.brandColors || { primary: '#00D9FF', secondary: '#09090B', accent: '#00FF9D', bg: '#09090B' };
     
-    const heroImg = images.hero?.[0] || '';
-    const aboutImg = images.about?.[0] || '';
+    // Use user-uploaded photos if available, otherwise fall back to stock photos
+    const heroImg = userPhotos[0]?.dataUrl || images.hero?.[0] || '';
+    const aboutImg = userPhotos[1]?.dataUrl || userPhotos[0]?.dataUrl || images.about?.[0] || '';
+    const galleryImgs = userPhotos.slice(2, 6).map(p => p.dataUrl).filter(Boolean);
     
-    const websiteHtml = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${content.seoTitle}</title><meta name="description" content="${content.seoDescription}">
-<style>*{margin:0;padding:0;box-sizing:border-box}:root{--p:${colors.primary||'#00D9FF'};--bg:${colors.bg||'#09090B'}}body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:#F8FAFC;line-height:1.6;overflow-x:hidden}.nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 5%;position:sticky;top:0;background:rgba(9,9,11,.85);backdrop-filter:blur(20px);z-index:100}.nav .logo{display:flex;align-items:center;gap:.5rem;font-weight:800;color:#fff;text-decoration:none}.nav .links a{color:#94A3B8;text-decoration:none;margin-left:1.5rem;font-size:.95rem}.nav .cta{background:var(--p);color:#000;padding:.6rem 1.5rem;border-radius:100px;font-weight:700}.hero{text-align:center;padding:6rem 5% 4rem}.hero h1{font-size:clamp(2.5rem,6vw,4rem);margin-bottom:1rem;background:linear-gradient(135deg,var(--p),#fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.hero p{color:#94A3B8;font-size:1.2rem;margin-bottom:2rem;max-width:600px;margin-left:auto;margin-right:auto}.btn{display:inline-block;padding:1rem 2.5rem;border-radius:100px;font-weight:700;text-decoration:none;margin:.3rem}.btn-p{background:var(--p);color:#000}.btn-s{border:1px solid rgba(255,255,255,.15);color:#fff}.section{padding:4rem 5%;max-width:1200px;margin:0 auto}.section h2{text-align:center;margin-bottom:2.5rem;font-size:2rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:2rem;transition:transform .3s}.card:hover{transform:translateY(-4px)}.card h3{margin-bottom:.5rem;font-size:1.2rem}.card .price{font-size:1.5rem;font-weight:800;color:var(--p);margin-top:.5rem}.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}@media(max-width:768px){.about-grid{grid-template-columns:1fr}}.about-text p{color:#CBD5E1;margin-bottom:1rem}.contact{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:3rem;text-align:center}.contact a{color:var(--p);text-decoration:none}footer{text-align:center;padding:3rem;color:#64748B;border-top:1px solid rgba(255,255,255,.05)}</style></head><body>
-<nav class="nav"><a class="logo" href="#">${logoUrl?`<img src="${logoUrl}" style="width:32px;height:32px;border-radius:8px">`:''} ${plan.businessName}</a><div class="links"><a href="#about">About</a><a href="#services">Services</a><a href="#contact">Contact</a><a class="cta" href="#contact">Book Now</a></div></nav>
-<section class="hero">${heroImg?`<img src="${heroImg}" style="width:100%;max-height:400px;object-fit:cover;border-radius:20px;margin-bottom:2rem;opacity:.8">`:''}<h1>${content.hero.headline}</h1><p>${content.hero.subheadline}</p><a class="btn btn-p" href="#contact">${content.hero.cta}</a> <a class="btn btn-s" href="#services">Services</a></section>
-<section class="section" id="about"><div class="about-grid"><div class="about-text"><h2 style="text-align:left;margin-bottom:1.5rem">About <span style="color:var(--p)">Us</span></h2>${content.about.split('\\n').map(p=>`<p>${p}</p>`).join('')}</div>${aboutImg?`<div><img src="${aboutImg}" style="width:100%;border-radius:16px"></div>`:''}</div></section>
-<section class="section" id="services"><h2>Our <span style="color:var(--p)">Services</span></h2><div class="grid">${content.servicesHtml||(plan.services||[]).map(s=>`<div class="card"><h3>${s.name||''}</h3><p style="color:#94A3B8;margin:.5rem 0">${s.description||''}</p><div class="price">₦${(s.price||0).toLocaleString()}</div></div>`).join('')}</div></section>
-${content.whyChooseUs&&content.whyChooseUs.length?`<section class="section"><h2>Why <span style="color:var(--p)">Choose Us</span></h2><div class="grid">${content.whyChooseUs.map(w=>`<div class="card"><p>${w}</p></div>`).join('')}</div></section>`:''}
-${content.testimonials&&content.testimonials.length?`<section class="section"><h2>Testimonials</h2>${content.testimonials.map(t=>`<div class="card" style="margin-bottom:1rem"><p style="font-style:italic;color:#CBD5E1">"${t.text||''}"</p><p style="margin-top:.5rem;font-weight:600">— ${t.name||''}, ${t.location||''}</p></div>`).join('')}</section>`:''}
-<section class="section" id="contact"><h2>Contact <span style="color:var(--p)">Us</span></h2><div class="contact">${content.contactInfo.phone?`<p style="margin-bottom:.5rem">📞 <a href="tel:${content.contactInfo.phone}">${content.contactInfo.phone}</a></p>`:''}${content.contactInfo.email?`<p style="margin-bottom:.5rem">✉️ <a href="mailto:${content.contactInfo.email}">${content.contactInfo.email}</a></p>`:''}${content.contactInfo.address?`<p style="margin-bottom:.5rem">📍 ${content.contactInfo.address}</p>`:''}${content.contactInfo.whatsapp?`<p>💬 <a href="https://wa.me/${content.contactInfo.whatsapp.replace(/[^0-9]/g,'')}">WhatsApp</a></p>`:''}</div></section>
-<footer>© ${new Date().getFullYear()} ${plan.businessName}. Powered by ERGIO.</footer>
-</body></html>`;
+const premiumCSS = getPremiumCSS(colors, {});
+    const fontLinks = getGoogleFonts();
+    const animJS = getAnimationJS();
+    
+    const websiteHtml = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${content.seoTitle}</title><meta name="description" content="${content.seoDescription}"><meta name="theme-color" content="${colors.bg||'#09090B'}">
+${fontLinks}
+<style>${premiumCSS}</style>
+</head><body>
+<nav class="nav"><a class="logo" href="#">${logoUrl?`<img src="${logoUrl}" style="width:32px;height:32px;border-radius:8px" alt="${plan.businessName} logo">`:''} ${plan.businessName}</a><div class="links"><a href="#about">About</a><a href="#services">Services</a><a href="#testimonials">Reviews</a><a href="#faq">FAQ</a><a href="#contact">Contact</a><a class="cta" href="#contact">Book Now</a></div><button class="menu-btn" aria-label="Menu">☰</button></nav>
+
+<section class="hero" id="home">
+  <div class="hero-badge reveal">✨ ${plan.city||'Lagos'}'s Premier ${plan.type||'Business'}</div>
+  <h1 class="reveal reveal-delay-1">${content.hero.headline}</h1>
+  <p class="sub reveal reveal-delay-2">${content.hero.subheadline}</p>
+  <div class="hero-cta reveal reveal-delay-3">
+    <a class="btn btn-p" href="#contact">${content.hero.cta} →</a>
+    <a class="btn btn-s" href="#services">View Services</a>
+  </div>
+  ${heroImg?`<div class="reveal reveal-scale" style="margin-top:3rem"><div class="img-frame"><img src="${heroImg}" alt="${plan.businessName}" style="width:100%;max-height:450px;object-fit:cover"></div></div>`:''}
+</section>
+
+<section class="section" id="about">
+  <div class="about-grid">
+    <div class="about-text reveal reveal-left">
+      <div class="eyebrow">Our Story</div>
+      <h2 style="text-align:left;margin-bottom:1rem">About <span class="gradient-text">${plan.businessName}</span></h2>
+      ${content.about.split('\n').map((p,i)=>`<p class="${i===0?'':'reveal reveal-delay-'+Math.min(i,4)}">${p}</p>`).join('')}
+      <div class="about-stats">
+        <div class="stat"><div class="num counter" data-target="500" data-suffix="+">0</div><div class="label">Happy Clients</div></div>
+        <div class="stat"><div class="num counter" data-target="${new Date().getFullYear()-2020}" data-suffix="+">0</div><div class="label">Years Experience</div></div>
+        <div class="stat"><div class="num counter" data-target="100" data-suffix="%">0</div><div class="label">Satisfaction</div></div>
+      </div>
+    </div>
+    ${aboutImg ? `<div class="reveal reveal-right"><div class="img-frame img-glow"><img src="${aboutImg}" alt="About ${plan.businessName}" style="width:100%"></div></div>` : `<div class="reveal reveal-right"><div class="card" style="text-align:center;padding:3rem"><div style="font-size:3rem;margin-bottom:1rem">🏆</div><h3>Award Quality</h3><p style="color:var(--muted)">Trusted by businesses across ${plan.city || "Nigeria"}</p></div></div>`}
+  </div>
+</section>
+
+<section class="section" id="services">
+  <div class="section-header reveal">
+    <div class="eyebrow">What We Offer</div>
+    <h2>Our <span class="gradient-text">Services</span></h2>
+    <p>Professional services designed to exceed your expectations</p>
+  </div>
+  <div class="grid">
+    ${(plan.services||[]).map((s,i)=>`<div class="card reveal reveal-delay-${Math.min(i+1,4)}"><div class="icon">${['💼','⚡','🎯','🚀','✨','💎'][i%6]}</div><h3>${s.name||''}</h3><p style="color:var(--muted);margin:.5rem 0 1rem">${s.description||''}</p><div class="price">₦${(s.price||0).toLocaleString()}${s.duration?'<small>/'+s.duration+'min</small>':''}</div></div>`).join('')}
+  </div>
+</section>
+
+${content.whyChooseUs&&content.whyChooseUs.length?`<section class="section"><div class="section-header reveal"><div class="eyebrow">Why Us</div><h2>Why <span class="gradient-text">Choose Us</span></h2></div><div class="grid">${content.whyChooseUs.map((w,i)=>`<div class="card reveal reveal-delay-${Math.min(i+1,4)}" style="text-align:center"><div class="icon" style="margin:0 auto 1rem">${['⭐','🤝','💰','✅','🛡️','⚡'][i%6]}</div><h3 style="font-size:1.1rem">${w}</h3></div>`).join('')}</div></section>`:''}
+
+${galleryImgs&&galleryImgs.length?`<section class="section" id="gallery"><div class="section-header reveal"><div class="eyebrow">Our Work</div><h2>Photo <span class="gradient-text">Gallery</span></h2></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:2rem">${galleryImgs.map((src,i)=>`<div class="img-frame reveal reveal-delay-${Math.min(i+1,4)}" style="overflow:hidden"><img src="${src}" alt="Gallery photo ${i+1}" style="width:100%;height:200px;object-fit:cover"></div>`).join('')}</div></section>`:''}
+${content.testimonials&&content.testimonials.length?`<section class="section" id="testimonials"><div class="section-header reveal"><div class="eyebrow">Client Love</div><h2>What Clients <span class="gradient-text">Say</span></h2></div>${content.testimonials.map((t,i)=>`<div class="testimonial reveal reveal-delay-${Math.min(i+1,4)}"><p>"${t.text||''}"</p><div class="author"><div class="avatar">${(t.name||'A').charAt(0)}</div><div><div class="name">${t.name||''}</div><div class="location">${t.location||plan.city||'Lagos'}</div></div></div></div>`).join('')}</section>`:''}
+
+${content.faq&&content.faq.length?`<section class="section" id="faq" style="max-width:800px"><div class="section-header reveal"><div class="eyebrow">Questions</div><h2>Frequently Asked <span class="gradient-text">Questions</span></h2></div>${content.faq.map((f,i)=>`<details class="faq-item reveal reveal-delay-${Math.min(i+1,4)}"><summary class="faq-q">${f.q||''}<span class="icon">+</span></summary><div class="faq-a">${f.a||''}</div></details>`).join('')}</section>`:''}
+
+<section class="section" id="contact">
+  <div class="contact-card reveal reveal-scale">
+    <div class="eyebrow" style="margin-bottom:1rem">Get In Touch</div>
+    <h2 style="font-size:clamp(1.8rem,4vw,2.5rem);margin-bottom:.8rem">Ready to <span class="gradient-text">Get Started?</span></h2>
+    <p style="color:var(--muted);margin-bottom:2rem">Contact us today and let us help you with your needs</p>
+    <div class="hero-cta" style="margin-bottom:2.5rem">
+      <a class="btn btn-p" href="https://wa.me/${(content.contactInfo?.whatsapp||'2348000000000').replace(/[^0-9]/g,'')}">💬 WhatsApp Us</a>
+      <a class="btn btn-s" href="tel:${content.contactInfo?.phone||''}">📞 Call Now</a>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-item"><div class="icon">📞</div><div class="label">Phone</div><div class="value">${content.contactInfo?.phone||''}</div></div>
+      <div class="contact-item"><div class="icon">📧</div><div class="label">Email</div><div class="value">${content.contactInfo?.email||''}</div></div>
+      <div class="contact-item"><div class="icon">📍</div><div class="label">Location</div><div class="value">${content.contactInfo?.address||plan.city||'Lagos'}, Nigeria</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-banner reveal">
+  <h2>Experience Excellence Today</h2>
+  <p>Join ${Math.floor(Math.random()*400)+100}+ satisfied customers who chose ${plan.businessName}</p>
+  <a class="btn btn-g" href="#contact">Book Your Appointment →</a>
+</div>
+
+<footer>
+  <div class="footer-links"><a href="#about">About</a><a href="#services">Services</a><a href="#testimonials">Reviews</a><a href="#faq">FAQ</a><a href="#contact">Contact</a></div>
+  <p>&copy; ${new Date().getFullYear()} ${plan.businessName}. All rights reserved.</p>
+  <p style="margin-top:.5rem;font-size:.85rem">Built with <a href="https://ergio.vercel.app">ERGIO</a> ⚡</p>
+</footer>
+${animJS}
+</body></html>`;;
     
     send('website', { html: websiteHtml, logoUrl });
 
@@ -302,13 +404,74 @@ ${content.testimonials&&content.testimonials.length?`<section class="section"><h
 async function handleRefine(req, res) {
   if (req.method !== 'POST') return error(res, 'Use POST', 405);
   const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-  const { currentHtml, editRequest, businessName } = body;
+  const { currentHtml, editRequest, businessName, uploadedImages } = body;
   if (!currentHtml || !editRequest) return error(res, 'currentHtml and editRequest required', 400);
-  const result = await callGroq([
-    { role: 'system', content: 'You are ERGIO, an expert web developer. Return only valid HTML.' },
-    { role: 'user', content: `Edit this website for "${businessName||'business'}". Request: "${editRequest}". Current HTML (truncated): ${currentHtml.substring(0,8000)}. Return COMPLETE updated HTML only.` }
-  ], { temperature: 0.3, maxTokens: 4096 });
-  return success(res, { html: result });
+  
+  // Validate the input HTML is not too large (max 50KB for full send)
+  const htmlToSend = currentHtml.length > 50000 ? currentHtml.substring(0, 50000) : currentHtml;
+  const wasTruncated = currentHtml.length > 50000;
+  
+  // Smart system prompt: instruct surgical edits, not full regeneration
+  const systemPrompt = `You are ERGIO, an expert web developer AI. Your job is to edit an existing website based on the user's request.
+
+CRITICAL RULES — FOLLOW EXACTLY:
+1. Return the COMPLETE, VALID HTML document — every tag from <!DOCTYPE html> to </html>
+2. Make ONLY the changes the user requested — do not remove or break existing sections
+3. Keep ALL existing CSS, JavaScript, images, and structure INTACT — do not rewrite sections that the user did not ask to change
+4. If the user asks to change text — ONLY change that specific text, keep the surrounding tags identical
+5. If the user asks to change colors — ONLY change the specific color values mentioned, keep the CSS structure identical
+6. If the user asks to add a section — add it in the appropriate location without modifying existing sections
+7. If the user asks to remove something — remove only that specific element
+8. NEVER return partial HTML — always return a complete valid document
+9. Preserve ALL <style> blocks EXACTLY as they are — do not reformat, reorder, or "improve" CSS
+10. Preserve ALL <script> tags EXACTLY as they are — do not modify JavaScript code
+11. Keep all class names and IDs unchanged unless the user specifically asks to change them
+12. DO NOT add new <style> or <script> blocks unless the user explicitly asks for new functionality
+13. DO NOT change the page layout, fonts, or design unless the user explicitly asks
+14. If the user asks to use uploaded photos — ONLY replace the src attributes of <img> tags, keep all other attributes (alt, style, class) unchanged
+15. The HTML ${wasTruncated ? 'was truncated for length — reconstruct the missing parts based on the visible structure' : 'is complete'}.
+
+REMEMBER: You are making SURGICAL edits, not rebuilding the page. The safest edit is the smallest edit that achieves the user's goal.
+
+Return ONLY valid HTML code. No explanations, no markdown, no code blocks — just raw HTML.`;
+
+  const userPrompt = `Business: "${businessName || 'business'}"
+
+User's edit request: "${editRequest}"
+
+${uploadedImages && uploadedImages.length > 0 ? 'The user has uploaded ' + uploadedImages.length + ' photos. Use these photo data URLs to replace stock images in the website. Photo data URLs: ' + uploadedImages.map((p, i) => '\n[Photo ' + (i+1) + ': ' + p.name + '] ' + p.dataUrl).join('\n') + '\n' : ''}
+
+Current HTML:
+${htmlToSend}
+
+Return the complete updated HTML with the requested changes applied. Make ONLY the requested changes — keep everything else exactly as is. If the user uploaded photos, replace stock image URLs with the provided data URLs.`;
+
+  try {
+    const result = await callGroq([
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt }
+    ], { temperature: 0.2, maxTokens: 8000, timeout: 45000 });
+    
+    // Validate the returned HTML
+    let cleanHtml = result || '';
+    // Strip markdown code blocks if the model added them
+    cleanHtml = cleanHtml.replace(/^```html\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '');
+    
+    // Basic validation: must have DOCTYPE and closing html tag
+    const hasDoctype = cleanHtml.toLowerCase().includes('<!doctype') || cleanHtml.toLowerCase().includes('<html');
+    const hasClosingHtml = cleanHtml.toLowerCase().includes('</html>') || cleanHtml.toLowerCase().includes('</body>');
+    
+    if (!hasDoctype || !hasClosingHtml || cleanHtml.length < 500) {
+      return error(res, 'Edit produced invalid HTML — the AI may have returned a partial result. Try being more specific about what to change.', 422);
+    }
+    
+    return success(res, { 
+      html: cleanHtml,
+      summary: 'Website updated successfully.'
+    });
+  } catch(err) {
+    return error(res, 'Edit failed: ' + (err.message || 'unknown error'), 500);
+  }
 }
 
 // ============ AUTH ============
@@ -575,7 +738,77 @@ async function handleEngines(req, res, action) {
   if (action==='status') return success(res,{engines:[{name:'Local Discovery',status:'active'},{name:'Demand Matching',status:'active'},{name:'AI Outreach',status:'active'},{name:'Repeat Clients',status:'active'}]});
   if (action==='search') { const q = req.query?.query || (typeof req.body==='string'?JSON.parse(req.body):req.body)?.query; if(!q) return error(res,'Query required',400); return success(res, await searxngSearch(q,{count:20})); }
   if (action==='scrape') { const u = req.query?.url || (typeof req.body==='string'?JSON.parse(req.body):req.body)?.url; if(!u) return error(res,'URL required',400); return success(res, await scrapePage(u)); }
-  return success(res,{actions:['status','search','scrape']});
+  
+  // Conductor 'run' action — Vercel fallback when Render is down
+  if (action==='run' || !action) {
+    if (req.method !== 'POST') return error(res, 'Use POST', 405);
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+    const { engine, prompt } = body;
+    
+    if (!prompt) return error(res, 'Prompt required', 400);
+    
+    // Route to appropriate handler based on engine type
+    try {
+      // For website-related requests, provide helpful guidance
+      const lowerPrompt = (prompt || '').toLowerCase();
+      
+      if (lowerPrompt.includes('website') || lowerPrompt.includes('edit') || lowerPrompt.includes('change') || lowerPrompt.includes('update')) {
+        return success(res, { 
+          summary: 'I can help you edit your website! Use the Chat tab below to describe what you want to change. For example: "Change the hero text to Welcome to my store" or "Make the buttons blue".',
+          message: 'To edit your website, switch to the Chat tab and describe your changes. I will apply them surgically without breaking the code.',
+          engines_used: ['website_engine']
+        });
+      }
+      
+      if (lowerPrompt.includes('lead') || lowerPrompt.includes('client') || lowerPrompt.includes('customer')) {
+        return success(res, {
+          summary: 'Lead Engine: I can help find potential customers for your business. To get started, make sure your business profile is set up with your industry and location. Leads are stored in your CRM tab.',
+          message: 'Lead discovery is ready. Use the CRM tab to view and manage your leads.',
+          engines_used: ['lead_engine']
+        });
+      }
+      
+      if (lowerPrompt.includes('invoice') || lowerPrompt.includes('bill') || lowerPrompt.includes('payment')) {
+        return success(res, {
+          summary: 'Invoice Engine: I can generate invoices and track payments. Use the dashboard to create invoices and accept payments via Paystack.',
+          message: 'Invoice generation is ready. Visit the dashboard to create and send invoices.',
+          engines_used: ['invoice_engine']
+        });
+      }
+      
+      if (lowerPrompt.includes('content') || lowerPrompt.includes('social') || lowerPrompt.includes('post')) {
+        const r = await callGroqFast([
+          { role: 'system', content: 'You are ERGIO Conductor, an AI business assistant. Create engaging social media content for Nigerian businesses. Return 3 post ideas with sample copy.' },
+          { role: 'user', content: prompt }
+        ], { temperature: 0.7 });
+        return success(res, { summary: r, message: r, engines_used: ['content_engine'] });
+      }
+      
+      if (lowerPrompt.includes('analytics') || lowerPrompt.includes('stats') || lowerPrompt.includes('report')) {
+        return success(res, {
+          summary: 'Analytics: Check your dashboard for real-time stats on visitors, leads, bookings, and revenue. Your website analytics are tracked automatically.',
+          message: 'Analytics dashboard is available in the main dashboard view.',
+          engines_used: ['analytics_engine']
+        });
+      }
+      
+      // General AI response — use Groq for intelligent replies
+      const aiResponse = await callGroqFast([
+        { role: 'system', content: 'You are ERGIO Conductor, an AI business assistant for African businesses. Be helpful, concise, and actionable. You can help with: website editing, lead generation, invoicing, content creation, analytics, and more. Respond in plain text.' },
+        { role: 'user', content: prompt }
+      ], { temperature: 0.5 });
+      
+      return success(res, { 
+        summary: aiResponse, 
+        message: aiResponse,
+        engines_used: ['conductor']
+      });
+    } catch (err) {
+      return error(res, 'Conductor error: ' + (err.message || 'unknown'), 500);
+    }
+  }
+  
+  return success(res,{actions:['status','search','scrape','run']});
 }
 
 // ============ ANALYTICS ============
