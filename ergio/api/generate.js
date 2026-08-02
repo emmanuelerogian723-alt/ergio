@@ -545,17 +545,28 @@ Return ONLY JSON:
       const userId = req.body.userId || null;
       
       const siteSlug = generateSlug(plan.businessName);
-      await supabase.from('generated_websites').insert({
-        business_name: plan.businessName,
-        business_type: plan.type,
-        html_content: websiteHtml,
-        brand_colors: colors,
-        website_type: is3D ? '3d' : 'standard',
-        website_category: plan.websiteCategory || 'landing',
-        slug: siteSlug,
-        created_by: userId,
-        created_date: new Date().toISOString()
-      });
+      // The table has: id, html, + any columns added via ALTER TABLE
+      // Use 'html' for the HTML content (confirmed column exists)
+      // Try full insert first, fall back to minimal if columns don't exist yet
+      try {
+        await supabase.from('generated_websites').insert({
+          html: websiteHtml,
+          business_name: plan.businessName,
+          business_type: plan.type,
+          brand_colors: colors,
+          website_type: is3D ? '3d' : 'standard',
+          website_category: plan.websiteCategory || 'landing',
+          slug: siteSlug,
+          created_by: userId,
+          created_date: new Date().toISOString()
+        });
+      } catch (insertErr) {
+        // Fallback: insert with just the columns we know exist
+        console.log('[generate] Full insert failed, trying minimal:', insertErr.message);
+        await supabase.from('generated_websites').insert({
+          html: websiteHtml
+        });
+      }
     } catch (dbErr) {
       console.error('Template save error:', dbErr.message);
     }
