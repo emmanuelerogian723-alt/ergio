@@ -93,9 +93,9 @@ Rules:
     try {
       planResult = await Promise.race([
         callGroqFast([
-          { role: 'system', content: 'You are ERGIO, an expert business strategist. Return only valid JSON, no markdown.' },
+          { role: 'system', content: 'You are ERGIO, an expert business strategist. Return only valid JSON, no markdown. You must return a single JSON object (not an array) with exactly these fields: businessName, tagline, type, websiteCategory, websiteType, designStyle, description, brandColors, city, services, seoKeywords, targetMarket, tone, imageSearchQueries.' },
           { role: 'user', content: planPrompt }
-        ], { temperature: 0.8, response_format: { type: 'json_object' } }),
+        ], { temperature: 0.8, response_format: { type: 'json_object' }, timeout: 22000 }),
         new Promise((_, reject) => setTimeout(() => reject(new Error('Plan timeout')), 25000))
       ]);
     } catch(planErr) {
@@ -110,7 +110,12 @@ Rules:
         plan = JSON.parse(planResult);
       } catch (e) {
         const match = planResult.match(/\{[\s\S]*\}/);
-        plan = match ? JSON.parse(match[0]) : null;
+        try { plan = match ? JSON.parse(match[0]) : null; } catch(e2) { plan = null; }
+      }
+      // Validate: plan must be an object (not array) with businessName
+      if (plan && (Array.isArray(plan) || typeof plan !== 'object' || !plan.businessName)) {
+        console.log('Plan AI returned invalid structure, using fallback');
+        plan = null;
       }
     }
     if (!plan) {
@@ -195,7 +200,7 @@ Return JSON:
           { role: 'system', content: 'Return only valid JSON.' },
           { role: 'user', content: brandPrompt }
         ], { temperature: 0.7, response_format: { type: 'json_object' } }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Brand timeout')), 8000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Brand timeout')), 15000))
       ]);
     } catch(e) {
       console.log('Brand AI fallback:', e.message);

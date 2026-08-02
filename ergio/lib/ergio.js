@@ -57,7 +57,7 @@ export async function callGroq(messages, options = {}) {
   if (groqKey) {
     providers.push({
       url: GROQ_URL, key: groqKey,
-      model: model.includes('/') ? model.split('/').pop() : model,
+      model: model.startsWith('openai/') ? model : (model.includes('/') ? model.split('/').pop() : model),
       label: 'Groq', headers: {}
     });
   }
