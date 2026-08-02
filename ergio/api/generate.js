@@ -96,7 +96,7 @@ Rules:
           { role: 'system', content: 'You are ERGIO, an expert business strategist. Return only valid JSON, no markdown.' },
           { role: 'user', content: planPrompt }
         ], { temperature: 0.8, response_format: { type: 'json_object' } }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Plan timeout')), 12000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Plan timeout')), 25000))
       ]);
     } catch(planErr) {
       console.log('Plan AI fallback:', planErr.message);
