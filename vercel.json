@@ -12,6 +12,34 @@
   },
   "rewrites": [
     {
+      "source": "/admin/:path*",
+      "destination": "/ergio/admin/:path*"
+    },
+    {
+      "source": "/console/:path*",
+      "destination": "/ergio/console/:path*"
+    },
+    {
+      "source": "/dashboard/",
+      "destination": "/ergio/dashboard/index.html"
+    },
+    {
+      "source": "/admin/",
+      "destination": "/ergio/admin/index.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/ergio/admin/index.html"
+    },
+    {
+      "source": "/console/",
+      "destination": "/ergio/console/index.html"
+    },
+    {
+      "source": "/console",
+      "destination": "/ergio/console/index.html"
+    },
+    {
       "source": "/auth/:path*",
       "destination": "/ergio/auth/:path*"
     },
