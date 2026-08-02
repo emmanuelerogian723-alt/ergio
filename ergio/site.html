@@ -128,16 +128,23 @@
         // Serve from localStorage immediately
         serveHTML(localSite.html);
       } else {
-        // Try the API
+        // Try the API — first as HTML, then as JSON fallback
         fetch(`/api/site?slug=${encodeURIComponent(slug)}`, {
           headers: { 'Accept': 'text/html' }
         })
         .then(res => {
           if (!res.ok) throw new Error('Not found');
-          return res.text();
+          const ct = res.headers.get('content-type') || '';
+          if (ct.includes('text/html')) return res.text();
+          // JSON response — extract html field
+          return res.json().then(data => {
+            if (data.site) return null; // metadata only, no html
+            if (data.html) return data.html;
+            throw new Error('No HTML in response');
+          });
         })
         .then(html => {
-          if (html && html.length > 200 && html.includes('<!DOCTYPE')) {
+          if (html && html.length > 100) {
             serveHTML(html);
           } else {
             throw new Error('Invalid HTML response');

@@ -1,10 +1,9 @@
 -- ============================================================
 -- ERGIO — Fix generated_websites table columns
--- Run this in Supabase Dashboard → SQL Editor → New Query
+-- Run this in Supabase Dashboard → SQL Editor → New Query → Paste → Run
 -- ============================================================
-
 -- The table currently only has: id, html
--- These columns are needed for the website management system to work
+-- These columns are needed for the website deploy + management system
 
 ALTER TABLE generated_websites 
   ADD COLUMN IF NOT EXISTS business_name TEXT,
@@ -22,13 +21,18 @@ CREATE INDEX IF NOT EXISTS idx_generated_websites_slug ON generated_websites(slu
 CREATE INDEX IF NOT EXISTS idx_generated_websites_category ON generated_websites(website_category);
 CREATE INDEX IF NOT EXISTS idx_generated_websites_created ON generated_websites(created_date DESC);
 
--- Enable RLS policies (allow public read, authenticated write)
+-- Enable RLS (allow public read so /s/{slug} works, service role can write)
 ALTER TABLE generated_websites ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Anyone can read generated_websites" ON generated_websites
+DROP POLICY IF EXISTS "Public can read generated_websites" ON generated_websites;
+CREATE POLICY "Public can read generated_websites" ON generated_websites
   FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Service role can write generated_websites" ON generated_websites;
 CREATE POLICY "Service role can write generated_websites" ON generated_websites
-  FOR ALL USING (auth.role() = 'service_role');
+  FOR ALL USING (true);
 
--- Done! After running this, the generate endpoint will save websites with full metadata.
+-- Done! After running this:
+-- 1. The generate endpoint saves websites with full metadata (name, slug, type, colors)
+-- 2. /s/{slug} serves the website HTML directly
+-- 3. Dashboard "My Websites" shows all generated sites

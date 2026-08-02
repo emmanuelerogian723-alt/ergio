@@ -2207,11 +2207,8 @@ function showPreview(html, title = 'Preview') {
   empty.style.display = 'none';
   iframe.style.display = 'block';
   
-  // Write HTML to iframe
-  const doc = iframe.contentDocument || iframe.contentWindow.document;
-  doc.open();
-  doc.write(html);
-  doc.close();
+  // Write HTML to iframe using srcdoc (more reliable than doc.write with sandbox)
+  iframe.srcdoc = html;
   
   currentHTML = html;
   
