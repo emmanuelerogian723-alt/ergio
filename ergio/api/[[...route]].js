@@ -140,7 +140,29 @@ async function handleSite(req, res) {
     });
   }
   if (req.method === 'GET') {
-    return success(res, { message: 'Use POST to save a site', method: 'POST', params: ['businessName', 'html', 'slug'] });
+    const url = new URL(req.url, 'http://localhost');
+    const slug = url.searchParams.get('slug');
+    if (!slug) return error(res, 'slug parameter required', 400);
+    
+    try {
+      const supabase = getSupabase(req);
+      const { data, error: dbErr } = await supabase
+        .from('generated_websites')
+        .select('html_content, business_name')
+        .eq('slug', slug)
+        .order('created_date', { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (dbErr || !data) {
+        return error(res, `Site "${slug}" not found`, 404);
+      }
+      
+      res.setHeader('Content-Type', 'text/html');
+      return res.status(200).send(data.html_content);
+    } catch(e) {
+      return error(res, 'Failed to load site: ' + e.message, 500);
+    }
   }
   return error(res, 'Method not allowed', 405);
 }
