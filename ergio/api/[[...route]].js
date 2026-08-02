@@ -1,5 +1,6 @@
 // ERGIO Unified API Router
 import { callGroq, callGroqFast, searxngSearch, scrapePage, getSupabase, success, error, corsHeaders, generateSlug, generateLogoUrl, paystackInit, paystackVerify, delay } from '../lib/ergio.js';
+import { getPremiumCSS, getAnimationJS, getGoogleFonts } from '../lib/premium-template.js';
 import mcpHandler from './mcp.js';
 import crmHandler from './crm.js';
 import assistantHandler from './ai-assistant.js';
@@ -191,7 +192,7 @@ async function handleGenerate(req, res) {
       const planResult = await Promise.race([
         callGroqFast([
           { role: 'system', content: 'You are ERGIO, an expert business strategist. Return only valid JSON, no markdown.' },
-          { role: 'user', content: `Create a business plan for: "${prompt}". Return JSON: {businessName,tagline,type,description,brandColors:{primary,secondary,accent,bg},city:"Lagos",services:[{name,description,price,duration}],seoKeywords:[],targetMarket,tone,imageSearchQueries:[]}. Prices in NGN, 3-5 services.` }
+          { role: 'user', content: `Analyze this business request and create a comprehensive plan: "${prompt}". Return JSON: {businessName:catchy professional name,tagline:memorable one-liner,type:business category,description:2-3 sentence compelling description,brandColors:{primary:hex that matches the industry vibe,secondary:complementary hex,accent:vibrant accent hex,bg:dark background hex like #09090B},city:"Lagos" unless specified,websiteCategory:landing|ecommerce|portfolio|restaurant|agency,services:[4-6 detailed services with name,description,price in NGN,duration],seoKeywords:[5 relevant keywords],targetMarket:ideal customer description,tone:professional|friendly|luxury|bold,designStyle:modern|luxury|bold|minimal|editorial|vibrant,imageSearchQueries:[3-5 image terms]}. Make brand colors sophisticated and industry-appropriate. Prices should be realistic for Nigeria.` }
         ], { temperature: 0.8, response_format: { type: 'json_object' } }),
         new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000))
       ]);
@@ -266,17 +267,90 @@ async function handleGenerate(req, res) {
     const heroImg = images.hero?.[0] || '';
     const aboutImg = images.about?.[0] || '';
     
-    const websiteHtml = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${content.seoTitle}</title><meta name="description" content="${content.seoDescription}">
-<style>*{margin:0;padding:0;box-sizing:border-box}:root{--p:${colors.primary||'#00D9FF'};--bg:${colors.bg||'#09090B'}}body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:#F8FAFC;line-height:1.6;overflow-x:hidden}.nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 5%;position:sticky;top:0;background:rgba(9,9,11,.85);backdrop-filter:blur(20px);z-index:100}.nav .logo{display:flex;align-items:center;gap:.5rem;font-weight:800;color:#fff;text-decoration:none}.nav .links a{color:#94A3B8;text-decoration:none;margin-left:1.5rem;font-size:.95rem}.nav .cta{background:var(--p);color:#000;padding:.6rem 1.5rem;border-radius:100px;font-weight:700}.hero{text-align:center;padding:6rem 5% 4rem}.hero h1{font-size:clamp(2.5rem,6vw,4rem);margin-bottom:1rem;background:linear-gradient(135deg,var(--p),#fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.hero p{color:#94A3B8;font-size:1.2rem;margin-bottom:2rem;max-width:600px;margin-left:auto;margin-right:auto}.btn{display:inline-block;padding:1rem 2.5rem;border-radius:100px;font-weight:700;text-decoration:none;margin:.3rem}.btn-p{background:var(--p);color:#000}.btn-s{border:1px solid rgba(255,255,255,.15);color:#fff}.section{padding:4rem 5%;max-width:1200px;margin:0 auto}.section h2{text-align:center;margin-bottom:2.5rem;font-size:2rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:2rem;transition:transform .3s}.card:hover{transform:translateY(-4px)}.card h3{margin-bottom:.5rem;font-size:1.2rem}.card .price{font-size:1.5rem;font-weight:800;color:var(--p);margin-top:.5rem}.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}@media(max-width:768px){.about-grid{grid-template-columns:1fr}}.about-text p{color:#CBD5E1;margin-bottom:1rem}.contact{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:3rem;text-align:center}.contact a{color:var(--p);text-decoration:none}footer{text-align:center;padding:3rem;color:#64748B;border-top:1px solid rgba(255,255,255,.05)}</style></head><body>
-<nav class="nav"><a class="logo" href="#">${logoUrl?`<img src="${logoUrl}" style="width:32px;height:32px;border-radius:8px">`:''} ${plan.businessName}</a><div class="links"><a href="#about">About</a><a href="#services">Services</a><a href="#contact">Contact</a><a class="cta" href="#contact">Book Now</a></div></nav>
-<section class="hero">${heroImg?`<img src="${heroImg}" style="width:100%;max-height:400px;object-fit:cover;border-radius:20px;margin-bottom:2rem;opacity:.8">`:''}<h1>${content.hero.headline}</h1><p>${content.hero.subheadline}</p><a class="btn btn-p" href="#contact">${content.hero.cta}</a> <a class="btn btn-s" href="#services">Services</a></section>
-<section class="section" id="about"><div class="about-grid"><div class="about-text"><h2 style="text-align:left;margin-bottom:1.5rem">About <span style="color:var(--p)">Us</span></h2>${content.about.split('\\n').map(p=>`<p>${p}</p>`).join('')}</div>${aboutImg?`<div><img src="${aboutImg}" style="width:100%;border-radius:16px"></div>`:''}</div></section>
-<section class="section" id="services"><h2>Our <span style="color:var(--p)">Services</span></h2><div class="grid">${content.servicesHtml||(plan.services||[]).map(s=>`<div class="card"><h3>${s.name||''}</h3><p style="color:#94A3B8;margin:.5rem 0">${s.description||''}</p><div class="price">₦${(s.price||0).toLocaleString()}</div></div>`).join('')}</div></section>
-${content.whyChooseUs&&content.whyChooseUs.length?`<section class="section"><h2>Why <span style="color:var(--p)">Choose Us</span></h2><div class="grid">${content.whyChooseUs.map(w=>`<div class="card"><p>${w}</p></div>`).join('')}</div></section>`:''}
-${content.testimonials&&content.testimonials.length?`<section class="section"><h2>Testimonials</h2>${content.testimonials.map(t=>`<div class="card" style="margin-bottom:1rem"><p style="font-style:italic;color:#CBD5E1">"${t.text||''}"</p><p style="margin-top:.5rem;font-weight:600">— ${t.name||''}, ${t.location||''}</p></div>`).join('')}</section>`:''}
-<section class="section" id="contact"><h2>Contact <span style="color:var(--p)">Us</span></h2><div class="contact">${content.contactInfo.phone?`<p style="margin-bottom:.5rem">📞 <a href="tel:${content.contactInfo.phone}">${content.contactInfo.phone}</a></p>`:''}${content.contactInfo.email?`<p style="margin-bottom:.5rem">✉️ <a href="mailto:${content.contactInfo.email}">${content.contactInfo.email}</a></p>`:''}${content.contactInfo.address?`<p style="margin-bottom:.5rem">📍 ${content.contactInfo.address}</p>`:''}${content.contactInfo.whatsapp?`<p>💬 <a href="https://wa.me/${content.contactInfo.whatsapp.replace(/[^0-9]/g,'')}">WhatsApp</a></p>`:''}</div></section>
-<footer>© ${new Date().getFullYear()} ${plan.businessName}. Powered by ERGIO.</footer>
-</body></html>`;
+const premiumCSS = getPremiumCSS(colors, {});
+    const fontLinks = getGoogleFonts();
+    const animJS = getAnimationJS();
+    
+    const websiteHtml = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${content.seoTitle}</title><meta name="description" content="${content.seoDescription}"><meta name="theme-color" content="${colors.bg||'#09090B'}">
+${fontLinks}
+<style>${premiumCSS}</style>
+</head><body>
+<nav class="nav"><a class="logo" href="#">${logoUrl?`<img src="${logoUrl}" style="width:32px;height:32px;border-radius:8px" alt="${plan.businessName} logo">`:''} ${plan.businessName}</a><div class="links"><a href="#about">About</a><a href="#services">Services</a><a href="#testimonials">Reviews</a><a href="#faq">FAQ</a><a href="#contact">Contact</a><a class="cta" href="#contact">Book Now</a></div><button class="menu-btn" aria-label="Menu">☰</button></nav>
+
+<section class="hero" id="home">
+  <div class="hero-badge reveal">✨ ${plan.city||'Lagos'}'s Premier ${plan.type||'Business'}</div>
+  <h1 class="reveal reveal-delay-1">${content.hero.headline}</h1>
+  <p class="sub reveal reveal-delay-2">${content.hero.subheadline}</p>
+  <div class="hero-cta reveal reveal-delay-3">
+    <a class="btn btn-p" href="#contact">${content.hero.cta} →</a>
+    <a class="btn btn-s" href="#services">View Services</a>
+  </div>
+  ${heroImg?`<div class="reveal reveal-scale" style="margin-top:3rem"><div class="img-frame"><img src="${heroImg}" alt="${plan.businessName}" style="width:100%;max-height:450px;object-fit:cover"></div></div>`:''}
+</section>
+
+<section class="section" id="about">
+  <div class="about-grid">
+    <div class="about-text reveal reveal-left">
+      <div class="eyebrow">Our Story</div>
+      <h2 style="text-align:left;margin-bottom:1rem">About <span class="gradient-text">${plan.businessName}</span></h2>
+      ${content.about.split('\n').map((p,i)=>`<p class="${i===0?'':'reveal reveal-delay-'+Math.min(i,4)}">${p}</p>`).join('')}
+      <div class="about-stats">
+        <div class="stat"><div class="num counter" data-target="500" data-suffix="+">0</div><div class="label">Happy Clients</div></div>
+        <div class="stat"><div class="num counter" data-target="${new Date().getFullYear()-2020}" data-suffix="+">0</div><div class="label">Years Experience</div></div>
+        <div class="stat"><div class="num counter" data-target="100" data-suffix="%">0</div><div class="label">Satisfaction</div></div>
+      </div>
+    </div>
+    ${aboutImg?`<div class="reveal reveal-right"><div class="img-frame img-glow"><img src="${aboutImg}" alt="About ${plan.businessName}" style="width:100%"></div></div>`:'<div class="reveal reveal-right"><div class="card" style="text-align:center;padding:3rem"><div style="font-size:3rem;margin-bottom:1rem">🏆</div><h3>Award Quality</h3><p style="color:var(--muted)">Trusted by businesses across ${plan.city||'Nigeria'}</p></div></div>'}
+  </div>
+</section>
+
+<section class="section" id="services">
+  <div class="section-header reveal">
+    <div class="eyebrow">What We Offer</div>
+    <h2>Our <span class="gradient-text">Services</span></h2>
+    <p>Professional services designed to exceed your expectations</p>
+  </div>
+  <div class="grid">
+    ${(plan.services||[]).map((s,i)=>`<div class="card reveal reveal-delay-${Math.min(i+1,4)}"><div class="icon">${['💼','⚡','🎯','🚀','✨','💎'][i%6]}</div><h3>${s.name||''}</h3><p style="color:var(--muted);margin:.5rem 0 1rem">${s.description||''}</p><div class="price">₦${(s.price||0).toLocaleString()}${s.duration?'<small>/'+s.duration+'min</small>':''}</div></div>`).join('')}
+  </div>
+</section>
+
+${content.whyChooseUs&&content.whyChooseUs.length?`<section class="section"><div class="section-header reveal"><div class="eyebrow">Why Us</div><h2>Why <span class="gradient-text">Choose Us</span></h2></div><div class="grid">${content.whyChooseUs.map((w,i)=>`<div class="card reveal reveal-delay-${Math.min(i+1,4)}" style="text-align:center"><div class="icon" style="margin:0 auto 1rem">${['⭐','🤝','💰','✅','🛡️','⚡'][i%6]}</div><h3 style="font-size:1.1rem">${w}</h3></div>`).join('')}</div></section>`:''}
+
+${content.testimonials&&content.testimonials.length?`<section class="section" id="testimonials"><div class="section-header reveal"><div class="eyebrow">Client Love</div><h2>What Clients <span class="gradient-text">Say</span></h2></div>${content.testimonials.map((t,i)=>`<div class="testimonial reveal reveal-delay-${Math.min(i+1,4)}"><p>"${t.text||''}"</p><div class="author"><div class="avatar">${(t.name||'A').charAt(0)}</div><div><div class="name">${t.name||''}</div><div class="location">${t.location||plan.city||'Lagos'}</div></div></div></div>`).join('')}</section>`:''}
+
+${content.faq&&content.faq.length?`<section class="section" id="faq" style="max-width:800px"><div class="section-header reveal"><div class="eyebrow">Questions</div><h2>Frequently Asked <span class="gradient-text">Questions</span></h2></div>${content.faq.map((f,i)=>`<details class="faq-item reveal reveal-delay-${Math.min(i+1,4)}"><summary class="faq-q">${f.q||''}<span class="icon">+</span></summary><div class="faq-a">${f.a||''}</div></details>`).join('')}</section>`:''}
+
+<section class="section" id="contact">
+  <div class="contact-card reveal reveal-scale">
+    <div class="eyebrow" style="margin-bottom:1rem">Get In Touch</div>
+    <h2 style="font-size:clamp(1.8rem,4vw,2.5rem);margin-bottom:.8rem">Ready to <span class="gradient-text">Get Started?</span></h2>
+    <p style="color:var(--muted);margin-bottom:2rem">Contact us today and let us help you with your needs</p>
+    <div class="hero-cta" style="margin-bottom:2.5rem">
+      <a class="btn btn-p" href="https://wa.me/${(content.contactInfo?.whatsapp||'2348000000000').replace(/[^0-9]/g,'')}">💬 WhatsApp Us</a>
+      <a class="btn btn-s" href="tel:${content.contactInfo?.phone||''}">📞 Call Now</a>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-item"><div class="icon">📞</div><div class="label">Phone</div><div class="value">${content.contactInfo?.phone||''}</div></div>
+      <div class="contact-item"><div class="icon">📧</div><div class="label">Email</div><div class="value">${content.contactInfo?.email||''}</div></div>
+      <div class="contact-item"><div class="icon">📍</div><div class="label">Location</div><div class="value">${content.contactInfo?.address||plan.city||'Lagos'}, Nigeria</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-banner reveal">
+  <h2>Experience Excellence Today</h2>
+  <p>Join ${Math.floor(Math.random()*400)+100}+ satisfied customers who chose ${plan.businessName}</p>
+  <a class="btn btn-g" href="#contact">Book Your Appointment →</a>
+</div>
+
+<footer>
+  <div class="footer-links"><a href="#about">About</a><a href="#services">Services</a><a href="#testimonials">Reviews</a><a href="#faq">FAQ</a><a href="#contact">Contact</a></div>
+  <p>&copy; ${new Date().getFullYear()} ${plan.businessName}. All rights reserved.</p>
+  <p style="margin-top:.5rem;font-size:.85rem">Built with <a href="https://ergio.vercel.app">ERGIO</a> ⚡</p>
+</footer>
+${animJS}
+</body></html>`;;
     
     send('website', { html: websiteHtml, logoUrl });
 

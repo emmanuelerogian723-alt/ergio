@@ -1170,6 +1170,9 @@
         <button class="edit-mode-btn" id="editModeBtn" onclick="toggleEditMode()" title="Click any element on the preview to edit it" style="padding:6px 12px;border-radius:8px;font-size:12px;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px">
           🎯 Point-to-Edit
         </button>
+        <button class="edit-mode-btn" id="addSectionBtn" onclick="openSectionPicker()" title="Add a new section to your website" style="padding:6px 12px;border-radius:8px;font-size:12px;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px">
+          ➕ Section
+        </button>
         <button class="icon-btn" onclick="refreshPreview()" title="Refresh">🔄</button>
         <button class="icon-btn" onclick="toggleCode()" id="codeToggle" title="View Code">💻</button>
         <button class="deploy-btn" id="deployBtn" onclick="openDeployModal()" disabled>
@@ -2910,85 +2913,88 @@ function toggleEditMode() {
     btn.classList.add('active');
     btn.innerHTML = '✅ Done Editing';
     overlay.classList.add('active');
-    toast('Point-to-Edit ON — click any element on the preview to edit it', 'success');
+    toast('Edit mode ON! Click any text to edit it directly. For AI changes, describe what you want in the chat.', 'success');
     
-    // Inject click handler into iframe
+    // Enable true inline editing — click text to type
     try {
       const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-      const script = iframeDoc.createElement('script');
-      script.textContent = `
-        document.body.addEventListener('click', function(e) {
-          if (!window.parent.editModeActive) return;
-          e.preventDefault();
-          e.stopPropagation();
-          
-          // Remove previous highlights
-          document.querySelectorAll('.edit-highlight').forEach(el => el.classList.remove('edit-highlight'));
-          
-          // Highlight clicked element
-          e.target.classList.add('edit-highlight');
-          
-          // Get element info
-          const tag = e.target.tagName.toLowerCase();
-          const id = e.target.id || '';
-          const cls = e.target.className || '';
-          const text = (e.target.textContent || '').substring(0, 100);
-          const styles = window.getComputedStyle(e.target);
-          
-          // Send to parent
-          window.parent.postMessage({
-            type: 'ergio-edit-click',
-            element: { tag, id, cls, text, 
-              color: styles.color, 
-              bg: styles.backgroundColor,
-              fontSize: styles.fontSize,
-              fontFamily: styles.fontFamily
-            }
-          }, '*');
-        }, true);
-        
-        // Add edit highlight CSS
-        const style = document.createElement('style');
-        style.textContent = '.edit-highlight{outline:3px dashed #00D9FF !important;outline-offset:3px;cursor:pointer !important}';
-        document.head.appendChild(style);
+      
+      // Add editing styles
+      const editStyle = iframeDoc.createElement('style');
+      editStyle.id = 'ergioEditStyles';
+      editStyle.textContent = `
+        [contenteditable="true"]{cursor:text !important;transition:outline .2s}
+        [contenteditable="true"]:focus{outline:2px solid #00D9FF !important;outline-offset:2px;border-radius:4px}
+        [data-ergio-editable]:hover{outline:1px dashed rgba(0,217,255,.4) !important;outline-offset:2px;cursor:pointer !important}
+        .ergio-edit-banner{position:fixed;top:0;left:0;right:0;background:rgba(0,217,255,.95);color:#000;padding:6px 16px;font-size:12px;font-weight:700;z-index:999999;text-align:center;pointer-events:none}
       `;
-      iframeDoc.head.appendChild(script);
-    } catch(e) { console.log('Cannot access iframe:', e); }
+      iframeDoc.head.appendChild(editStyle);
+      
+      // Add banner
+      const banner = iframeDoc.createElement('div');
+      banner.className = 'ergio-edit-banner';
+      banner.textContent = '✏️ Edit mode — click any text to edit directly';
+      iframeDoc.body.appendChild(banner);
+      
+      // Make text elements directly editable
+      const editableSelectors = 'h1, h2, h3, h4, h5, p, span, a, button, li, .price, .label, .value, .sub, .name, .location, .eyebrow';
+      let editCount = 0;
+      iframeDoc.querySelectorAll(editableSelectors).forEach(el => {
+        if (el.children.length === 0 && el.textContent.trim().length > 0 && !el.hasAttribute('contenteditable')) {
+          el.setAttribute('contenteditable', 'true');
+          el.setAttribute('data-ergio-editable', 'true');
+          editCount++;
+          
+          el.addEventListener('blur', function() {
+            // Sync the edited content back
+            syncInlineEdits();
+          });
+        }
+      });
+      
+      // Also add click handler for AI-assisted editing (right-click for AI menu)
+      const clickHandler = function(e) {
+        if (!window.parent.editModeActive) return;
+        if (e.target.hasAttribute('contenteditable')) return; // Let inline editing work
+        
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Show a quick AI edit prompt
+        const el = e.target;
+        const tag = el.tagName.toLowerCase();
+        const text = (el.textContent || '').substring(0, 100);
+        
+        window.parent.postMessage({
+          type: 'ergio-edit-click',
+          element: { tag, id: el.id || '', cls: el.className || '', text }
+        }, '*');
+      };
+      iframeDoc.body.addEventListener('click', clickHandler, true);
+      
+      console.log('[ERGIO] Made ' + editCount + ' elements inline-editable');
+      
+    } catch(e) { 
+      console.error('Edit mode setup error:', e);
+      toast('Could not enable inline editing on this page', 'error');
+    }
     
-    // Listen for messages from iframe
+    // Listen for AI-assisted edit messages from iframe
     window.ergioEditHandler = (e) => {
       if (e.data.type === 'ergio-edit-click') {
         const el = e.data.element;
         const desc = el.tag + (el.id ? '#' + el.id : '') + (el.cls ? '.' + String(el.cls).split(' ')[0] : '');
         
-        // Add marker at click position
-        const marker = document.createElement('div');
-        marker.className = 'edit-marker';
-        marker.style.left = '50%';
-        marker.style.top = '50%';
-        marker.innerHTML = '<div class="edit-tooltip">' + desc + '</div>';
-        overlay.appendChild(marker);
-        setTimeout(() => marker.remove(), 3000);
-        
-        // Pre-fill the chat with smart edit instructions
         const input = document.getElementById('promptInput');
-        // Build a smart edit prompt that gives the AI precise context
         let editPrompt = 'I want to edit the ' + desc + ' element';
         if (el.text) editPrompt += '. It currently says: "' + el.text.substring(0, 80) + '"';
-        if (el.color && el.color !== 'rgba(0, 0, 0, 0)') editPrompt += '. Text color: ' + el.color;
-        if (el.bg && el.bg !== 'rgba(0, 0, 0, 0)') editPrompt += '. Background: ' + el.bg;
-        if (el.fontSize) editPrompt += '. Font size: ' + el.fontSize;
         editPrompt += '. Tell me what you want to change about this element:';
         input.value = editPrompt;
         autoResize(input);
         input.focus();
-        
-        // Switch to edit mode
         setMode('edit');
-        toast('Element selected! Describe what to change and press Enter', 'info');
-        
-        // Switch to chat tab
         switchTab('chat');
+        toast('Element selected! Describe what to change and press Enter', 'info');
       }
     };
     window.addEventListener('message', window.ergioEditHandler);
@@ -2997,14 +3003,28 @@ function toggleEditMode() {
     btn.classList.remove('active');
     btn.innerHTML = '🎯 Point-to-Edit';
     overlay.classList.remove('active');
-    // Clear markers
     overlay.innerHTML = '';
-    // Remove highlights from iframe
+    
+    // Remove inline editing from iframe
     try {
       const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-      iframeDoc.querySelectorAll('.edit-highlight').forEach(el => el.classList.remove('edit-highlight'));
+      const editStyle = iframeDoc.getElementById('ergioEditStyles');
+      if (editStyle) editStyle.remove();
+      const banner = iframeDoc.querySelector('.ergio-edit-banner');
+      if (banner) banner.remove();
+      
+      iframeDoc.querySelectorAll('[contenteditable="true"]').forEach(el => {
+        el.removeAttribute('contenteditable');
+        el.removeAttribute('data-ergio-editable');
+      });
+      
+      // Final sync
+      syncInlineEdits();
     } catch {}
     window.removeEventListener('message', window.ergioEditHandler);
+    toast('Editing complete! Changes saved.', 'success');
+  }
+}
   }
 }
 
@@ -3014,6 +3034,249 @@ Object.defineProperty(window, 'editModeActiveState', {
   get: () => editModeActive,
   set: (v) => { editModeActive = v; window.editModeActive = v; }
 });
+
+// ===== SECTION PICKER =====
+function openSectionPicker() {
+  if (!currentHTML) { toast('Build a website first!', 'error'); return; }
+  
+  // Remove any existing picker
+  const existing = document.getElementById('sectionPickerModal');
+  if (existing) existing.remove();
+  
+  const sections = [
+    { id: 'pricing', name: 'Pricing Table', icon: '💰', desc: 'Tiered pricing cards' },
+    { id: 'gallery', name: 'Gallery', icon: '🖼️', desc: 'Image showcase grid' },
+    { id: 'team', name: 'Team', icon: '👥', desc: 'Team member cards' },
+    { id: 'stats', name: 'Stats Counter', icon: '📊', desc: 'Animated number counters' },
+    { id: 'cta', name: 'CTA Banner', icon: '🎯', desc: 'Call-to-action banner' },
+    { id: 'contact', name: 'Contact Form', icon: '📞', desc: 'Contact info + form' },
+    { id: 'map', name: 'Map', icon: '📍', desc: 'Google Maps embed' },
+    { id: 'newsletter', name: 'Newsletter', icon: '✉️', desc: 'Email signup form' },
+    { id: 'social', name: 'Social Links', icon: '🔗', desc: 'Social media icons' },
+    { id: 'video', name: 'Video Section', icon: '🎬', desc: 'Embedded video player' }
+  ];
+  
+  const modal = document.createElement('div');
+  modal.id = 'sectionPickerModal';
+  modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.8);z-index:99999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)';
+  
+  const popup = document.createElement('div');
+  popup.style.cssText = 'background:#09090B;border:1px solid rgba(0,217,255,.2);border-radius:16px;padding:24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 0 60px rgba(0,217,255,.15)';
+  
+  popup.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <h3 style="font-size:16px;color:#fff;font-weight:700">Add a Section</h3>
+      <button id="closeSectionPicker" style="background:none;border:none;color:#94A3B8;font-size:20px;cursor:pointer">✕</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      ${sections.map(s => `<button class="section-option" data-section="${s.id}" style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;color:#F8FAFC;cursor:pointer;transition:all .2s;text-align:left">
+        <div style="font-size:1.5rem">${s.icon}</div>
+        <div style="font-weight:600;font-size:13px">${s.name}</div>
+        <div style="font-size:11px;color:#94A3B8">${s.desc}</div>
+      </button>`).join('')}
+    </div>
+  `;
+  
+  modal.appendChild(popup);
+  document.body.appendChild(modal);
+  
+  // Close handlers
+  const close = () => modal.remove();
+  document.getElementById('closeSectionPicker').onclick = close;
+  modal.addEventListener('mousedown', (e) => { if (e.target === modal) close(); });
+  
+  // Section selection handlers
+  popup.querySelectorAll('.section-option').forEach(btn => {
+    btn.onmouseover = () => { btn.style.borderColor = 'rgba(0,217,255,.3)'; btn.style.background = 'rgba(0,217,255,.05)'; };
+    btn.onmouseout = () => { btn.style.borderColor = 'rgba(255,255,255,.08)'; btn.style.background = 'rgba(255,255,255,.03)'; };
+    btn.onclick = () => {
+      const sectionId = btn.dataset.section;
+      close();
+      addSection(sectionId);
+    };
+  });
+}
+
+async function addSection(sectionType) {
+  if (!currentHTML) { toast('Build a website first!', 'error'); return; }
+  
+  toast('Adding section...', 'info');
+  setMode('edit');
+  
+  const sectionPrompts = {
+    pricing: 'Add a pricing section with 3 tiers (Basic, Pro, Enterprise) with NGN prices. Place it before the contact section.',
+    gallery: 'Add a gallery section with a grid of 6 images using placeholder images from pollinations.ai. Place it after the services section.',
+    team: 'Add a team section with 3-4 team member cards showing name, role, and a placeholder avatar image. Place it after the about section.',
+    stats: 'Add a stats section with 4 animated counters showing key business metrics (clients, projects, years, satisfaction). Use the .counter class with data-target attributes.',
+    cta: 'Add a CTA banner section with a compelling headline and a button, placed before the footer.',
+    contact: 'Add a contact form section with name, email, message fields and a submit button, plus contact info cards for phone, email, and address.',
+    map: 'Add a Google Maps embed section showing Lagos, Nigeria. Use an iframe embed.',
+    newsletter: 'Add a newsletter signup section with an email input and subscribe button.',
+    social: 'Add a social media links section with icons for Instagram, Twitter, Facebook, and WhatsApp.',
+    video: 'Add a video section with a YouTube embed placeholder and a heading.'
+  };
+  
+  const prompt = sectionPrompts[sectionType] || 'Add a ' + sectionType + ' section to the website.';
+  
+  // Route through the chat edit flow
+  const input = document.getElementById('promptInput');
+  input.value = prompt;
+  autoResize(input);
+  switchTab('chat');
+  toast('Section request ready — press Enter to add it', 'info');
+  input.focus();
+}
+
+// ===== TRUE INLINE EDITING =====
+function enableInlineEditing() {
+  const iframe = document.getElementById('previewIframe');
+  if (!iframe) return;
+  
+  try {
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+    
+    // Add inline editing styles
+    const style = iframeDoc.createElement('style');
+    style.textContent = `
+      [contenteditable="true"]:focus{outline:2px solid #00D9FF;outline-offset:2px;border-radius:4px}
+      [data-editable]{cursor:text;position:relative}
+      [data-editable]:hover{outline:1px dashed rgba(0,217,255,.3);outline-offset:2px}
+    `;
+    iframeDoc.head.appendChild(style);
+    
+    // Make text elements editable
+    const editableSelectors = 'h1, h2, h3, h4, p, span, a, button, li, td, .price, .label, .value, .sub, .author, .name, .location';
+    iframeDoc.querySelectorAll(editableSelectors).forEach(el => {
+      if (el.children.length === 0 && el.textContent.trim().length > 0) {
+        el.setAttribute('contenteditable', 'true');
+        el.setAttribute('data-editable', 'true');
+        el.addEventListener('blur', () => {
+          // Sync the edited content back to currentHTML
+          syncInlineEdits();
+        });
+      }
+    });
+    
+    toast('Inline editing enabled! Click any text to edit directly.', 'success');
+  } catch(e) {
+    console.error('Inline editing error:', e);
+    toast('Could not enable inline editing', 'error');
+  }
+}
+
+function syncInlineEdits() {
+  const iframe = document.getElementById('previewIframe');
+  if (!iframe) return;
+  
+  try {
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+    // Get the full HTML from the iframe
+    const editedHTML = '<!DOCTYPE html>\n' + iframeDoc.documentElement.outerHTML;
+    // Update currentHTML with the edited version
+    if (editedHTML.length > 500) {
+      currentHTML = editedHTML;
+      scheduleAutoSave();
+    }
+  } catch(e) {
+    console.error('Sync error:', e);
+  }
+}
+
+// ===== SECTION MANAGER =====
+function openSectionManager() {
+  if (!currentHTML) { toast('Build a website first!', 'error'); return; }
+  
+  const existing = document.getElementById('sectionManagerModal');
+  if (existing) existing.remove();
+  
+  // Parse sections from currentHTML
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(currentHTML, 'text/html');
+  const sections = doc.querySelectorAll('section, .section, .cta-banner, footer');
+  const sectionList = [];
+  sections.forEach((s, i) => {
+    const heading = s.querySelector('h2, h1, h3')?.textContent || s.className || 'Section ' + (i+1);
+    sectionList.push({ id: i, name: heading.substring(0, 40), element: s.tagName.toLowerCase() });
+  });
+  
+  const modal = document.createElement('div');
+  modal.id = 'sectionManagerModal';
+  modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.8);z-index:99999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)';
+  
+  const popup = document.createElement('div');
+  popup.style.cssText = 'background:#09090B;border:1px solid rgba(0,217,255,.2);border-radius:16px;padding:24px;max-width:400px;width:90%;max-height:70vh;overflow-y:auto';
+  
+  popup.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="font-size:16px;color:#fff;font-weight:700">Manage Sections</h3>
+      <button id="closeSectionMgr" style="background:none;border:none;color:#94A3B8;font-size:20px;cursor:pointer">✕</button>
+    </div>
+    <div id="sectionMgrList" style="display:flex;flex-direction:column;gap:8px">
+      ${sectionList.map((s, i) => `
+        <div class="section-mgr-item" data-idx="${i}" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px">
+          <span style="font-size:11px;color:#64748B;width:20px">${i+1}</span>
+          <span style="flex:1;font-size:13px;color:#F8FAFC">${s.name}</span>
+          <button class="move-up" data-idx="${i}" style="background:none;border:1px solid rgba(255,255,255,.1);color:#94A3B8;border-radius:6px;padding:2px 8px;cursor:pointer;font-size:12px">↑</button>
+          <button class="move-down" data-idx="${i}" style="background:none;border:1px solid rgba(255,255,255,.1);color:#94A3B8;border-radius:6px;padding:2px 8px;cursor:pointer;font-size:12px">↓</button>
+          <button class="del-section" data-idx="${i}" style="background:none;border:1px solid rgba(239,68,68,.2);color:#ef4444;border-radius:6px;padding:2px 8px;cursor:pointer;font-size:12px">✕</button>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  
+  modal.appendChild(popup);
+  document.body.appendChild(modal);
+  
+  const close = () => modal.remove();
+  document.getElementById('closeSectionMgr').onclick = close;
+  modal.addEventListener('mousedown', (e) => { if (e.target === modal) close(); });
+  
+  // Wire up buttons
+  popup.querySelectorAll('.move-up').forEach(btn => {
+    btn.onclick = () => { moveSection(parseInt(btn.dataset.idx), -1); close(); };
+  });
+  popup.querySelectorAll('.move-down').forEach(btn => {
+    btn.onclick = () => { moveSection(parseInt(btn.dataset.idx), 1); close(); };
+  });
+  popup.querySelectorAll('.del-section').forEach(btn => {
+    btn.onclick = () => {
+      if (confirm('Delete this section?')) { deleteSection(parseInt(btn.dataset.idx)); close(); }
+    };
+  });
+}
+
+function moveSection(idx, direction) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(currentHTML, 'text/html');
+  const sections = Array.from(doc.querySelectorAll('section, .cta-banner'));
+  const newIdx = idx + direction;
+  if (newIdx < 0 || newIdx >= sections.length) return;
+  
+  const parent = sections[idx].parentNode;
+  if (direction > 0) {
+    parent.insertBefore(sections[idx], sections[newIdx].nextSibling);
+  } else {
+    parent.insertBefore(sections[idx], sections[newIdx]);
+  }
+  
+  currentHTML = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+  showPreview(currentHTML);
+  toast('Section moved', 'success');
+  scheduleAutoSave();
+}
+
+function deleteSection(idx) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(currentHTML, 'text/html');
+  const sections = doc.querySelectorAll('section, .cta-banner');
+  if (sections[idx]) {
+    sections[idx].remove();
+    currentHTML = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+    showPreview(currentHTML);
+    toast('Section deleted', 'success');
+    scheduleAutoSave();
+  }
+}
 
 // ===== GITHUB DEPLOY =====
 async function deployToGitHub() {
