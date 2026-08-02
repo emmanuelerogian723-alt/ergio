@@ -175,8 +175,11 @@ async function handleGenerate(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
   
   const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-  const { prompt } = body;
+  const { prompt, uploadedImages } = body;
   if (!prompt) return res.status(400).json({ error: 'Prompt required' });
+  
+  // User-uploaded photos (data URLs) — use these instead of stock photos
+  const userPhotos = Array.isArray(uploadedImages) ? uploadedImages : [];
   
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -264,8 +267,10 @@ async function handleGenerate(req, res) {
     send('status', { task: '🏗️ Building with motion graphics...', step: 5, total: 8 });
     const colors = plan.brandColors || { primary: '#00D9FF', secondary: '#09090B', accent: '#00FF9D', bg: '#09090B' };
     
-    const heroImg = images.hero?.[0] || '';
-    const aboutImg = images.about?.[0] || '';
+    // Use user-uploaded photos if available, otherwise fall back to stock photos
+    const heroImg = userPhotos[0]?.dataUrl || images.hero?.[0] || '';
+    const aboutImg = userPhotos[1]?.dataUrl || userPhotos[0]?.dataUrl || images.about?.[0] || '';
+    const galleryImgs = userPhotos.slice(2, 6).map(p => p.dataUrl).filter(Boolean);
     
 const premiumCSS = getPremiumCSS(colors, {});
     const fontLinks = getGoogleFonts();
@@ -317,6 +322,7 @@ ${fontLinks}
 
 ${content.whyChooseUs&&content.whyChooseUs.length?`<section class="section"><div class="section-header reveal"><div class="eyebrow">Why Us</div><h2>Why <span class="gradient-text">Choose Us</span></h2></div><div class="grid">${content.whyChooseUs.map((w,i)=>`<div class="card reveal reveal-delay-${Math.min(i+1,4)}" style="text-align:center"><div class="icon" style="margin:0 auto 1rem">${['⭐','🤝','💰','✅','🛡️','⚡'][i%6]}</div><h3 style="font-size:1.1rem">${w}</h3></div>`).join('')}</div></section>`:''}
 
+${galleryImgs&&galleryImgs.length?`<section class="section" id="gallery"><div class="section-header reveal"><div class="eyebrow">Our Work</div><h2>Photo <span class="gradient-text">Gallery</span></h2></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:2rem">${galleryImgs.map((src,i)=>`<div class="img-frame reveal reveal-delay-${Math.min(i+1,4)}" style="overflow:hidden"><img src="${src}" alt="Gallery photo ${i+1}" style="width:100%;height:200px;object-fit:cover"></div>`).join('')}</div></section>`:''}
 ${content.testimonials&&content.testimonials.length?`<section class="section" id="testimonials"><div class="section-header reveal"><div class="eyebrow">Client Love</div><h2>What Clients <span class="gradient-text">Say</span></h2></div>${content.testimonials.map((t,i)=>`<div class="testimonial reveal reveal-delay-${Math.min(i+1,4)}"><p>"${t.text||''}"</p><div class="author"><div class="avatar">${(t.name||'A').charAt(0)}</div><div><div class="name">${t.name||''}</div><div class="location">${t.location||plan.city||'Lagos'}</div></div></div></div>`).join('')}</section>`:''}
 
 ${content.faq&&content.faq.length?`<section class="section" id="faq" style="max-width:800px"><div class="section-header reveal"><div class="eyebrow">Questions</div><h2>Frequently Asked <span class="gradient-text">Questions</span></h2></div>${content.faq.map((f,i)=>`<details class="faq-item reveal reveal-delay-${Math.min(i+1,4)}"><summary class="faq-q">${f.q||''}<span class="icon">+</span></summary><div class="faq-a">${f.a||''}</div></details>`).join('')}</section>`:''}
@@ -398,7 +404,7 @@ ${animJS}
 async function handleRefine(req, res) {
   if (req.method !== 'POST') return error(res, 'Use POST', 405);
   const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-  const { currentHtml, editRequest, businessName } = body;
+  const { currentHtml, editRequest, businessName, uploadedImages } = body;
   if (!currentHtml || !editRequest) return error(res, 'currentHtml and editRequest required', 400);
   
   // Validate the input HTML is not too large (max 50KB for full send)
@@ -408,17 +414,24 @@ async function handleRefine(req, res) {
   // Smart system prompt: instruct surgical edits, not full regeneration
   const systemPrompt = `You are ERGIO, an expert web developer AI. Your job is to edit an existing website based on the user's request.
 
-CRITICAL RULES:
+CRITICAL RULES — FOLLOW EXACTLY:
 1. Return the COMPLETE, VALID HTML document — every tag from <!DOCTYPE html> to </html>
 2. Make ONLY the changes the user requested — do not remove or break existing sections
-3. Keep all existing CSS, JavaScript, images, and structure intact
-4. If the user asks to change text, colors, or styles — make only those specific changes
-5. If the user asks to add a section — add it in the appropriate location
-6. If the user asks to remove something — remove only that specific element
-7. NEVER return partial HTML — always return a complete valid document
-8. Preserve all <style> blocks and <script> tags exactly as they are
-9. Keep all class names and IDs unchanged unless the user specifically asks to change them
-10. The HTML ${wasTruncated ? 'was truncated for length — reconstruct the missing parts based on the visible structure' : 'is complete'}.
+3. Keep ALL existing CSS, JavaScript, images, and structure INTACT — do not rewrite sections that the user did not ask to change
+4. If the user asks to change text — ONLY change that specific text, keep the surrounding tags identical
+5. If the user asks to change colors — ONLY change the specific color values mentioned, keep the CSS structure identical
+6. If the user asks to add a section — add it in the appropriate location without modifying existing sections
+7. If the user asks to remove something — remove only that specific element
+8. NEVER return partial HTML — always return a complete valid document
+9. Preserve ALL <style> blocks EXACTLY as they are — do not reformat, reorder, or "improve" CSS
+10. Preserve ALL <script> tags EXACTLY as they are — do not modify JavaScript code
+11. Keep all class names and IDs unchanged unless the user specifically asks to change them
+12. DO NOT add new <style> or <script> blocks unless the user explicitly asks for new functionality
+13. DO NOT change the page layout, fonts, or design unless the user explicitly asks
+14. If the user asks to use uploaded photos — ONLY replace the src attributes of <img> tags, keep all other attributes (alt, style, class) unchanged
+15. The HTML ${wasTruncated ? 'was truncated for length — reconstruct the missing parts based on the visible structure' : 'is complete'}.
+
+REMEMBER: You are making SURGICAL edits, not rebuilding the page. The safest edit is the smallest edit that achieves the user's goal.
 
 Return ONLY valid HTML code. No explanations, no markdown, no code blocks — just raw HTML.`;
 
@@ -426,10 +439,12 @@ Return ONLY valid HTML code. No explanations, no markdown, no code blocks — ju
 
 User's edit request: "${editRequest}"
 
+${uploadedImages && uploadedImages.length > 0 ? 'The user has uploaded ' + uploadedImages.length + ' photos. Use these photo data URLs to replace stock images in the website. Photo data URLs: ' + uploadedImages.map((p, i) => '\n[Photo ' + (i+1) + ': ' + p.name + '] ' + p.dataUrl).join('\n') + '\n' : ''}
+
 Current HTML:
 ${htmlToSend}
 
-Return the complete updated HTML with the requested changes applied. Make ONLY the requested changes — keep everything else exactly as is.`;
+Return the complete updated HTML with the requested changes applied. Make ONLY the requested changes — keep everything else exactly as is. If the user uploaded photos, replace stock image URLs with the provided data URLs.`;
 
   try {
     const result = await callGroq([

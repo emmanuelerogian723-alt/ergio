@@ -1642,6 +1642,140 @@ function switchTab(tab) {
   });
 }
 
+
+// ===== PHOTO UPLOAD SYSTEM =====
+let uploadedImages = []; // {name, dataUrl, type, size}
+
+function handleFileAttach(input) {
+  const files = input.files;
+  if (!files || files.length === 0) return;
+  
+  Array.from(files).forEach(file => {
+    // Check if it's an image
+    if (file.type.startsWith('image/')) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast('Image "' + file.name + '" is too large (max 5MB). Skipping.', 'error');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        uploadedImages.push({
+          name: file.name,
+          dataUrl: e.target.result,
+          type: file.type,
+          size: file.size,
+          addedAt: Date.now()
+        });
+        renderFilesTab();
+        toast('📷 Photo "' + file.name + '" uploaded! ERGIO can use it in your website.', 'success');
+        
+        // If a website is already built, offer to use the photos
+        if (currentHTML) {
+          const chatInput = document.getElementById('promptInput');
+          if (chatInput && !chatInput.value.trim()) {
+            chatInput.value = 'Use my uploaded photos in the website. Replace stock images with my real photos.';
+            autoResize(chatInput);
+            toast('💡 Type "Use my uploaded photos" in chat to apply them!', 'info');
+          }
+        }
+      };
+      reader.readAsDataURL(file);
+    } else {
+      // Non-image files — store as reference only
+      uploadedImages.push({
+        name: file.name,
+        dataUrl: null,
+        type: file.type,
+        size: file.size,
+        isFile: true,
+        addedAt: Date.now()
+      });
+      renderFilesTab();
+      toast('📄 File "' + file.name + '" added to your project.', 'success');
+    }
+  });
+  
+  // Reset input so same file can be uploaded again
+  input.value = '';
+}
+
+function renderFilesTab() {
+  const list = document.getElementById('filesList');
+  if (!list) return;
+  
+  if (uploadedImages.length === 0) {
+    list.innerHTML = '<div style="font-size:13px;color:var(--muted);text-align:center;padding:24px">No files yet. Click 📎 to upload photos for your website.</div>';
+    return;
+  }
+  
+  let html = '<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px"> Uploaded Files (' + uploadedImages.length + ')</div>';
+  html += '<div style="display:flex;flex-direction:column;gap:10px">';
+  
+  uploadedImages.forEach((img, i) => {
+    if (img.dataUrl) {
+      // Image with preview
+      html += '<div style="display:flex;gap:10px;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px;position:relative">' +
+        '<img src="' + img.dataUrl + '" style="width:50px;height:50px;border-radius:8px;object-fit:cover;flex-shrink:0">' +
+        '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + img.name + '</div>' +
+        '<div style="font-size:10px;color:var(--muted)">' + Math.round(img.size/1024) + 'KB · Image</div>' +
+        '</div>' +
+        '<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:4px" onclick="removeUploadedFile(' + i + ')">×</button>' +
+        '</div>';
+    } else {
+      // Non-image file
+      html += '<div style="display:flex;gap:10px;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px">' +
+        '<div style="width:50px;height:50px;border-radius:8px;background:var(--hover);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">📄</div>' +
+        '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + img.name + '</div>' +
+        '<div style="font-size:10px;color:var(--muted)">' + Math.round(img.size/1024) + 'KB · Document</div>' +
+        '</div>' +
+        '<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:4px" onclick="removeUploadedFile(' + i + ')">×</button>' +
+        '</div>';
+    }
+  });
+  
+  html += '</div>';
+  
+  // Add "use photos" button if there are images and a website is built
+  const hasImages = uploadedImages.some(f => f.dataUrl);
+  if (hasImages && currentHTML) {
+    html += '<button style="width:100%;margin-top:12px;padding:10px;border-radius:10px;background:linear-gradient(135deg,#00D9FF,#00FF9D);border:none;color:#000;font-weight:700;font-size:12px;cursor:pointer" onclick="applyUploadedPhotos()">📷 Use My Photos in Website</button>';
+  } else if (hasImages && !currentHTML) {
+    html += '<div style="margin-top:12px;padding:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:11px;color:var(--muted);text-align:center">Your photos will be used automatically when you build your website.</div>';
+  }
+  
+  list.innerHTML = html;
+}
+
+function removeUploadedFile(index) {
+  uploadedImages.splice(index, 1);
+  renderFilesTab();
+  toast('File removed', 'info');
+}
+
+function getUploadedPhotoDataUrls() {
+  // Return only images (with dataUrl), limit to 8 to stay under API payload limits
+  return uploadedImages
+    .filter(f => f.dataUrl)
+    .slice(0, 8)
+    .map(f => ({ name: f.name, dataUrl: f.dataUrl.substring(0, 50000) })); // Truncate very large images
+}
+
+function applyUploadedPhotos() {
+  if (!currentHTML) { toast('Build a website first!', 'error'); return; }
+  const photos = getUploadedPhotoDataUrls();
+  if (photos.length === 0) { toast('No photos uploaded!', 'error'); return; }
+  
+  const chatInput = document.getElementById('promptInput');
+  chatInput.value = 'Replace the stock photos in my website with my uploaded photos. Use the real images I provided.';
+  autoResize(chatInput);
+  setMode('edit');
+  switchTab('chat');
+  toast('Press Enter to apply your photos!', 'info');
+}
+
+
 function showHistory() {
   switchTab('history');
 }
@@ -1821,7 +1955,10 @@ async function buildWebsite(prompt) {
     const response = await fetch(API_BASE + '/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt }),
+      body: JSON.stringify({ 
+        prompt,
+        uploadedImages: getUploadedPhotoDataUrls()
+      }),
       signal: buildAbortController?.signal
     });
     
@@ -2051,7 +2188,8 @@ async function refineWebsite(prompt) {
       body: JSON.stringify({ 
         editRequest: prompt,
         currentHtml: currentHTML,
-        businessName: bizName
+        businessName: bizName,
+        uploadedImages: getUploadedPhotoDataUrls()
       })
     });
     
@@ -2985,18 +3123,51 @@ function toggleEditMode() {
         const el = e.data.element;
         const desc = el.tag + (el.id ? '#' + el.id : '') + (el.cls ? '.' + String(el.cls).split(' ')[0] : '');
         
-        const input = document.getElementById('promptInput');
-        let editPrompt = 'I want to edit the ' + desc + ' element';
-        if (el.text) editPrompt += '. It currently says: "' + el.text.substring(0, 80) + '"';
-        editPrompt += '. Tell me what you want to change about this element:';
-        input.value = editPrompt;
-        autoResize(input);
-        input.focus();
-        setMode('edit');
-        switchTab('chat');
-        toast('Element selected! Describe what to change and press Enter', 'info');
+        // Show a floating edit bar on the selected element
+        const existingBar = document.getElementById('ergioEditBar');
+        if (existingBar) existingBar.remove();
+        
+        const editBar = document.createElement('div');
+        editBar.id = 'ergioEditBar';
+        editBar.style.cssText = 'position:fixed;bottom:140px;left:50%;transform:translateX(-50%);background:#0A0A0F;border:1px solid #00D9FF;border-radius:12px;padding:8px 16px;z-index:99999;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,217,255,0.3);font-family:inherit;max-width:90vw';
+        editBar.innerHTML = 
+          '<span style="font-size:12px;color:#00D9FF;font-weight:600;white-space:nowrap">\u{1F3AF} ' + desc + '</span>' +
+          (el.text ? '<span style="font-size:11px;color:#6B6B8A;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">\u201C' + (el.text||'').substring(0, 50) + '\u201D</span>' : '') +
+          '<input type="text" id="ergioQuickEdit" placeholder="Describe the change..." style="flex:1;min-width:120px;padding:6px 10px;border-radius:6px;background:#16161F;border:1px solid #1E1E2E;color:#E4E4F0;font-size:12px;outline:none;font-family:inherit">' +
+          '<button id="ergioQuickApply" style="padding:6px 12px;border-radius:6px;background:#00D9FF;border:none;color:#000;font-weight:700;font-size:11px;cursor:pointer">Apply</button>' +
+          '<button id="ergioQuickClose" style="padding:6px 8px;border-radius:6px;background:transparent;border:1px solid #1E1E2E;color:#6B6B8A;font-size:11px;cursor:pointer">\u2715</button>';
+        
+        document.body.appendChild(editBar);
+        var quickInput = document.getElementById('ergioQuickEdit');
+        var safeText = (el.text || '').replace(/"/g, '\\"');
+        var safeDesc = desc.replace(/'/g, "\\'");
+        
+        function applyQuickEdit() {
+          var v = quickInput.value;
+          if (!v.trim()) return;
+          var input = document.getElementById('promptInput');
+          input.value = 'Change the ' + desc + ' element. It currently says: "' + safeText + '". New change: ' + v;
+          autoResize(input);
+          setMode('edit');
+          switchTab('chat');
+          editBar.remove();
+          sendPrompt();
+        }
+        
+        document.getElementById('ergioQuickApply').onclick = applyQuickEdit;
+        document.getElementById('ergioQuickClose').onclick = function() { editBar.remove(); };
+        
+        if (quickInput) {
+          quickInput.focus();
+          quickInput.addEventListener('keydown', function(ev) {
+            if (ev.key === 'Enter') { ev.preventDefault(); applyQuickEdit(); }
+            if (ev.key === 'Escape') { editBar.remove(); }
+          });
+        }
+        toast('Element selected! Type your change and press Enter', 'info');
       }
     };
+
     window.addEventListener('message', window.ergioEditHandler);
     
   } else {
