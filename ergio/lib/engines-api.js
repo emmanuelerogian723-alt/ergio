@@ -177,5 +177,10 @@ window.ErgioEngines = (function () {
     // Ping
     pingStatus: () => request('/ping/status'),
     listBusinesses: () => request('/businesses'),
+    // Website management
+    listWebsites: () => request('/websites'),
+    getWebsite: (slug) => request('/websites/' + encodeURIComponent(slug)),
+    saveWebsite: (data) => request('/websites/save', { method: 'POST', body: data }),
+    deleteWebsite: (slug) => request('/websites/' + encodeURIComponent(slug), { method: 'DELETE' }),
   };
 })();
