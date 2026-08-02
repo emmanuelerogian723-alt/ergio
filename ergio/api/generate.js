@@ -12,6 +12,7 @@ import { searchImages, planImages, fetchWebsiteImages, generateAIImage, getFallb
 import { DESIGN_STYLES as _BASE_STYLES, EXTRA_DESIGN_STYLES, autoDetectStyle } from '../lib/design-system.js';
 import { getSectionPreset, assembleFromSections, SECTIONS, SECTION_PRESETS } from '../lib/section-library.js';
 import { lintWebsite, autoFixHtml } from '../lib/design-linter.js';
+import { detectBusinessProfile, getProfile, BUSINESS_PROFILES } from '../lib/business-profiles.js';
 
 // Merge all design styles into one lookup
 const DESIGN_STYLES = { ..._BASE_STYLES, ...EXTRA_DESIGN_STYLES };
@@ -192,7 +193,38 @@ Rules:
     const designConfig = DESIGN_STYLES[plan.designStyle] || DESIGN_STYLES.nova;
     plan._design = designConfig;
     
-    send('plan', { plan, designStyle: plan.designStyle, designConfig: { name: designConfig.name, emoji: designConfig.emoji, desc: designConfig.desc } });
+    // ── BUSINESS PROFILE DETECTION ──
+    // Detect the business profile and apply industry-specific design intelligence
+    const profileKey = detectBusinessProfile(prompt, plan.type, plan.websiteCategory);
+    const profile = getProfile(profileKey);
+    plan._profile = profile;
+    plan._profileKey = profileKey;
+    
+    // Override design style with profile's recommendation if more specific
+    if (profile.designStyle && profileKey !== 'default') {
+      plan.designStyle = profile.designStyle;
+      plan._design = DESIGN_STYLES[profile.designStyle] || designConfig;
+    }
+    
+    // Apply color hints from the profile if AI didn't set brand colors or if profile is very specific
+    if (profile.colorHints && profileKey !== 'default') {
+      if (!plan.brandColors || plan.brandColors.primary === '#00D9FF') {
+        // Only override if AI used default colors
+        plan.brandColors = { ...plan.brandColors, ...profile.colorHints };
+      }
+    }
+    
+    // Apply CTA text from profile
+    if (profile.ctaText) {
+      plan._ctaText = profile.ctaText;
+    }
+    
+    // Apply tone from profile
+    if (profile.tone) {
+      plan.tone = profile.tone;
+    }
+    
+    send('plan', { plan, designStyle: plan.designStyle, designConfig: { name: (DESIGN_STYLES[plan.designStyle] || designConfig).name, emoji: (DESIGN_STYLES[plan.designStyle] || designConfig).emoji, desc: (DESIGN_STYLES[plan.designStyle] || designConfig).desc }, profile: profileKey });
     send('status', { task: '🎨 Creating brand identity...', step: 2, total: 8 });
 
     // ============ STEP 2: BRAND IDENTITY ============
@@ -439,18 +471,20 @@ Return ONLY JSON:
     if (!contentForHTML.contactInfo) contentForHTML.contactInfo = { phone: '+234 800 000 0000', email: 'info@business.com', address: plan.city + ', Nigeria', whatsapp: '+234 800 000 0000' };
     try {
       // === PREMIUM ENGINE v3.0 ===
-      const layoutKey = selectLayout(planForHTML.websiteCategory, designStyleKey, planForHTML.websiteType);
+      const layoutKey = planForHTML._profile?.layout || selectLayout(planForHTML.websiteCategory, designStyleKey, planForHTML.websiteType);
       const usePremium = !is3D && !isClay; // Premium handles most styles; 3D and clay keep dedicated generators
       if (usePremium) {
         try {
           // Premium Engine v4.0 — all 15 features
+          // Use business profile's feature recommendations, falling back to all-enabled
+          const profileFeatures = planForHTML._profile?.features || {};
           const v4Options = {
-            megaMenu: true,
-            lottie: true,
-            beforeAfter: true,           // Enable for ALL categories — it's a premium showcase feature
-            virtualTour: true,           // Enable for ALL categories
-            interactiveMap: true,
-            bookingForm: true,           // Enable for ALL categories
+            megaMenu: profileFeatures.megaMenu !== false,
+            lottie: profileFeatures.lottie !== false,
+            beforeAfter: profileFeatures.beforeAfter === true,
+            virtualTour: profileFeatures.virtualTour === true,
+            interactiveMap: profileFeatures.interactiveMap !== false,
+            bookingForm: profileFeatures.bookingForm !== false,
             minifyCSS: true,
             heroVideo: contentForHTML.hero?.videoUrl || '',
             gltfModel: planForHTML.websiteType === '3d' ? 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF/Duck.gltf' : '',
