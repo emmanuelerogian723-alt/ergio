@@ -1173,6 +1173,12 @@
         <button class="edit-mode-btn" id="addSectionBtn" onclick="openSectionPicker()" title="Add a new section to your website" style="padding:6px 12px;border-radius:8px;font-size:12px;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px">
           ➕ Section
         </button>
+        <button class="edit-mode-btn" onclick="oneClickFix('spacing')" title="Auto-fix spacing & padding" style="padding:6px 12px;border-radius:8px;font-size:12px;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px">
+          📐 Fix Layout
+        </button>
+        <button class="edit-mode-btn" onclick="oneClickFix('improve')" title="Improve contrast & readability" style="padding:6px 12px;border-radius:8px;font-size:12px;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px">
+          ✨ Polish
+        </button>
         <button class="icon-btn" onclick="refreshPreview()" title="Refresh">🔄</button>
         <button class="icon-btn" onclick="toggleCode()" id="codeToggle" title="View Code">💻</button>
         <button class="deploy-btn" id="deployBtn" onclick="openDeployModal()" disabled>
@@ -1776,6 +1782,272 @@ function applyUploadedPhotos() {
 }
 
 
+
+// ===== DESIGN PLAN MODE =====
+let pendingPlan = null;
+let planApproved = false;
+
+function showPlanModal(plan) {
+  pendingPlan = plan;
+  const content = document.getElementById('planContent');
+  if (!content) return;
+  
+  const colors = plan.brandColors || {};
+  const services = plan.services || [];
+  
+  let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">';
+  // Business info
+  html += '<div style="padding:10px;background:#16161F;border:1px solid #1E1E2E;border-radius:8px"><div style="font-size:10px;color:#6B6B8A;text-transform:uppercase">Business</div><div style="font-size:14px;font-weight:600">' + (plan.businessName || 'Business') + '</div></div>';
+  html += '<div style="padding:10px;background:#16161F;border:1px solid #1E1E2E;border-radius:8px"><div style="font-size:10px;color:#6B6B8A;text-transform:uppercase">Type</div><div style="font-size:14px;font-weight:600">' + (plan.type || 'Business') + '</div></div>';
+  html += '</div>';
+  
+  // Color palette
+  html += '<div style="font-size:10px;color:#6B6B8A;text-transform:uppercase;margin-bottom:6px">Color Palette</div>';
+  html += '<div style="display:flex;gap:6px;margin-bottom:12px">';
+  ['primary','secondary','accent','bg'].forEach(k => {
+    const c = colors[k] || '#333';
+    html += '<div style="flex:1;text-align:center"><div style="height:40px;border-radius:8px;background:' + c + ';border:1px solid #1E1E2E;margin-bottom:4px"></div><div style="font-size:9px;color:#6B6B8A">' + c + '</div></div>';
+  });
+  html += '</div>';
+  
+  // Sections to be included
+  html += '<div style="font-size:10px;color:#6B6B8A;text-transform:uppercase;margin-bottom:6px">Sections</div>';
+  const plannedSections = ['Hero', 'About', 'Services' + (services.length ? ' (' + services.length + ')' : ''), 'Testimonials', 'FAQ', 'Pricing', 'Gallery', 'Contact'];
+  html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px">';
+  plannedSections.forEach(s => {
+    html += '<span style="padding:4px 10px;background:' + (colors.primary||'#00D9FF') + '22;color:' + (colors.primary||'#00D9FF') + ';border-radius:100px;font-size:11px">' + s + '</span>';
+  });
+  html += '</div>';
+  
+  // Style
+  html += '<div style="padding:10px;background:#16161F;border:1px solid #1E1E2E;border-radius:8px;margin-bottom:12px">';
+  html += '<div style="font-size:10px;color:#6B6B8A;text-transform:uppercase;margin-bottom:4px">Design Style</div>';
+  html += '<div style="font-size:13px">' + (plan.designStyle || 'modern') + ' · ' + (plan.tone || 'professional') + ' tone</div>';
+  html += '</div>';
+  
+  // Tagline
+  html += '<div style="padding:10px;background:#16161F;border:1px solid #1E1E2E;border-radius:8px">';
+  html += '<div style="font-size:10px;color:#6B6B8A;text-transform:uppercase;margin-bottom:4px">Tagline</div>';
+  html += '<div style="font-size:13px;font-style:italic">"' + (plan.tagline || 'Premium service') + '"</div>';
+  html += '</div>';
+  
+  content.innerHTML = html;
+  document.getElementById('planModal').style.display = 'flex';
+}
+
+function approvePlan() {
+  planApproved = true;
+  document.getElementById('planModal').style.display = 'none';
+  toast('Plan approved! Building your website...', 'success');
+}
+
+function dismissPlan() {
+  planApproved = false;
+  pendingPlan = null;
+  document.getElementById('planModal').style.display = 'none';
+}
+
+// ===== DESIGN LINTER =====
+function runDesignLinter(html) {
+  const results = { score: 100, issues: [], passes: [] };
+  
+  // Check for alt text on images
+  const imgCount = (html.match(/<img/gi) || []).length;
+  const altCount = (html.match(/alt="/gi) || []).length;
+  if (imgCount > 0 && altCount < imgCount) {
+    results.issues.push({ type: 'accessibility', msg: imgCount - altCount + ' images missing alt text', penalty: 10 });
+  } else if (imgCount > 0) {
+    results.passes.push('All images have alt text');
+  }
+  
+  // Check for meta description
+  if (!html.includes('name="description"')) {
+    results.issues.push({ type: 'seo', msg: 'Missing meta description', penalty: 10 });
+  } else {
+    results.passes.push('Meta description present');
+  }
+  
+  // Check for viewport meta
+  if (!html.includes('name="viewport"')) {
+    results.issues.push({ type: 'responsive', msg: 'Missing viewport meta tag', penalty: 15 });
+  } else {
+    results.passes.push('Mobile viewport configured');
+  }
+  
+  // Check for semantic HTML
+  if (!html.includes('<nav') && !html.includes('role="navigation"')) {
+    results.issues.push({ type: 'semantic', msg: 'No nav element found', penalty: 5 });
+  } else {
+    results.passes.push('Semantic navigation present');
+  }
+  
+  // Check for contact info
+  if (!html.includes('tel:') && !html.includes('mailto:')) {
+    results.issues.push({ type: 'contact', msg: 'No clickable contact links', penalty: 5 });
+  } else {
+    results.passes.push('Contact links present');
+  }
+  
+  // Check for WhatsApp link (ERGIO advantage)
+  if (html.includes('wa.me')) {
+    results.passes.push('WhatsApp integration detected');
+  }
+  
+  // Check for animations (premium feel)
+  if (html.includes('reveal') || html.includes('transition') || html.includes('animation')) {
+    results.passes.push('Animations/reveal effects present');
+  } else {
+    results.issues.push({ type: 'design', msg: 'No animations detected', penalty: 5 });
+  }
+  
+  // Check for proper headings hierarchy
+  if (!html.includes('<h1')) {
+    results.issues.push({ type: 'accessibility', msg: 'Missing H1 heading', penalty: 10 });
+  } else {
+    results.passes.push('H1 heading present');
+  }
+  
+  // Check HTML size (not too bloated)
+  const sizeKB = Math.round(html.length / 1024);
+  if (sizeKB > 100) {
+    results.issues.push({ type: 'performance', msg: 'HTML is ' + sizeKB + 'KB (should be under 100KB)', penalty: 5 });
+  }
+  
+  // Calculate final score
+  results.issues.forEach(i => results.score -= i.penalty);
+  results.score = Math.max(0, results.score);
+  
+  // Display results
+  showLinterResults(results);
+  return results;
+}
+
+function showLinterResults(results) {
+  const box = document.getElementById('linterResults');
+  const scoreEl = document.getElementById('linterScore');
+  const detailsEl = document.getElementById('linterDetails');
+  if (!box || !scoreEl || !detailsEl) return;
+  
+  // Score with color
+  let scoreColor = '#00FF9D';
+  let scoreLabel = 'Excellent';
+  if (results.score < 80) { scoreColor = '#FFD700'; scoreLabel = 'Good'; }
+  if (results.score < 60) { scoreColor = '#FF6B6B'; scoreLabel = 'Needs Work'; }
+  
+  scoreEl.innerHTML = '<span style="color:' + scoreColor + '">' + results.score + '/100</span> <span style="font-size:13px;color:' + scoreColor + '">' + scoreLabel + '</span>';
+  
+  let details = '';
+  if (results.issues.length > 0) {
+    details += '<div style="font-weight:600;color:#FF6B6B;margin-bottom:4px">Issues:</div>';
+    results.issues.forEach(i => { details += '<div>⚠️ ' + i.msg + ' (-' + i.penalty + ')</div>'; });
+  }
+  if (results.passes.length > 0) {
+    details += '<div style="font-weight:600;color:#00FF9D;margin:6px 0 4px">Passed:</div>';
+    results.passes.forEach(p => { details += '<div>✅ ' + p + '</div>'; });
+  }
+  
+  detailsEl.innerHTML = details;
+  box.style.display = 'block';
+  
+  // Auto-hide after 15 seconds
+  setTimeout(() => { if (box) box.style.display = 'none'; }, 15000);
+}
+
+
+
+// ===== ONE-CLICK FIX ACTIONS =====
+async function oneClickFix(action) {
+  if (!currentHTML) { toast('Build a website first!', 'error'); return; }
+  
+  const messages = {
+    'spacing': 'Fix the spacing and padding throughout the website. Ensure consistent spacing between sections, proper margins, and good visual rhythm. Do NOT change any content, colors, or text — ONLY adjust spacing.',
+    'restructure': 'Restructure the layout for better flow. Reorder sections if needed for better storytelling. Add section transitions if missing. Do NOT change content or colors.',
+    'improve': 'Improve contrast and readability. Check all text against their backgrounds and fix any low-contrast issues. Ensure headings stand out. Do NOT change layout or content.'
+  };
+  
+  const prompt = messages[action] || 'Improve the website design.';
+  toast('🔄 ' + (action === 'spacing' ? 'Fixing layout...' : action === 'restructure' ? 'Restructuring...' : 'Polishing...'), 'info');
+  
+  setMode('edit');
+  
+  // Send as edit request
+  const input = document.getElementById('promptInput');
+  input.value = prompt;
+  await sendPrompt();
+}
+
+
+
+// ===== SECTION PICKER (from section library) =====
+function openSectionPicker() {
+  if (!currentHTML) { toast('Build a website first, then add sections!', 'error'); return; }
+  
+  let existing = document.getElementById('sectionPickerPopup');
+  if (existing) { existing.remove(); return; }
+  
+  const sections = [
+    { id: 'hero', name: 'Hero Section', icon: '🦸', desc: 'Big headline + CTA' },
+    { id: 'about', name: 'About Us', icon: 'ℹ️', desc: 'Your story + values' },
+    { id: 'services', name: 'Services', icon: '⚡', desc: 'What you offer' },
+    { id: 'testimonials', name: 'Testimonials', icon: '💬', desc: 'Client reviews' },
+    { id: 'gallery', name: 'Gallery', icon: '🖼️', desc: 'Photo showcase' },
+    { id: 'pricing', name: 'Pricing', icon: '💰', desc: 'Price plans' },
+    { id: 'faq', name: 'FAQ', icon: '❓', desc: 'Common questions' },
+    { id: 'contact', name: 'Contact Form', icon: '📞', desc: 'Get in touch' },
+    { id: 'team', name: 'Team', icon: '👥', desc: 'Meet the team' },
+    { id: 'process', name: 'Process Steps', icon: '📋', desc: 'How it works' },
+    { id: 'stats', name: 'Stats Bar', icon: '📊', desc: 'Key numbers' },
+    { id: 'cta', name: 'CTA Banner', icon: '📢', desc: 'Call to action' },
+    { id: 'map', name: 'Map + Contact', icon: '🗺️', desc: 'Location map' },
+    { id: 'newsletter', name: 'Newsletter', icon: '✉️', desc: 'Email signup' },
+  ];
+  
+  const popup = document.createElement('div');
+  popup.id = 'sectionPickerPopup';
+  popup.style.cssText = 'position:fixed;bottom:80px;right:16px;width:320px;max-height:400px;overflow-y:auto;background:#0A0A0F;border:1px solid #1E1E2E;border-radius:12px;padding:16px;z-index:99999;box-shadow:0 8px 32px rgba(0,0,0,0.8);font-family:inherit';
+  
+  let cardsHtml = '';
+  sections.forEach(s => {
+    cardsHtml += '<div style="display:flex;gap:10px;align-items:center;padding:10px;background:#16161F;border:1px solid #1E1E2E;border-radius:8px;cursor:pointer;margin-bottom:6px;transition:all 0.2s" onmouseover="this.style.borderColor=\'#00D9FF\'" onmouseout="this.style.borderColor=\'#1E1E2E\'" onclick="addSectionFromLibrary(\'' + s.id + '\',\'' + s.name + '\')">' +
+      '<div style="font-size:20px">' + s.icon + '</div>' +
+      '<div><div style="font-size:12px;font-weight:600;color:#E4E4F0">' + s.name + '</div><div style="font-size:10px;color:#6B6B8A">' + s.desc + '</div></div>' +
+      '</div>';
+  });
+  
+  popup.innerHTML = 
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">' +
+    '<div style="font-size:13px;font-weight:700;color:#E4E4F0">➕ Add Section</div>' +
+    '<div style="cursor:pointer;color:#6B6B8A;font-size:18px" onclick="document.getElementById(\'sectionPickerPopup\').remove()">✕</div>' +
+    '</div>' +
+    '<div>' + cardsHtml + '</div>' +
+    '<div style="font-size:11px;color:#6B6B8A;margin-top:8px;text-align:center">Click to add section before Contact</div>';
+  
+  document.body.appendChild(popup);
+  
+  // Close on outside click
+  setTimeout(() => {
+    document.addEventListener('mousedown', function close(e) {
+      if (!popup.contains(e.target)) {
+        popup.remove();
+        document.removeEventListener('mousedown', close);
+      }
+    });
+  }, 300);
+}
+
+function addSectionFromLibrary(id, name) {
+  document.getElementById('sectionPickerPopup')?.remove();
+  
+  const prompt = 'Add a "' + name + '" section to my website. Place it before the contact section. Make it match the existing design style, colors, and fonts. Generate appropriate content for this section based on my business.';
+  
+  const input = document.getElementById('promptInput');
+  input.value = prompt;
+  setMode('edit');
+  toast('Adding ' + name + ' section...', 'info');
+  sendPrompt();
+}
+
+
 function showHistory() {
   switchTab('history');
 }
@@ -2057,6 +2329,9 @@ function handleSSE(event, stepMap, prevStep) {
     document.title = name + ' — ERGIO Builder';
     document.getElementById('urlBarText').textContent = 'ergio.vercel.app/s/' + (data.plan?.slug || 'mybiz');
     
+    // Show the design plan modal for user approval
+    if (data.plan) showPlanModal(data.plan);
+    
     // Show detected design style
     if (data.designConfig) {
       const dc = data.designConfig;
@@ -2093,6 +2368,9 @@ function handleSSE(event, stepMap, prevStep) {
   
   else if (type === 'website') {
     currentHTML = data.html;
+    
+    // Run design linter on the generated website
+    setTimeout(function() { runDesignLinter(currentHTML); }, 1500);
     updateStep('website', 'done');
     updateStep('seo', 'done');
     // Show partial preview
@@ -2215,6 +2493,8 @@ async function refineWebsite(prompt) {
       addVersion('Edit: ' + prompt.substring(0, 30), prompt.substring(0, 40));
       thinkingMsg.querySelector('.msg-bubble').textContent = '✅ Done! ' + (result.summary || 'Website updated successfully.');
       toast('Website updated!', 'success');
+      // Run linter after edit too
+      setTimeout(function() { runDesignLinter(newHtml); }, 1000);
     } else {
       throw new Error('The edit returned empty or too small result. Try rephrasing your request.');
     }
@@ -2429,6 +2709,31 @@ p{font-size:1.2rem;color:#999;max-width:560px;line-height:1.7}
       <button class="gh-deploy-btn" style="flex:1" onclick="applyStyle()">Apply & Rebuild</button>
     </div>
   </div>
+
+<!-- DESIGN PLAN MODAL -->
+<div id="planModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:99999;align-items:center;justify-content:center;font-family:inherit">
+  <div style="background:#0A0A0F;border:1px solid #1E1E2E;border-radius:20px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto;padding:24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="font-size:18px;font-weight:700;color:#E4E4F0">📋 Design Plan</h3>
+      <button onclick="dismissPlan()" style="background:none;border:none;color:#6B6B8A;font-size:20px;cursor:pointer">✕</button>
+    </div>
+    <div id="planContent" style="font-size:13px;color:#E4E4F0;line-height:1.8"></div>
+    <div style="display:flex;gap:8px;margin-top:20px">
+      <button onclick="dismissPlan()" style="flex:1;padding:10px;border-radius:10px;background:var(--card);border:1px solid var(--border);color:var(--muted);font-size:13px;cursor:pointer">Cancel</button>
+      <button onclick="approvePlan()" style="flex:2;padding:10px;border-radius:10px;background:linear-gradient(135deg,#00D9FF,#00FF9D);border:none;color:#000;font-weight:700;font-size:13px;cursor:pointer">✅ Approve & Build</button>
+    </div>
+  </div>
+</div>
+
+<!-- DESIGN LINTER RESULTS -->
+<div id="linterResults" style="display:none;position:fixed;bottom:60px;right:16px;width:280px;background:#0A0A0F;border:1px solid #1E1E2E;border-radius:12px;padding:12px;z-index:99998;font-family:inherit;box-shadow:0 4px 20px rgba(0,0,0,0.5)">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <span style="font-size:13px;font-weight:700;color:#E4E4F0">🔍 Design Score</span>
+    <button onclick="document.getElementById('linterResults').style.display='none'" style="background:none;border:none;color:#6B6B8A;cursor:pointer;font-size:14px">✕</button>
+  </div>
+  <div id="linterScore" style="font-size:28px;font-weight:900;margin-bottom:8px"></div>
+  <div id="linterDetails" style="font-size:11px;color:#6B6B8A;line-height:1.6"></div>
+</div>
 </div>
 
   <script src="guide-widget.js"><\/script>
