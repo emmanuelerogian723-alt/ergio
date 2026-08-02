@@ -2033,30 +2033,54 @@ async function refineWebsite(prompt) {
   isBuilding = true;
   document.getElementById('sendBtn').disabled = true;
   
-  const thinkingMsg = addMessage('ai', '🔄 Refining your website...');
+  const thinkingMsg = addMessage('ai', '🔄 Editing your website...');
   
   try {
+    // Get business name from buildData or project name
+    const bizName = (buildData && buildData.businessName) || 
+                    document.getElementById('projectNameText')?.textContent || 
+                    'Your Business';
+    
+    // Send the FULL HTML (not truncated) + correct field names
     const res = await fetch('/api/refine', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, currentHtml: currentHTML.substring(0, 8000) })
+      body: JSON.stringify({ 
+        editRequest: prompt,
+        currentHtml: currentHTML,
+        businessName: bizName
+      })
     });
     
-    if (!res.ok) throw new Error('Refine failed');
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || errData.message || 'Edit failed (' + res.status + ')');
+    }
     
     const result = await res.json();
     const newHtml = result.html || result.data?.html;
     
-    if (newHtml) {
+    if (newHtml && newHtml.length > 500) {
+      // Validate: check it has essential HTML structure
+      const hasHtmlTag = newHtml.toLowerCase().includes('<html') || newHtml.toLowerCase().includes('<!doctype');
+      const hasBodyClose = newHtml.toLowerCase().includes('</body>') || newHtml.toLowerCase().includes('</html>');
+      
+      if (!hasHtmlTag || !hasBodyClose) {
+        throw new Error('The AI returned incomplete HTML. Try being more specific about what to change.');
+      }
+      
+      // Save the old version for undo before applying new one
       showPreview(newHtml);
-      addVersion('edit', prompt.substring(0, 30));
-      thinkingMsg.querySelector('.msg-bubble').textContent = '✅ Done! ' + (result.summary || 'Website updated.');
+      addVersion('Edit: ' + prompt.substring(0, 30), prompt.substring(0, 40));
+      thinkingMsg.querySelector('.msg-bubble').textContent = '✅ Done! ' + (result.summary || 'Website updated successfully.');
       toast('Website updated!', 'success');
     } else {
-      thinkingMsg.querySelector('.msg-bubble').textContent = '⚠️ Could not apply that change. Try being more specific.';
+      throw new Error('The edit returned empty or too small result. Try rephrasing your request.');
     }
   } catch (err) {
-    thinkingMsg.querySelector('.msg-bubble').textContent = '❌ Refine failed. Please try again.';
+    console.error('Refine error:', err);
+    thinkingMsg.querySelector('.msg-bubble').textContent = '❌ ' + (err.message || 'Edit failed. Please try again.');
+    toast('Edit failed — try being more specific', 'error');
   }
   
   isBuilding = false;
@@ -2297,36 +2321,80 @@ async function checkAgentStatus() {
 async function agentAction(engine, prompt) {
   const log = document.getElementById('agentChatLog');
   if (!log) return;
-  // Clear placeholder
   if (log.children.length === 1 && log.children[0].style.color) log.innerHTML = '';
+  
+  // Build website context for the conductor
+  const bizName = (buildData && buildData.businessName) || document.getElementById('projectNameText')?.textContent || 'My Business';
+  const bizType = (buildData && buildData.businessType) || (buildData && buildData.plan && buildData.plan.businessType) || 'business';
+  const hasWebsite = !!currentHTML;
+  
+  // Add context to the prompt
+  const contextualPrompt = 'Business: ' + bizName + ' (' + bizType + '). Website: ' + (hasWebsite ? 'Live' : 'Not built yet') + '.\nRequest: ' + prompt;
+  
   log.innerHTML += '<div style="align-self:flex-end;background:rgba(0,217,255,.15);padding:8px 12px;border-radius:8px 8px 0 8px;font-size:12px;max-width:85%">' + prompt + '</div>';
   log.innerHTML += '<div id="agentLoading" style="align-self:flex-start;background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:8px 8px 8px 0;font-size:12px;color:var(--muted)">⚡ Running ' + engine + ' engine...</div>';
   log.scrollTop = log.scrollHeight;
+  
   try {
     let result;
+    let usedFallback = false;
+    
+    // Try engines API first (Render backend)
     if (ENGINES_API && ENGINES_API.conductor) {
-      result = await ENGINES_API.conductor(prompt, localStorage.getItem('ergio_business_id'), null);
-    } else if (CMD_API && CMD_API.command) {
-      result = await CMD_API.command(prompt, localStorage.getItem('ergio_business_id'), null);
-    } else {
-      // Fallback to Vercel API
+      try {
+        result = await ENGINES_API.conductor(contextualPrompt, localStorage.getItem('ergio_business_id'), null);
+      } catch(e) {
+        console.warn('[Agent] Engines API failed, trying command:', e.message);
+        usedFallback = true;
+      }
+    }
+    
+    // Try command API (has its own fallback)
+    if (!result && CMD_API && CMD_API.command) {
+      try {
+        result = await CMD_API.command(contextualPrompt, localStorage.getItem('ergio_business_id'), null);
+      } catch(e) {
+        console.warn('[Agent] Command API failed, trying Vercel:', e.message);
+        usedFallback = true;
+      }
+    }
+    
+    // Vercel API fallback
+    if (!result) {
       const r = await fetch('/api/engines', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ engine: engine, action: 'run', prompt: prompt })
+        body: JSON.stringify({ engine: engine, action: 'run', prompt: contextualPrompt })
       });
+      if (!r.ok) throw new Error('All agent backends failed (' + r.status + ')');
       result = await r.json();
     }
+    
     var loading = document.getElementById('agentLoading');
     if (loading) loading.remove();
+    
     var summary = result.summary || result.message || result.result || 'Done';
     if (typeof summary === 'object') summary = JSON.stringify(summary, null, 2);
-    log.innerHTML += '<div style="align-self:flex-start;background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:8px 8px 8px 0;font-size:12px;max-width:85%;color:var(--text);white-space:pre-wrap">✅ ' + summary + '</div>';
+    
+    // Check if this was a website edit request
+    var lowerPrompt = prompt.toLowerCase();
+    if ((lowerPrompt.includes('change') || lowerPrompt.includes('edit') || lowerPrompt.includes('update') || lowerPrompt.includes('make') || lowerPrompt.includes('add') || lowerPrompt.includes('remove')) && hasWebsite) {
+      summary += '\n\n💡 Tip: To apply website changes, switch to the Chat tab and describe what you want to change. I will edit your website surgically without breaking the code.';
+    }
+    
+    log.innerHTML += '<div style="align-self:flex-start;background:var(--card);border:1px solid var(--border);border-radius:8px 8px 8px 0;font-size:12px;max-width:85%;color:var(--text);white-space:pre-wrap">✅ ' + summary + '</div>';
     log.scrollTop = log.scrollHeight;
   } catch(e) {
     var loading = document.getElementById('agentLoading');
     if (loading) loading.remove();
-    log.innerHTML += '<div style="color:var(--red);font-size:12px">❌ ' + e.message + '</div>';
+    
+    // Smart fallback: if website exists and request mentions editing, route to chat
+    var lowerPrompt = prompt.toLowerCase();
+    if ((lowerPrompt.includes('change') || lowerPrompt.includes('edit') || lowerPrompt.includes('update') || lowerPrompt.includes('make') || lowerPrompt.includes('add') || lowerPrompt.includes('remove')) && hasWebsite) {
+      log.innerHTML += '<div style="align-self:flex-start;background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:8px 8px 8px 0;font-size:12px;max-width:85%;color:var(--text)">💡 I can help edit your website! Switch to the Chat tab and describe what you want to change. For example: "Change the hero text to Welcome" or "Make the buttons blue".</div>';
+    } else {
+      log.innerHTML += '<div style="color:var(--red);font-size:12px">❌ ' + e.message + '</div>';
+    }
     log.scrollTop = log.scrollHeight;
   }
 }
@@ -2339,6 +2407,32 @@ async function sendAgentMessage() {
   const log = document.getElementById('agentChatLog');
   if (!log) return;
   if (log.children.length === 1 && log.children[0].style.color) log.innerHTML = '';
+  
+  // Build website context
+  const bizName = (buildData && buildData.businessName) || document.getElementById('projectNameText')?.textContent || 'My Business';
+  const bizType = (buildData && buildData.businessType) || (buildData && buildData.plan && buildData.plan.businessType) || 'business';
+  const hasWebsite = !!currentHTML;
+  const contextualMsg = 'Business: ' + bizName + ' (' + bizType + '). Website: ' + (hasWebsite ? 'Live' : 'Not built yet') + '.\nRequest: ' + msg;
+  
+  // Check if this is a website edit request — if so, route to chat edit flow
+  var lowerMsg = msg.toLowerCase();
+  var isEditRequest = (lowerMsg.includes('change') || lowerMsg.includes('edit') || lowerMsg.includes('update') || lowerMsg.includes('make the') || lowerMsg.includes('add') || lowerMsg.includes('remove') || lowerMsg.includes('replace') || lowerMsg.includes('fix'));
+  
+  if (isEditRequest && hasWebsite) {
+    log.innerHTML += '<div style="align-self:flex-end;background:rgba(0,217,255,.15);padding:8px 12px;border-radius:8px 8px 0 8px;font-size:12px;max-width:85%">' + msg + '</div>';
+    log.innerHTML += '<div style="align-self:flex-start;background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:8px 8px 8px 0;font-size:12px;max-width:85%;color:var(--text)">💡 Routing to website editor... Switch to the Chat tab to see the edit applied!</div>';
+    log.scrollTop = log.scrollHeight;
+    
+    // Route to the chat edit flow
+    const chatInput = document.getElementById('promptInput');
+    chatInput.value = msg;
+    autoResize(chatInput);
+    setMode('edit');
+    switchTab('chat');
+    toast('Switching to Chat — press Enter to apply the edit', 'info');
+    return;
+  }
+  
   log.innerHTML += '<div style="align-self:flex-end;background:rgba(0,217,255,.15);padding:8px 12px;border-radius:8px 8px 0 8px;font-size:12px;max-width:85%">' + msg + '</div>';
   log.innerHTML += '<div id="agentLoading" style="align-self:flex-start;background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:8px 8px 8px 0;font-size:12px;color:var(--muted)">⚡ Thinking...</div>';
   log.scrollTop = log.scrollHeight;
@@ -2876,11 +2970,15 @@ function toggleEditMode() {
         overlay.appendChild(marker);
         setTimeout(() => marker.remove(), 3000);
         
-        // Pre-fill the chat with edit instructions
+        // Pre-fill the chat with smart edit instructions
         const input = document.getElementById('promptInput');
-        const editPrompt = 'Edit the ' + desc + ' element' + 
-          (el.text ? ' (currently: "' + el.text.substring(0, 50) + '...")' : '') +
-          '. Current style: ' + el.color + ' / ' + el.bg + ' / ' + el.fontSize + '.';
+        // Build a smart edit prompt that gives the AI precise context
+        let editPrompt = 'I want to edit the ' + desc + ' element';
+        if (el.text) editPrompt += '. It currently says: "' + el.text.substring(0, 80) + '"';
+        if (el.color && el.color !== 'rgba(0, 0, 0, 0)') editPrompt += '. Text color: ' + el.color;
+        if (el.bg && el.bg !== 'rgba(0, 0, 0, 0)') editPrompt += '. Background: ' + el.bg;
+        if (el.fontSize) editPrompt += '. Font size: ' + el.fontSize;
+        editPrompt += '. Tell me what you want to change about this element:';
         input.value = editPrompt;
         autoResize(input);
         input.focus();

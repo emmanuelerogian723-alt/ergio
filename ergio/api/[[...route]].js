@@ -326,11 +326,63 @@ async function handleRefine(req, res) {
   const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
   const { currentHtml, editRequest, businessName } = body;
   if (!currentHtml || !editRequest) return error(res, 'currentHtml and editRequest required', 400);
-  const result = await callGroq([
-    { role: 'system', content: 'You are ERGIO, an expert web developer. Return only valid HTML.' },
-    { role: 'user', content: `Edit this website for "${businessName||'business'}". Request: "${editRequest}". Current HTML (truncated): ${currentHtml.substring(0,8000)}. Return COMPLETE updated HTML only.` }
-  ], { temperature: 0.3, maxTokens: 4096 });
-  return success(res, { html: result });
+  
+  // Validate the input HTML is not too large (max 50KB for full send)
+  const htmlToSend = currentHtml.length > 50000 ? currentHtml.substring(0, 50000) : currentHtml;
+  const wasTruncated = currentHtml.length > 50000;
+  
+  // Smart system prompt: instruct surgical edits, not full regeneration
+  const systemPrompt = `You are ERGIO, an expert web developer AI. Your job is to edit an existing website based on the user's request.
+
+CRITICAL RULES:
+1. Return the COMPLETE, VALID HTML document — every tag from <!DOCTYPE html> to </html>
+2. Make ONLY the changes the user requested — do not remove or break existing sections
+3. Keep all existing CSS, JavaScript, images, and structure intact
+4. If the user asks to change text, colors, or styles — make only those specific changes
+5. If the user asks to add a section — add it in the appropriate location
+6. If the user asks to remove something — remove only that specific element
+7. NEVER return partial HTML — always return a complete valid document
+8. Preserve all <style> blocks and <script> tags exactly as they are
+9. Keep all class names and IDs unchanged unless the user specifically asks to change them
+10. The HTML ${wasTruncated ? 'was truncated for length — reconstruct the missing parts based on the visible structure' : 'is complete'}.
+
+Return ONLY valid HTML code. No explanations, no markdown, no code blocks — just raw HTML.`;
+
+  const userPrompt = `Business: "${businessName || 'business'}"
+
+User's edit request: "${editRequest}"
+
+Current HTML:
+${htmlToSend}
+
+Return the complete updated HTML with the requested changes applied. Make ONLY the requested changes — keep everything else exactly as is.`;
+
+  try {
+    const result = await callGroq([
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt }
+    ], { temperature: 0.2, maxTokens: 8000, timeout: 45000 });
+    
+    // Validate the returned HTML
+    let cleanHtml = result || '';
+    // Strip markdown code blocks if the model added them
+    cleanHtml = cleanHtml.replace(/^```html\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '');
+    
+    // Basic validation: must have DOCTYPE and closing html tag
+    const hasDoctype = cleanHtml.toLowerCase().includes('<!doctype') || cleanHtml.toLowerCase().includes('<html');
+    const hasClosingHtml = cleanHtml.toLowerCase().includes('</html>') || cleanHtml.toLowerCase().includes('</body>');
+    
+    if (!hasDoctype || !hasClosingHtml || cleanHtml.length < 500) {
+      return error(res, 'Edit produced invalid HTML — the AI may have returned a partial result. Try being more specific about what to change.', 422);
+    }
+    
+    return success(res, { 
+      html: cleanHtml,
+      summary: 'Website updated successfully.'
+    });
+  } catch(err) {
+    return error(res, 'Edit failed: ' + (err.message || 'unknown error'), 500);
+  }
 }
 
 // ============ AUTH ============
@@ -597,7 +649,77 @@ async function handleEngines(req, res, action) {
   if (action==='status') return success(res,{engines:[{name:'Local Discovery',status:'active'},{name:'Demand Matching',status:'active'},{name:'AI Outreach',status:'active'},{name:'Repeat Clients',status:'active'}]});
   if (action==='search') { const q = req.query?.query || (typeof req.body==='string'?JSON.parse(req.body):req.body)?.query; if(!q) return error(res,'Query required',400); return success(res, await searxngSearch(q,{count:20})); }
   if (action==='scrape') { const u = req.query?.url || (typeof req.body==='string'?JSON.parse(req.body):req.body)?.url; if(!u) return error(res,'URL required',400); return success(res, await scrapePage(u)); }
-  return success(res,{actions:['status','search','scrape']});
+  
+  // Conductor 'run' action — Vercel fallback when Render is down
+  if (action==='run' || !action) {
+    if (req.method !== 'POST') return error(res, 'Use POST', 405);
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+    const { engine, prompt } = body;
+    
+    if (!prompt) return error(res, 'Prompt required', 400);
+    
+    // Route to appropriate handler based on engine type
+    try {
+      // For website-related requests, provide helpful guidance
+      const lowerPrompt = (prompt || '').toLowerCase();
+      
+      if (lowerPrompt.includes('website') || lowerPrompt.includes('edit') || lowerPrompt.includes('change') || lowerPrompt.includes('update')) {
+        return success(res, { 
+          summary: 'I can help you edit your website! Use the Chat tab below to describe what you want to change. For example: "Change the hero text to Welcome to my store" or "Make the buttons blue".',
+          message: 'To edit your website, switch to the Chat tab and describe your changes. I will apply them surgically without breaking the code.',
+          engines_used: ['website_engine']
+        });
+      }
+      
+      if (lowerPrompt.includes('lead') || lowerPrompt.includes('client') || lowerPrompt.includes('customer')) {
+        return success(res, {
+          summary: 'Lead Engine: I can help find potential customers for your business. To get started, make sure your business profile is set up with your industry and location. Leads are stored in your CRM tab.',
+          message: 'Lead discovery is ready. Use the CRM tab to view and manage your leads.',
+          engines_used: ['lead_engine']
+        });
+      }
+      
+      if (lowerPrompt.includes('invoice') || lowerPrompt.includes('bill') || lowerPrompt.includes('payment')) {
+        return success(res, {
+          summary: 'Invoice Engine: I can generate invoices and track payments. Use the dashboard to create invoices and accept payments via Paystack.',
+          message: 'Invoice generation is ready. Visit the dashboard to create and send invoices.',
+          engines_used: ['invoice_engine']
+        });
+      }
+      
+      if (lowerPrompt.includes('content') || lowerPrompt.includes('social') || lowerPrompt.includes('post')) {
+        const r = await callGroqFast([
+          { role: 'system', content: 'You are ERGIO Conductor, an AI business assistant. Create engaging social media content for Nigerian businesses. Return 3 post ideas with sample copy.' },
+          { role: 'user', content: prompt }
+        ], { temperature: 0.7 });
+        return success(res, { summary: r, message: r, engines_used: ['content_engine'] });
+      }
+      
+      if (lowerPrompt.includes('analytics') || lowerPrompt.includes('stats') || lowerPrompt.includes('report')) {
+        return success(res, {
+          summary: 'Analytics: Check your dashboard for real-time stats on visitors, leads, bookings, and revenue. Your website analytics are tracked automatically.',
+          message: 'Analytics dashboard is available in the main dashboard view.',
+          engines_used: ['analytics_engine']
+        });
+      }
+      
+      // General AI response — use Groq for intelligent replies
+      const aiResponse = await callGroqFast([
+        { role: 'system', content: 'You are ERGIO Conductor, an AI business assistant for African businesses. Be helpful, concise, and actionable. You can help with: website editing, lead generation, invoicing, content creation, analytics, and more. Respond in plain text.' },
+        { role: 'user', content: prompt }
+      ], { temperature: 0.5 });
+      
+      return success(res, { 
+        summary: aiResponse, 
+        message: aiResponse,
+        engines_used: ['conductor']
+      });
+    } catch (err) {
+      return error(res, 'Conductor error: ' + (err.message || 'unknown'), 500);
+    }
+  }
+  
+  return success(res,{actions:['status','search','scrape','run']});
 }
 
 // ============ ANALYTICS ============
