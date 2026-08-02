@@ -62,19 +62,64 @@ export const COMPONENTS = {
 
 // ── HERO GENERATORS ───────────────────────────────────────
 function heroBillboard(d) {
-  return `<section class="hero" style="min-height:90vh;display:flex;align-items:center;background:linear-gradient(180deg,${d.colors.bg} 0%,${d.colors.surface} 100%);position:relative;overflow:hidden">
-    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,${d.colors.primary}22,transparent 60%);z-index:0"></div>
-    <div style="position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:0 5%;width:100%">
-      <div style="font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;color:${d.colors.primary};font-weight:700;margin-bottom:1.5rem;opacity:0;animation:fadeUp .8s .1s forwards">${d.category||'Premium'}</div>
-      <h1 style="font-size:clamp(2.5rem,8vw,6rem);font-weight:900;line-height:0.95;letter-spacing:-0.03em;margin-bottom:1.5rem;opacity:0;animation:fadeUp .8s .2s forwards">${d.headline}</h1>
-      <p style="font-size:clamp(1rem,2.5vw,1.5rem);color:${d.colors.muted};max-width:600px;margin-bottom:2.5rem;opacity:0;animation:fadeUp .8s .3s forwards">${d.subheadline}</p>
-      <div style="display:flex;gap:1rem;flex-wrap:wrap;opacity:0;animation:fadeUp .8s .4s forwards">
-        <a href="#contact" style="background:${d.colors.primary};color:${d.colors.bg};padding:1rem 2rem;border-radius:8px;font-weight:700;text-decoration:none;font-size:1rem;transition:all .3s;box-shadow:0 4px 20px ${d.colors.primary}44">${d.cta||'Get Started'}</a>
-        <a href="#about" style="border:2px solid ${d.colors.border};color:${d.colors.text};padding:1rem 2rem;border-radius:8px;font-weight:600;text-decoration:none;font-size:1rem;transition:all .3s">Learn More</a>
+  const bg = d.colors?.bg || '#09090B';
+  const primary = d.colors?.primary || '#00D9FF';
+  const text = d.colors?.text || '#f0f4ff';
+  const muted = d.colors?.muted || '#8892a4';
+  const heroImg = d.heroImage || d.images?.hero?.[0]?.url || '';
+  
+  return `<section style="min-height:100vh;position:relative;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;background:${bg}">
+    <!-- Left: Typography -->
+    <div style="display:flex;flex-direction:column;justify-content:center;padding:8% 6% 8% 7%;position:relative;z-index:2">
+      <div style="font-size:clamp(.65rem,1vw,.75rem);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:${primary};margin-bottom:1.5rem;opacity:0;animation:fadeIn .6s .1s forwards">
+        ${d.category || d.type || 'Business'} · ${d.city || 'Nigeria'} · Est. ${new Date().getFullYear()}
       </div>
+      <h1 style="font-size:clamp(2.5rem,7vw,5.5rem);font-weight:900;line-height:0.92;letter-spacing:-0.04em;color:${text};margin-bottom:1.8rem;opacity:0;animation:fadeUp .8s .2s forwards">
+        ${d.headline || d.businessName}
+      </h1>
+      <p style="font-size:clamp(1rem,1.8vw,1.25rem);color:${muted};max-width:440px;line-height:1.7;margin-bottom:2.5rem;opacity:0;animation:fadeUp .8s .4s forwards">
+        ${d.subheadline || d.tagline || ''}
+      </p>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;opacity:0;animation:fadeUp .8s .6s forwards">
+        <a href="#contact" style="display:inline-flex;align-items:center;gap:.5rem;background:${primary};color:${bg};padding:1rem 2.2rem;border-radius:4px;font-weight:800;font-size:1rem;text-decoration:none;letter-spacing:-.01em;transition:all .3s;box-shadow:0 8px 24px ${primary}44">
+          ${d.cta || 'Get Started'} <span style="font-size:1.1rem">→</span>
+        </a>
+        <a href="#about" style="display:inline-flex;align-items:center;gap:.5rem;background:transparent;color:${text};padding:1rem 2rem;border-radius:4px;font-weight:700;font-size:1rem;text-decoration:none;border:1px solid rgba(255,255,255,0.15);transition:all .3s">
+          Learn More
+        </a>
+      </div>
+      <!-- Stats strip -->
+      <div style="display:flex;gap:2.5rem;margin-top:3.5rem;padding-top:2rem;border-top:1px solid rgba(255,255,255,.08);opacity:0;animation:fadeIn .8s .8s forwards">
+        ${(d.stats||[{label:'Happy Clients',value:'500+'},{label:'Projects',value:'200+'},{label:'Years',value:'5+'}]).slice(0,3).map(s => `
+          <div>
+            <div style="font-size:1.6rem;font-weight:900;color:${primary};letter-spacing:-.03em">${s.value}</div>
+            <div style="font-size:.72rem;color:${muted};text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-top:.2rem">${s.label}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <!-- Right: Full-bleed image -->
+    <div style="position:relative;overflow:hidden;min-height:100vh">
+      ${heroImg 
+        ? `<img src="${heroImg}" alt="${d.businessName}" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.85) contrast(1.05)">`
+        : `<div style="width:100%;height:100%;background:linear-gradient(145deg,${primary}22 0%,${bg} 100%);display:flex;align-items:center;justify-content:center">
+            <div style="font-size:8rem;opacity:.3">🏢</div>
+          </div>`}
+      <!-- Overlay gradient -->
+      <div style="position:absolute;inset:0;background:linear-gradient(to right,${bg} 0%,transparent 25%,transparent 75%,${bg}88 100%)"></div>
+      <!-- Floating badge -->
+      <div style="position:absolute;bottom:2rem;right:2rem;background:rgba(0,0,0,.7);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:1rem 1.4rem">
+        <div style="font-size:.65rem;color:${muted};text-transform:uppercase;letter-spacing:.1em;font-weight:600">Based in</div>
+        <div style="font-size:1rem;font-weight:800;color:${text};margin-top:.2rem">${d.city || 'Nigeria'}</div>
+      </div>
+    </div>
+    <!-- Scroll indicator -->
+    <div style="position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4rem;opacity:.4;animation:float 2s ease-in-out infinite">
+      <span style="font-size:.65rem;color:${muted};text-transform:uppercase;letter-spacing:.1em;font-weight:600">Scroll</span>
+      <div style="width:1px;height:40px;background:linear-gradient(to bottom,${muted},transparent)"></div>
     </div>
   </section>`;
 }
+
 
 function heroCentered(d) {
   return `<section class="hero" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:${d.colors.bg};position:relative;overflow:hidden">
@@ -573,20 +618,44 @@ export function assemblePremiumWebsite(plan, content, colors, logoUrl, images, l
     @media(max-width:1024px){.hero-grid{grid-template-columns:1fr!important}.about-grid{grid-template-columns:1fr!important;gap:2rem!important}.hero-visual{display:none}}
     @media(max-width:768px){section{padding:3rem 5%!important}.nav-links{display:none!important}h1{font-size:clamp(2rem,8vw,3rem)!important}h2{font-size:clamp(1.5rem,6vw,2.5rem)!important}}
     @media(max-width:480px){section{padding:2.5rem 5%!important}body{font-size:0.95rem}}
-    .nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 5%;position:sticky;top:0;background:rgba(0,0,0,0.3);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:100;border-bottom:1px solid var(--border);transition:padding .3s}
-    .nav.scrolled{padding:0.8rem 5%}
-    .nav-brand{font-weight:800;font-size:1.2rem;color:var(--primary);text-decoration:none}
-    .nav-links{display:flex;gap:1.5rem;font-size:0.9rem}
-    .nav-links a{color:var(--muted);text-decoration:none;transition:color .3s;font-weight:600}
-    .nav-links a:hover{color:var(--primary)}
+    /* NAV */
+    .nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 5%;position:sticky;top:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:1000;border-bottom:1px solid var(--border);transition:all .3s}
+    .nav.scrolled{padding:0.75rem 5%;background:rgba(0,0,0,.85)}
+    .nav-brand{font-weight:900;font-size:1.15rem;color:var(--text);text-decoration:none;letter-spacing:-.02em;display:flex;align-items:center;gap:.5rem}
+    .nav-brand img{height:30px;object-fit:contain;border-radius:4px}
+    .nav-links{display:flex;gap:2rem;font-size:.88rem}
+    .nav-links a{color:var(--muted);text-decoration:none;transition:color .2s;font-weight:600;letter-spacing:.01em}
+    .nav-links a:hover{color:var(--text)}
+    .nav-cta{background:var(--primary);color:var(--bg);padding:.55rem 1.4rem;border-radius:6px;font-weight:800;text-decoration:none;font-size:.88rem;transition:all .2s;letter-spacing:-.01em}
+    .nav-cta:hover{transform:translateY(-1px);box-shadow:0 6px 20px var(--primary-shadow,rgba(0,217,255,.3))}
+    /* Mobile nav */
+    .nav-toggle{display:none;background:none;border:1px solid var(--border);border-radius:6px;padding:.45rem .6rem;cursor:pointer;color:var(--text);font-size:1rem}
+    @media(max-width:768px){
+      .nav-links,.nav-cta-wrap{display:none!important}
+      .nav-toggle{display:block!important}
+      .nav-mobile-open .nav-links{display:flex!important;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:rgba(0,0,0,.95);padding:1.5rem 5%;gap:1rem;border-bottom:1px solid var(--border)}
+    }
   </style>
   ${generateSEO(d)}
 </head>
 <body>
   <a href="#main" style="position:absolute;left:-9999px" onfocus="this.style.cssText='position:fixed;left:10px;top:10px;padding:1rem;background:#000;color:#fff;z-index:9999'">Skip to main content</a>
   <nav class="nav" id="nav" role="navigation" aria-label="Main navigation">
-    <a href="#" class="nav-brand">${logoUrl?`<img src="${logoUrl}" alt="${plan.businessName}" style="height:32px">`:plan.businessName}</a>
-    <div class="nav-links"><a href="#about">About</a><a href="#features">Services</a><a href="#testimonials">Reviews</a><a href="#faq">FAQ</a><a href="#contact">Contact</a></div>
+    <a href="#" class="nav-brand">
+      ${logoUrl?`<img src="${logoUrl}" alt="${plan.businessName}" style="height:28px;border-radius:4px">`:''}
+      <span>${plan.businessName}</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu" onclick="document.querySelector('.nav').classList.toggle('nav-mobile-open')">☰</button>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#features">Services</a>
+      <a href="#testimonials">Reviews</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="nav-cta-wrap">
+      <a href="#contact" class="nav-cta">${content.hero?.cta || 'Get Started'}</a>
+    </div>
   </nav>
   <main id="main">
     ${heroFn(d)}${featureFn(d)}${statsFn(d)}${tFn(d)}${COMPONENTS.faq(d)}${ctaFn(d)}${COMPONENTS.contact(d)}

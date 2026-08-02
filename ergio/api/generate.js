@@ -37,10 +37,23 @@ export default async function handler(req, res) {
     // ============ STEP 1: AGENTIC PLAN ============
     send('status', { task: '🧠 Analyzing your business vision...', step: 1, total: 8 });
 
+    // ── Merge answers into a rich context string ──
+    const answersCtx = Object.keys(answers || {}).length > 0
+      ? `\n\nUser also provided these details:\n${Object.entries(answers).map(([k,v]) => `- ${k}: ${v}`).join('\n')}`
+      : '';
+    
     const planPrompt = `You are ERGIO, an AI business launcher for Africa. A user wants to start a business. 
 
-User's input: "${prompt}"
-Additional answers: ${JSON.stringify(answers || {})}
+User's full prompt: "${prompt}"${answersCtx}
+
+IMPORTANT INSTRUCTIONS:
+1. Read the FULL prompt carefully — extract business name, location, industry, vibe, target audience
+2. Match design style to the vibe mentioned: "dark/premium/luxury" → editorial/onyx, "bold/creative" → canvas/nova, "clean/modern" → ivory/aria, "warm/natural" → terra/bloom
+3. Set brandColors based on the vibe: dark vibes get dark bg (#09090B) + vivid accents; clean vibes get white bg + strong primary
+4. businessName should be unique, catchy, and culturally resonant for Nigeria
+5. Always set city from location if mentioned; default to Lagos
+
+Additional answers from the user: ${JSON.stringify(answers || {})}
 
 Detect the website category from the user's prompt:
 - "restaurant" → restaurant (menu, reservations, gallery)

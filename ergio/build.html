@@ -64,6 +64,7 @@
     background: var(--bg);
     position: relative;
     min-height: 0;
+    overflow: hidden;
   }
 
   .preview-header {
@@ -158,6 +159,14 @@
     background: #1a1a1a; min-height: 0;
     -webkit-overflow-scrolling: touch;
     touch-action: pan-x pan-y pinch-zoom;
+    scroll-behavior: smooth;
+  }
+  /* iframe auto-height - grows to full site height */
+  #previewIframe {
+    width: 100% !important;
+    border: none !important;
+    display: block;
+    min-height: 100vh;
   }
   .preview-frame.mobile {
     display: flex; align-items: center; justify-content: center;
@@ -171,7 +180,13 @@
   }
   .preview-frame iframe {
     width: 100%; height: 100%; border: none; display: block;
-    min-height: 100%;
+    min-height: 100vh;
+  }
+  /* Desktop full-page view — scrollable */
+  .preview-frame.desktop-full iframe {
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
   }
   .preview-frame.mobile iframe {
     border-radius: 20px;
@@ -1227,7 +1242,7 @@
         <button id="cancelBuildBtn" onclick="cancelBuild()" style="margin-top:1rem;padding:8px 20px;border-radius:10px;background:rgba(255,71,87,.15);border:1px solid rgba(255,71,87,.3);color:#ff4757;font-weight:600;cursor:pointer;font-size:13px;transition:all .2s;display:none">✕ Cancel Build</button>
       </div>
       <!-- Actual iframe -->
-      <iframe id="previewIframe" style="display:none" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+      <iframe id="previewIframe" style="display:none" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"></iframe>
       <!-- Design Linter Panel -->
       <div id="linterPanel">
         <div class="linter-header">
@@ -1681,16 +1696,21 @@ function showHistory() {
   switchTab('history');
 }
 
+// Question flow state
+let questionFlow = null;
+let collectedAnswers = {};
+let questionStep = 0;
+
 async function sendPrompt() {
   const input = document.getElementById('promptInput');
   const prompt = input.value.trim();
   if (!prompt || isBuilding) return;
-
-  const isFirstBuild = !currentHTML;
   
   // Clear input
   input.value = '';
   autoResize(input);
+  
+  const isFirstBuild = !currentHTML;
   
   // Hide empty state
   document.getElementById('emptyState').style.display = 'none';
@@ -1698,11 +1718,143 @@ async function sendPrompt() {
   // Add user message
   addMessage('user', prompt);
   
+  // ── If we're in a question flow, handle answers ──
+  if (questionFlow && questionFlow.active && (currentMode === 'build' || isFirstBuild)) {
+    handleQuestionAnswer(prompt);
+    return;
+  }
+  
   if (currentMode === 'build' || isFirstBuild) {
-    await buildWebsite(prompt);
+    // ── Check if prompt is detailed enough ──
+    const shouldAsk = needsClarification(prompt);
+    if (shouldAsk && Object.keys(collectedAnswers).length === 0) {
+      startQuestionFlow(prompt);
+      return;
+    }
+    await buildWebsite(prompt, collectedAnswers);
+    collectedAnswers = {};
+    questionFlow = null;
+    questionStep = 0;
   } else {
     await refineWebsite(prompt);
   }
+}
+
+function needsClarification(prompt) {
+  // Only ask questions if the prompt is under 8 words AND no critical info
+  const words = prompt.trim().split(/\s+/);
+  const hasLocation = /\b(lagos|abuja|ibadan|ph|port.harcourt|kano|enugu|benin|owerri|lekki|vi|victoria.island|ikeja|yaba|surulere)\b/i.test(prompt);
+  const hasBusinessType = /\b(restaurant|salon|barber|shop|store|studio|agency|gym|clinic|doctor|school|hotel|cafe|tech|fashion|design|blog|consulting|freelance|coach|bakery|pharmacy|supermarket)\b/i.test(prompt);
+  const isVeryShort = words.length < 6;
+  const isDetailed = words.length >= 10 || (hasLocation && hasBusinessType && words.length >= 4);
+  
+  // Never ask if: very detailed, or user has "build me", "create", "generate" + specifics
+  if (isDetailed) return false;
+  if (/^(build|create|generate|make|design)\s+\w+\s+\w+/i.test(prompt.trim()) && words.length >= 5) return false;
+  
+  return isVeryShort || (!hasLocation && !hasBusinessType);
+}
+
+function startQuestionFlow(originalPrompt) {
+  questionFlow = { active: true, originalPrompt, currentQ: 0 };
+  
+  // Detect what we know from the prompt
+  const hasLocation = /\b(lagos|abuja|ph|kano|ibadan|enugu|ikeja|yaba|lekki)\b/i.test(originalPrompt);
+  const hasBizType = /\b(restaurant|salon|barber|shop|studio|agency|gym|clinic|school|cafe|tech|fashion|design|consulting|freelance)\b/i.test(originalPrompt);
+  
+  // Build smart questions based on what's missing
+  const questions = [];
+  if (!hasBizType) questions.push({ key: 'type', text: `What kind of business is this? (e.g. barber shop, fashion store, tech agency, restaurant, clinic...)` });
+  if (!hasLocation) questions.push({ key: 'location', text: `Where is it located? (e.g. Lekki Lagos, Abuja, Ibadan, or your exact area)` });
+  questions.push({ key: 'audience', text: `Who are your target customers? (e.g. young professionals, families, students, businesses...)` });
+  questions.push({ key: 'vibe', text: `Pick a website vibe:
+🖤 *Dark & Premium* | ☀️ *Clean & Modern* | 🎨 *Bold & Creative* | 🌿 *Natural & Warm*` });
+  
+  questionFlow.questions = questions;
+  questionFlow.currentQ = 0;
+  
+  // Build a thinking greeting
+  const msgEl = addMessage('ai', `🤖 Let me build you something *sharp*. Just answer ${questions.length} quick questions to make it exactly right for your business.
+
+*Question 1 of ${questions.length}:* ${questions[0].text}`);
+  msgEl.setAttribute('data-qflow', 'true');
+  
+  // Add quick-pick buttons for vibe if it's the first question about type
+  if (!hasBizType) {
+    addQuickPicks(['🍽️ Restaurant', '✂️ Barber/Salon', '👗 Fashion', '💻 Tech/Agency', '🏥 Clinic', '🏋️ Gym/Fitness', '🏠 Real Estate', '📚 Education'], 
+      (pick) => { document.getElementById('promptInput').value = pick; sendPrompt(); });
+  }
+}
+
+function handleQuestionAnswer(answer) {
+  const flow = questionFlow;
+  const q = flow.questions[flow.currentQ];
+  
+  // Save answer
+  collectedAnswers[q.key] = answer;
+  flow.currentQ++;
+  
+  if (flow.currentQ < flow.questions.length) {
+    // Ask next question
+    const nextQ = flow.questions[flow.currentQ];
+    const msgEl = addMessage('ai', `✅ Got it!
+
+*Question ${flow.currentQ + 1} of ${flow.questions.length}:* ${nextQ.text}`);
+    
+    // Add quick picks for vibe
+    if (nextQ.key === 'vibe') {
+      addQuickPicks(['🖤 Dark & Premium', '☀️ Clean & Modern', '🎨 Bold & Creative', '🌿 Natural & Warm'], 
+        (pick) => { document.getElementById('promptInput').value = pick; sendPrompt(); });
+    }
+    if (nextQ.key === 'audience') {
+      addQuickPicks(['Young professionals', 'Students', 'Families', 'Businesses', 'Everyone'], 
+        (pick) => { document.getElementById('promptInput').value = pick; sendPrompt(); });
+    }
+  } else {
+    // All questions answered — BUILD!
+    flow.active = false;
+    const buildSummary = buildAnswerSummary(flow.originalPrompt, collectedAnswers);
+    addMessage('ai', `🔥 *Perfect!* Building your website now with everything I know about your business...`);
+    
+    setTimeout(() => {
+      buildWebsite(buildSummary, collectedAnswers);
+    }, 300);
+  }
+}
+
+function buildAnswerSummary(originalPrompt, answers) {
+  const parts = [originalPrompt];
+  if (answers.type) parts.push('Business type: ' + answers.type);
+  if (answers.location) parts.push('Location: ' + answers.location);
+  if (answers.audience) parts.push('Target audience: ' + answers.audience);
+  if (answers.vibe) {
+    const vibeMap = { 'dark': 'dark premium luxury style', 'clean': 'clean modern minimal style', 'bold': 'bold creative editorial style', 'natural': 'warm natural earthy style' };
+    const vibeKey = Object.keys(vibeMap).find(k => answers.vibe.toLowerCase().includes(k));
+    if (vibeKey) parts.push('Design style: ' + vibeMap[vibeKey]);
+  }
+  if (answers.name) parts.push('Business name: ' + answers.name);
+  return parts.join('. ');
+}
+
+function addQuickPicks(options, onSelect) {
+  const history = document.getElementById('chatHistory');
+  const picks = document.createElement('div');
+  picks.className = 'quick-picks';
+  picks.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;padding:6px 10px 10px;';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.textContent = opt;
+    btn.style.cssText = 'padding:6px 12px;border-radius:100px;background:rgba(0,217,255,.08);border:1px solid rgba(0,217,255,.2);color:#00D9FF;font-size:12px;cursor:pointer;transition:all .15s;font-weight:600';
+    btn.onmouseover = () => { btn.style.background = 'rgba(0,217,255,.18)'; };
+    btn.onmouseout = () => { btn.style.background = 'rgba(0,217,255,.08)'; };
+    btn.onclick = () => {
+      picks.remove();
+      onSelect(opt);
+    };
+    picks.appendChild(btn);
+  });
+  history.appendChild(picks);
+  history.scrollTop = history.scrollHeight;
 }
 
 function addMessage(role, content, type = 'text') {
@@ -1838,7 +1990,7 @@ function cancelBuild() {
   addMessage('ai', '⚠️ Build cancelled. You can try again anytime.');
 }
 
-async function buildWebsite(prompt) {
+async function buildWebsite(prompt, answers = {}) {
   isBuilding = true;
   document.getElementById('sendBtn').disabled = true;
   document.getElementById('deployBtn').disabled = true;
@@ -1856,7 +2008,7 @@ async function buildWebsite(prompt) {
     const response = await fetch(API_BASE + '/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt }),
+      body: JSON.stringify({ prompt, answers }),
       signal: buildAbortController?.signal
     });
     
@@ -2065,6 +2217,51 @@ function showPreview(html, title = 'Preview') {
   
   // Update code view
   document.getElementById('codePre').textContent = html;
+  
+  // Resize iframe to full content height after render
+  iframe.onload = () => {
+    try {
+      const body = iframe.contentDocument?.body;
+      const docEl = iframe.contentDocument?.documentElement;
+      if (body && docEl) {
+        const h = Math.max(
+          body.scrollHeight, body.offsetHeight, body.clientHeight,
+          docEl.scrollHeight, docEl.offsetHeight, docEl.clientHeight
+        );
+        if (h > 100) {
+          iframe.style.height = h + 'px';
+          iframe.style.minHeight = h + 'px';
+          // Update URL bar to show site URL
+          const urlBar = document.getElementById('urlBarText');
+          if (urlBar && buildData?.plan?.slug) {
+            urlBar.textContent = 'ergio.vercel.app/s/' + buildData.plan.slug;
+          }
+        }
+      }
+    } catch(e) {}
+  };
+  
+  // Also do a delayed resize (for sites that render after load)
+  setTimeout(() => {
+    try {
+      const body = iframe.contentDocument?.body;
+      const docEl = iframe.contentDocument?.documentElement;
+      if (body && docEl) {
+        const h = Math.max(
+          body.scrollHeight, body.offsetHeight, body.clientHeight,
+          docEl.scrollHeight, docEl.offsetHeight, docEl.clientHeight
+        );
+        if (h > 500) {
+          iframe.style.height = h + 'px';
+          iframe.style.minHeight = h + 'px';
+        }
+      }
+    } catch(e) {}
+  }, 1200);
+  
+  // Enable linter button
+  const linterBtn = document.getElementById('linterBtn');
+  if (linterBtn) linterBtn.style.display = 'flex';
   
   // Auto-save
   scheduleAutoSave();
@@ -2397,30 +2594,79 @@ async function deployTo(target) {
   }
   
   if (target === 'ergio') {
-    const slug = buildData?.plan?.slug || ('biz-' + Date.now());
+    const bizName = buildData?.plan?.businessName || buildData?.businessName || 'my-business';
+    const slug = bizName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || ('biz-' + Date.now());
+    const deployUrl = `https://ergio.vercel.app/s/${slug}`;
+    
+    // Show loading state
+    resultEl.style.display = 'block';
+    resultText.textContent = '⏳ Publishing your website...';
+    resultLink.href = '#';
+    resultLink.textContent = '';
+    
     try {
-      toast('Deploying to ERGIO...', 'info');
-      const res = await fetch('/api/site', {
+      const deployRes = await fetch('/api/site', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug, html: currentHTML, businessId: buildData?.id || 'preview' })
+        body: JSON.stringify({
+          slug,
+          html: currentHTML,
+          businessName: bizName,
+          businessType: buildData?.plan?.type || buildData?.type || 'business',
+          brandColors: buildData?.colors || {},
+          businessId: buildData?.plan?.id || buildData?.id || slug
+        })
       });
-      const data = await res.json();
-      const url = data.url || `https://ergio.vercel.app/s/${slug}`;
+      const deployData = await deployRes.json();
+      const liveUrl = deployData.deployUrl || deployData.url || deployUrl;
       
       resultEl.style.display = 'block';
-      resultText.textContent = 'Your website is live at:';
-      resultLink.href = url;
-      resultLink.textContent = url + ' →';
-      document.getElementById('urlBarText').textContent = url.replace('https://', '');
-      toast('🚀 Deployed!', 'success');
-    } catch {
-      const url = `https://ergio.vercel.app/s/${slug}`;
+      resultEl.style.background = 'rgba(0,255,157,.08)';
+      resultEl.style.border = '1px solid rgba(0,255,157,.3)';
+      resultEl.style.borderRadius = '10px';
+      resultEl.style.padding = '12px';
+      resultText.innerHTML = '🚀 <strong>Live!</strong> Your website is published:';
+      resultLink.href = liveUrl;
+      resultLink.textContent = liveUrl + ' →';
+      resultLink.style.color = '#00FF9D';
+      
+      // Update URL bar
+      document.getElementById('urlBarText').textContent = liveUrl.replace('https://', '');
+      
+      // Update saved website record
+      const savedSites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
+      const existingIdx = savedSites.findIndex(s => s.id === slug || s.name === bizName);
+      if (existingIdx >= 0) {
+        savedSites[existingIdx].deployed = true;
+        savedSites[existingIdx].deployUrl = liveUrl;
+      } else {
+        savedSites.unshift({
+          id: slug,
+          name: bizName,
+          html: currentHTML,
+          deployed: true,
+          deployUrl: liveUrl,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        });
+      }
+      localStorage.setItem('ergio_saved_websites', JSON.stringify(savedSites));
+      
+      // Copy to clipboard
+      navigator.clipboard.writeText(liveUrl).then(() => {
+        toast('🚀 Published! Link copied to clipboard', 'success');
+      }).catch(() => {
+        toast('🚀 Published! ' + liveUrl, 'success');
+      });
+    } catch(err) {
+      // Graceful fallback — still show the URL
       resultEl.style.display = 'block';
-      resultText.textContent = 'Deployed at:';
-      resultLink.href = url;
-      resultLink.textContent = url + ' →';
-      toast('Deployed!', 'success');
+      resultText.textContent = '📎 Your website link (deploy when DB is ready):';
+      resultLink.href = deployUrl;
+      resultLink.textContent = deployUrl + ' →';
+      document.getElementById('urlBarText').textContent = deployUrl.replace('https://', '');
+      navigator.clipboard.writeText(deployUrl).catch(() => {});
+      toast('Link generated! Copy it to share: ' + deployUrl, 'info');
     }
   }
   

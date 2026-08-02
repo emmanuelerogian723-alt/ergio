@@ -5,47 +5,165 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ERGIO — Loading Website...</title>
   <style>
-    body { margin:0; padding:0; background:#0a0a0f; color:#fff; font-family:Inter,sans-serif; display:flex; align-items:center; justify-content:center; min-height:100vh; }
-    .loader { text-align:center; }
-    .spinner { width:50px; height:50px; border:3px solid rgba(0,217,255,.2); border-top-color:#00D9FF; border-radius:50%; animation:spin 1s linear infinite; margin:0 auto 20px; }
-    @keyframes spin { to { transform:rotate(360deg) } }
-    .text { color:#94a3b8; font-size:.9rem; }
-    .error { color:#ef4444; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #09090B;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    .loader {
+      text-align: center;
+      padding: 2rem;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #00D9FF;
+      letter-spacing: -0.04em;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeIn .4s .2s forwards;
+    }
+    .spinner-wrap {
+      position: relative;
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 1.5rem;
+    }
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 2px solid rgba(0,217,255,.1);
+      border-top-color: #00D9FF;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    .spinner-inner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.4rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg) } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: translateY(0) } }
+    .msg {
+      color: #64748b;
+      font-size: .9rem;
+      margin-top: .5rem;
+      opacity: 0;
+      animation: fadeIn .4s .4s forwards;
+    }
+    .site-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      margin-bottom: .3rem;
+      opacity: 0;
+      animation: fadeIn .4s .6s forwards;
+    }
+    .error-wrap {
+      text-align: center;
+      padding: 2rem;
+      max-width: 480px;
+    }
+    .error-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .error-title { font-size: 1.5rem; font-weight: 700; margin-bottom: .5rem; color: #f1f5f9; }
+    .error-msg { color: #64748b; font-size: .9rem; line-height: 1.6; margin-bottom: 1.5rem; }
+    .error-btn {
+      display: inline-block;
+      padding: .8rem 2rem;
+      background: linear-gradient(135deg, #00D9FF, #2563FF);
+      color: #fff;
+      border-radius: 100px;
+      font-weight: 700;
+      text-decoration: none;
+      font-size: .9rem;
+    }
   </style>
 </head>
 <body>
-  <div class="loader">
-    <div class="spinner"></div>
-    <div class="text" id="msg">Loading your website...</div>
+  <div id="loaderWrap" class="loader">
+    <div class="logo">ERGIO</div>
+    <div class="spinner-wrap">
+      <div class="spinner"></div>
+      <div class="spinner-inner">🌐</div>
+    </div>
+    <div class="site-name" id="siteName">Loading...</div>
+    <div class="msg" id="msg">Fetching your website</div>
   </div>
+
   <script>
-    // Extract slug from URL path: /site/business-name → business-name
+    // ── Extract slug from path ──
+    // /s/business-slug or /site/business-slug
     const path = window.location.pathname;
-    const slug = path.replace(/^\/(site|s)\//, '').replace(/\/$/, '');
-    
-    if (!slug || slug === '/site') {
-      document.getElementById('msg').textContent = 'No site slug provided. Go to ergio.vercel.app to create a website.';
-      document.getElementById('msg').classList.add('error');
+    const slugMatch = path.match(/\/(?:s|site)\/([^\/\?#]+)/);
+    const slug = slugMatch ? slugMatch[1] : null;
+
+    if (!slug) {
+      document.getElementById('loaderWrap').innerHTML = `
+        <div class="error-wrap">
+          <div class="error-icon">🔍</div>
+          <div class="error-title">No website found</div>
+          <div class="error-msg">Visit <strong>ergio.vercel.app</strong> to build and launch your business website — it takes under 60 seconds.</div>
+          <a href="https://ergio.vercel.app" class="error-btn">🚀 Build Your Website</a>
+        </div>`;
     } else {
-      // Fetch the website HTML from the API
-      fetch(`/api/site?slug=${encodeURIComponent(slug)}`, {
-        headers: { 'Accept': 'text/html' }
-      })
-      .then(res => {
-        if (!res.ok) throw new Error('Site not found');
-        return res.text();
-      })
-      .then(html => {
-        // Replace entire page with the generated website
-        document.open();
-        document.write(html);
-        document.close();
-      })
-      .catch(err => {
-        document.getElementById('msg').textContent = `Website "${slug}" not found. It may not have been deployed yet.`;
-        document.getElementById('msg').classList.add('error');
-        document.querySelector('.spinner').style.display = 'none';
-      });
+      // Update display name
+      const displayName = decodeURIComponent(slug).replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      document.getElementById('siteName').textContent = displayName;
+      document.title = displayName + ' — ERGIO';
+
+      // First try: localStorage (if deployed from the same browser)
+      const savedSites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
+      const localSite = savedSites.find(s => s.id === slug || 
+        (s.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-') === slug);
+      
+      if (localSite && localSite.html) {
+        // Serve from localStorage immediately
+        serveHTML(localSite.html);
+      } else {
+        // Try the API
+        fetch(`/api/site?slug=${encodeURIComponent(slug)}`, {
+          headers: { 'Accept': 'text/html' }
+        })
+        .then(res => {
+          if (!res.ok) throw new Error('Not found');
+          return res.text();
+        })
+        .then(html => {
+          if (html && html.length > 200 && html.includes('<!DOCTYPE')) {
+            serveHTML(html);
+          } else {
+            throw new Error('Invalid HTML response');
+          }
+        })
+        .catch(err => {
+          document.getElementById('loaderWrap').innerHTML = `
+            <div class="error-wrap">
+              <div class="error-icon">🔧</div>
+              <div class="error-title">Website not deployed yet</div>
+              <div class="error-msg">
+                The website for <strong>${displayName}</strong> hasn't been deployed yet, or the Supabase database isn't configured.
+                <br><br>
+                To deploy: go to the builder → click <strong>Deploy</strong> → choose <strong>ERGIO Subdomain</strong>.
+              </div>
+              <a href="https://ergio.vercel.app/build.html" class="error-btn">🏗️ Go to Builder</a>
+            </div>`;
+        });
+      }
+    }
+
+    function serveHTML(html) {
+      // Write full website HTML to current page
+      document.open();
+      document.write(html);
+      document.close();
     }
   </script>
 </body>

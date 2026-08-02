@@ -68,28 +68,35 @@ export default async function handler(req, res) {
     if (typeof req.body === 'object' && req.body !== null) body = req.body;
     else { try { body = JSON.parse(req.body || '{}'); } catch { body = {}; } }
 
-    const { businessName, businessType, htmlContent, brandColors, websiteType, userId } = body;
+    const { 
+      businessName, businessType, htmlContent, 
+      brandColors, websiteType, userId,
+      // Also accept: slug override, html (shorthand for htmlContent), businessId
+      slug: bodySlug, html: htmlShorthand,
+    } = body;
+    const finalHtml = htmlContent || htmlShorthand || '';
+    const finalName = businessName || 'My Business';
 
-    if (!businessName || !htmlContent) return error(res, 'businessName and htmlContent required', 400);
+    if (!finalHtml) return error(res, 'htmlContent or html required', 400);
 
     const supabase = getSupabase();
     if (!supabase) return error(res, 'Database not configured', 500);
 
     try {
-      const slug = businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      const slug = bodySlug || finalName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').substring(0, 60) || ('site-' + Date.now());
 
       const { data, error: dbError } = await supabase
         .from('generated_websites')
-        .insert({
-          business_name: businessName,
+        .upsert({
+          business_name: finalName,
           business_type: businessType || 'landing',
-          html_content: htmlContent,
+          html_content: finalHtml,
           brand_colors: brandColors || {},
           website_type: websiteType || 'standard',
           slug,
           created_by: userId,
           created_date: new Date().toISOString()
-        })
+        }, { onConflict: 'slug' })
         .select()
         .single();
 
