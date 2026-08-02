@@ -438,6 +438,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
     <div class="nav-section-label">Main</div>
     <div class="nav-item active" data-tab="overview" onclick="switchTab('overview')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Overview</span></div>
     <div class="nav-item" data-tab="website" onclick="window.open('/build.html','_blank')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg><span>Website Builder</span><span style="margin-left:auto;font-size:.6rem;background:var(--cyan);color:#000;padding:1px 6px;border-radius:100px;font-weight:700">NEW</span></div>
+    <div class="nav-item" data-tab="mywebsites" onclick="switchTab('mywebsites')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>My Websites</span><span class="nav-badge" id="websitesBadge" style="display:none">0</span></div>
     <div class="nav-item" data-tab="leads" onclick="switchTab('leads')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>Leads CRM</span></div>
     <div class="nav-item" data-tab="bookings" onclick="switchTab('bookings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Bookings</span></div>
     <div class="nav-item" data-tab="outreach" onclick="switchTab('outreach')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg><span>Outreach</span></div>
@@ -473,6 +474,27 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   <div class="content">
     <div class="tab-content active" id="tab-overview"><div class="kpi-grid"><div class="kpi-card"><div class="kpi-icon" style="background:rgba(0,217,255,.1)">🎯</div><div class="kpi-value" id="kpiLeads">0</div><div class="kpi-label">Total Leads</div><div class="kpi-trend" id="kpiLeadsTrend">Loading...</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(0,255,157,.1)">📅</div><div class="kpi-value" id="kpiBookings">0</div><div class="kpi-label">Bookings</div><div class="kpi-trend" id="kpiBookingsTrend">Loading...</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(139,92,246,.1)">🤖</div><div class="kpi-value" id="kpiEngines">0</div><div class="kpi-label">Active Engines</div><div class="kpi-trend" id="kpiEnginesTrend">Loading...</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(255,184,0,.1)">💰</div><div class="kpi-value" id="kpiRevenue">₦0</div><div class="kpi-label">Revenue (30d)</div><div class="kpi-trend" id="kpiRevTrend">Loading...</div></div></div><div class="qa-grid"><div class="qa-card" onclick="switchTab('website')"><div class="icon">🌐</div><div class="label">Build Website</div></div><div class="qa-card" onclick="switchTab('conductor')"><div class="icon">🤖</div><div class="label">Run Conductor</div></div><div class="qa-card" onclick="switchTab('leads')"><div class="icon">🎯</div><div class="label">Scan Leads</div></div><div class="qa-card" onclick="switchTab('outreach')"><div class="icon">📤</div><div class="label">Outreach</div></div><div class="qa-card" onclick="switchTab('plugins')"><div class="icon">🔌</div><div class="label">Add Plugin</div></div><div class="qa-card" onclick="switchTab('analytics')"><div class="icon">📊</div><div class="label">Analytics</div></div></div><div class="panel"><div class="panel-header"><div><div class="panel-title">Recent Activity</div><div class="panel-sub">Latest events from your ERGIO engines</div></div><button class="btn btn-ghost btn-sm" onclick="loadActivity()">Refresh</button></div><div id="activityFeed"><div class="empty"><div class="icon">📋</div><h3>Loading activity...</h3><p>Fetching data from Supabase and ERGIO Engines.</p></div></div></div></div>
 <div class="tab-content" id="tab-website"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;padding:2rem"><div style="font-size:4rem;margin-bottom:1rem">🎨</div><h2 style="font-size:1.8rem;font-weight:800;margin-bottom:.5rem">Lovable-Style Website Builder</h2><p style="color:var(--muted);max-width:500px;line-height:1.6;margin-bottom:2rem">We've upgraded to a full visual builder with live preview, real-time AI generation, deploy options, and chat-based editing. Click below to launch it.</p><button class="btn btn-primary" style="font-size:1rem;padding:14px 32px" onclick="window.open('/build.html','_blank')">🚀 Launch Website Builder</button><div style="margin-top:1rem;font-size:.8rem;color:var(--muted)">Or type your business idea on the <a href="/" style="color:var(--cyan)">landing page</a> to start building instantly</div></div></div>
+    <div class="tab-content" id="tab-mywebsites">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+        <div>
+          <h2 style="font-size:1.5rem;font-weight:800">My Websites</h2>
+          <p style="font-size:.85rem;color:var(--muted);margin-top:.3rem">Manage all websites built with ERGIO</p>
+        </div>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn btn-ghost btn-sm" onclick="loadMyWebsites()">🔄 Refresh</button>
+          <button class="btn btn-primary btn-sm" onclick="window.open('/build.html','_blank')">+ New Website</button>
+        </div>
+      </div>
+      
+      <div id="myWebsitesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem">
+        <div class="empty" style="grid-column:1/-1">
+          <div class="icon">🌐</div>
+          <h3>No websites yet</h3>
+          <p>Build your first website with ERGIO and it will appear here.</p>
+          <button class="btn btn-primary" onclick="window.open('/build.html','_blank')">🚀 Build a Website</button>
+        </div>
+      </div>
+    </div>
 
     <div class="tab-content" id="tab-leads"><div class="panel"><div class="panel-header"><div><div class="panel-title">Lead CRM</div><div class="panel-sub">Leads from Supabase + ERGIO discovery engine</div></div><div style="display:flex;gap:.5rem"><button class="btn btn-ghost btn-sm" onclick="loadLeadsSupabase()">Load from DB</button><button class="btn btn-primary btn-sm" onclick="scanLeadsEngine()">🔍 Scan New</button></div></div><div id="leadsTable"><div class="empty"><div class="icon">🎯</div><h3>No leads yet</h3><p>Scan for leads using the discovery engine.</p><button class="btn btn-primary" onclick="scanLeadsEngine()">🔍 Start Scan</button></div></div></div></div>
     <div class="tab-content" id="tab-bookings"><div class="panel"><div class="panel-header"><div><div class="panel-title">Bookings</div><div class="panel-sub">Customer bookings from Supabase</div></div><button class="btn btn-ghost btn-sm" onclick="loadBookings()">Refresh</button></div><div id="bookingsList"><div class="empty"><div class="icon">📅</div><h3>No bookings yet</h3><p>Bookings appear when customers book through your website.</p></div></div></div></div>
@@ -2045,7 +2067,172 @@ async function buildWebsite(){
   var styleCSS=erStyleCSS(analysis.style,pal,fonts,animStyle);
   var fontLinks='<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family='+fonts.hUrl+':wght@'+fonts.hWeight+';'+fonts.hWeightBold+'&family='+fonts.bUrl+':wght@300;400;500;600;700&display=swap" rel="stylesheet">';
   var scrollScript='<scr'+'ipt>var sp=document.querySelector(".er-progress");window.addEventListener("scroll",function(){var h=document.documentElement.scrollHeight-window.innerHeight;var p=(window.scrollY/h)*100;if(sp)sp.style.width=p+"%"});var io=new IntersectionObserver(function(e){e.forEach(function(el){if(el.isIntersecting)el.target.classList.add("in")})},{threshold:0.1});document.querySelectorAll(".reveal,.reveal-scale,.reveal-left").forEach(function(el){io.observe(el)});</scr'+'ipt>';
-  var fullHTML='<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>'+n+' | '+content.tagline+'</title><meta name="description" content="'+analysis.description.slice(0,160)+'"><meta property="og:title" content="'+n+'"><meta property="og:description" content="'+content.tagline+'"><meta property="og:image" content="'+imgs[0]+'"><meta property="og:type" content="website"><meta name="twitter:card" content="summary_large_image">'+fontLinks+'<style>'+styleCSS+animCSS+'</style></head><body><div class="er-progress" style="width:0"></div>'+sectionsHTML+scrollScript+'</body></html>';
+  var fullHTML='<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>'+n+' | '+content.tagline+'</title><meta name="description" content="'+analysis.description.slice(0,160)+'"><meta property="og:title" content="'+n+'"><meta property="og:description" content="'+content.tagline+'"><meta property="og:image" content="'+imgs[0]+'"><meta property="og:type" content="website"><meta name="twitter:card" content="summary_large_image">'+fontLinks+'<style>'+styleCSS+animCSS+'</style></head><body><div class="er-progress" style="width:0"></div>'+sectionsHTML+scrollScript+'
+<style>
+.site-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all .2s;cursor:pointer}
+.site-card:hover{transform:translateY(-3px);border-color:var(--cyan);box-shadow:0 8px 24px rgba(0,217,255,.08)}
+.site-thumb{width:100%;height:160px;background:linear-gradient(135deg,var(--card2),var(--surface));display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
+.site-thumb iframe{width:1024px;height:600px;transform:scale(.27);transform-origin:top left;pointer-events:none;border:none;opacity:.8}
+.site-thumb .thumb-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 60%,var(--card) 100%)}
+.site-thumb .thumb-badge{position:absolute;top:8px;right:8px;padding:3px 10px;border-radius:100px;font-size:.65rem;font-weight:700}
+.thumb-badge.deployed{background:rgba(0,255,157,.15);color:var(--green);border:1px solid rgba(0,255,157,.3)}
+.thumb-badge.draft{background:rgba(255,184,0,.15);color:var(--yellow);border:1px solid rgba(255,184,0,.3)}
+.site-thumb .linter-badge{position:absolute;top:8px;left:8px;padding:3px 10px;border-radius:100px;font-size:.65rem;font-weight:700;background:rgba(0,217,255,.15);color:var(--cyan);border:1px solid rgba(0,217,255,.3)}
+.site-info{padding:1rem}
+.site-name{font-weight:700;font-size:.95rem;margin-bottom:.2rem}
+.site-meta{font-size:.75rem;color:var(--muted);display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-bottom:.6rem}
+.site-actions{display:flex;gap:.4rem;flex-wrap:wrap}
+.site-action-btn{padding:.4rem .7rem;border-radius:8px;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid var(--border2);background:var(--card2);color:var(--text)}
+.site-action-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.site-action-btn.danger{color:var(--red)}
+.site-action-btn.danger:hover{border-color:var(--red)}
+.site-action-btn.primary{background:linear-gradient(135deg,var(--cyan),var(--blue));color:#fff;border:none}
+</style>
+<script>
+// My Websites Management
+function loadMyWebsites() {
+  const grid = document.getElementById('myWebsitesGrid');
+  if (!grid) return;
+  
+  const websites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
+  const badge = document.getElementById('websitesBadge');
+  
+  if (badge) {
+    if (websites.length > 0) {
+      badge.style.display = 'inline-block';
+      badge.textContent = websites.length;
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+  
+  if (websites.length === 0) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="icon">🌐</div><h3>No websites yet</h3><p>Build your first website with ERGIO and it will appear here automatically.</p><button class="btn btn-primary" onclick="window.open('/build.html','_blank')">🚀 Build a Website</button></div>';
+    return;
+  }
+  
+  grid.innerHTML = websites.map(w => {
+    const date = new Date(w.createdAt || Date.now()).toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' });
+    const statusBadge = w.deployed 
+      ? '<span class="thumb-badge deployed">🟢 Deployed</span>'
+      : '<span class="thumb-badge draft">📝 Draft</span>';
+    const linterBadge = w.linterScore 
+      ? `<span class="linter-badge">${w.linterGrade || 'B'} ${w.linterScore}/100</span>`
+      : '';
+    const deployUrl = w.deployUrl || `https://ergio.vercel.app/s/${w.id}`;
+    
+    // Create thumbnail from HTML
+    const thumbId = 'thumb-' + w.id;
+    
+    return `<div class="site-card" data-id="${w.id}">
+      <div class="site-thumb">
+        <iframe id="${thumbId}" sandbox="allow-same-origin" loading="lazy"></iframe>
+        <div class="thumb-overlay"></div>
+        ${statusBadge}
+        ${linterBadge}
+      </div>
+      <div class="site-info">
+        <div class="site-name">${w.name || 'Untitled'}</div>
+        <div class="site-meta">
+          <span>${w.type || 'business'}</span>
+          ${w.city ? '<span>·</span><span>' + w.city + '</span>' : ''}
+          <span>·</span><span>${date}</span>
+        </div>
+        <div class="site-actions">
+          <button class="site-action-btn primary" onclick="openWebsite('${w.id}')" title="Open in builder">✏️ Edit</button>
+          <button class="site-action-btn" onclick="viewWebsite('${w.id}')" title="View live">👁️ View</button>
+          <button class="site-action-btn" onclick="deployWebsite('${w.id}')" title="Deploy">🚀 Deploy</button>
+          <button class="site-action-btn danger" onclick="deleteWebsite('${w.id}')" title="Delete">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  
+  // Set thumbnails
+  websites.forEach(w => {
+    const iframe = document.getElementById('thumb-' + w.id);
+    if (iframe && w.html) {
+      try {
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        doc.open();
+        doc.write(w.html.substring(0, 5000));
+        doc.close();
+      } catch(e) {}
+    }
+  });
+}
+
+function openWebsite(id) {
+  const websites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
+  const w = websites.find(w => w.id === id);
+  if (!w) return;
+  
+  // Save to builder autosave so it loads in the builder
+  const saveData = {
+    html: w.html,
+    buildData: { businessName: w.name, plan: { businessName: w.name, type: w.type, city: w.city, slug: w.id, tagline: w.tagline }, id: w.id, logoUrl: w.logoUrl },
+    versions: [],
+    mode: 'build',
+    timestamp: Date.now()
+  };
+  localStorage.setItem('ergio_builder_autosave', JSON.stringify(saveData));
+  localStorage.setItem('ergio_business_id', w.id);
+  
+  window.open('/build.html', '_blank');
+}
+
+function viewWebsite(id) {
+  const websites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
+  const w = websites.find(w => w.id === id);
+  if (!w) return;
+  
+  // Write HTML to blob and open
+  const blob = new Blob([w.html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+}
+
+function deployWebsite(id) {
+  const websites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
+  const w = websites.find(w => w.id === id);
+  if (!w) return;
+  
+  fetch('/api/site', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ slug: w.id, html: w.html, businessId: w.id })
+  }).then(r => r.json()).then(data => {
+    const url = data.url || `https://ergio.vercel.app/s/${w.id}`;
+    
+    // Update website record
+    w.deployed = true;
+    w.deployUrl = url;
+    localStorage.setItem('ergio_saved_websites', JSON.stringify(websites));
+    
+    if (typeof showToast === 'function') showToast('🚀 Deployed to ' + url, 'success');
+    loadMyWebsites();
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(url).catch(() => {});
+  }).catch(err => {
+    if (typeof showToast === 'function') showToast('Deploy failed: ' + err.message, 'error');
+  });
+}
+
+function deleteWebsite(id) {
+  if (!confirm('Delete this website? This cannot be undone.')) return;
+  
+  let websites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
+  websites = websites.filter(w => w.id !== id);
+  localStorage.setItem('ergio_saved_websites', JSON.stringify(websites));
+  
+  loadMyWebsites();
+  if (typeof showToast === 'function') showToast('Website deleted', 'info');
+}
+</script>
+
+<script>window.addEventListener("DOMContentLoaded", function() { setTimeout(loadMyWebsites, 300); });</script>
+</body></html>';
   var quality=erScore(analysis,layout,pal,fonts,content);
   var prev=document.getElementById('wbPreview');
   if(prev){prev.srcdoc=fullHTML;prev.style.display='block'}

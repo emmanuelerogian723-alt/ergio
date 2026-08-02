@@ -1139,10 +1139,15 @@
 
     <!-- INPUT AREA -->
     <div class="input-area">
-      <div class="mode-select">
+      <div class="mode-select" style="display:flex;align-items:center;gap:6px">
         <button class="mode-btn active" id="modeBuild" onclick="setMode('build')">🔨 Build</button>
         <button class="mode-btn" id="modeEdit" onclick="setMode('edit')">✏️ Edit</button>
         <button class="mode-btn" id="modeRefine" onclick="setMode('refine')">💬 Chat</button>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)">
+          <span id="conductorPermissionIndicator" style="display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:100px;background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.3);cursor:pointer;font-weight:600;color:var(--yellow)" onclick="toggleConductorPermission()" title="Click to toggle Conductor auto-approval">
+            🔒 Conductor: Ask Permission
+          </span>
+        </div>
       </div>
       <div class="input-wrap" style="margin-top:8px">
         <textarea id="promptInput" placeholder="Describe your business idea... e.g. A modern salon in Lagos with online bookings" rows="2" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
@@ -2011,6 +2016,9 @@ function handleSSE(event, stepMap, prevStep) {
     // Add version
     addVersion(biz.businessName || 'v1', 'Initial build');
     
+    // Save to dashboard registry
+    saveWebsiteToDashboard();
+    
     // Update files tab
     updateFilesTab(biz);
     
@@ -2062,6 +2070,11 @@ function showPreview(html, title = 'Preview') {
   scheduleAutoSave();
 }
 
+// Conductor permission system
+let pendingConductorEdit = null;
+let autoApproveSession = false;
+let conductorPermissionGranted = false;
+
 async function refineWebsite(prompt) {
   if (!currentHTML) {
     addMessage('ai', 'No website built yet! Describe your business first and I will build it.');
@@ -2071,7 +2084,7 @@ async function refineWebsite(prompt) {
   isBuilding = true;
   document.getElementById('sendBtn').disabled = true;
   
-  const thinkingMsg = addMessage('ai', '🔄 Refining your website...');
+  const thinkingMsg = addMessage('ai', '🤖 The Conductor is analyzing your request...');
   
   try {
     const res = await fetch('/api/refine', {
@@ -2086,19 +2099,182 @@ async function refineWebsite(prompt) {
     const newHtml = result.html || result.data?.html;
     
     if (newHtml) {
-      showPreview(newHtml);
-      addVersion('edit', prompt.substring(0, 30));
-      thinkingMsg.querySelector('.msg-bubble').textContent = '✅ Done! ' + (result.summary || 'Website updated.');
-      toast('Website updated!', 'success');
+      // Store the pending edit
+      pendingConductorEdit = {
+        prompt,
+        oldHtml: currentHTML,
+        newHtml,
+        result,
+        thinkingMsg
+      };
+      
+      // Check if auto-approve is enabled
+      if (autoApproveSession || document.getElementById('autoApproveChanges')?.checked) {
+        applyConductorEdit();
+      } else {
+        // Show permission gate
+        showConductorPermission(prompt, newHtml, result);
+      }
     } else {
       thinkingMsg.querySelector('.msg-bubble').textContent = '⚠️ Could not apply that change. Try being more specific.';
+      isBuilding = false;
+      document.getElementById('sendBtn').disabled = false;
     }
   } catch (err) {
     thinkingMsg.querySelector('.msg-bubble').textContent = '❌ Refine failed. Please try again.';
+    isBuilding = false;
+    document.getElementById('sendBtn').disabled = false;
+  }
+}
+
+function showConductorPermission(prompt, newHtml, result) {
+  // Generate a human-readable change summary
+  const changes = detectChanges(currentHTML, newHtml);
+  const summaryEl = document.getElementById('conductorChangeDesc');
+  summaryEl.innerHTML = changes.length > 0
+    ? changes.map(c => `<div style="margin-bottom:6px">• ${c}</div>`).join('')
+    : `<div style="color:var(--muted)">The Conductor will apply: "${prompt}"</div>`;
+  
+  // Show the modal
+  document.getElementById('conductorPermissionModal').classList.add('open');
+}
+
+function detectChanges(oldHtml, newHtml) {
+  const changes = [];
+  
+  // Compare text content
+  const oldText = oldHtml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const newText = newHtml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const oldWords = oldText.split(' ');
+  const newWords = newText.split(' ');
+  
+  // Detect added/removed sections
+  const oldSections = (oldHtml.match(/<section/g) || []).length;
+  const newSections = (newHtml.match(/<section/g) || []).length;
+  if (newSections > oldSections) changes.push(`Adding ${newSections - oldSections} new section(s)`);
+  if (newSections < oldSections) changes.push(`Removing ${oldSections - newSections} section(s)`);
+  
+  // Detect color changes
+  const oldColors = new Set((oldHtml.match(/#[0-9a-fA-F]{3,6}/g) || []));
+  const newColors = new Set((newHtml.match(/#[0-9a-fA-F]{3,6}/g) || []));
+  const addedColors = [...newColors].filter(c => !oldColors.has(c));
+  if (addedColors.length > 0) changes.push(`Updating colors (${addedColors.length} new colors)`);
+  
+  // Detect content changes
+  if (newText.length !== oldText.length) {
+    const diff = Math.abs(newWords.length - oldWords.length);
+    if (newWords.length > oldWords.length) changes.push(`Adding ~${diff} words of content`);
+    else if (newWords.length < oldWords.length) changes.push(`Removing ~${diff} words of content`);
   }
   
+  // Detect layout changes
+  const oldGrid = (oldHtml.match(/display:\s*(?:grid|flex)/gi) || []).length;
+  const newGrid = (newHtml.match(/display:\s*(?:grid|flex)/gi) || []).length;
+  if (newGrid !== oldGrid) changes.push('Adjusting layout structure');
+  
+  // Always include the user's instruction
+  changes.unshift(`<span style="color:var(--accent);font-weight:600">"${pendingConductorEdit.prompt}"</span>`);
+  
+  return changes;
+}
+
+function approveConductorEdit() {
+  const autoCheckbox = document.getElementById('autoApproveChanges');
+  if (autoCheckbox?.checked) autoApproveSession = true;
+  
+  document.getElementById('conductorPermissionModal').classList.remove('open');
+  applyConductorEdit();
+}
+
+function denyConductorEdit() {
+  document.getElementById('conductorPermissionModal').classList.remove('open');
+  if (pendingConductorEdit?.thinkingMsg) {
+    pendingConductorEdit.thinkingMsg.querySelector('.msg-bubble').textContent = '❌ Changes denied. The Conductor will not modify the website.';
+  }
+  pendingConductorEdit = null;
   isBuilding = false;
   document.getElementById('sendBtn').disabled = false;
+  toast('Edit denied', 'info');
+}
+
+function toggleConductorPermission() {
+  autoApproveSession = !autoApproveSession;
+  const indicator = document.getElementById('conductorPermissionIndicator');
+  if (autoApproveSession) {
+    indicator.style.background = 'rgba(0,255,157,.1)';
+    indicator.style.borderColor = 'rgba(0,255,157,.3)';
+    indicator.style.color = 'var(--green)';
+    indicator.innerHTML = '🔓 Conductor: Auto-Approve ON';
+    toast('Conductor will auto-approve changes. You can toggle this off anytime.', 'info');
+  } else {
+    indicator.style.background = 'rgba(255,184,0,.1)';
+    indicator.style.borderColor = 'rgba(255,184,0,.3)';
+    indicator.style.color = 'var(--yellow)';
+    indicator.innerHTML = '🔒 Conductor: Ask Permission';
+    toast('Conductor will ask permission before each edit.', 'info');
+  }
+}
+
+function applyConductorEdit() {
+  if (!pendingConductorEdit) return;
+  const { prompt, newHtml, result, thinkingMsg } = pendingConductorEdit;
+  
+  // Save current state for undo
+  const oldHtml = currentHTML;
+  
+  // Apply the changes
+  showPreview(newHtml);
+  currentHTML = newHtml;
+  addVersion('edit', prompt.substring(0, 30));
+  
+  if (thinkingMsg) {
+    thinkingMsg.querySelector('.msg-bubble').textContent = '✅ Done! ' + (result.summary || result.message || 'Website updated.');
+  }
+  toast('Website updated with Conductor permission!', 'success');
+  
+  // Save to dashboard registry
+  saveWebsiteToDashboard();
+  
+  pendingConductorEdit = null;
+  isBuilding = false;
+  document.getElementById('sendBtn').disabled = false;
+}
+
+// Save built website to dashboard localStorage registry
+function saveWebsiteToDashboard() {
+  if (!currentHTML) return;
+  
+  const businesses = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
+  const bizName = buildData?.plan?.businessName || buildData?.businessName || 'Untitled Website';
+  const bizId = buildData?.plan?.slug || buildData?.id || ('biz-' + Date.now());
+  
+  // Find existing or create new
+  const existingIdx = businesses.findIndex(b => b.id === bizId);
+  const websiteData = {
+    id: bizId,
+    name: bizName,
+    type: buildData?.plan?.type || buildData?.type || 'business',
+    city: buildData?.plan?.city || buildData?.city || '',
+    tagline: buildData?.plan?.tagline || buildData?.tagline || '',
+    html: currentHTML,
+    logoUrl: buildData?.brand?.logoUrl || buildData?.logoUrl || '',
+    linterScore: buildData?.linterScore || null,
+    linterGrade: buildData?.linterGrade || null,
+    status: 'built',
+    deployed: false,
+    deployUrl: '',
+    createdAt: existingIdx >= 0 ? businesses[existingIdx].createdAt : new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    versionCount: versionCount
+  };
+  
+  if (existingIdx >= 0) {
+    businesses[existingIdx] = websiteData;
+  } else {
+    businesses.unshift(websiteData);
+  }
+  
+  localStorage.setItem('ergio_saved_websites', JSON.stringify(businesses));
 }
 
 function addVersion(name, desc) {
@@ -2428,6 +2604,62 @@ async function sendAgentMessage() {
 // Init agent status on load
 setTimeout(checkAgentStatus, 1000);
 <\/script>
+
+<!-- Conductor Permission Gate -->
+<div class="modal-overlay" id="conductorPermissionModal" onclick="handleModalOverlayClick(event)">
+  <div class="modal-content" style="max-width:520px;padding:0;overflow:hidden">
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#FFD700,#FFA500);display:flex;align-items:center;justify-content:center;font-size:20px">🤖</div>
+        <div>
+          <div style="font-weight:800;font-size:16px">Conductor Permission Required</div>
+          <div style="font-size:12px;color:var(--muted)">The AI Conductor wants to modify your website</div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:20px 24px">
+      <div id="conductorChangeSummary" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--accent)">Proposed Changes:</div>
+        <div id="conductorChangeDesc" style="font-size:13px;color:var(--text);line-height:1.6"></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer">
+          <input type="checkbox" id="autoApproveChanges" style="accent-color:var(--accent)">
+          <span>Auto-approve future changes this session</span>
+        </label>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button onclick="approveConductorEdit()" style="flex:1;padding:12px;border-radius:10px;background:linear-gradient(135deg,#FFD700,#FFA500);border:none;color:#000;font-weight:700;font-size:14px;cursor:pointer;transition:all 0.2s">
+          ✅ Allow Changes
+        </button>
+        <button onclick="denyConductorEdit()" style="flex:1;padding:12px;border-radius:10px;background:var(--card);border:1px solid var(--border);color:var(--muted);font-weight:600;font-size:14px;cursor:pointer;transition:all 0.2s">
+          ❌ Deny
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Diff Preview Modal -->
+<div class="modal-overlay" id="diffPreviewModal" onclick="handleModalOverlayClick(event)">
+  <div class="modal-content" style="max-width:900px;padding:0;overflow:hidden">
+    <div style="padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <div style="font-weight:800;font-size:15px">🔍 Change Preview</div>
+      <button onclick="document.getElementById('diffPreviewModal').classList.remove('open')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px">×</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;height:400px">
+      <div style="border-right:1px solid var(--border);overflow:auto;padding:12px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;font-weight:700">Before</div>
+        <div id="diffBefore" style="font-size:11px;font-family:monospace;line-height:1.5;color:var(--muted);white-space:pre-wrap"></div>
+      </div>
+      <div style="overflow:auto;padding:12px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;font-weight:700">After</div>
+        <div id="diffAfter" style="font-size:11px;font-family:monospace;line-height:1.5;color:var(--text);white-space:pre-wrap"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>`;
 }
@@ -3975,6 +4207,10 @@ let currentBuildHtml = null;
 function handleLinterEvent(data) {
   lastLinterResult = data;
   showLinterBadge(data.score, data.grade);
+  // Store linter score in buildData for dashboard
+  buildData = buildData || {};
+  buildData.linterScore = data.score;
+  buildData.linterGrade = data.grade;
 
   // Show Fix Layout button if there are issues
   const hasFixable = data.issues && data.issues.some(i => i.severity === 'error' || i.severity === 'warn');
