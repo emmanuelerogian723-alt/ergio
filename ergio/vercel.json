@@ -15,6 +15,18 @@
     {
       "source": "/api/(.*)",
       "destination": "/api/[[...route]]"
+    },
+    {
+      "source": "/s/:slug",
+      "destination": "/site.html"
+    },
+    {
+      "source": "/site/:slug",
+      "destination": "/site.html"
+    },
+    {
+      "source": "/preview",
+      "destination": "/build.html"
     }
   ]
 }

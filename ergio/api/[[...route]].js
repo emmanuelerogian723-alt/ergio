@@ -300,7 +300,7 @@ ${fontLinks}
         <div class="stat"><div class="num counter" data-target="100" data-suffix="%">0</div><div class="label">Satisfaction</div></div>
       </div>
     </div>
-    ${aboutImg?`<div class="reveal reveal-right"><div class="img-frame img-glow"><img src="${aboutImg}" alt="About ${plan.businessName}" style="width:100%"></div></div>`:'<div class="reveal reveal-right"><div class="card" style="text-align:center;padding:3rem"><div style="font-size:3rem;margin-bottom:1rem">🏆</div><h3>Award Quality</h3><p style="color:var(--muted)">Trusted by businesses across ${plan.city||'Nigeria'}</p></div></div>'}
+    ${aboutImg ? `<div class="reveal reveal-right"><div class="img-frame img-glow"><img src="${aboutImg}" alt="About ${plan.businessName}" style="width:100%"></div></div>` : `<div class="reveal reveal-right"><div class="card" style="text-align:center;padding:3rem"><div style="font-size:3rem;margin-bottom:1rem">🏆</div><h3>Award Quality</h3><p style="color:var(--muted)">Trusted by businesses across ${plan.city || "Nigeria"}</p></div></div>`}
   </div>
 </section>
 
