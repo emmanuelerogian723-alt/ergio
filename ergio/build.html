@@ -1966,14 +1966,11 @@ async function oneClickFix(action) {
   };
   
   const prompt = messages[action] || 'Improve the website design.';
-  toast('🔄 ' + (action === 'spacing' ? 'Fixing layout...' : action === 'restructure' ? 'Restructuring...' : 'Polishing...'), 'info');
+  toast('\u{1F504} ' + (action === 'spacing' ? 'Fixing layout...' : action === 'restructure' ? 'Restructuring...' : 'Polishing...'), 'info');
   
-  setMode('edit');
-  
-  // Send as edit request
-  const input = document.getElementById('promptInput');
-  input.value = prompt;
-  await sendPrompt();
+  // Call refineWebsite directly (not sendPrompt, which might route to build)
+  currentMode = 'edit';
+  await refineWebsite(prompt);
 }
 
 
