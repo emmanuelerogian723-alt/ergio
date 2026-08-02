@@ -1,38 +1,50 @@
--- ============================================================
--- ERGIO — Fix generated_websites table columns
--- Run this in Supabase Dashboard → SQL Editor → New Query → Paste → Run
--- ============================================================
--- The table currently only has: id, html
--- These columns are needed for the website deploy + management system
+-- ========================================
+-- ERGIO — generated_websites schema fix
+-- Run this in Supabase SQL Editor to ensure all columns exist
+-- ========================================
 
-ALTER TABLE generated_websites 
-  ADD COLUMN IF NOT EXISTS business_name TEXT,
-  ADD COLUMN IF NOT EXISTS business_type TEXT,
-  ADD COLUMN IF NOT EXISTS slug TEXT,
-  ADD COLUMN IF NOT EXISTS website_category TEXT DEFAULT 'landing',
-  ADD COLUMN IF NOT EXISTS website_type TEXT DEFAULT 'standard',
-  ADD COLUMN IF NOT EXISTS brand_colors JSONB,
-  ADD COLUMN IF NOT EXISTS created_by UUID,
-  ADD COLUMN IF NOT EXISTS created_date TIMESTAMPTZ DEFAULT now(),
-  ADD COLUMN IF NOT EXISTS updated_date TIMESTAMPTZ;
+-- Ensure the table exists
+CREATE TABLE IF NOT EXISTS public.generated_websites (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_date TIMESTAMPTZ DEFAULT NOW(),
+  updated_date TIMESTAMPTZ DEFAULT NOW()
+);
 
--- Create indexes for faster queries
-CREATE INDEX IF NOT EXISTS idx_generated_websites_slug ON generated_websites(slug);
-CREATE INDEX IF NOT EXISTS idx_generated_websites_category ON generated_websites(website_category);
-CREATE INDEX IF NOT EXISTS idx_generated_websites_created ON generated_websites(created_date DESC);
+-- Add columns if they don't exist (idempotent)
+ALTER TABLE public.generated_websites ADD COLUMN IF NOT EXISTS business_name TEXT;
+ALTER TABLE public.generated_websites ADD COLUMN IF NOT EXISTS business_type TEXT DEFAULT 'landing';
+ALTER TABLE public.generated_websites ADD COLUMN IF NOT EXISTS website_type TEXT DEFAULT 'standard';
+ALTER TABLE public.generated_websites ADD COLUMN IF NOT EXISTS website_category TEXT DEFAULT 'landing';
+ALTER TABLE public.generated_websites ADD COLUMN IF NOT EXISTS html_content TEXT;
+ALTER TABLE public.generated_websites ADD COLUMN IF NOT EXISTS html TEXT;
+ALTER TABLE public.generated_websites ADD COLUMN IF NOT EXISTS slug TEXT;
+ALTER TABLE public.generated_websites ADD COLUMN IF NOT EXISTS brand_colors JSONB DEFAULT '{"primary":"#00D9FF"}'::jsonb;
+ALTER TABLE public.generated_websites ADD COLUMN IF NOT EXISTS created_by TEXT DEFAULT 'guest';
 
--- Enable RLS (allow public read so /s/{slug} works, service role can write)
-ALTER TABLE generated_websites ENABLE ROW LEVEL SECURITY;
+-- Create indexes for fast lookups
+CREATE INDEX IF NOT EXISTS idx_generated_websites_slug ON public.generated_websites(slug);
+CREATE INDEX IF NOT EXISTS idx_generated_websites_business_name ON public.generated_websites(business_name);
+CREATE INDEX IF NOT EXISTS idx_generated_websites_created_date ON public.generated_websites(created_date DESC);
 
-DROP POLICY IF EXISTS "Public can read generated_websites" ON generated_websites;
-CREATE POLICY "Public can read generated_websites" ON generated_websites
+-- Enable RLS
+ALTER TABLE public.generated_websites ENABLE ROW LEVEL SECURITY;
+
+-- Policy: anyone can read (public websites)
+DROP POLICY IF EXISTS "Anyone can read generated_websites" ON public.generated_websites;
+CREATE POLICY "Anyone can read generated_websites" ON public.generated_websites
   FOR SELECT USING (true);
 
-DROP POLICY IF EXISTS "Service role can write generated_websites" ON generated_websites;
-CREATE POLICY "Service role can write generated_websites" ON generated_websites
-  FOR ALL USING (true);
+-- Policy: anyone can insert (builder creates sites)
+DROP POLICY IF EXISTS "Anyone can insert generated_websites" ON public.generated_websites;
+CREATE POLICY "Anyone can insert generated_websites" ON public.generated_websites
+  FOR INSERT WITH CHECK (true);
 
--- Done! After running this:
--- 1. The generate endpoint saves websites with full metadata (name, slug, type, colors)
--- 2. /s/{slug} serves the website HTML directly
--- 3. Dashboard "My Websites" shows all generated sites
+-- Policy: owners can update their sites
+DROP POLICY IF EXISTS "Owners can update generated_websites" ON public.generated_websites;
+CREATE POLICY "Owners can update generated_websites" ON public.generated_websites
+  FOR UPDATE USING (true);
+
+-- Policy: owners can delete their sites
+DROP POLICY IF EXISTS "Owners can delete generated_websites" ON public.generated_websites;
+CREATE POLICY "Owners can delete generated_websites" ON public.generated_websites
+  FOR DELETE USING (true);

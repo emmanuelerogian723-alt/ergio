@@ -64,7 +64,6 @@
     background: var(--bg);
     position: relative;
     min-height: 0;
-    overflow: hidden;
   }
 
   .preview-header {
@@ -108,22 +107,6 @@
   .device-btn.active { background: var(--accent); border-color: var(--accent); color: #000; }
 
   .preview-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
-  #linterBadge { display: none; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; }
-  #linterBadge.grade-A { background: rgba(0,255,157,.15); color: #00FF9D; border: 1px solid rgba(0,255,157,.3); }
-  #linterBadge.grade-B { background: rgba(0,217,255,.15); color: #00D9FF; border: 1px solid rgba(0,217,255,.3); }
-  #linterBadge.grade-C { background: rgba(255,200,0,.15); color: #ffc800; border: 1px solid rgba(255,200,0,.3); }
-  #linterBadge.grade-D { background: rgba(255,140,0,.15); color: #ff8c00; border: 1px solid rgba(255,140,0,.3); }
-  #linterBadge.grade-F { background: rgba(255,71,87,.15); color: #ff4757; border: 1px solid rgba(255,71,87,.3); }
-  #linterPanel { position: absolute; bottom: 12px; right: 12px; width: 320px; max-height: 400px; overflow-y: auto; background: rgba(9,9,11,.95); border: 1px solid rgba(0,217,255,.2); border-radius: 12px; padding: 16px; z-index: 50; display: none; font-size: 13px; backdrop-filter: blur(12px); }
-  #linterPanel .linter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  #linterPanel .linter-issue { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.05); display: flex; gap: 8px; align-items: start; }
-  #linterPanel .linter-pass { color: #00FF9D; font-size: 12px; padding: 3px 0; }
-  #linterPanel .severity-error { color: #ff4757; }
-  #linterPanel .severity-warn { color: #ffc800; }
-  #linterPanel .severity-info { color: #00D9FF; }
-  #fixLayoutBtn { background: rgba(0,217,255,.1); border: 1px solid rgba(0,217,255,.25); color: #00D9FF; cursor: pointer; border-radius: 8px; transition: all .2s; }
-  #fixLayoutBtn:hover { background: rgba(0,217,255,.2); }
-  #linterBtn { cursor: pointer; }
   
   .edit-mode-btn {
     padding: 8px 12px; border-radius: 8px; font-size: 12px;
@@ -159,14 +142,6 @@
     background: #1a1a1a; min-height: 0;
     -webkit-overflow-scrolling: touch;
     touch-action: pan-x pan-y pinch-zoom;
-    scroll-behavior: smooth;
-  }
-  /* iframe auto-height - grows to full site height */
-  #previewIframe {
-    width: 100% !important;
-    border: none !important;
-    display: block;
-    min-height: 100vh;
   }
   .preview-frame.mobile {
     display: flex; align-items: center; justify-content: center;
@@ -180,13 +155,7 @@
   }
   .preview-frame iframe {
     width: 100%; height: 100%; border: none; display: block;
-    min-height: 100vh;
-  }
-  /* Desktop full-page view — scrollable */
-  .preview-frame.desktop-full iframe {
-    width: 100%;
-    height: 100%;
-    min-height: 100vh;
+    min-height: 100%;
   }
   .preview-frame.mobile iframe {
     border-radius: 20px;
@@ -445,25 +414,8 @@
   .modal-overlay {
     position: fixed; inset: 0; z-index: 200;
     background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
-    display: none; align-items: flex-end; justify-content: center;
+    display: flex; align-items: flex-end; justify-content: center;
   }
-  .modal-overlay.open {
-    display: flex;
-  }
-  /* BIG, tappable close button */
-  .modal-close {
-    position: absolute; top: 16px; right: 16px;
-    width: 44px; height: 44px;
-    background: rgba(255,255,255,0.1);
-    border: 1.5px solid rgba(255,255,255,0.2);
-    border-radius: 50%;
-    color: #fff; font-size: 20px; font-weight: 700;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    line-height: 1; transition: background 0.15s;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .modal-close:active { background: rgba(255,71,87,0.3); border-color: #ff4757; }
-  .modal { position: relative; }
   .modal {
     background: var(--sidebar); border: 1px solid var(--border);
     border-radius: 20px 20px 0 0;
@@ -1154,15 +1106,10 @@
 
     <!-- INPUT AREA -->
     <div class="input-area">
-      <div class="mode-select" style="display:flex;align-items:center;gap:6px">
+      <div class="mode-select">
         <button class="mode-btn active" id="modeBuild" onclick="setMode('build')">🔨 Build</button>
         <button class="mode-btn" id="modeEdit" onclick="setMode('edit')">✏️ Edit</button>
         <button class="mode-btn" id="modeRefine" onclick="setMode('refine')">💬 Chat</button>
-        <div style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)">
-          <span id="conductorPermissionIndicator" style="display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:100px;background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.3);cursor:pointer;font-weight:600;color:var(--yellow)" onclick="toggleConductorPermission()" title="Click to toggle Conductor auto-approval">
-            🔒 Conductor: Ask Permission
-          </span>
-        </div>
       </div>
       <div class="input-wrap" style="margin-top:8px">
         <textarea id="promptInput" placeholder="Describe your business idea... e.g. A modern salon in Lagos with online bookings" rows="2" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
@@ -1208,15 +1155,6 @@
         </button>
         <button class="icon-btn" onclick="refreshPreview()" title="Refresh">🔄</button>
         <button class="icon-btn" onclick="toggleCode()" id="codeToggle" title="View Code">💻</button>
-        <button class="icon-btn" id="linterBtn" onclick="runLinter()" title="Run Design Linter" style="display:none;font-size:14px;">
-          📊
-        </button>
-        <div id="linterBadge" style="display:none;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:700;gap:4px;align-items:center;">
-          <span id="linterGrade"></span> <span id="linterScore"></span>
-        </div>
-        <button class="icon-btn" id="fixLayoutBtn" onclick="fixLayout()" title="Auto-fix layout issues" style="display:none;font-size:13px;padding:6px 10px;">
-          🔧 Fix Layout
-        </button>
         <button class="deploy-btn" id="deployBtn" onclick="openDeployModal()" disabled>
           🚀 Deploy
         </button>
@@ -1239,18 +1177,9 @@
           <div class="scan-sub" id="scanSub">ERGIO AI is working</div>
         </div>
         <div class="scan-steps-list" id="scanStepsList"></div>
-        <button id="cancelBuildBtn" onclick="cancelBuild()" style="margin-top:1rem;padding:8px 20px;border-radius:10px;background:rgba(255,71,87,.15);border:1px solid rgba(255,71,87,.3);color:#ff4757;font-weight:600;cursor:pointer;font-size:13px;transition:all .2s;display:none">✕ Cancel Build</button>
       </div>
       <!-- Actual iframe -->
-      <iframe id="previewIframe" style="display:none" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"></iframe>
-      <!-- Design Linter Panel -->
-      <div id="linterPanel">
-        <div class="linter-header">
-          <span style="font-weight:700;color:#fff;">📊 Design Linter</span>
-          <button onclick="document.getElementById('linterPanel').style.display='none'" style="background:none;border:none;color:#888;cursor:pointer;font-size:16px;">✕</button>
-        </div>
-        <div id="linterContent"></div>
-      </div>
+      <iframe id="previewIframe" style="display:none" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-popups-to-escape-sandbox"></iframe>
     </div>
 
     <!-- Code view -->
@@ -1266,9 +1195,9 @@
 </div>
 
 <!-- Deploy Modal -->
-<div class="modal-overlay" id="deployModal" onclick="handleModalOverlayClick(event)">
+<div class="modal-overlay" id="deployModal">
   <div class="modal">
-    <button class="modal-close" onclick="closeDeployModal()" aria-label="Close">✕</button>
+    <button class="modal-close" onclick="closeDeployModal()">×</button>
     <div class="modal-title">🚀 Deploy Your Website</div>
     <div class="modal-sub">Choose where to publish your website</div>
     <div class="deploy-options">
@@ -1318,7 +1247,6 @@
 <!-- Toast container -->
 <div class="toast-container" id="toastContainer"></div>
 
-  <script src="config.js"></script>
 <script src="config.js"></script>
 <script src="lib/engines-api.js"></script>
 <script src="lib/ergio-command.js"></script>
@@ -1328,6 +1256,7 @@
 <button class="mobile-toggle" id="mobileToggle" onclick="toggleSidebar()" title="Open chat">
   💬
 </button>
+
 <script>
     // ===== MOBILE SIDEBAR CONTROL =====
     function toggleSidebar() {
@@ -1614,6 +1543,13 @@
       }
     }, { passive: false });
 
+// (old toggleMobileSidebar replaced by new mobile sidebar control above) {
+      const sidebar = document.querySelector('.sidebar');
+      const overlay = document.querySelector('.sidebar-overlay');
+      sidebar.classList.toggle('mobile-open');
+      overlay.classList.toggle('active');
+    }
+    // (old click handler replaced by new mobile sidebar control)
 
 let currentMode = 'build';
 let currentHTML = '';
@@ -1696,21 +1632,16 @@ function showHistory() {
   switchTab('history');
 }
 
-// Question flow state
-let questionFlow = null;
-let collectedAnswers = {};
-let questionStep = 0;
-
 async function sendPrompt() {
   const input = document.getElementById('promptInput');
   const prompt = input.value.trim();
   if (!prompt || isBuilding) return;
+
+  const isFirstBuild = !currentHTML;
   
   // Clear input
   input.value = '';
   autoResize(input);
-  
-  const isFirstBuild = !currentHTML;
   
   // Hide empty state
   document.getElementById('emptyState').style.display = 'none';
@@ -1718,143 +1649,11 @@ async function sendPrompt() {
   // Add user message
   addMessage('user', prompt);
   
-  // ── If we're in a question flow, handle answers ──
-  if (questionFlow && questionFlow.active && (currentMode === 'build' || isFirstBuild)) {
-    handleQuestionAnswer(prompt);
-    return;
-  }
-  
   if (currentMode === 'build' || isFirstBuild) {
-    // ── Check if prompt is detailed enough ──
-    const shouldAsk = needsClarification(prompt);
-    if (shouldAsk && Object.keys(collectedAnswers).length === 0) {
-      startQuestionFlow(prompt);
-      return;
-    }
-    await buildWebsite(prompt, collectedAnswers);
-    collectedAnswers = {};
-    questionFlow = null;
-    questionStep = 0;
+    await buildWebsite(prompt);
   } else {
     await refineWebsite(prompt);
   }
-}
-
-function needsClarification(prompt) {
-  // Only ask questions if the prompt is under 8 words AND no critical info
-  const words = prompt.trim().split(/\s+/);
-  const hasLocation = /\b(lagos|abuja|ibadan|ph|port.harcourt|kano|enugu|benin|owerri|lekki|vi|victoria.island|ikeja|yaba|surulere)\b/i.test(prompt);
-  const hasBusinessType = /\b(restaurant|salon|barber|shop|store|studio|agency|gym|clinic|doctor|school|hotel|cafe|tech|fashion|design|blog|consulting|freelance|coach|bakery|pharmacy|supermarket)\b/i.test(prompt);
-  const isVeryShort = words.length < 6;
-  const isDetailed = words.length >= 10 || (hasLocation && hasBusinessType && words.length >= 4);
-  
-  // Never ask if: very detailed, or user has "build me", "create", "generate" + specifics
-  if (isDetailed) return false;
-  if (/^(build|create|generate|make|design)\s+\w+\s+\w+/i.test(prompt.trim()) && words.length >= 5) return false;
-  
-  return isVeryShort || (!hasLocation && !hasBusinessType);
-}
-
-function startQuestionFlow(originalPrompt) {
-  questionFlow = { active: true, originalPrompt, currentQ: 0 };
-  
-  // Detect what we know from the prompt
-  const hasLocation = /\b(lagos|abuja|ph|kano|ibadan|enugu|ikeja|yaba|lekki)\b/i.test(originalPrompt);
-  const hasBizType = /\b(restaurant|salon|barber|shop|studio|agency|gym|clinic|school|cafe|tech|fashion|design|consulting|freelance)\b/i.test(originalPrompt);
-  
-  // Build smart questions based on what's missing
-  const questions = [];
-  if (!hasBizType) questions.push({ key: 'type', text: `What kind of business is this? (e.g. barber shop, fashion store, tech agency, restaurant, clinic...)` });
-  if (!hasLocation) questions.push({ key: 'location', text: `Where is it located? (e.g. Lekki Lagos, Abuja, Ibadan, or your exact area)` });
-  questions.push({ key: 'audience', text: `Who are your target customers? (e.g. young professionals, families, students, businesses...)` });
-  questions.push({ key: 'vibe', text: `Pick a website vibe:
-🖤 *Dark & Premium* | ☀️ *Clean & Modern* | 🎨 *Bold & Creative* | 🌿 *Natural & Warm*` });
-  
-  questionFlow.questions = questions;
-  questionFlow.currentQ = 0;
-  
-  // Build a thinking greeting
-  const msgEl = addMessage('ai', `🤖 Let me build you something *sharp*. Just answer ${questions.length} quick questions to make it exactly right for your business.
-
-*Question 1 of ${questions.length}:* ${questions[0].text}`);
-  msgEl.setAttribute('data-qflow', 'true');
-  
-  // Add quick-pick buttons for vibe if it's the first question about type
-  if (!hasBizType) {
-    addQuickPicks(['🍽️ Restaurant', '✂️ Barber/Salon', '👗 Fashion', '💻 Tech/Agency', '🏥 Clinic', '🏋️ Gym/Fitness', '🏠 Real Estate', '📚 Education'], 
-      (pick) => { document.getElementById('promptInput').value = pick; sendPrompt(); });
-  }
-}
-
-function handleQuestionAnswer(answer) {
-  const flow = questionFlow;
-  const q = flow.questions[flow.currentQ];
-  
-  // Save answer
-  collectedAnswers[q.key] = answer;
-  flow.currentQ++;
-  
-  if (flow.currentQ < flow.questions.length) {
-    // Ask next question
-    const nextQ = flow.questions[flow.currentQ];
-    const msgEl = addMessage('ai', `✅ Got it!
-
-*Question ${flow.currentQ + 1} of ${flow.questions.length}:* ${nextQ.text}`);
-    
-    // Add quick picks for vibe
-    if (nextQ.key === 'vibe') {
-      addQuickPicks(['🖤 Dark & Premium', '☀️ Clean & Modern', '🎨 Bold & Creative', '🌿 Natural & Warm'], 
-        (pick) => { document.getElementById('promptInput').value = pick; sendPrompt(); });
-    }
-    if (nextQ.key === 'audience') {
-      addQuickPicks(['Young professionals', 'Students', 'Families', 'Businesses', 'Everyone'], 
-        (pick) => { document.getElementById('promptInput').value = pick; sendPrompt(); });
-    }
-  } else {
-    // All questions answered — BUILD!
-    flow.active = false;
-    const buildSummary = buildAnswerSummary(flow.originalPrompt, collectedAnswers);
-    addMessage('ai', `🔥 *Perfect!* Building your website now with everything I know about your business...`);
-    
-    setTimeout(() => {
-      buildWebsite(buildSummary, collectedAnswers);
-    }, 300);
-  }
-}
-
-function buildAnswerSummary(originalPrompt, answers) {
-  const parts = [originalPrompt];
-  if (answers.type) parts.push('Business type: ' + answers.type);
-  if (answers.location) parts.push('Location: ' + answers.location);
-  if (answers.audience) parts.push('Target audience: ' + answers.audience);
-  if (answers.vibe) {
-    const vibeMap = { 'dark': 'dark premium luxury style', 'clean': 'clean modern minimal style', 'bold': 'bold creative editorial style', 'natural': 'warm natural earthy style' };
-    const vibeKey = Object.keys(vibeMap).find(k => answers.vibe.toLowerCase().includes(k));
-    if (vibeKey) parts.push('Design style: ' + vibeMap[vibeKey]);
-  }
-  if (answers.name) parts.push('Business name: ' + answers.name);
-  return parts.join('. ');
-}
-
-function addQuickPicks(options, onSelect) {
-  const history = document.getElementById('chatHistory');
-  const picks = document.createElement('div');
-  picks.className = 'quick-picks';
-  picks.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;padding:6px 10px 10px;';
-  options.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.textContent = opt;
-    btn.style.cssText = 'padding:6px 12px;border-radius:100px;background:rgba(0,217,255,.08);border:1px solid rgba(0,217,255,.2);color:#00D9FF;font-size:12px;cursor:pointer;transition:all .15s;font-weight:600';
-    btn.onmouseover = () => { btn.style.background = 'rgba(0,217,255,.18)'; };
-    btn.onmouseout = () => { btn.style.background = 'rgba(0,217,255,.08)'; };
-    btn.onclick = () => {
-      picks.remove();
-      onSelect(opt);
-    };
-    picks.appendChild(btn);
-  });
-  history.appendChild(picks);
-  history.scrollTop = history.scrollHeight;
 }
 
 function addMessage(role, content, type = 'text') {
@@ -1973,43 +1772,22 @@ function updateScanStep(stepId, state) {
   el.className = 'scan-step ' + state;
 }
 
-let buildAbortController = null;
-
-function cancelBuild() {
-  if (buildAbortController) {
-    buildAbortController.abort();
-    buildAbortController = null;
-  }
-  isBuilding = false;
-  document.getElementById('sendBtn').disabled = false;
-  document.getElementById('deployBtn').disabled = false;
-  showScanOverlay(false);
-  document.getElementById('cancelBuildBtn').style.display = 'none';
-  document.getElementById('buildProgressMsg')?.remove();
-  toast('Build cancelled', 'info');
-  addMessage('ai', '⚠️ Build cancelled. You can try again anytime.');
-}
-
-async function buildWebsite(prompt, answers = {}) {
+async function buildWebsite(prompt) {
   isBuilding = true;
   document.getElementById('sendBtn').disabled = true;
   document.getElementById('deployBtn').disabled = true;
-  buildAbortController = new AbortController();
   
   // Show scan overlay on preview
   showScanOverlay(true, '🧠 Analyzing your business...', 'Planning brand + content + website');
-  document.getElementById('cancelBuildBtn').style.display = 'block';
   
   // Add progress message in chat
   addProgressMsg();
   
   try {
-    const API_BASE = window.ERGIO_CONFIG?.apiBase || window.location.origin;
-    const response = await fetch(API_BASE + '/api/generate', {
+    const response = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, answers }),
-      signal: buildAbortController?.signal
+      body: JSON.stringify({ prompt })
     });
     
     if (!response.ok) throw new Error('Generation failed: ' + response.status);
@@ -2042,21 +1820,8 @@ async function buildWebsite(prompt, answers = {}) {
     }
     
   } catch (err) {
-    // If user cancelled, don't show fallback — just clean up
-    if (err.name === 'AbortError' || err.message === 'The user aborted a request' || !isBuilding) {
-      console.log('Build cancelled by user');
-      showScanOverlay(false);
-      document.getElementById('buildProgressMsg')?.remove();
-      document.getElementById('cancelBuildBtn').style.display = 'none';
-      isBuilding = false;
-      document.getElementById('sendBtn').disabled = false;
-      document.getElementById('deployBtn').disabled = false;
-      return;
-    }
-    
     console.error('Build error:', err);
     showScanOverlay(false);
-    document.getElementById('cancelBuildBtn').style.display = 'none';
     
     // Remove progress message
     document.getElementById('buildProgressMsg')?.remove();
@@ -2112,13 +1877,13 @@ function handleSSE(event, stepMap, prevStep) {
       const dc = data.designConfig;
       document.getElementById('currentStyleName').textContent = dc.emoji + ' ' + dc.name;
       document.getElementById('currentStyleDesc').textContent = dc.desc;
-      addMessage('system', `🎨 Design style detected: <b>${dc.emoji} ${dc.name}</b> — ${dc.desc}`);
+      addMessage('system', \`🎨 Design style detected: <b>\${dc.emoji} \${dc.name}</b> — \${dc.desc}\`);
     }
     
     // Show business category chip
     const cat = data.plan?.websiteCategory || 'landing';
     const catEmoji = {restaurant:'🍽️',salon:'💇',fitness:'💪',clinic:'🏥',ecommerce:'🛍️',realestate:'🏠',saas:'🚀',portfolio:'🎨',agency:'🏢',education:'🎓',events:'🎉',landing:'✨'}[cat] || '🌐';
-    addMessage('system', `${catEmoji} Building a <b>${cat}</b> website for ${name} in ${data.plan?.city || 'Nigeria'}`);
+    addMessage('system', \`\${catEmoji} Building a <b>\${cat}</b> website for \${name} in \${data.plan?.city || 'Nigeria'}\`);
     
     updateStep('plan', 'done');
     updateScanStep('plan', 'done');
@@ -2143,17 +1908,12 @@ function handleSSE(event, stepMap, prevStep) {
   
   else if (type === 'website') {
     currentHTML = data.html;
-    currentBuildHtml = data.html;
     updateStep('website', 'done');
     updateStep('seo', 'done');
     // Show partial preview
     showPreview(data.html, buildData?.plan?.businessName || 'Preview');
   }
   
-  else if (type === 'linter') {
-    handleLinterEvent(data);
-  }
-
   else if (type === 'complete') {
     const biz = data.business || {};
     currentHTML = biz.websiteHtml || currentHTML;
@@ -2167,9 +1927,6 @@ function handleSSE(event, stepMap, prevStep) {
     
     // Add version
     addVersion(biz.businessName || 'v1', 'Initial build');
-    
-    // Save to dashboard registry
-    saveWebsiteToDashboard();
     
     // Update files tab
     updateFilesTab(biz);
@@ -2207,67 +1964,29 @@ function showPreview(html, title = 'Preview') {
   empty.style.display = 'none';
   iframe.style.display = 'block';
   
-  // Write HTML to iframe using srcdoc (more reliable than doc.write with sandbox)
+  // Use srcdoc for reliable rendering (doc.write can fail silently in sandboxed iframes)
   iframe.srcdoc = html;
+  
+  // Fallback: also try doc.write in case srcdoc isn't supported
+  try {
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    if (doc) {
+      doc.open();
+      doc.write(html);
+      doc.close();
+    }
+  } catch(e) {
+    // srcdoc already handles it
+  }
   
   currentHTML = html;
   
   // Update code view
   document.getElementById('codePre').textContent = html;
   
-  // Resize iframe to full content height after render
-  iframe.onload = () => {
-    try {
-      const body = iframe.contentDocument?.body;
-      const docEl = iframe.contentDocument?.documentElement;
-      if (body && docEl) {
-        const h = Math.max(
-          body.scrollHeight, body.offsetHeight, body.clientHeight,
-          docEl.scrollHeight, docEl.offsetHeight, docEl.clientHeight
-        );
-        if (h > 100) {
-          iframe.style.height = h + 'px';
-          iframe.style.minHeight = h + 'px';
-          // Update URL bar to show site URL
-          const urlBar = document.getElementById('urlBarText');
-          if (urlBar && buildData?.plan?.slug) {
-            urlBar.textContent = 'ergio.vercel.app/s/' + buildData.plan.slug;
-          }
-        }
-      }
-    } catch(e) {}
-  };
-  
-  // Also do a delayed resize (for sites that render after load)
-  setTimeout(() => {
-    try {
-      const body = iframe.contentDocument?.body;
-      const docEl = iframe.contentDocument?.documentElement;
-      if (body && docEl) {
-        const h = Math.max(
-          body.scrollHeight, body.offsetHeight, body.clientHeight,
-          docEl.scrollHeight, docEl.offsetHeight, docEl.clientHeight
-        );
-        if (h > 500) {
-          iframe.style.height = h + 'px';
-          iframe.style.minHeight = h + 'px';
-        }
-      }
-    } catch(e) {}
-  }, 1200);
-  
-  // Enable linter button
-  const linterBtn = document.getElementById('linterBtn');
-  if (linterBtn) linterBtn.style.display = 'flex';
-  
   // Auto-save
   scheduleAutoSave();
 }
-
-// Conductor permission system
-let pendingConductorEdit = null;
-let autoApproveSession = false;
-let conductorPermissionGranted = false;
 
 async function refineWebsite(prompt) {
   if (!currentHTML) {
@@ -2278,7 +1997,7 @@ async function refineWebsite(prompt) {
   isBuilding = true;
   document.getElementById('sendBtn').disabled = true;
   
-  const thinkingMsg = addMessage('ai', '🤖 The Conductor is analyzing your request...');
+  const thinkingMsg = addMessage('ai', '🔄 Refining your website...');
   
   try {
     const res = await fetch('/api/refine', {
@@ -2293,182 +2012,19 @@ async function refineWebsite(prompt) {
     const newHtml = result.html || result.data?.html;
     
     if (newHtml) {
-      // Store the pending edit
-      pendingConductorEdit = {
-        prompt,
-        oldHtml: currentHTML,
-        newHtml,
-        result,
-        thinkingMsg
-      };
-      
-      // Check if auto-approve is enabled
-      if (autoApproveSession || document.getElementById('autoApproveChanges')?.checked) {
-        applyConductorEdit();
-      } else {
-        // Show permission gate
-        showConductorPermission(prompt, newHtml, result);
-      }
+      showPreview(newHtml);
+      addVersion('edit', prompt.substring(0, 30));
+      thinkingMsg.querySelector('.msg-bubble').textContent = '✅ Done! ' + (result.summary || 'Website updated.');
+      toast('Website updated!', 'success');
     } else {
       thinkingMsg.querySelector('.msg-bubble').textContent = '⚠️ Could not apply that change. Try being more specific.';
-      isBuilding = false;
-      document.getElementById('sendBtn').disabled = false;
     }
   } catch (err) {
     thinkingMsg.querySelector('.msg-bubble').textContent = '❌ Refine failed. Please try again.';
-    isBuilding = false;
-    document.getElementById('sendBtn').disabled = false;
-  }
-}
-
-function showConductorPermission(prompt, newHtml, result) {
-  // Generate a human-readable change summary
-  const changes = detectChanges(currentHTML, newHtml);
-  const summaryEl = document.getElementById('conductorChangeDesc');
-  summaryEl.innerHTML = changes.length > 0
-    ? changes.map(c => `<div style="margin-bottom:6px">• ${c}</div>`).join('')
-    : `<div style="color:var(--muted)">The Conductor will apply: "${prompt}"</div>`;
-  
-  // Show the modal
-  document.getElementById('conductorPermissionModal').classList.add('open');
-}
-
-function detectChanges(oldHtml, newHtml) {
-  const changes = [];
-  
-  // Compare text content
-  const oldText = oldHtml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-  const newText = newHtml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-  const oldWords = oldText.split(' ');
-  const newWords = newText.split(' ');
-  
-  // Detect added/removed sections
-  const oldSections = (oldHtml.match(/<section/g) || []).length;
-  const newSections = (newHtml.match(/<section/g) || []).length;
-  if (newSections > oldSections) changes.push(`Adding ${newSections - oldSections} new section(s)`);
-  if (newSections < oldSections) changes.push(`Removing ${oldSections - newSections} section(s)`);
-  
-  // Detect color changes
-  const oldColors = new Set((oldHtml.match(/#[0-9a-fA-F]{3,6}/g) || []));
-  const newColors = new Set((newHtml.match(/#[0-9a-fA-F]{3,6}/g) || []));
-  const addedColors = [...newColors].filter(c => !oldColors.has(c));
-  if (addedColors.length > 0) changes.push(`Updating colors (${addedColors.length} new colors)`);
-  
-  // Detect content changes
-  if (newText.length !== oldText.length) {
-    const diff = Math.abs(newWords.length - oldWords.length);
-    if (newWords.length > oldWords.length) changes.push(`Adding ~${diff} words of content`);
-    else if (newWords.length < oldWords.length) changes.push(`Removing ~${diff} words of content`);
   }
   
-  // Detect layout changes
-  const oldGrid = (oldHtml.match(/display:\s*(?:grid|flex)/gi) || []).length;
-  const newGrid = (newHtml.match(/display:\s*(?:grid|flex)/gi) || []).length;
-  if (newGrid !== oldGrid) changes.push('Adjusting layout structure');
-  
-  // Always include the user's instruction
-  changes.unshift(`<span style="color:var(--accent);font-weight:600">"${pendingConductorEdit.prompt}"</span>`);
-  
-  return changes;
-}
-
-function approveConductorEdit() {
-  const autoCheckbox = document.getElementById('autoApproveChanges');
-  if (autoCheckbox?.checked) autoApproveSession = true;
-  
-  document.getElementById('conductorPermissionModal').classList.remove('open');
-  applyConductorEdit();
-}
-
-function denyConductorEdit() {
-  document.getElementById('conductorPermissionModal').classList.remove('open');
-  if (pendingConductorEdit?.thinkingMsg) {
-    pendingConductorEdit.thinkingMsg.querySelector('.msg-bubble').textContent = '❌ Changes denied. The Conductor will not modify the website.';
-  }
-  pendingConductorEdit = null;
   isBuilding = false;
   document.getElementById('sendBtn').disabled = false;
-  toast('Edit denied', 'info');
-}
-
-function toggleConductorPermission() {
-  autoApproveSession = !autoApproveSession;
-  const indicator = document.getElementById('conductorPermissionIndicator');
-  if (autoApproveSession) {
-    indicator.style.background = 'rgba(0,255,157,.1)';
-    indicator.style.borderColor = 'rgba(0,255,157,.3)';
-    indicator.style.color = 'var(--green)';
-    indicator.innerHTML = '🔓 Conductor: Auto-Approve ON';
-    toast('Conductor will auto-approve changes. You can toggle this off anytime.', 'info');
-  } else {
-    indicator.style.background = 'rgba(255,184,0,.1)';
-    indicator.style.borderColor = 'rgba(255,184,0,.3)';
-    indicator.style.color = 'var(--yellow)';
-    indicator.innerHTML = '🔒 Conductor: Ask Permission';
-    toast('Conductor will ask permission before each edit.', 'info');
-  }
-}
-
-function applyConductorEdit() {
-  if (!pendingConductorEdit) return;
-  const { prompt, newHtml, result, thinkingMsg } = pendingConductorEdit;
-  
-  // Save current state for undo
-  const oldHtml = currentHTML;
-  
-  // Apply the changes
-  showPreview(newHtml);
-  currentHTML = newHtml;
-  addVersion('edit', prompt.substring(0, 30));
-  
-  if (thinkingMsg) {
-    thinkingMsg.querySelector('.msg-bubble').textContent = '✅ Done! ' + (result.summary || result.message || 'Website updated.');
-  }
-  toast('Website updated with Conductor permission!', 'success');
-  
-  // Save to dashboard registry
-  saveWebsiteToDashboard();
-  
-  pendingConductorEdit = null;
-  isBuilding = false;
-  document.getElementById('sendBtn').disabled = false;
-}
-
-// Save built website to dashboard localStorage registry
-function saveWebsiteToDashboard() {
-  if (!currentHTML) return;
-  
-  const businesses = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
-  const bizName = buildData?.plan?.businessName || buildData?.businessName || 'Untitled Website';
-  const bizId = buildData?.plan?.slug || buildData?.id || ('biz-' + Date.now());
-  
-  // Find existing or create new
-  const existingIdx = businesses.findIndex(b => b.id === bizId);
-  const websiteData = {
-    id: bizId,
-    name: bizName,
-    type: buildData?.plan?.type || buildData?.type || 'business',
-    city: buildData?.plan?.city || buildData?.city || '',
-    tagline: buildData?.plan?.tagline || buildData?.tagline || '',
-    html: currentHTML,
-    logoUrl: buildData?.brand?.logoUrl || buildData?.logoUrl || '',
-    linterScore: buildData?.linterScore || null,
-    linterGrade: buildData?.linterGrade || null,
-    status: 'built',
-    deployed: false,
-    deployUrl: '',
-    createdAt: existingIdx >= 0 ? businesses[existingIdx].createdAt : new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    versionCount: versionCount
-  };
-  
-  if (existingIdx >= 0) {
-    businesses[existingIdx] = websiteData;
-  } else {
-    businesses.unshift(websiteData);
-  }
-  
-  localStorage.setItem('ergio_saved_websites', JSON.stringify(businesses));
 }
 
 function addVersion(name, desc) {
@@ -2565,9 +2121,6 @@ function downloadCode() {
   toast('File downloaded!', 'success');
 }
 
-function handleModalOverlayClick(e) {
-  if (e.target.id === 'deployModal') closeDeployModal();
-}
 function openDeployModal() {
   document.getElementById('deployModal').classList.add('open');
   document.getElementById('deployResult').style.display = 'none';
@@ -2591,82 +2144,62 @@ async function deployTo(target) {
   }
   
   if (target === 'ergio') {
-    const bizName = buildData?.plan?.businessName || buildData?.businessName || 'my-business';
-    const slug = bizName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || ('biz-' + Date.now());
-    const deployUrl = `https://ergio.vercel.app/s/${slug}`;
-    
-    // Show loading state
-    resultEl.style.display = 'block';
-    resultText.textContent = '⏳ Publishing your website...';
-    resultLink.href = '#';
-    resultLink.textContent = '';
-    
+    const businessName = buildData?.plan?.businessName || buildData?.businessName || 'My Business';
+    const slug = buildData?.plan?.slug || businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     try {
-      const deployRes = await fetch('/api/site', {
+      toast('Deploying to ERGIO...', 'info');
+      const res = await fetch('/api/site', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          slug,
-          html: currentHTML,
-          businessName: bizName,
-          businessType: buildData?.plan?.type || buildData?.type || 'business',
-          brandColors: buildData?.colors || {},
-          businessId: buildData?.plan?.id || buildData?.id || slug
+          businessName: businessName,
+          htmlContent: currentHTML,
+          brandColors: buildData?.plan?.colors || buildData?.colors || {},
+          businessType: buildData?.plan?.category || 'landing',
+          userId: buildData?.id || 'guest'
         })
       });
-      const deployData = await deployRes.json();
-      // Use the actual record ID returned by the API (works even without slug column)
-      const actualSlug = deployData.slug || deployData.siteId || slug;
-      const liveUrl = deployData.deployUrl || `https://ergio.vercel.app/s/${actualSlug}`;
+      const data = await res.json();
+      const url = data.url || data.deployUrl || `https://ergio.vercel.app/s/${data.slug || slug}`;
       
-      resultEl.style.display = 'block';
-      resultEl.style.background = 'rgba(0,255,157,.08)';
-      resultEl.style.border = '1px solid rgba(0,255,157,.3)';
-      resultEl.style.borderRadius = '10px';
-      resultEl.style.padding = '12px';
-      resultText.innerHTML = '🚀 <strong>Live!</strong> Your website is published:';
-      resultLink.href = liveUrl;
-      resultLink.textContent = liveUrl + ' →';
-      resultLink.style.color = '#00FF9D';
-      
-      // Update URL bar
-      document.getElementById('urlBarText').textContent = liveUrl.replace('https://', '');
-      
-      // Update saved website record
-      const savedSites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
-      const existingIdx = savedSites.findIndex(s => s.id === slug || s.name === bizName);
-      if (existingIdx >= 0) {
-        savedSites[existingIdx].deployed = true;
-        savedSites[existingIdx].deployUrl = liveUrl;
-      } else {
-        savedSites.unshift({
-          id: actualSlug,
-          slug: slug,
-          name: bizName,
+      // Save to localStorage so /s/ page can find it even if DB fails
+      try {
+        const savedSites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
+        const siteEntry = {
+          id: data.slug || data.siteId || slug,
+          name: businessName,
           html: currentHTML,
-          deployed: true,
-          deployUrl: liveUrl,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        });
-      }
-      localStorage.setItem('ergio_saved_websites', JSON.stringify(savedSites));
+          slug: data.slug || slug,
+          savedAt: new Date().toISOString()
+        };
+        // Remove duplicates
+        const filtered = savedSites.filter(s => s.id !== siteEntry.id);
+        filtered.unshift(siteEntry);
+        localStorage.setItem('ergio_saved_websites', JSON.stringify(filtered.slice(0, 50)));
+      } catch(e) {}
       
-      // Copy to clipboard
-      navigator.clipboard.writeText(liveUrl).then(() => {
-        toast('🚀 Published! Link copied to clipboard', 'success');
-      }).catch(() => {
-        toast('🚀 Published! ' + liveUrl, 'success');
-      });
-    } catch(err) {
-      // Graceful fallback — still show the URL
       resultEl.style.display = 'block';
-      resultText.textContent = '📎 Your website link (deploy when DB is ready):';
-      resultLink.href = deployUrl;
-      resultLink.textContent = deployUrl + ' →';
-      document.getElementById('urlBarText').textContent = deployUrl.replace('https://', '');
-      navigator.clipboard.writeText(deployUrl).catch(() => {});
-      toast('Link generated! Copy it to share: ' + deployUrl, 'info');
+      resultText.textContent = 'Your website is live at:';
+      resultLink.href = url;
+      resultLink.textContent = url + ' →';
+      document.getElementById('urlBarText').textContent = url.replace('https://', '');
+      toast('🚀 Deployed!', 'success');
+    } catch {
+      // Fallback: save to localStorage only
+      try {
+        const savedSites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
+        savedSites.unshift({
+          id: slug, name: businessName, html: currentHTML, slug,
+          savedAt: new Date().toISOString()
+        });
+        localStorage.setItem('ergio_saved_websites', JSON.stringify(savedSites.slice(0, 50)));
+      } catch(e) {}
+      const url = `https://ergio.vercel.app/s/${slug}`;
+      resultEl.style.display = 'block';
+      resultText.textContent = 'Deployed at:';
+      resultLink.href = url;
+      resultLink.textContent = url + ' →';
+      toast('Deployed!', 'success');
     }
   }
   
@@ -2726,8 +2259,7 @@ p{font-size:1.2rem;color:#999;max-width:560px;line-height:1.7}
   </div>
 </div>
 
-  <script src="guide-widget.js"><\/script>
-<script>
+  <script src="guide-widget.js">
 // ===== CONDUCTOR AGENT CONNECTION =====
 const ENGINES_API = window.ErgioEngines || null;
 const CMD_API = window.ErgioCommand || null;
@@ -2849,63 +2381,7 @@ async function sendAgentMessage() {
 
 // Init agent status on load
 setTimeout(checkAgentStatus, 1000);
-<\/script>
-
-<!-- Conductor Permission Gate -->
-<div class="modal-overlay" id="conductorPermissionModal" onclick="handleModalOverlayClick(event)">
-  <div class="modal-content" style="max-width:520px;padding:0;overflow:hidden">
-    <div style="padding:20px 24px;border-bottom:1px solid var(--border)">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#FFD700,#FFA500);display:flex;align-items:center;justify-content:center;font-size:20px">🤖</div>
-        <div>
-          <div style="font-weight:800;font-size:16px">Conductor Permission Required</div>
-          <div style="font-size:12px;color:var(--muted)">The AI Conductor wants to modify your website</div>
-        </div>
-      </div>
-    </div>
-    <div style="padding:20px 24px">
-      <div id="conductorChangeSummary" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px">
-        <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--accent)">Proposed Changes:</div>
-        <div id="conductorChangeDesc" style="font-size:13px;color:var(--text);line-height:1.6"></div>
-      </div>
-      <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px">
-        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer">
-          <input type="checkbox" id="autoApproveChanges" style="accent-color:var(--accent)">
-          <span>Auto-approve future changes this session</span>
-        </label>
-      </div>
-      <div style="display:flex;gap:10px">
-        <button onclick="approveConductorEdit()" style="flex:1;padding:12px;border-radius:10px;background:linear-gradient(135deg,#FFD700,#FFA500);border:none;color:#000;font-weight:700;font-size:14px;cursor:pointer;transition:all 0.2s">
-          ✅ Allow Changes
-        </button>
-        <button onclick="denyConductorEdit()" style="flex:1;padding:12px;border-radius:10px;background:var(--card);border:1px solid var(--border);color:var(--muted);font-weight:600;font-size:14px;cursor:pointer;transition:all 0.2s">
-          ❌ Deny
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Diff Preview Modal -->
-<div class="modal-overlay" id="diffPreviewModal" onclick="handleModalOverlayClick(event)">
-  <div class="modal-content" style="max-width:900px;padding:0;overflow:hidden">
-    <div style="padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-      <div style="font-weight:800;font-size:15px">🔍 Change Preview</div>
-      <button onclick="document.getElementById('diffPreviewModal').classList.remove('open')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px">×</button>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;height:400px">
-      <div style="border-right:1px solid var(--border);overflow:auto;padding:12px">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;font-weight:700">Before</div>
-        <div id="diffBefore" style="font-size:11px;font-family:monospace;line-height:1.5;color:var(--muted);white-space:pre-wrap"></div>
-      </div>
-      <div style="overflow:auto;padding:12px">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;font-weight:700">After</div>
-        <div id="diffAfter" style="font-size:11px;font-family:monospace;line-height:1.5;color:var(--text);white-space:pre-wrap"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
+</script>
 </body>
 </html>`;
 }
@@ -3003,33 +2479,12 @@ setInterval(() => {
 
 // ===== DESIGN STYLES ENGINE =====
 const DESIGN_STYLES = [
-  // ── DARK TECH ─────────────────────────────────────────────
-  { name: 'nova', emoji: '🌟', desc: 'Futuristic dark with cyan accents — tech & SaaS', preview: 'linear-gradient(135deg,#08090f,#111827)', color1: '#00D9FF', color2: '#7c3aed' },
-  { name: 'onyx', emoji: '🖤', desc: 'Premium all-black with gold — luxury brands', preview: 'linear-gradient(135deg,#0a0a0a,#111111)', color1: '#D4AF37', color2: '#C0A020' },
-  { name: 'bento', emoji: '🍱', desc: 'Bento grid layout — modern SaaS & dashboards', preview: 'linear-gradient(135deg,#0A0A0A,#111111)', color1: '#fff', color2: '#E8C547' },
-  { name: 'gradient', emoji: '🌈', desc: 'Gradient mesh purple — AI & startup products', preview: 'linear-gradient(135deg,#030014,#0f0524)', color1: '#6366f1', color2: '#8b5cf6' },
-  // ── EDITORIAL ─────────────────────────────────────────────
-  { name: 'editorial', emoji: '📰', desc: 'Oversized billboard type — fintech & bold brands', preview: 'linear-gradient(135deg,#1a2318,#243022)', color1: '#E8C547', color2: '#F0E68C' },
-  { name: 'split', emoji: '🔀', desc: 'Split-screen with product mockup — apps & SaaS', preview: 'linear-gradient(135deg,#FAFAF8,#F0EFE9)', color1: '#111110', color2: '#E8C547' },
-  { name: 'slate', emoji: '🏢', desc: 'Corporate navy — finance, legal & consulting', preview: 'linear-gradient(135deg,#0a1628,#0f2044)', color1: '#3b82f6', color2: '#0ea5e9' },
-  // ── VIBRANT ──────────────────────────────────────────────
-  { name: 'pulse', emoji: '⚡', desc: 'Electric purple — nightlife & entertainment', preview: 'linear-gradient(135deg,#0d0118,#160228)', color1: '#8b5cf6', color2: '#ec4899' },
-  { name: 'flame', emoji: '🔥', desc: 'Bold red-orange — fitness, food & sport', preview: 'linear-gradient(135deg,#0f0a00,#1a1200)', color1: '#f97316', color2: '#ef4444' },
-  { name: 'bloom', emoji: '🌸', desc: 'Soft pastel — beauty, wellness & lifestyle', preview: 'linear-gradient(135deg,#fff5f7,#fff0f3)', color1: '#ec4899', color2: '#f472b6' },
-  // ── NATURAL ───────────────────────────────────────────────
-  { name: 'terra', emoji: '🌿', desc: 'Earthy greens — agriculture, food & eco brands', preview: 'linear-gradient(135deg,#0f1a0f,#1a2e1a)', color1: '#22c55e', color2: '#84cc16' },
-  { name: 'ivory', emoji: '🏛️', desc: 'Warm cream — professional services & real estate', preview: 'linear-gradient(135deg,#fefce8,#fef9c3)', color1: '#92400e', color2: '#b45309' },
-  // ── AFRICAN ───────────────────────────────────────────────
-  { name: 'naija', emoji: '🇳🇬', desc: 'Proudly Nigerian — bold green & white', preview: 'linear-gradient(135deg,#001a00,#002200)', color1: '#16a34a', color2: '#22c55e' },
-  { name: 'kente', emoji: '🪡', desc: 'African Kente — warm gold & terracotta', preview: 'linear-gradient(135deg,#1a0a00,#2d1500)', color1: '#F59E0B', color2: '#EF4444' },
-  // ── MINIMAL ───────────────────────────────────────────────
-  { name: 'aria', emoji: '✨', desc: 'Clean minimalist light — Notion & Linear style', preview: 'linear-gradient(135deg,#ffffff,#f8f9fa)', color1: '#2563eb', color2: '#7c3aed' },
-  { name: 'zinc', emoji: '⚙️', desc: 'Industrial grey — manufacturing & B2B', preview: 'linear-gradient(135deg,#18181b,#27272a)', color1: '#a1a1aa', color2: '#e4e4e7' },
-  // ── PREMIUM ──────────────────────────────────────────────
-  { name: 'transix', emoji: '🔷', desc: 'Asymmetric grid, floating UI cards — tech & AI', preview: 'linear-gradient(135deg,#1B1F8A,#2328A0)', color1: '#F5D547', color2: '#7C83FF' },
-  { name: 'aurora', emoji: '🌌', desc: 'Deep space with aurora glow — AI & biotech', preview: 'linear-gradient(135deg,#030712,#0d1117)', color1: '#a78bfa', color2: '#34d399' },
-  { name: 'clay', emoji: '🏺', desc: '3D clay morphism, soft pastel — consumer apps', preview: 'linear-gradient(135deg,#F0EDE8,#E8E4DE)', color1: '#FF6B47', color2: '#4ECDC4' },
-  { name: 'darkglass', emoji: '🪟', desc: 'Dark glassmorphism, neon blur — creative agencies', preview: 'linear-gradient(135deg,#060010,#0d0118)', color1: '#00FFD1', color2: '#FF2D78' },
+  { name: 'aurora-dark', desc: 'Dark with glassmorphism, gradient text', preview: 'linear-gradient(135deg,#09090B,#1a1a2e)', color1: '#00D9FF', color2: '#00FF9D' },
+  { name: 'editorial-light', desc: 'Clean white, serif headings, magazine feel', preview: 'linear-gradient(135deg,#FAFAF9,#fff)', color1: '#1A1A1A', color2: '#666' },
+  { name: 'brutalist-bold', desc: 'Raw, bold, outlined text, square edges', preview: 'linear-gradient(135deg,#0A0A0A,#1a1a1a)', color1: '#fff', color2: '#333' },
+  { name: 'organic-soft', desc: 'Warm, rounded corners, soft shadows', preview: 'linear-gradient(135deg,#F5F3EE,#fff)', color1: '#D97706', color2: '#B45309' },
+  { name: 'neon-cyber', desc: 'Cyberpunk neon glow, mono font', preview: 'linear-gradient(135deg,#05050A,#0a0a1a)', color1: '#00D9FF', color2: '#00FF9D' },
+  { name: 'magazine-clean', desc: 'Minimal, split layouts, editorial', preview: 'linear-gradient(135deg,#fff,#f8f8f8)', color1: '#1A1A1A', color2: '#0066ff' },
 ];
 
 let selectedStyle = null;
@@ -3037,26 +2492,12 @@ let editModeActive = false;
 
 function openStyleModal() {
   const grid = document.getElementById('styleGrid');
-  // Group by category for display
-  const categories = ['DARK TECH', 'EDITORIAL', 'VIBRANT', 'NATURAL', 'AFRICAN', 'MINIMAL', 'PREMIUM'];
-  const catStyles = {
-    'DARK TECH': DESIGN_STYLES.slice(0, 4),
-    'EDITORIAL': DESIGN_STYLES.slice(4, 7),
-    'VIBRANT':   DESIGN_STYLES.slice(7, 10),
-    'NATURAL':   DESIGN_STYLES.slice(10, 12),
-    'AFRICAN':   DESIGN_STYLES.slice(12, 14),
-    'MINIMAL':   DESIGN_STYLES.slice(14, 16),
-    'PREMIUM':   DESIGN_STYLES.slice(16, 20),
-  };
-  grid.innerHTML = categories.map(cat => `
-    <div style="grid-column:1/-1;font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;padding:4px 0 2px;border-top:1px solid var(--border);margin-top:4px">${cat}</div>
-    ${catStyles[cat].map(s => `
-      <div class="style-option ${selectedStyle === s.name ? 'selected' : ''}" onclick="selectStyle('${s.name}')" id="styleOpt-${s.name}">
-        <div class="style-preview" style="background:${s.preview};display:flex;align-items:center;justify-content:center;font-size:1.4rem">${s.emoji || '🎨'}</div>
-        <div class="style-option-name" style="font-weight:700;font-size:11px;text-transform:capitalize">${s.name.replace(/-/g,' ')}</div>
-        <div class="style-option-desc" style="font-size:10px;color:var(--muted);line-height:1.3">${s.desc}</div>
-      </div>
-    `).join('')}
+  grid.innerHTML = DESIGN_STYLES.map((s, i) => `
+    <div class="style-option ${selectedStyle === s.name ? 'selected' : ''}" onclick="selectStyle('${s.name}')" id="styleOpt-${s.name}">
+      <div class="style-preview" style="background:${s.preview}"></div>
+      <div class="style-option-name">${s.name.replace('-', ' ')}</div>
+      <div class="style-option-desc">${s.desc}</div>
+    </div>
   `).join('');
   document.getElementById('styleModal').classList.add('open');
 }
@@ -3190,98 +2631,6 @@ async function loadConnectedServers() {
       const data = await res.json();
       // Could render marketplace data here
     }
-
-// ===== PLUGIN PICKER (from input toolbar) =====
-function openPluginPicker() {
-  // Create or show a floating popup near the button
-  let popup = document.getElementById('pluginPickerPopup');
-  if (popup) {
-    popup.remove();
-    return;
-  }
-  const btn = document.querySelector('.plugin-trigger');
-  if (!btn) return;
-  const rect = btn.getBoundingClientRect();
-  popup = document.createElement('div');
-  popup.id = 'pluginPickerPopup';
-  popup.style.cssText = `position:fixed;bottom:${window.innerHeight - rect.top + 8}px;left:${rect.left}px;width:320px;max-height:400px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:16px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.5);font-family:inherit`;
-  const builtin = [
-    { id: 'ai', name: 'AI Assistant', icon: '🤖', desc: 'Smart suggestions' },
-    { id: 'images', name: 'Image Finder', icon: '🖼️', desc: 'Free stock photos' },
-    { id: 'seo', name: 'SEO Optimizer', icon: '📊', desc: 'Meta tags & keywords' },
-    { id: 'payments', name: 'Paystack', icon: '💳', desc: 'Accept payments' },
-    { id: 'booking', name: 'Booking System', icon: '📅', desc: 'Appointment scheduling' },
-    { id: 'whatsapp', name: 'WhatsApp Bot', icon: '💬', desc: 'Auto customer chat' },
-  ];
-  popup.innerHTML = `
-    <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px">🔌 Built-in Tools</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      ${builtin.map(t => `
-        <div style="padding:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'" onclick="togglePlugin('${t.id}');document.getElementById('pluginPickerPopup').remove()">
-          <div style="font-size:18px">${t.icon}</div>
-          <div style="font-size:12px;font-weight:600;color:var(--text);margin-top:4px">${t.name}</div>
-          <div style="font-size:10px;color:var(--muted)">${t.desc}</div>
-        </div>
-      `).join('')}
-    </div>
-    <div style="font-size:11px;color:var(--muted);margin-top:12px;text-align:center">Click a tool to activate it</div>
-  `;
-  document.body.appendChild(popup);
-  // Close on outside click
-  setTimeout(() => {
-    document.addEventListener('click', function closePluginPicker(e) {
-      if (!popup.contains(e.target) && e.target !== btn) {
-        popup.remove();
-        document.removeEventListener('click', closePluginPicker);
-      }
-    });
-  }, 100);
-}
-
-// ===== MCP PICKER (from input toolbar) =====
-function openMcpPicker() {
-  let popup = document.getElementById('mcpPickerPopup');
-  if (popup) {
-    popup.remove();
-    return;
-  }
-  const btn = document.querySelector('.mcp-trigger');
-  if (!btn) return;
-  const rect = btn.getBoundingClientRect();
-  popup = document.createElement('div');
-  popup.id = 'mcpPickerPopup';
-  popup.style.cssText = `position:fixed;bottom:${window.innerHeight - rect.top + 8}px;left:${rect.left}px;width:320px;max-height:400px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:16px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.5);font-family:inherit`;
-  const mcps = [
-    { id: 'figma', name: 'Figma MCP', icon: '🎨', desc: 'Import Figma designs' },
-    { id: 'github', name: 'GitHub MCP', icon: '🐙', desc: 'Access repos & deploy' },
-    { id: 'supabase', name: 'Supabase MCP', icon: '🗄️', desc: 'Database queries' },
-    { id: 'slack', name: 'Slack MCP', icon: '💬', desc: 'Send Slack messages' },
-    { id: 'puppeteer', name: 'Puppeteer MCP', icon: '🎭', desc: 'Browser automation' },
-    { id: 'custom', name: 'Custom MCP', icon: '🔌', desc: 'Add any MCP server' },
-  ];
-  popup.innerHTML = `
-    <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px">🚀 MCP Servers</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      ${mcps.map(p => `
-        <div style="padding:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='#a78bfa'" onmouseout="this.style.borderColor='var(--border)'" onclick="togglePlugin('${p.id}');document.getElementById('mcpPickerPopup').remove()">
-          <div style="font-size:18px">${p.icon}</div>
-          <div style="font-size:12px;font-weight:600;color:var(--text);margin-top:4px">${p.name}</div>
-          <div style="font-size:10px;color:var(--muted)">${p.desc}</div>
-        </div>
-      `).join('')}
-    </div>
-    <div style="font-size:11px;color:var(--muted);margin-top:12px;text-align:center">Connect an MCP server to extend ERGIO</div>
-  `;
-  document.body.appendChild(popup);
-  setTimeout(() => {
-    document.addEventListener('click', function closeMcpPicker(e) {
-      if (!popup.contains(e.target) && e.target !== btn) {
-        popup.remove();
-        document.removeEventListener('click', closeMcpPicker);
-      }
-    });
-  }, 100);
-}
   } catch {}
 }
 
@@ -3526,8 +2875,7 @@ window.addEventListener('load', () => {
 
 </script>
 
-  <script src="guide-widget.js"></script>
-<script>
+  <script src="guide-widget.js">
 // ===== MOBILE WEB BUILDER ENHANCEMENT SCRIPT =====
 // All mobile-specific touch, gesture, performance, and stability improvements
 
@@ -4445,160 +3793,6 @@ window.addEventListener('load', () => {
   
 })();
 
-
-// ===== DESIGN LINTER =====
-let lastLinterResult = null;
-let currentBuildHtml = null;
-
-function handleLinterEvent(data) {
-  lastLinterResult = data;
-  showLinterBadge(data.score, data.grade);
-  // Store linter score in buildData for dashboard
-  buildData = buildData || {};
-  buildData.linterScore = data.score;
-  buildData.linterGrade = data.grade;
-
-  // Show Fix Layout button if there are issues
-  const hasFixable = data.issues && data.issues.some(i => i.severity === 'error' || i.severity === 'warn');
-  const fixBtn = document.getElementById('fixLayoutBtn');
-  if (hasFixable) {
-    fixBtn.style.display = 'flex';
-    fixBtn.title = data.summary.errors + ' errors, ' + data.summary.warnings + ' warnings — click to auto-fix';
-  }
-}
-
-function showLinterBadge(score, grade) {
-  const badge = document.getElementById('linterBadge');
-  const gradeEl = document.getElementById('linterGrade');
-  const scoreEl = document.getElementById('linterScore');
-  const linterBtn = document.getElementById('linterBtn');
-
-  badge.style.display = 'flex';
-  linterBtn.style.display = 'flex';
-  badge.className = 'grade-' + grade;
-  gradeEl.textContent = grade;
-  scoreEl.textContent = score + '/100';
-}
-
-function runLinter() {
-  const panel = document.getElementById('linterPanel');
-  if (panel.style.display === 'block' && !lastLinterResult) {
-    panel.style.display = 'none';
-    return;
-  }
-
-  if (!lastLinterResult) {
-    // Run linter by fetching from API
-    if (!currentBuildHtml) {
-      const iframe = document.getElementById('previewIframe');
-      if (iframe && iframe.contentDocument) {
-        currentBuildHtml = '<!DOCTYPE html>\n' + iframe.contentDocument.documentElement.outerHTML;
-      }
-    }
-    if (!currentBuildHtml) return;
-
-    fetch('/api/refine', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ instruction: 'run linter only', currentHtml: currentBuildHtml, mode: 'lint' })
-    }).then(r => r.json()).then(data => {
-      if (data.linter) {
-        lastLinterResult = data.linter;
-        showLinterBadge(data.linter.score, data.linter.grade);
-        renderLinterPanel(data.linter);
-      }
-    }).catch(e => console.error('Linter fetch error:', e));
-  } else {
-    renderLinterPanel(lastLinterResult);
-  }
-
-  panel.style.display = 'block';
-}
-
-function renderLinterPanel(result) {
-  const content = document.getElementById('linterContent');
-  let html = '<div style="margin-bottom:12px;color:#888;font-size:12px;">' +
-    result.summary.passed + ' passed · ' + result.summary.errors + ' errors · ' +
-    result.summary.warnings + ' warnings · ' + result.summary.info + ' tips</div>';
-
-  if (result.issues && result.issues.length) {
-    html += '<div style="font-weight:600;color:#fff;margin-bottom:8px;">Issues:</div>';
-    result.issues.forEach(issue => {
-      const icon = issue.severity === 'error' ? '❌' : issue.severity === 'warn' ? '⚠️' : '💡';
-      html += '<div class="linter-issue"><span>' + icon + '</span><span class="severity-' + issue.severity + '">' + issue.message + '</span></div>';
-    });
-  }
-
-  if (result.passes && result.passes.length) {
-    html += '<div style="font-weight:600;color:#fff;margin:10px 0 6px;">Passing:</div>';
-    result.passes.forEach(p => {
-      html += '<div class="linter-pass">✓ ' + p + '</div>';
-    });
-  }
-
-  content.innerHTML = html;
-}
-
-async function fixLayout() {
-  const btn = document.getElementById('fixLayoutBtn');
-  btn.textContent = '⏳ Fixing...';
-  btn.disabled = true;
-
-  try {
-    const iframe = document.getElementById('previewIframe');
-    let html = currentBuildHtml;
-    if (!html && iframe && iframe.contentDocument) {
-      html = '<!DOCTYPE html>\n' + iframe.contentDocument.documentElement.outerHTML;
-    }
-    if (!html) { btn.textContent = '🔧 Fix Layout'; btn.disabled = false; return; }
-
-    const resp = await fetch('/api/refine', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        instruction: 'Fix all layout issues: ensure proper spacing, alignment, responsive design, and visual consistency. Add any missing meta tags, alt text, and semantic HTML.',
-        currentHtml: html,
-        businessName: (window.buildData && window.buildData.plan && window.buildData.plan.businessName) || 'Business',
-        mode: 'fix-layout'
-      })
-    });
-
-    const data = await resp.json();
-
-    if (data.success && data.html) {
-      currentBuildHtml = data.html;
-      if (iframe && iframe.contentDocument) {
-        iframe.contentDocument.open();
-        iframe.contentDocument.write(data.html);
-        iframe.contentDocument.close();
-      }
-
-      // Re-run linter on fixed HTML
-      const lintResp = await fetch('/api/refine', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ instruction: 'run linter only', currentHtml: data.html, mode: 'lint' })
-      });
-      const lintData = await lintResp.json();
-      if (lintData.linter) {
-        lastLinterResult = lintData.linter;
-        showLinterBadge(lintData.linter.score, lintData.linter.grade);
-        renderLinterPanel(lintData.linter);
-      }
-
-      btn.textContent = '✅ Fixed';
-      setTimeout(() => { btn.textContent = '🔧 Fix Layout'; btn.disabled = false; }, 2000);
-    } else {
-      btn.textContent = '❌ Failed';
-      setTimeout(() => { btn.textContent = '🔧 Fix Layout'; btn.disabled = false; }, 2000);
-    }
-  } catch(e) {
-    console.error('Fix layout error:', e);
-    btn.textContent = '❌ Error';
-    setTimeout(() => { btn.textContent = '🔧 Fix Layout'; btn.disabled = false; }, 2000);
-  }
-}
-// ===== END DESIGN LINTER =====
 </script>
 </body>
 </html>

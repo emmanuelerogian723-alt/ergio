@@ -16,75 +16,20 @@
       min-height: 100vh;
       overflow: hidden;
     }
-    .loader {
-      text-align: center;
-      padding: 2rem;
-    }
-    .logo {
-      font-size: 1.5rem;
-      font-weight: 900;
-      color: #00D9FF;
-      letter-spacing: -0.04em;
-      margin-bottom: 2rem;
-      opacity: 0;
-      animation: fadeIn .4s .2s forwards;
-    }
-    .spinner-wrap {
-      position: relative;
-      width: 60px;
-      height: 60px;
-      margin: 0 auto 1.5rem;
-    }
-    .spinner {
-      width: 60px;
-      height: 60px;
-      border: 2px solid rgba(0,217,255,.1);
-      border-top-color: #00D9FF;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    .spinner-inner {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 1.4rem;
-    }
+    .loader { text-align: center; padding: 2rem; }
+    .logo { font-size: 1.5rem; font-weight: 900; color: #00D9FF; letter-spacing: -0.04em; margin-bottom: 2rem; }
+    .spinner-wrap { position: relative; width: 60px; height: 60px; margin: 0 auto 1.5rem; }
+    .spinner { width: 60px; height: 60px; border: 2px solid rgba(0,217,255,.1); border-top-color: #00D9FF; border-radius: 50%; animation: spin 1s linear infinite; }
+    .spinner-inner { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.4rem; }
     @keyframes spin { to { transform: rotate(360deg) } }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: translateY(0) } }
-    .msg {
-      color: #64748b;
-      font-size: .9rem;
-      margin-top: .5rem;
-      opacity: 0;
-      animation: fadeIn .4s .4s forwards;
-    }
-    .site-name {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #e2e8f0;
-      margin-bottom: .3rem;
-      opacity: 0;
-      animation: fadeIn .4s .6s forwards;
-    }
-    .error-wrap {
-      text-align: center;
-      padding: 2rem;
-      max-width: 480px;
-    }
+    .msg { color: #64748b; font-size: .9rem; margin-top: .5rem; }
+    .site-name { font-size: 1.2rem; font-weight: 700; color: #e2e8f0; margin-bottom: .3rem; }
+    .error-wrap { text-align: center; padding: 2rem; max-width: 480px; }
     .error-icon { font-size: 3rem; margin-bottom: 1rem; }
     .error-title { font-size: 1.5rem; font-weight: 700; margin-bottom: .5rem; color: #f1f5f9; }
     .error-msg { color: #64748b; font-size: .9rem; line-height: 1.6; margin-bottom: 1.5rem; }
-    .error-btn {
-      display: inline-block;
-      padding: .8rem 2rem;
-      background: linear-gradient(135deg, #00D9FF, #2563FF);
-      color: #fff;
-      border-radius: 100px;
-      font-weight: 700;
-      text-decoration: none;
-      font-size: .9rem;
-    }
+    .error-btn { display: inline-block; padding: .8rem 2rem; background: linear-gradient(135deg, #00D9FF, #2563FF); color: #fff; border-radius: 100px; font-weight: 700; text-decoration: none; font-size: .9rem; }
   </style>
 </head>
 <body>
@@ -99,10 +44,9 @@
   </div>
 
   <script>
-    // ── Extract slug from path ──
-    // /s/business-slug or /site/business-slug
+    // ── Extract slug from path: /s/business-slug or /site/business-slug ──
     const path = window.location.pathname;
-    const slugMatch = path.match(/\/(?:s|site)\/([^\/\?#]+)/);
+    const slugMatch = path.match(/\/(?:s|site)\/([^\/?#]+)/);
     const slug = slugMatch ? slugMatch[1] : null;
 
     if (!slug) {
@@ -114,34 +58,27 @@
           <a href="https://ergio.vercel.app" class="error-btn">🚀 Build Your Website</a>
         </div>`;
     } else {
-      // Update display name
       const displayName = decodeURIComponent(slug).replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
       document.getElementById('siteName').textContent = displayName;
       document.title = displayName + ' — ERGIO';
 
-      // First try: localStorage (if deployed from the same browser)
+      // Step 1: Try localStorage (works if deployed from the same browser)
       const savedSites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
-      const localSite = savedSites.find(s => s.id === slug || s.slug === slug ||
-        (s.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-') === slug);
-      
+      const localSite = savedSites.find(s =>
+        s.id === slug || s.slug === slug ||
+        (s.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-') === slug
+      );
+
       if (localSite && localSite.html) {
-        // Serve from localStorage immediately
         serveHTML(localSite.html);
       } else {
-        // Try the API — first as HTML, then as JSON fallback
+        // Step 2: Fetch from the API
         fetch(`/api/site?slug=${encodeURIComponent(slug)}`, {
           headers: { 'Accept': 'text/html' }
         })
         .then(res => {
           if (!res.ok) throw new Error('Not found');
-          const ct = res.headers.get('content-type') || '';
-          if (ct.includes('text/html')) return res.text();
-          // JSON response — extract html field
-          return res.json().then(data => {
-            if (data.site) return null; // metadata only, no html
-            if (data.html) return data.html;
-            throw new Error('No HTML in response');
-          });
+          return res.text();
         })
         .then(html => {
           if (html && html.length > 100) {
@@ -156,9 +93,9 @@
               <div class="error-icon">🔧</div>
               <div class="error-title">Website not deployed yet</div>
               <div class="error-msg">
-                The website for <strong>${displayName}</strong> hasn't been deployed yet, or the Supabase database isn't configured.
+                The website for <strong>${displayName}</strong> hasn't been deployed yet, or the database isn't configured.
                 <br><br>
-                To deploy: go to the builder → click <strong>Deploy</strong> → choose <strong>ERGIO Subdomain</strong>.
+                To deploy: go to the builder → click <strong>Deploy</strong> → choose <strong>ERGIO Hosting</strong>.
               </div>
               <a href="https://ergio.vercel.app/build.html" class="error-btn">🏗️ Go to Builder</a>
             </div>`;
