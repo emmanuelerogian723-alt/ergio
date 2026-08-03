@@ -154,8 +154,7 @@
     position: relative;
   }
   .preview-frame iframe {
-    width: 100%; height: 100%; border: none; display: block;
-    min-height: 100%;
+    width: 100%; height: 100%; border: none; display: block; min-height: max(600px, 100%);
   }
   .preview-frame.mobile iframe {
     border-radius: 20px;
@@ -1979,7 +1978,7 @@ function showPreview(html, title = 'Preview') {
   empty.style.display = 'none';
   iframe.style.display = 'block';
   
-  // Use srcdoc for reliable rendering (doc.write can fail silently in sandboxed iframes)
+  // Use srcdoc for reliable rendering (doc.write races with srcdoc and can blank the iframe)
   iframe.onload = function() {
     try {
       const doc = iframe.contentDocument || iframe.contentWindow.document;
@@ -1994,20 +1993,17 @@ function showPreview(html, title = 'Preview') {
         }
       }
     } catch(e) {}
+    // Ensure empty state stays hidden after load
+    empty.style.display = 'none';
   };
   iframe.srcdoc = html;
   
-  // Fallback: also try doc.write in case srcdoc isn't supported
-  try {
-    const doc = iframe.contentDocument || iframe.contentWindow.document;
-    if (doc) {
-      doc.open();
-      doc.write(html);
-      doc.close();
+  // Safety: if onload doesn't fire (rare), hide empty after 2s
+  setTimeout(function() {
+    if (iframe.srcdoc) {
+      empty.style.display = 'none';
     }
-  } catch(e) {
-    // srcdoc already handles it
-  }
+  }, 2000);
   
   currentHTML = html;
   
