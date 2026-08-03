@@ -1150,6 +1150,18 @@
       </div>
       <div class="auto-save-indicator" id="autoSaveIndicator"><span id="autoSaveText">Saving...</span></div>
       <div class="preview-actions">
+        <button class="edit-mode-btn" id="fixLayoutBtn" onclick="oneClickFix()" title="Auto-fix spacing, alignment, and layout issues" style="padding:6px 12px;border-radius:8px;font-size:12px;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px">
+          🔧 Fix Layout
+        </button>
+        <button class="edit-mode-btn" id="polishBtn" onclick="polishWebsite()" title="AI-polish: improve colors, fonts, spacing, and overall design" style="padding:6px 12px;border-radius:8px;font-size:12px;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px">
+          ✨ Polish
+        </button>
+        <button class="edit-mode-btn" id="addSectionBtn" onclick="addSectionFromLibrary()" title="Add a professionally designed section to your website" style="padding:6px 12px;border-radius:8px;font-size:12px;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px">
+          ➕ Section
+        </button>
+        <button class="edit-mode-btn" id="linterBtn" onclick="runDesignLinter(currentHTML)" title="Check design quality: contrast, accessibility, SEO" style="padding:6px 12px;border-radius:8px;font-size:12px;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px">
+          📊 Score
+        </button>
         <button class="edit-mode-btn" id="editModeBtn" onclick="toggleEditMode()" title="Click any element on the preview to edit it" style="padding:6px 12px;border-radius:8px;font-size:12px;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px">
           🎯 Point-to-Edit
         </button>
@@ -1787,7 +1799,7 @@ async function buildWebsite(prompt) {
     const response = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({ prompt, uploadedImages: getUploadedPhotoDataUrls() })
     });
     
     if (!response.ok) throw new Error('Generation failed: ' + response.status);
@@ -1989,7 +2001,7 @@ function showPreview(html, title = 'Preview') {
 }
 
 async function refineWebsite(prompt) {
-  if (!currentHTML) {
+  if (!currentHTML || currentHTML.length < 50) {
     addMessage('ai', 'No website built yet! Describe your business first and I will build it.');
     return;
   }
@@ -1997,34 +2009,391 @@ async function refineWebsite(prompt) {
   isBuilding = true;
   document.getElementById('sendBtn').disabled = true;
   
-  const thinkingMsg = addMessage('ai', '🔄 Refining your website...');
+  const bizName = (buildData && buildData.businessName) || 
+                  document.getElementById('projectNameText')?.textContent || 
+                  'Your Business';
+  
+  const thinkingMsg = addMessage('ai', '\u{1F504} Refining your website...');
   
   try {
     const res = await fetch('/api/refine', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, currentHtml: currentHTML.substring(0, 8000) })
+      body: JSON.stringify({ 
+        instruction: prompt,
+        currentHtml: currentHTML.substring(0, 50000),
+        businessName: bizName,
+        uploadedImages: getUploadedPhotoDataUrls()
+      })
     });
     
-    if (!res.ok) throw new Error('Refine failed');
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || 'Refine failed (' + res.status + ')');
+    }
     
     const result = await res.json();
-    const newHtml = result.html || result.data?.html;
+    const newHtml = result.html;
     
-    if (newHtml) {
-      showPreview(newHtml);
+    if (newHtml && newHtml.length > 50 && newHtml.includes('<')) {
+      currentHTML = newHtml;
+      showPreview(newHtml, bizName);
       addVersion('edit', prompt.substring(0, 30));
-      thinkingMsg.querySelector('.msg-bubble').textContent = '✅ Done! ' + (result.summary || 'Website updated.');
+      scheduleAutoSave();
+      
+      setTimeout(function() { runDesignLinter(currentHTML); }, 1500);
+      
+      thinkingMsg.querySelector('.msg-bubble').textContent = '\u2705 Done! ' + (result.message || 'Website updated.');
       toast('Website updated!', 'success');
     } else {
-      thinkingMsg.querySelector('.msg-bubble').textContent = '⚠️ Could not apply that change. Try being more specific.';
+      thinkingMsg.querySelector('.msg-bubble').textContent = '\u26A0\uFE0F Could not apply that change. Try being more specific.';
     }
   } catch (err) {
-    thinkingMsg.querySelector('.msg-bubble').textContent = '❌ Refine failed. Please try again.';
+    console.error('Refine error:', err);
+    thinkingMsg.querySelector('.msg-bubble').textContent = '\u274C ' + (err.message || 'Refine failed. Please try again.');
   }
   
   isBuilding = false;
   document.getElementById('sendBtn').disabled = false;
+}
+
+
+// ===== PHOTO UPLOAD SYSTEM =====
+let uploadedPhotos = [];
+
+function getUploadedPhotoDataUrls() {
+  return uploadedPhotos.map(p => p.dataUrl);
+}
+
+function handleFileAttach(input) {
+  const files = input.files;
+  if (!files || files.length === 0) return;
+  
+  Array.from(files).forEach(file => {
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        uploadedPhotos.push({
+          name: file.name,
+          dataUrl: e.target.result,
+          size: file.size
+        });
+        showPhotoPreview();
+        toast('Photo uploaded: ' + file.name, 'success');
+      };
+      reader.readAsDataURL(file);
+    } else {
+      toast('Only image files are supported for website building', 'info');
+    }
+  });
+  
+  input.value = '';
+}
+
+function showPhotoPreview() {
+  let container = document.getElementById('photoPreviewContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'photoPreviewContainer';
+    container.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;padding:8px 12px;border-bottom:1px solid var(--border);';
+    const inputArea = document.querySelector('.input-area') || document.getElementById('promptInput')?.parentElement;
+    if (inputArea) inputArea.parentElement.insertBefore(container, inputArea);
+  }
+  
+  container.innerHTML = uploadedPhotos.map((p, i) => 
+    '<div style="position:relative;width:50px;height:50px;border-radius:8px;overflow:hidden;border:1px solid var(--border)">' +
+    '<img src="' + p.dataUrl + '" style="width:100%;height:100%;object-fit:cover">' +
+    '<button onclick="removePhoto(' + i + ')" style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(0,0,0,0.7);color:#fff;border:none;cursor:pointer;font-size:10px;line-height:1">\u2715</button>' +
+    '</div>'
+  ).join('');
+}
+
+function removePhoto(index) {
+  uploadedPhotos.splice(index, 1);
+  showPhotoPreview();
+}
+
+// ===== ONE-CLICK FIX LAYOUT =====
+async function oneClickFix() {
+  if (!currentHTML || currentHTML.length < 50) {
+    toast('Build a website first, then use Fix Layout', 'info');
+    return;
+  }
+  
+  const btn = document.getElementById('fixLayoutBtn');
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '⏳ Fixing...';
+  btn.disabled = true;
+  
+  const bizName = (buildData && buildData.businessName) || 'Your Business';
+  
+  try {
+    const res = await fetch('/api/refine', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        mode: 'fix-layout',
+        currentHtml: currentHTML,
+        businessName: bizName
+      })
+    });
+    
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || 'Fix layout failed (' + res.status + ')');
+    }
+    
+    const result = await res.json();
+    
+    if (result.html && result.html.length > 50) {
+      currentHTML = result.html;
+      showPreview(result.html, bizName);
+      addVersion('fix', 'Auto-fix layout');
+      scheduleAutoSave();
+      
+      const scoreMsg = result.linterBefore && result.linter 
+        ? ' Score: ' + result.linterBefore.score + ' \u2192 ' + result.linter.score + ' (' + result.linter.grade + ')'
+        : '';
+      
+      toast('Layout fixed!' + scoreMsg, 'success');
+      
+      // Update linter display
+      if (result.linter) {
+        showLinterResult(result.linter);
+      }
+    } else {
+      toast('No layout issues found to fix', 'info');
+    }
+  } catch (err) {
+    console.error('Fix Layout error:', err);
+    toast('Fix Layout failed: ' + (err.message || 'try again'), 'error');
+  } finally {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  }
+}
+
+// ===== POLISH WEBSITE =====
+async function polishWebsite() {
+  if (!currentHTML || currentHTML.length < 50) {
+    toast('Build a website first, then use Polish', 'info');
+    return;
+  }
+  
+  const btn = document.getElementById('polishBtn');
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '⏳ Polishing...';
+  btn.disabled = true;
+  
+  const bizName = (buildData && buildData.businessName) || 'Your Business';
+  const thinkingMsg = addMessage('ai', '\u2728 Polishing your website...');
+  
+  try {
+    const res = await fetch('/api/refine', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        instruction: 'Polish this website: improve visual hierarchy, spacing, color harmony, font choices, button styles, shadows, transitions, and overall professional appearance. Make it look premium and modern. Keep all content the same.',
+        currentHtml: currentHTML.substring(0, 50000),
+        businessName: bizName,
+        mode: 'style'
+      })
+    });
+    
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || 'Polish failed');
+    }
+    
+    const result = await res.json();
+    
+    if (result.html && result.html.length > 50) {
+      currentHTML = result.html;
+      showPreview(result.html, bizName);
+      addVersion('polish', 'AI polish');
+      scheduleAutoSave();
+      
+      setTimeout(function() { runDesignLinter(currentHTML); }, 1500);
+      
+      thinkingMsg.querySelector('.msg-bubble').textContent = '\u2705 Polish complete! Your website looks more premium now.';
+      toast('Website polished!', 'success');
+    } else {
+      thinkingMsg.querySelector('.msg-bubble').textContent = '\u26A0\uFE0F Polish could not be applied. Try again.';
+    }
+  } catch (err) {
+    thinkingMsg.querySelector('.msg-bubble').textContent = '\u274C Polish failed: ' + (err.message || 'try again');
+  } finally {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  }
+}
+
+// ===== ADD SECTION FROM LIBRARY =====
+async function addSectionFromLibrary() {
+  if (!currentHTML || currentHTML.length < 50) {
+    toast('Build a website first, then add sections', 'info');
+    return;
+  }
+  
+  const sections = [
+    { name: 'Hero', icon: '\u{1F3AF}', desc: 'Big headline + CTA' },
+    { name: 'Services', icon: '\u{1F4CB}', desc: 'Service cards grid' },
+    { name: 'About', icon: '\u2139}\uFE0F', desc: 'Company story' },
+    { name: 'Testimonials', icon: '\u2B50', desc: 'Customer reviews' },
+    { name: 'Gallery', icon: '\u{1F4F7}', desc: 'Image gallery' },
+    { name: 'Pricing', icon: '\u{1F4B0}', desc: 'Pricing plans' },
+    { name: 'FAQ', icon: '\u2753', desc: 'Q&A accordion' },
+    { name: 'Contact', icon: '\u{1F4E7}', desc: 'Contact form + map' },
+    { name: 'Stats', icon: '\u{1F4CA}', desc: 'Numbers counters' },
+    { name: 'Process', icon: '\u{1F4DD}', desc: 'How it works steps' },
+    { name: 'CTA', icon: '\u{1F680}', desc: 'Call to action banner' },
+    { name: 'Team', icon: '\u{1F465}', desc: 'Team members' }
+  ];
+  
+  // Create modal
+  let modal = document.getElementById('sectionPickerModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'sectionPickerModal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+    document.body.appendChild(modal);
+  }
+  
+  modal.innerHTML = 
+    '<div style="background:var(--sidebar);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:500px;width:100%;max-height:80vh;overflow-y:auto">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">' +
+    '<h3 style="color:var(--text);font-size:18px">Add a Section</h3>' +
+    '<button onclick="document.getElementById(\'sectionPickerModal\').style.display=\'none\'" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer">\u2715</button>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">' +
+    sections.map(s => 
+      '<div onclick="insertSection(\''+ s.name +'\')" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:all 0.2s;display:flex;flex-direction:column;gap:4px" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\'">' +
+      '<div style="font-size:24px">' + s.icon + '</div>' +
+      '<div style="font-size:13px;font-weight:600;color:var(--text)">' + s.name + '</div>' +
+      '<div style="font-size:11px;color:var(--muted)">' + s.desc + '</div>' +
+      '</div>'
+    ).join('') +
+    '</div></div>';
+  
+  modal.style.display = 'flex';
+}
+
+async function insertSection(sectionName) {
+  document.getElementById('sectionPickerModal').style.display = 'none';
+  
+  if (!currentHTML) { toast('Build a website first', 'info'); return; }
+  
+  const bizName = (buildData && buildData.businessName) || 'Your Business';
+  const thinkingMsg = addMessage('ai', '\u2795 Adding ' + sectionName + ' section...');
+  
+  try {
+    const res = await fetch('/api/refine', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        instruction: 'Add a professional ' + sectionName + ' section to this website. Make it match the existing design style, colors, and fonts. Place it before the footer. Include realistic ' + (bizName !== 'Your Business' ? bizName + ' ' : '') + 'content for a ' + sectionName + ' section. Return the complete HTML with the new section added.',
+        currentHtml: currentHTML.substring(0, 50000),
+        businessName: bizName,
+        mode: 'add'
+      })
+    });
+    
+    if (!res.ok) throw new Error('Add section failed');
+    
+    const result = await res.json();
+    
+    if (result.html && result.html.length > 50) {
+      currentHTML = result.html;
+      showPreview(result.html, bizName);
+      addVersion('add', 'Added ' + sectionName);
+      scheduleAutoSave();
+      
+      thinkingMsg.querySelector('.msg-bubble').textContent = '\u2705 ' + sectionName + ' section added!';
+      toast(sectionName + ' section added!', 'success');
+      
+      setTimeout(function() { runDesignLinter(currentHTML); }, 1500);
+    } else {
+      thinkingMsg.querySelector('.msg-bubble').textContent = '\u26A0\uFE0F Could not add section. Try again.';
+    }
+  } catch (err) {
+    thinkingMsg.querySelector('.msg-bubble').textContent = '\u274C Failed to add section: ' + (err.message || 'try again');
+  }
+}
+
+// ===== DESIGN LINTER (Score) =====
+async function runDesignLinter(html) {
+  if (!html || html.length < 50) { toast('Build a website first to score it', 'info'); return; }
+  
+  const bizName = (buildData && buildData.businessName) || 'Your Business';
+  const btn = document.getElementById('linterBtn');
+  
+  if (btn) {
+    btn.innerHTML = '⏳ Scoring...';
+    btn.disabled = true;
+  }
+  
+  try {
+    const res = await fetch('/api/refine', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        mode: 'lint',
+        currentHtml: html,
+        businessName: bizName
+      })
+    });
+    
+    if (!res.ok) throw new Error('Lint failed');
+    
+    const result = await res.json();
+    
+    if (result.linter) {
+      showLinterResult(result.linter);
+    }
+  } catch (err) {
+    console.error('Linter error:', err);
+    toast('Could not score website', 'error');
+  } finally {
+    if (btn) {
+      btn.innerHTML = '📊 Score';
+      btn.disabled = false;
+    }
+  }
+}
+
+function showLinterResult(linter) {
+  // Update the Score button to show the score
+  const btn = document.getElementById('linterBtn');
+  if (btn) {
+    const gradeColor = linter.score >= 80 ? 'var(--green)' : linter.score >= 60 ? 'var(--accent)' : 'var(--red)';
+    btn.innerHTML = '📊 ' + linter.score + '/100 (' + linter.grade + ')';
+    btn.style.color = gradeColor;
+    btn.style.borderColor = gradeColor;
+  }
+  
+  // Show toast with details
+  const summary = linter.summary || {};
+  const details = 
+    'Score: ' + linter.score + '/100 (Grade ' + linter.grade + ')\n' +
+    '\u2705 ' + summary.passed + ' checks passed\n' +
+    '\u26A0\uFE0F ' + summary.warnings + ' warnings\n' +
+    '\u274C ' + summary.errors + ' errors';
+  
+  toast(details, linter.score >= 70 ? 'success' : 'info');
+  
+  // Add a chat message with full details
+  if (linter.issues && linter.issues.length > 0) {
+    const issueList = linter.issues.slice(0, 5).map(i => 
+      (i.severity === 'error' ? '\u274C' : i.severity === 'warn' ? '\u26A0\uFE0F' : '\u2139}\uFE0F') + ' ' + i.message
+    ).join('\n');
+    
+    addMessage('ai', '📊 *Design Quality Report*\n\nScore: ' + linter.score + '/100 (Grade ' + linter.grade + ')\n\n' +
+      '*Issues found:*\n' + issueList +
+      (linter.issues.length > 5 ? '\n...and ' + (linter.issues.length - 5) + ' more' : '') +
+      '\n\n*Passed:* ' + (linter.passes || []).slice(0, 3).join(', '));
+  } else if (linter.passes && linter.passes.length > 0) {
+    addMessage('ai', '📊 *Design Quality: ' + linter.score + '/100 (Grade ' + linter.grade + ')*\n\nAll checks passed! Your website looks great. \u{1F389}');
+  }
 }
 
 function addVersion(name, desc) {

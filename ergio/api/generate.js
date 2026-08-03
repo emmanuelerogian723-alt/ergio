@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return error(res, 'Use POST', 405);
 
   try {
-    const { prompt, answers } = req.body;
+    const { prompt, answers, uploadedImages } = req.body;
     if (!prompt) return error(res, 'Prompt is required', 400);
 
     // Set up SSE streaming
@@ -330,6 +330,16 @@ Return JSON:
       }
     });
     
+    // ── Override with user-uploaded photos if available ──
+    if (uploadedImages && uploadedImages.length > 0) {
+      console.log(`Using ${uploadedImages.length} user-uploaded photos`);
+      if (uploadedImages[0]) images.hero = [{ url: uploadedImages[0], source: 'user-upload' }];
+      if (uploadedImages[1]) images.about = [{ url: uploadedImages[1], source: 'user-upload' }];
+      if (uploadedImages.length > 2) {
+        images.gallery = uploadedImages.slice(2).map(url => ({ url, source: 'user-upload' }));
+      }
+    }
+
     // Count found images
     const totalImages = Object.values(images).reduce((sum, arr) => sum + arr.length, 0);
     send('images', { 

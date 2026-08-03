@@ -32,8 +32,8 @@ window.ERGIO_CONFIG = {
   paystackPublicKey: 'pk_live_b73d27d70e64ebb36f0523cb5754e77deba9080b',
   
   // AI Models
-  primaryModel: 'llama-3.3-70b-versatile',
-  fallbackModel: 'llama-3.1-8b-instant',
+  primaryModel: 'openai/gpt-oss-120b',
+  fallbackModel: 'openai/gpt-oss-20b',
   
   // Open-Source Engines
   engines: {

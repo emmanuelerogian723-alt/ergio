@@ -35,7 +35,7 @@ export default async function handler(req, res) {
         engines: {
           'Jan AI': { status: 'available', description: 'Open-source local LLM runner (OpenAI-compatible API)' },
           'Stable Diffusion': { status: 'available', description: 'Image generation via Pollinations (Flux model, no API key)' },
-          'Gemma': { status: 'available', description: 'Google open-source model via Groq (gemma2-9b-it)' },
+          'Gemma': { status: 'available', description: 'Google open-source model via Groq (openai/gpt-oss-20b)' },
           'Llama 3.3 70B': { status: 'available', description: 'Meta open-source model via Groq' },
           'OSM Nominatim': { status: 'available', description: 'Free geocoding from OpenStreetMap' },
           'SearXNG': { status: 'available', description: 'Meta search engine aggregating 70+ search engines' },
@@ -80,7 +80,7 @@ async function handleJanAI(req, res) {
   if (!prompt) return res.status(400).json({ error: 'prompt is required' });
   
   const apiUrl = janApiUrl || process.env.JAN_API_URL || 'http://localhost:1337/v1/chat/completions';
-  const selectedModel = model || process.env.JAN_DEFAULT_MODEL || 'llama-3.1-8b-instruct';
+  const selectedModel = model || process.env.JAN_DEFAULT_MODEL || 'openai/gpt-oss-20b';
   
   try {
     const response = await fetch(apiUrl, {
@@ -98,7 +98,7 @@ async function handleJanAI(req, res) {
     });
     
     if (!response.ok) {
-      return await groqFallback(req, res, prompt, systemPrompt, 'gemma2-9b-it');
+      return await groqFallback(req, res, prompt, systemPrompt, 'openai/gpt-oss-20b');
     }
     
     const data = await response.json();
@@ -110,7 +110,7 @@ async function handleJanAI(req, res) {
       local: true,
     });
   } catch (err) {
-    return await groqFallback(req, res, prompt, systemPrompt, 'gemma2-9b-it');
+    return await groqFallback(req, res, prompt, systemPrompt, 'openai/gpt-oss-20b');
   }
 }
 
@@ -166,7 +166,7 @@ async function handleGemma(req, res) {
   
   if (!prompt) return res.status(400).json({ error: 'prompt is required' });
   
-  return await groqFallback(req, res, prompt, systemPrompt, 'gemma2-9b-it');
+  return await groqFallback(req, res, prompt, systemPrompt, 'openai/gpt-oss-20b');
 }
 
 // ============================================
@@ -430,7 +430,7 @@ async function handleCrawl(req, res) {
 // MULTI-MODEL - Run prompt across multiple models
 // ============================================
 async function handleMultiModel(req, res) {
-  const { prompt, systemPrompt, models = ['llama-3.3-70b-versatile', 'gemma2-9b-it', 'llama-3.1-8b-instant'] } = req.body || {};
+  const { prompt, systemPrompt, models = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b', 'openai/gpt-oss-20b'] } = req.body || {};
   
   if (!prompt) return res.status(400).json({ error: 'prompt is required' });
   
@@ -519,13 +519,13 @@ async function groqFallback(req, res, prompt, systemPrompt, model) {
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + groqKey, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: model || 'gemma2-9b-it', messages, temperature: 0.7, max_tokens: 2048 }),
+        body: JSON.stringify({ model: model || 'openai/gpt-oss-20b', messages, temperature: 0.7, max_tokens: 2048 }),
       });
       if (response.ok) {
         const data = await response.json();
         return res.status(200).json({
           engine: 'Groq (fallback for Jan AI)',
-          model: model || 'gemma2-9b-it',
+          model: model || 'openai/gpt-oss-20b',
           content: data.choices?.[0]?.message?.content || '',
           usage: data.usage,
           local: false,
@@ -537,7 +537,7 @@ async function groqFallback(req, res, prompt, systemPrompt, model) {
   // Try OpenRouter second
   if (openrouterKey) {
     try {
-      const orModel = model === 'gemma2-9b-it' ? 'google/gemma-2-9b-it:free' : 'meta-llama/llama-3.3-70b-instruct';
+      const orModel = model === 'openai/gpt-oss-20b' ? 'google/gemma-2-9b-it:free' : 'meta-llama/llama-3.3-70b-instruct';
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + openrouterKey, 'Content-Type': 'application/json', 'HTTP-Referer': 'https://ergio.vercel.app', 'X-Title': 'ERGIO' },

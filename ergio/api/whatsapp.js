@@ -2,7 +2,7 @@ async function callGroq(prompt) {
   const key = process.env.GROQ_API_KEY || process.env.OPENROUTER_API_KEY || '';
   const isOR = !process.env.GROQ_API_KEY;
   const url = isOR ? 'https://openrouter.ai/api/v1/chat/completions' : 'https://api.groq.com/openai/v1/chat/completions';
-  const model = isOR ? 'meta-llama/llama-3.1-8b-instant' : 'llama-3.1-8b-instant';
+  const model = isOR ? 'meta-llama/llama-3.1-8b-instant' : 'openai/gpt-oss-20b';
   const resp = await fetch(url, { method:'POST', headers:{'Authorization':`Bearer ${key}`,'Content-Type':'application/json'}, body: JSON.stringify({ model, messages:[{role:'user',content:prompt}], max_tokens:300, temperature:0.7 }) });
   const d = await resp.json();
   return d.choices?.[0]?.message?.content || '';

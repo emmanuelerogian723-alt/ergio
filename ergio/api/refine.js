@@ -1,32 +1,13 @@
 // ========================================
-// ERGIO API — /api/refine (v2.0 JSON)
-// Surgical website editing — returns clean JSON, NOT SSE
+// ERGIO API — /api/refine (v3.0 JSON)
+// Surgical website editing — returns clean JSON
+// Uses shared lib with multi-provider fallback (Groq → OpenRouter → Pollinations)
 // Also handles Design Linter (mode: 'lint') and auto-fix (mode: 'fix-layout')
-// maxDuration: 60s (set in vercel.json)
 // ========================================
 
+import { callGroq } from '../lib/ergio.js';
 import { lintWebsite, autoFixHtml } from '../lib/design-linter.js';
 
-async function callGroq(messages, maxTokens = 16000) {
-  const key = process.env.GROQ_API_KEY || process.env.OPENROUTER_API_KEY || '';
-  if (!key) throw new Error('No AI API key configured');
-  const isOR = !process.env.GROQ_API_KEY;
-  const url = isOR ? 'https://openrouter.ai/api/v1/chat/completions' : 'https://api.groq.com/openai/v1/chat/completions';
-  const model = isOR ? 'meta-llama/llama-3.3-70b-instruct' : 'llama-3.3-70b-versatile';
-  const resp = await fetch(url, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model, messages, max_tokens: maxTokens, temperature: 0.4 })
-  });
-  if (!resp.ok) {
-    const errText = await resp.text();
-    throw new Error(`AI API error ${resp.status}: ${errText.slice(0, 200)}`);
-  }
-  const d = await resp.json();
-  return d.choices?.[0]?.message?.content || '';
-}
-
-// Surgical edit rules — the AI returns only the changed portion, not the full HTML
 const SURGICAL_SYSTEM_PROMPT = `You are ERGIO's surgical website editor. You make precise, targeted edits to HTML.
 
 RULES:
@@ -45,22 +26,22 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method === 'GET') return res.json({ status: 'ok', service: 'Website Refine v2', mode: 'json' });
+  if (req.method === 'GET') return res.json({ status: 'ok', service: 'Website Refine v3', mode: 'json' });
   if (req.method !== 'POST') return res.status(405).json({ error: 'Use POST' });
 
-  const { instruction, currentHtml, businessName, mode } = req.body;
-
-  if (!instruction) return res.status(400).json({ error: 'Instruction is required' });
+  const { instruction, currentHtml, businessName, mode, editRequest } = req.body;
+  const editInstruction = instruction || editRequest;
+  if (!editInstruction) return res.status(400).json({ error: 'Instruction is required' });
   if (!currentHtml) return res.status(400).json({ error: 'currentHtml is required' });
 
   try {
-    // ── LINT MODE: return linter score without calling AI ──
+    // ── LINT MODE ──
     if (mode === 'lint') {
       const result = lintWebsite(currentHtml, { name: businessName });
       return res.json({ success: true, linter: result });
     }
 
-    // ── FIX-LAYOUT MODE: run auto-fix then AI refine ──
+    // ── FIX-LAYOUT MODE ──
     if (mode === 'fix-layout') {
       const fixedHtml = autoFixHtml(currentHtml, { name: businessName });
       const lintBefore = lintWebsite(currentHtml, { name: businessName });
@@ -76,16 +57,15 @@ export default async function handler(req, res) {
       });
     }
 
-    // Determine edit type from instruction
-    const editType = mode || detectEditType(instruction);
-
+    // ── AI REFINEMENT ──
+    const editType = mode || detectEditType(editInstruction);
     const messages = [
       { role: 'system', content: SURGICAL_SYSTEM_PROMPT },
       {
         role: 'user',
         content: `Business: ${businessName || 'My Business'}
 Edit Type: ${editType}
-Instruction: "${instruction}"
+Instruction: "${editInstruction}"
 
 Current HTML:
 ${currentHtml.slice(0, 50000)}
@@ -94,15 +74,13 @@ Apply the requested change and return the complete updated HTML.`
       }
     ];
 
-    const result = await callGroq(messages, 16000);
+    const result = await callGroq(messages, { maxTokens: 16000, temperature: 0.4, timeout: 55000 });
 
-    // Clean up — strip markdown fences if present
     const cleanHtml = result
       .replace(/```html\s*/gi, '')
       .replace(/```\s*/g, '')
       .trim();
 
-    // Validate we got HTML back
     if (!cleanHtml.includes('<') || !cleanHtml.includes('>')) {
       return res.status(500).json({ error: 'AI did not return valid HTML', raw: result.slice(0, 500) });
     }
@@ -110,7 +88,7 @@ Apply the requested change and return the complete updated HTML.`
     return res.json({
       success: true,
       html: cleanHtml,
-      instruction,
+      instruction: editInstruction,
       editType,
       message: 'Website refined successfully'
     });

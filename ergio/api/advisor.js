@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     ? 'https://api.groq.com/openai/v1/chat/completions'
     : 'https://openrouter.ai/api/v1/chat/completions';
   const AI_KEY = GROQ_KEY || OPENROUTER_KEY;
-  const AI_MODEL = GROQ_KEY ? 'llama-3.3-70b-versatile' : 'meta-llama/llama-3.3-70b-instruct';
+  const AI_MODEL = GROQ_KEY ? 'openai/gpt-oss-120b' : 'meta-llama/llama-3.3-70b-instruct';
 
   try {
     const url = new URL(req.url, `http://${req.headers.host}`);

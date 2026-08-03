@@ -32,7 +32,7 @@ async function getAICompletion(prompt, systemPrompt) {
         ...(isGroq ? {} : { 'HTTP-Referer': 'https://ergio.vercel.app', 'X-Title': 'ERGIO' })
       },
       body: JSON.stringify({
-        model: isGroq ? 'llama-3.3-70b-versatile' : 'meta-llama/llama-3.1-70b-instruct',
+        model: isGroq ? 'openai/gpt-oss-120b' : 'meta-llama/llama-3.1-70b-instruct',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: prompt }
