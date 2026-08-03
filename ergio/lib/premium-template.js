@@ -195,6 +195,11 @@ export function getAnimationJS() {
 
   document.querySelectorAll('.reveal,.reveal-scale,.reveal-left,.reveal-right,.counter').forEach(el => observer.observe(el));
 
+  // Fallback: reveal all elements after 2s (fixes blank page when served via document.write in site.html)
+  setTimeout(() => {
+    document.querySelectorAll('.reveal,.reveal-scale,.reveal-left,.reveal-right,.counter').forEach(el => el.classList.add('active'));
+  }, 2000);
+
   // Nav scroll effect
   const nav = document.querySelector('.nav');
   if (nav) {
