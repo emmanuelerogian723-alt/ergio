@@ -89,21 +89,22 @@ export default async function handler(req, res) {
       // Strategy 4: Fetch recent records and search for slug meta tag in HTML
       if (!data) {
         try {
-          // Try with created_date first, fallback to just id+html
-          let result;
-          try {
-            result = await supabase
-              .from('generated_websites')
-              .select('id, html, created_date')
-              .order('created_date', { ascending: false })
-              .limit(50);
-          } catch (e2) {
+          // Try with created_date first, fallback to just id+html (Supabase returns errors, not throws)
+          let result = await supabase
+            .from('generated_websites')
+            .select('id, html, created_date')
+            .order('created_date', { ascending: false })
+            .limit(50);
+          
+          if (result.error || !result.data) {
+            // Fallback: select without created_date
             result = await supabase
               .from('generated_websites')
               .select('id, html')
               .limit(50);
           }
-          if (result.data) {
+          
+          if (result.data && result.data.length > 0) {
             for (const row of result.data) {
               const htmlSlug = extractSlugFromHtml(row.html);
               if (htmlSlug === slug) {
@@ -123,21 +124,19 @@ export default async function handler(req, res) {
               }
             }
           }
-        } catch (e) {}
+        } catch (e) { console.error('[site] Strategy 4 error:', e.message); }
       }
 
-      // Strategy 5: Last resort — return most recent website (try with/without created_date)
+      // Strategy 5: Last resort — return most recent website
       if (!data) {
         try {
-          let result;
-          try {
-            result = await supabase
-              .from('generated_websites')
-              .select('*')
-              .order('created_date', { ascending: false })
-              .limit(1)
-              .single();
-          } catch (e2) {
+          let result = await supabase
+            .from('generated_websites')
+            .select('*')
+            .order('created_date', { ascending: false })
+            .limit(1)
+            .single();
+          if (result.error || !result.data) {
             result = await supabase
               .from('generated_websites')
               .select('*')
@@ -224,15 +223,13 @@ export default async function handler(req, res) {
         else {
           // Get the record ID (try with created_date, fallback without)
           try {
-            let recentResult;
-            try {
-              recentResult = await supabase
-                .from('generated_websites')
-                .select('id')
-                .order('created_date', { ascending: false })
-                .limit(1)
-                .single();
-            } catch (e2) {
+            let recentResult = await supabase
+              .from('generated_websites')
+              .select('id')
+              .order('created_date', { ascending: false })
+              .limit(1)
+              .single();
+            if (recentResult.error || !recentResult.data) {
               recentResult = await supabase
                 .from('generated_websites')
                 .select('id')
