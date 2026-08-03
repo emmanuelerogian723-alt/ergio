@@ -2033,7 +2033,7 @@ async function refineWebsite(prompt) {
     }
     
     const result = await res.json();
-    const newHtml = result.html;
+    const newHtml = result.data?.html || result.html;
     
     if (newHtml && newHtml.length > 50 && newHtml.includes('<')) {
       currentHTML = newHtml;
@@ -2144,14 +2144,15 @@ async function oneClickFix() {
     }
     
     const result = await res.json();
+    const rData = result.data || result;
     
-    if (result.html && result.html.length > 50) {
-      currentHTML = result.html;
-      showPreview(result.html, bizName);
+    if (rData.html && rData.html.length > 50) {
+      currentHTML = rData.html;
+      showPreview(rData.html, bizName);
       addVersion('fix', 'Auto-fix layout');
       scheduleAutoSave();
       
-      const scoreMsg = result.linterBefore && result.linter 
+      const scoreMsg = rData.linterBefore && rData.linter 
         ? ' Score: ' + result.linterBefore.score + ' \u2192 ' + result.linter.score + ' (' + result.linter.grade + ')'
         : '';
       
@@ -2206,10 +2207,11 @@ async function polishWebsite() {
     }
     
     const result = await res.json();
+    const rData = result.data || result;
     
-    if (result.html && result.html.length > 50) {
-      currentHTML = result.html;
-      showPreview(result.html, bizName);
+    if (rData.html && rData.html.length > 50) {
+      currentHTML = rData.html;
+      showPreview(rData.html, bizName);
       addVersion('polish', 'AI polish');
       scheduleAutoSave();
       
@@ -2301,10 +2303,11 @@ async function insertSection(sectionName) {
     if (!res.ok) throw new Error('Add section failed');
     
     const result = await res.json();
+    const rData = result.data || result;
     
-    if (result.html && result.html.length > 50) {
-      currentHTML = result.html;
-      showPreview(result.html, bizName);
+    if (rData.html && rData.html.length > 50) {
+      currentHTML = rData.html;
+      showPreview(rData.html, bizName);
       addVersion('add', 'Added ' + sectionName);
       scheduleAutoSave();
       
@@ -2346,9 +2349,10 @@ async function runDesignLinter(html) {
     if (!res.ok) throw new Error('Lint failed');
     
     const result = await res.json();
+    const lData = result.data || result;
     
-    if (result.linter) {
-      showLinterResult(result.linter);
+    if (lData.linter) {
+      showLinterResult(lData.linter);
     }
   } catch (err) {
     console.error('Linter error:', err);

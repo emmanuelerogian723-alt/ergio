@@ -1,5 +1,6 @@
 // ERGIO Unified API Router
 import { callGroq, callGroqFast, searxngSearch, scrapePage, getSupabase, success, error, corsHeaders, generateSlug, generateLogoUrl, paystackInit, paystackVerify, delay } from '../lib/ergio.js';
+import { lintWebsite, autoFixHtml } from '../lib/design-linter.js';
 import { getPremiumCSS, getAnimationJS, getGoogleFonts } from '../lib/premium-template.js';
 import mcpHandler from './mcp.js';
 import crmHandler from './crm.js';
@@ -402,14 +403,46 @@ ${animJS}
 
 // ============ REFINE ============
 async function handleRefine(req, res) {
-  if (req.method !== 'POST') return error(res, 'Use POST', 405);
+  if (req.method !== 'POST') {
+    if (req.method === 'GET') return success(res, { status: 'ok', service: 'Website Refine v3', mode: 'json' });
+    return error(res, 'Use POST', 405);
+  }
   const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-  const { currentHtml, editRequest, businessName, uploadedImages } = body;
-  if (!currentHtml || !editRequest) return error(res, 'currentHtml and editRequest required', 400);
+  const { currentHtml, editRequest, instruction, businessName, uploadedImages, mode } = body;
+  const editInstruction = instruction || editRequest;
+  
+  // ── LINT MODE ──
+  if (mode === 'lint') {
+    if (!currentHtml) return error(res, 'currentHtml is required for lint mode', 400);
+    const result = lintWebsite(currentHtml, { name: businessName });
+    return success(res, { linter: result });
+  }
+  
+  // ── FIX-LAYOUT MODE ──
+  if (mode === 'fix-layout') {
+    if (!currentHtml) return error(res, 'currentHtml is required for fix-layout mode', 400);
+    const fixedHtml = autoFixHtml(currentHtml, { name: businessName });
+    const lintBefore = lintWebsite(currentHtml, { name: businessName });
+    const lintAfter = lintWebsite(fixedHtml, { name: businessName });
+    return success(res, {
+      html: fixedHtml,
+      linter: lintAfter,
+      linterBefore: lintBefore,
+      instruction: 'Auto-fix layout issues',
+      editType: 'fix-layout',
+      message: 'Score improved from ' + lintBefore.score + ' to ' + lintAfter.score
+    });
+  }
+  
+  if (!currentHtml) return error(res, 'currentHtml is required', 400);
+  if (!editInstruction) return error(res, 'Instruction (or editRequest) is required', 400);
   
   // Validate the input HTML is not too large (max 50KB for full send)
   const htmlToSend = currentHtml.length > 50000 ? currentHtml.substring(0, 50000) : currentHtml;
   const wasTruncated = currentHtml.length > 50000;
+  
+  // Determine edit type from mode or instruction
+  const editType = mode || detectEditType(editInstruction);
   
   // Smart system prompt: instruct surgical edits, not full regeneration
   const systemPrompt = `You are ERGIO, an expert web developer AI. Your job is to edit an existing website based on the user's request.
@@ -437,9 +470,9 @@ Return ONLY valid HTML code. No explanations, no markdown, no code blocks — ju
 
   const userPrompt = `Business: "${businessName || 'business'}"
 
-User's edit request: "${editRequest}"
+User's edit request: "${editInstruction}"
 
-${uploadedImages && uploadedImages.length > 0 ? 'The user has uploaded ' + uploadedImages.length + ' photos. Use these photo data URLs to replace stock images in the website. Photo data URLs: ' + uploadedImages.map((p, i) => '\n[Photo ' + (i+1) + ': ' + p.name + '] ' + p.dataUrl).join('\n') + '\n' : ''}
+${uploadedImages && uploadedImages.length > 0 ? 'The user has uploaded ' + uploadedImages.length + ' photos. Use these photo data URLs to replace stock images in the website. Photo data URLs: ' + uploadedImages.map((p, i) => '\\n[Photo ' + (i+1) + ': ' + (p.name || 'photo' + (i+1)) + '] ' + (typeof p === 'string' ? p : p.dataUrl)).join('\\n') + '\\n' : ''}
 
 Current HTML:
 ${htmlToSend}
@@ -450,12 +483,12 @@ Return the complete updated HTML with the requested changes applied. Make ONLY t
     const result = await callGroq([
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt }
-    ], { temperature: 0.2, maxTokens: 8000, timeout: 45000 });
+    ], { temperature: 0.3, maxTokens: 16000, timeout: 55000 });
     
     // Validate the returned HTML
     let cleanHtml = result || '';
     // Strip markdown code blocks if the model added them
-    cleanHtml = cleanHtml.replace(/^```html\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '');
+    cleanHtml = cleanHtml.replace(/^```html\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
     
     // Basic validation: must have DOCTYPE and closing html tag
     const hasDoctype = cleanHtml.toLowerCase().includes('<!doctype') || cleanHtml.toLowerCase().includes('<html');
@@ -467,14 +500,27 @@ Return the complete updated HTML with the requested changes applied. Make ONLY t
     
     return success(res, { 
       html: cleanHtml,
-      summary: 'Website updated successfully.'
+      summary: 'Website updated successfully.',
+      instruction: editInstruction,
+      editType: editType,
+      message: 'Website refined successfully'
     });
-  } catch(err) {
-    return error(res, 'Edit failed: ' + (err.message || 'unknown error'), 500);
+  } catch (e) {
+    console.error('Refine error:', e.message);
+    return error(res, e.message || 'Refine failed', 500);
   }
 }
 
-// ============ AUTH ============
+function detectEditType(instruction) {
+  const i = instruction.toLowerCase();
+  if (i.match(/layout|spacing|align|center|padding|margin|grid|flex|position/)) return 'layout';
+  if (i.match(/color|font|size|background|style|theme/)) return 'style';
+  if (i.match(/text|word|content|heading|title|paragraph|write|change.*to/)) return 'content';
+  if (i.match(/add|new|insert|create|section/)) return 'add';
+  if (i.match(/remove|delete|hide/)) return 'remove';
+  return 'general';
+}
+
 async function handleAuth(req, res, action) {
   const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
   const url = process.env.SUPABASE_URL || 'https://owcxfzlanlrulflsyvlr.supabase.co';
