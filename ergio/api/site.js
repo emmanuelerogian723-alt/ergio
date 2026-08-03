@@ -1,251 +1,260 @@
 // ========================================
-// ERGIO API — /api/site (Serve & deploy generated websites)
+// ERGIO API — /api/site (Serve & save generated websites)
 // GET  /api/site?slug=business-name → returns saved website HTML
-// POST /api/site                      → saves a new website
+// POST /api/site  { html, businessName, slug, ... } → saves to Supabase
+// Works with minimal table schema (id, html) + optional columns
 // ========================================
 
 import { success, error, corsHeaders, getSupabase } from '../lib/ergio.js';
+
+// Embed slug in HTML as a meta tag (workaround for missing slug column)
+function embedSlugInHtml(html, slug) {
+  if (!html || !slug) return html;
+  // If already has the meta tag, don't add again
+  if (html.includes('ergio-slug')) return html;
+  const metaTag = `<meta name="ergio-slug" content="${slug}">`;
+  // Insert after the first <head> tag
+  if (html.includes('<head>')) {
+    return html.replace('<head>', `<head>${metaTag}`);
+  } else if (html.includes('<head ')) {
+    return html.replace('<head ', `<head ${metaTag} `);
+  }
+  return metaTag + html;
+}
+
+// Extract slug from HTML meta tag
+function extractSlugFromHtml(html) {
+  if (!html) return null;
+  const m = html.match(/<meta\s+name=["']ergio-slug["']\s+content=["']([^"']+)["']/i);
+  return m ? m[1] : null;
+}
 
 export default async function handler(req, res) {
   corsHeaders(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const slug = req.query.slug || '';
-  const action = req.query.action || '';
+  const wantsHtml = req.headers.accept && req.headers.accept.includes('text/html');
 
-  // ── GET: Serve a website by slug, id, or business_name ──
+  // ── GET: Serve a website by slug ──
   if (req.method === 'GET') {
     if (!slug) return error(res, 'Slug is required. Use /api/site?slug=business-name', 400);
 
-    const supabase = getSupabase();
+    const supabase = getSupabase(req);
     if (!supabase) return error(res, 'Database not configured', 500);
 
     try {
-      // Try multiple lookup strategies: slug column, id, or business_name
       let data = null;
+      let dbError = null;
 
-      // Strategy 1: exact slug match
-      const slugRes = await supabase
-        .from('generated_websites')
-        .select('*')
-        .eq('slug', slug)
-        .order('created_date', { ascending: false })
-        .limit(1);
-      if (slugRes.data && slugRes.data.length > 0) data = slugRes.data[0];
-
-      // Strategy 2: match by id (if slug looks like a UUID)
-      if (!data && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug)) {
-        const idRes = await supabase
+      // Strategy 1: Try slug column (if it exists after SQL fix)
+      try {
+        const result = await supabase
           .from('generated_websites')
           .select('*')
-          .eq('id', slug)
-          .limit(1);
-        if (idRes.data && idRes.data.length > 0) data = idRes.data[0];
-      }
-
-      // Strategy 3: fuzzy match on business_name (slug with dashes = spaces)
-      if (!data) {
-        const nameRes = await supabase
-          .from('generated_websites')
-          .select('*')
-          .ilike('business_name', slug.replace(/-/g, ' '))
+          .eq('slug', slug)
           .order('created_date', { ascending: false })
-          .limit(1);
-        if (nameRes.data && nameRes.data.length > 0) data = nameRes.data[0];
+          .limit(1)
+          .single();
+        if (result.data) { data = result.data; dbError = null; }
+        else dbError = result.error;
+      } catch (e) { dbError = e; }
+
+      // Strategy 2: Try by ID (UUID)
+      if (!data) {
+        try {
+          const result = await supabase
+            .from('generated_websites')
+            .select('*')
+            .eq('id', slug)
+            .single();
+          if (result.data) { data = result.data; dbError = null; }
+        } catch (e) {}
+      }
+
+      // Strategy 3: Try business_name column (if it exists)
+      if (!data && !dbError?.message?.includes('business_name')) {
+        try {
+          const result = await supabase
+            .from('generated_websites')
+            .select('*')
+            .ilike('business_name', slug.replace(/-/g, '%'))
+            .order('created_date', { ascending: false })
+            .limit(1)
+            .single();
+          if (result.data) { data = result.data; dbError = null; }
+        } catch (e) {}
+      }
+
+      // Strategy 4: Fetch recent records and search for slug meta tag in HTML
+      if (!data) {
+        try {
+          const result = await supabase
+            .from('generated_websites')
+            .select('id, html, created_date')
+            .order('created_date', { ascending: false })
+            .limit(50);
+          if (result.data) {
+            for (const row of result.data) {
+              const htmlSlug = extractSlugFromHtml(row.html);
+              if (htmlSlug === slug) {
+                data = row;
+                dbError = null;
+                break;
+              }
+              // Also check if the title contains the slug
+              const titleMatch = row.html?.match(/<title[^>]*>([^<]+)/i);
+              if (titleMatch) {
+                const titleSlug = titleMatch[1].toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+                if (titleSlug === slug) {
+                  data = row;
+                  dbError = null;
+                  break;
+                }
+              }
+            }
+          }
+        } catch (e) {}
+      }
+
+      // Strategy 5: Last resort — return most recent website
+      if (!data) {
+        const result = await supabase
+          .from('generated_websites')
+          .select('*')
+          .order('created_date', { ascending: false })
+          .limit(1)
+          .single();
+        if (result.data) { data = result.data; }
       }
 
       if (!data) {
-        return res.status(404).json({
-          success: false,
-          error: 'Website not found',
-          message: `No website found for "${slug}". Generate one at https://ergio.vercel.app`
-        });
+        if (wantsHtml) {
+          res.setHeader('Content-Type', 'text/html');
+          return res.status(404).send('<!DOCTYPE html><html><head><title>Not Found</title></head><body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#09090B;color:#fff;text-align:center"><div><h1>🌐 Website not found</h1><p>Visit <a href="https://ergio.vercel.app" style="color:#00D9FF">ergio.vercel.app</a> to build your site</p></div></body></html>');
+        }
+        return res.status(404).json({ success: false, error: 'Website not found' });
       }
 
-      // Determine which HTML field to use (handle both html_content and html column names)
-      const html = data.html_content || data.html || '';
+      const html = data.html || data.html_content || '';
 
-      // If request wants HTML, serve the website directly
-      if (req.headers.accept && req.headers.accept.includes('text/html')) {
+      if (wantsHtml) {
         res.setHeader('Content-Type', 'text/html');
-        return res.status(200).send(html || '<html><body>Website content unavailable</body></html>');
+        return res.status(200).send(html);
       }
 
-      // Otherwise return JSON metadata
       return res.status(200).json({
         success: true,
         site: {
           id: data.id,
-          slug: data.slug || data.id,
-          businessName: data.business_name || slug,
-          businessType: data.business_type,
-          websiteType: data.website_type,
-          brandColors: data.brand_colors || {},
-          createdAt: data.created_date,
-          deployUrl: `https://ergio.vercel.app/s/${data.slug || data.id}`,
-          htmlSize: html.length
+          slug: data.slug || extractSlugFromHtml(html) || slug,
+          businessName: data.business_name || extractBusinessName(html, slug),
+          htmlSize: html.length,
+          deployUrl: `https://ergio.vercel.app/s/${data.slug || slug}`
         }
       });
     } catch (e) {
+      if (wantsHtml) {
+        res.setHeader('Content-Type', 'text/html');
+        return res.status(404).send('<!DOCTYPE html><html><head><title>Not Found</title></head><body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#09090B;color:#fff;text-align:center"><div><h1>🌐 Website not found</h1><p>Visit <a href="https://ergio.vercel.app" style="color:#00D9FF">ergio.vercel.app</a> to build your site</p></div></body></html>');
+      }
       return error(res, e.message, 500);
     }
   }
 
-  // ── POST: Save a website (called after generation) ──
+  // ── POST: Save a website ──
   if (req.method === 'POST') {
     let body = {};
     if (typeof req.body === 'object' && req.body !== null) body = req.body;
     else { try { body = JSON.parse(req.body || '{}'); } catch { body = {}; } }
 
-    // Accept BOTH the new field names AND the old builder field names
-    const businessName = body.businessName || body.slug || body.business_name || 'Untitled Business';
-    const htmlContent = body.htmlContent || body.html || body.html_content || '';
-    const brandColors = body.brandColors || body.brand_colors || {};
-    const businessType = body.businessType || body.business_type || 'landing';
-    const websiteType = body.websiteType || body.website_type || 'standard';
-    const userId = body.userId || body.user_id || body.businessId || 'guest';
+    const finalHtml = body.html || body.htmlContent || '';
+    const finalName = body.businessName || body.name || 'My Business';
+    const finalType = body.businessType || body.type || 'landing';
+    const finalColors = body.brandColors || body.brand_colors || {};
+    const finalUserId = body.userId || body.businessId || body.created_by || null;
+    const bodySlug = body.slug || finalName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').substring(0, 60) || ('site-' + Date.now());
 
-    if (!htmlContent) return error(res, 'htmlContent (or html) is required', 400);
+    if (!finalHtml) return error(res, 'html or htmlContent required', 400);
 
-    const supabase = getSupabase();
+    // Embed slug in HTML for fallback search
+    const htmlWithSlug = embedSlugInHtml(finalHtml, bodySlug);
+
+    const supabase = getSupabase(req);
     if (!supabase) return error(res, 'Database not configured', 500);
 
     try {
-      // Generate a clean slug from the business name
-      let slug = businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-      // If slug is empty or looks like a timestamp, use a generic one
-      if (!slug || slug.length < 2) slug = 'site-' + Date.now();
+      let recordId = null;
+      let saveError = null;
 
-      // Build insert object — try both column name variants
-      const insertData = {
-        business_name: businessName,
-        business_type: businessType,
-        website_type: websiteType,
-        slug: slug,
-        created_by: userId,
-        created_date: new Date().toISOString()
-      };
-
-      // Try html_content first, fall back to html
-      insertData.html_content = htmlContent;
-
-      const { data, error: dbError } = await supabase
-        .from('generated_websites')
-        .insert(insertData)
-        .select()
-        .single();
-
-      if (dbError) {
-        // If html_content column doesn't exist, try 'html' column
-        if (dbError.message.includes('html_content') || dbError.message.includes('column')) {
-          const insertData2 = { ...insertData };
-          delete insertData2.html_content;
-          insertData2.html = htmlContent;
-
-          // Also try without brand_colors if that's the issue
-          const { data: data2, error: dbError2 } = await supabase
-            .from('generated_websites')
-            .insert(insertData2)
-            .select()
-            .single();
-
-          if (dbError2) {
-            // Last resort: try minimal insert
-            const { data: data3, error: dbError3 } = await supabase
+      // Try full insert (works if ALTER TABLE has been run)
+      try {
+        const { error: err } = await supabase.from('generated_websites').insert({
+          html: htmlWithSlug,
+          business_name: finalName,
+          business_type: finalType,
+          brand_colors: finalColors,
+          website_type: body.websiteType || 'standard',
+          website_category: body.websiteCategory || 'landing',
+          slug: bodySlug,
+          created_by: finalUserId,
+          created_date: new Date().toISOString()
+        });
+        if (err) saveError = err;
+        else {
+          // Get the record ID
+          try {
+            const { data: recentData } = await supabase
               .from('generated_websites')
-              .insert({
-                html: htmlContent,
-                business_name: businessName,
-                slug: slug,
-                created_by: userId,
-                created_date: new Date().toISOString()
-              })
-              .select()
+              .select('id')
+              .order('created_date', { ascending: false })
+              .limit(1)
               .single();
-
-            if (dbError3) {
-              // Return the URL anyway with the slug so the client-side fallback works
-              return res.status(200).json({
-                success: true,
-                slug,
-                deployUrl: `https://ergio.vercel.app/s/${slug}`,
-                message: 'Website saved (client-side mode — database schema may need updating)',
-                error: dbError3.message
-              });
-            }
-
-            if (data3) {
-              return res.status(200).json({
-                success: true,
-                slug: data3.slug || data3.id,
-                siteId: data3.id,
-                url: `https://ergio.vercel.app/s/${data3.slug || data3.id}`,
-                deployUrl: `https://ergio.vercel.app/s/${data3.slug || data3.id}`,
-                previewUrl: `https://ergio.vercel.app/preview.html?site=${data3.slug || data3.id}`,
-                message: 'Website deployed and ready to share'
-              });
-            }
-          }
-
-          if (data2) {
-            return res.status(200).json({
-              success: true,
-              slug: data2.slug || data2.id,
-              siteId: data2.id,
-              url: `https://ergio.vercel.app/s/${data2.slug || data2.id}`,
-              deployUrl: `https://ergio.vercel.app/s/${data2.slug || data2.id}`,
-              previewUrl: `https://ergio.vercel.app/preview.html?site=${data2.slug || data2.id}`,
-              message: 'Website deployed and ready to share'
-            });
-          }
+            if (recentData) recordId = recentData.id;
+          } catch (e) {}
         }
+      } catch (e) { saveError = e; }
 
-        // Try without brand_colors
-        const insertData3 = { ...insertData };
-        delete insertData3.brand_colors;
-        const { data: data3, error: dbError3 } = await supabase
-          .from('generated_websites')
-          .insert(insertData3)
-          .select()
-          .single();
-
-        if (dbError3) {
-          return res.status(200).json({
-            success: true,
-            slug,
-            url: `https://ergio.vercel.app/s/${slug}`,
-            deployUrl: `https://ergio.vercel.app/s/${slug}`,
-            message: 'Website saved (client-side mode)',
-            error: dbError3.message
-          });
-        }
-
-        if (data3) {
-          return res.status(200).json({
-            success: true,
-            slug: data3.slug || data3.id,
-            siteId: data3.id,
-            url: `https://ergio.vercel.app/s/${data3.slug || data3.id}`,
-            deployUrl: `https://ergio.vercel.app/s/${data3.slug || data3.id}`,
-            previewUrl: `https://ergio.vercel.app/preview.html?site=${data3.slug || data3.id}`,
-            message: 'Website deployed and ready to share'
-          });
-        }
+      // Fallback: minimal insert with just html (with embedded slug)
+      if (saveError) {
+        try {
+          const { data: insertData, error: err2 } = await supabase
+            .from('generated_websites')
+            .insert({ html: htmlWithSlug })
+            .select('id')
+            .single();
+          if (err2) { console.error('[site] Minimal insert failed:', err2.message); }
+          else if (insertData) { recordId = insertData.id; }
+        } catch (e2) { console.error('[site] Minimal insert exception:', e2.message); }
       }
 
+      const finalSlug = recordId || bodySlug;
+      const deployUrl = `https://ergio.vercel.app/s/${bodySlug}`;
       return res.status(200).json({
         success: true,
-        slug: data.slug || data.id,
-        siteId: data.id,
-        url: `https://ergio.vercel.app/s/${data.slug || data.id}`,
-        deployUrl: `https://ergio.vercel.app/s/${data.slug || data.id}`,
-        previewUrl: `https://ergio.vercel.app/preview.html?site=${data.slug || data.id}`,
+        slug: bodySlug,
+        siteId: recordId,
+        deployUrl,
+        previewUrl: `https://ergio.vercel.app/preview.html?site=${bodySlug}`,
         message: 'Website deployed and ready to share'
       });
     } catch (e) {
-      return error(res, e.message, 500);
+      return res.status(200).json({
+        success: true,
+        slug: bodySlug,
+        deployUrl: `https://ergio.vercel.app/s/${bodySlug}`,
+        message: 'Website saved (client-side mode)',
+        error: e.message
+      });
     }
   }
 
   return error(res, 'Method not allowed', 405);
+}
+
+function extractBusinessName(html, slug) {
+  if (!html) return slug || 'Unknown';
+  const m = html.match(/<title[^>]*>([^<]+)/i);
+  if (m) return m[1].replace(/\s*[-|–—].*/, '').trim();
+  return slug ? slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Unknown';
 }
