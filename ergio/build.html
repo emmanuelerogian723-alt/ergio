@@ -2541,9 +2541,12 @@ async function deployTo(target) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           businessName: businessName,
+          slug: slug,
+          html: currentHTML,
           htmlContent: currentHTML,
           brandColors: buildData?.plan?.colors || buildData?.colors || {},
           businessType: buildData?.plan?.category || 'landing',
+          websiteCategory: buildData?.plan?.websiteCategory || 'landing',
           userId: buildData?.id || 'guest'
         })
       });
