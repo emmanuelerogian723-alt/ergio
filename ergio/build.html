@@ -1977,6 +1977,21 @@ function showPreview(html, title = 'Preview') {
   iframe.style.display = 'block';
   
   // Use srcdoc for reliable rendering (doc.write can fail silently in sandboxed iframes)
+  iframe.onload = function() {
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      if (doc && doc.body) {
+        const h = Math.max(
+          doc.body.scrollHeight, doc.body.offsetHeight, doc.body.clientHeight,
+          doc.documentElement.scrollHeight, doc.documentElement.offsetHeight
+        );
+        if (h > 100) {
+          iframe.style.height = h + 'px';
+          iframe.style.minHeight = h + 'px';
+        }
+      }
+    } catch(e) {}
+  };
   iframe.srcdoc = html;
   
   // Fallback: also try doc.write in case srcdoc isn't supported
