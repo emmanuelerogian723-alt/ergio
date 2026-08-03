@@ -1983,6 +1983,12 @@ function showPreview(html, title = 'Preview') {
     try {
       const doc = iframe.contentDocument || iframe.contentWindow.document;
       if (doc && doc.body) {
+        // Activate all reveal animations — IntersectionObserver may not fire
+        // reliably inside a sandboxed iframe, so we force-activate them
+        doc.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger').forEach(function(el) {
+          el.classList.add('active');
+        });
+        // Set iframe height to match content
         const h = Math.max(
           doc.body.scrollHeight, doc.body.offsetHeight, doc.body.clientHeight,
           doc.documentElement.scrollHeight, doc.documentElement.offsetHeight
