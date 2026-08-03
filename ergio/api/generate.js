@@ -1386,6 +1386,10 @@ function generateWebsiteHTML(plan, brand, content, colors, logoUrl, images = {})
     document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .stagger').forEach(el => {
       observer.observe(el);
     });
+    // Fallback: reveal all elements after 2s (fixes blank page when served via document.write)
+    setTimeout(() => {
+      document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .stagger').forEach(el => el.classList.add('active'));
+    }, 2000);
     
     // Parallax effect on hero image
     const heroBg = document.querySelector('.hero-bg img');
@@ -1633,6 +1637,10 @@ const observer = new IntersectionObserver((entries) => {
 entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); });
 }, { threshold: 0.1 });
 document.querySelectorAll('.reveal,.reveal-scale').forEach(el => observer.observe(el));
+// Fallback: reveal all elements after 2s (fixes blank page when served via document.write)
+    setTimeout(() => {
+      document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .stagger').forEach(el => el.classList.add('active'));
+    }, 2000);
 </script>
 </body>
 </html>`;
@@ -2130,6 +2138,10 @@ function generateTransixHTML(plan, brand, content, colors, logoUrl, images = {})
       entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); });
     }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
     document.querySelectorAll('.reveal,.reveal-scale').forEach(el => observer.observe(el));
+    // Fallback: reveal all elements after 2s (fixes blank page when served via document.write)
+    setTimeout(() => {
+      document.querySelectorAll(".reveal, .reveal-left, .reveal-right, .reveal-scale, .stagger").forEach(el => el.classList.add("active"));
+    }, 2000);
   </script>
 </body>
 </html>`;
@@ -2578,6 +2590,10 @@ function generateEditorialHTML(plan, brand, content, colors, logoUrl, images = {
       entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); });
     }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
     document.querySelectorAll('.reveal,.reveal-left').forEach(el => observer.observe(el));
+// Fallback: reveal all elements after 2s (fixes blank page when served via document.write)
+    setTimeout(() => {
+      document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .stagger').forEach(el => el.classList.add('active'));
+    }, 2000);
 
     // Nav scroll effect
     const nav = document.querySelector('.nav');
@@ -2895,6 +2911,10 @@ function generate3DWebsiteHTML(plan, brand, content, colors, logoUrl, images = {
       entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); });
     }, { threshold: 0.15 });
     document.querySelectorAll('.reveal, .stagger').forEach(el => observer.observe(el));
+// Fallback: reveal all elements after 2s (fixes blank page when served via document.write)
+    setTimeout(() => {
+      document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .stagger').forEach(el => el.classList.add('active'));
+    }, 2000);
   </script>
 </body>
 </html>`;
