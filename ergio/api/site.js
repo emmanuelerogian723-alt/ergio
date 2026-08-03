@@ -72,20 +72,6 @@ export default async function handler(req, res) {
         } catch (e) {}
       }
 
-      // Strategy 3: Try business_name column (if it exists)
-      if (!data && !dbError?.message?.includes('business_name')) {
-        try {
-          const result = await supabase
-            .from('generated_websites')
-            .select('*')
-            .ilike('business_name', slug.replace(/-/g, '%'))
-            .order('created_date', { ascending: false })
-            .limit(1)
-            .single();
-          if (result.data) { data = result.data; dbError = null; }
-        } catch (e) {}
-      }
-
       // Strategy 4: Fetch recent records and search for slug meta tag in HTML
       if (!data) {
         try {
@@ -125,6 +111,20 @@ export default async function handler(req, res) {
             }
           }
         } catch (e) { console.error('[site] Strategy 4 error:', e.message); }
+      }
+
+      // Strategy 3: Try business_name column (if it exists)
+      if (!data && !dbError?.message?.includes('business_name')) {
+        try {
+          const result = await supabase
+            .from('generated_websites')
+            .select('*')
+            .ilike('business_name', slug.replace(/-/g, '%'))
+            .order('created_date', { ascending: false })
+            .limit(1)
+            .single();
+          if (result.data) { data = result.data; dbError = null; }
+        } catch (e) {}
       }
 
       // Strategy 5: Last resort — return most recent website
@@ -215,7 +215,7 @@ export default async function handler(req, res) {
           brand_colors: finalColors,
           website_type: body.websiteType || 'standard',
           website_category: body.websiteCategory || 'landing',
-          slug: bodySlug,
+          slug: recordId || bodySlug,
           created_by: finalUserId,
           created_date: new Date().toISOString()
         });
@@ -255,10 +255,10 @@ export default async function handler(req, res) {
       }
 
       const finalSlug = recordId || bodySlug;
-      const deployUrl = `https://ergio.vercel.app/s/${bodySlug}`;
+      const deployUrl = recordId ? `https://ergio.vercel.app/s/${recordId}` : `https://ergio.vercel.app/s/${bodySlug}`;
       return res.status(200).json({
         success: true,
-        slug: bodySlug,
+        slug: recordId || bodySlug,
         siteId: recordId,
         deployUrl,
         previewUrl: `https://ergio.vercel.app/preview.html?site=${bodySlug}`,
@@ -267,7 +267,7 @@ export default async function handler(req, res) {
     } catch (e) {
       return res.status(200).json({
         success: true,
-        slug: bodySlug,
+        slug: recordId || bodySlug,
         deployUrl: `https://ergio.vercel.app/s/${bodySlug}`,
         message: 'Website saved (client-side mode)',
         error: e.message

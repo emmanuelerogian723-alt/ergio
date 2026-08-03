@@ -2554,13 +2554,13 @@ async function deployTo(target) {
         })
       });
       const data = await res.json();
-      const url = data.url || data.deployUrl || `https://ergio.vercel.app/s/${data.slug || slug}`;
+      const url = data.url || data.deployUrl || `https://ergio.vercel.app/s/${data.siteId || data.slug || slug}`;
       
       // Save to localStorage so /s/ page can find it even if DB fails
       try {
         const savedSites = JSON.parse(localStorage.getItem('ergio_saved_websites') || '[]');
         const siteEntry = {
-          id: data.slug || data.siteId || slug,
+          id: data.siteId || data.slug || slug,
           name: businessName,
           html: currentHTML,
           slug: data.slug || slug,
