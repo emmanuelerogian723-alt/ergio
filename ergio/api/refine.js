@@ -1,12 +1,72 @@
 // ========================================
 // ERGIO API — /api/refine (v3.0 JSON)
-// Surgical website editing — returns clean JSON
-// Uses shared lib with multi-provider fallback (Groq → OpenRouter → Pollinations)
-// Also handles Design Linter (mode: 'lint') and auto-fix (mode: 'fix-layout')
+// Self-contained — no heavy imports to avoid build failures
+// Handles: surgical edits, Design Linter (mode:'lint'), auto-fix (mode:'fix-layout')
 // ========================================
 
-import { callGroq } from '../lib/ergio.js';
 import { lintWebsite, autoFixHtml } from '../lib/design-linter.js';
+
+// Inline callGroq with multi-provider fallback
+async function callGroq(messages, options = {}) {
+  const { maxTokens = 16000, temperature = 0.3, timeout = 55000 } = options;
+  const groqKey = process.env.GROQ_API_KEY;
+  const orKey = process.env.OPENROUTER_API_KEY;
+  
+  // Provider 1: Groq
+  if (groqKey) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeout);
+      const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'openai/gpt-oss-120b', messages, max_tokens: maxTokens, temperature }),
+        signal: controller.signal
+      });
+      clearTimeout(timer);
+      if (resp.ok) {
+        const data = await resp.json();
+        return data.choices?.[0]?.message?.content || '';
+      }
+      console.error('Groq error:', resp.status, await resp.text().catch(() => ''));
+    } catch (e) { console.error('Groq failed:', e.message); }
+  }
+  
+  // Provider 2: OpenRouter
+  if (orKey) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeout);
+      const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${orKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'meta-llama/llama-3.3-70b-instruct', messages, max_tokens: maxTokens, temperature }),
+        signal: controller.signal
+      });
+      clearTimeout(timer);
+      if (resp.ok) {
+        const data = await resp.json();
+        return data.choices?.[0]?.message?.content || '';
+      }
+      console.error('OpenRouter error:', resp.status);
+    } catch (e) { console.error('OpenRouter failed:', e.message); }
+  }
+  
+  // Provider 3: Pollinations (free, no key)
+  try {
+    const resp = await fetch('https://text.pollinations.ai/openai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'openai', messages, max_tokens: maxTokens, temperature })
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      return data.choices?.[0]?.message?.content || '';
+    }
+  } catch (e) { console.error('Pollinations failed:', e.message); }
+  
+  throw new Error('All AI providers failed');
+}
 
 const SURGICAL_SYSTEM_PROMPT = `You are ERGIO's surgical website editor. You make precise, targeted edits to HTML.
 
@@ -18,92 +78,96 @@ RULES:
 5. If the instruction is about content, update text only.
 6. If the instruction is about style, modify CSS values.
 7. Always return complete valid HTML document.
-8. Keep the "Powered by ERGIO" footer intact.`;
+8. Preserve ALL <style> and <script> blocks exactly as they are.
+9. Make ONLY the requested changes — do not rewrite sections the user didn't ask to change.
+10. NEVER return partial HTML — always return a complete valid document from <!DOCTYPE html> to </html>.`;
 
 export default async function handler(req, res) {
+  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
-
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method === 'GET') return res.json({ status: 'ok', service: 'Website Refine v3', mode: 'json' });
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Use POST' });
-
-  const { instruction, currentHtml, businessName, mode, editRequest } = req.body;
+  
+  if (req.method === 'GET') {
+    return res.json({ status: 'ok', service: 'Website Refine v3', mode: 'json' });
+  }
+  
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Use POST' });
+  }
+  
+  const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+  const { currentHtml, editRequest, instruction, businessName, uploadedImages, mode } = body;
   const editInstruction = instruction || editRequest;
-  if (!editInstruction) return res.status(400).json({ error: 'Instruction is required' });
+  
+  // ── LINT MODE ──
+  if (mode === 'lint') {
+    if (!currentHtml) return res.status(400).json({ error: 'currentHtml is required for lint mode' });
+    const result = lintWebsite(currentHtml, { name: businessName });
+    return res.json({ linter: result });
+  }
+  
+  // ── FIX-LAYOUT MODE ──
+  if (mode === 'fix-layout') {
+    if (!currentHtml) return res.status(400).json({ error: 'currentHtml is required for fix-layout mode' });
+    const fixedHtml = autoFixHtml(currentHtml, { name: businessName });
+    const lintBefore = lintWebsite(currentHtml, { name: businessName });
+    const lintAfter = lintWebsite(fixedHtml, { name: businessName });
+    return res.json({
+      html: fixedHtml,
+      linter: lintAfter,
+      linterBefore: lintBefore,
+      instruction: 'Auto-fix layout issues',
+      editType: 'fix-layout',
+      message: 'Score improved from ' + lintBefore.score + ' to ' + lintAfter.score
+    });
+  }
+  
   if (!currentHtml) return res.status(400).json({ error: 'currentHtml is required' });
+  if (!editInstruction) return res.status(400).json({ error: 'Instruction (or editRequest) is required' });
+  
+  // Validate the input HTML is not too large
+  const htmlToSend = currentHtml.length > 50000 ? currentHtml.substring(0, 50000) : currentHtml;
+  const wasTruncated = currentHtml.length > 50000;
+  
+  const userPrompt = `Business: "${businessName || 'business'}"
 
-  try {
-    // ── LINT MODE ──
-    if (mode === 'lint') {
-      const result = lintWebsite(currentHtml, { name: businessName });
-      return res.json({ success: true, linter: result });
-    }
+User's edit request: "${editInstruction}"
 
-    // ── FIX-LAYOUT MODE ──
-    if (mode === 'fix-layout') {
-      const fixedHtml = autoFixHtml(currentHtml, { name: businessName });
-      const lintBefore = lintWebsite(currentHtml, { name: businessName });
-      const lintAfter = lintWebsite(fixedHtml, { name: businessName });
-      return res.json({
-        success: true,
-        html: fixedHtml,
-        linter: lintAfter,
-        linterBefore: lintBefore,
-        instruction: 'Auto-fix layout issues',
-        editType: 'fix-layout',
-        message: `Score improved from ${lintBefore.score} to ${lintAfter.score}`
-      });
-    }
-
-    // ── AI REFINEMENT ──
-    const editType = mode || detectEditType(editInstruction);
-    const messages = [
-      { role: 'system', content: SURGICAL_SYSTEM_PROMPT },
-      {
-        role: 'user',
-        content: `Business: ${businessName || 'My Business'}
-Edit Type: ${editType}
-Instruction: "${editInstruction}"
+${uploadedImages && uploadedImages.length > 0 ? 'The user has uploaded ' + uploadedImages.length + ' photos. Use these photo data URLs to replace stock images. Photo data URLs: ' + uploadedImages.map((p, i) => '\n[Photo ' + (i+1) + ': ' + (p.name || 'photo' + (i+1)) + '] ' + (typeof p === 'string' ? p : p.dataUrl)).join('\n') + '\n' : ''}
 
 Current HTML:
-${currentHtml.slice(0, 50000)}
+${htmlToSend}
 
-Apply the requested change and return the complete updated HTML.`
-      }
-    ];
+Return the complete updated HTML with the requested changes applied. Make ONLY the requested changes — keep everything else exactly as is. If the user uploaded photos, replace stock image URLs with the provided data URLs.`;
 
-    const result = await callGroq(messages, { maxTokens: 16000, temperature: 0.4, timeout: 55000 });
-
-    const cleanHtml = result
-      .replace(/```html\s*/gi, '')
-      .replace(/```\s*/g, '')
-      .trim();
-
-    if (!cleanHtml.includes('<') || !cleanHtml.includes('>')) {
-      return res.status(500).json({ error: 'AI did not return valid HTML', raw: result.slice(0, 500) });
+  try {
+    const result = await callGroq([
+      { role: 'system', content: SURGICAL_SYSTEM_PROMPT },
+      { role: 'user', content: userPrompt }
+    ], { temperature: 0.3, maxTokens: 16000, timeout: 55000 });
+    
+    let cleanHtml = result || '';
+    cleanHtml = cleanHtml.replace(/^```html\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+    
+    const hasDoctype = cleanHtml.toLowerCase().includes('<!doctype') || cleanHtml.toLowerCase().includes('<html');
+    const hasClosingHtml = cleanHtml.toLowerCase().includes('</html>') || cleanHtml.toLowerCase().includes('</body>');
+    
+    if (!hasDoctype || !hasClosingHtml || cleanHtml.length < 500) {
+      return res.status(422).json({ 
+        error: 'Edit produced invalid HTML — the AI may have returned a partial result. Try being more specific about what to change.' 
+      });
     }
-
-    return res.json({
-      success: true,
+    
+    return res.json({ 
       html: cleanHtml,
+      summary: 'Website updated successfully.',
       instruction: editInstruction,
-      editType,
       message: 'Website refined successfully'
     });
   } catch (e) {
-    console.error('Refine error:', e);
+    console.error('Refine error:', e.message);
     return res.status(500).json({ error: e.message || 'Refine failed' });
   }
-}
-
-function detectEditType(instruction) {
-  const i = instruction.toLowerCase();
-  if (i.match(/layout|spacing|align|center|padding|margin|grid|flex|position/)) return 'layout';
-  if (i.match(/color|font|size|background|style|theme/)) return 'style';
-  if (i.match(/text|word|content|heading|title|paragraph|write|change.*to/)) return 'content';
-  if (i.match(/add|new|insert|create|section/)) return 'add';
-  if (i.match(/remove|delete|hide/)) return 'remove';
-  return 'general';
 }
