@@ -2775,10 +2775,130 @@ async function sendAgentMessage() {
 
 // Init agent status on load
 setTimeout(checkAgentStatus, 1000);
-</script>
+<\/script>
 </body>
 </html>`;
 }
+
+// ===== CONDUCTOR AGENT CONNECTION (real executable code) =====
+const ENGINES_API = window.ErgioEngines || null;
+const CMD_API = window.ErgioCommand || null;
+
+async function checkAgentStatus() {
+  const dot = document.getElementById('agentStatusDot');
+  const text = document.getElementById('agentStatusText');
+  if (!dot || !text) return;
+  if (!ENGINES_API) {
+    dot.style.background = '#f59e0b';
+    text.textContent = 'Engine API not loaded — using Vercel fallback';
+    text.style.color = '#f59e0b';
+    return;
+  }
+  try {
+    await ENGINES_API.health();
+    dot.style.background = '#22c55e';
+    text.textContent = 'Connected — all engines online';
+    text.style.color = '#22c55e';
+  } catch(e) {
+    dot.style.background = '#ef4444';
+    text.textContent = 'Backend offline — deploy on Render';
+    text.style.color = '#ef4444';
+  }
+}
+
+async function agentAction(engine, prompt) {
+  const log = document.getElementById('agentChatLog');
+  if (!log) return;
+  if (log.children.length === 1 && log.children[0].style.color) log.innerHTML = '';
+  log.innerHTML += '<div style="align-self:flex-end;background:rgba(0,217,255,.15);padding:8px 12px;border-radius:8px 8px 0 8px;font-size:12px;max-width:85%">' + prompt + '</div>';
+  log.innerHTML += '<div id="agentLoading" style="align-self:flex-start;background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:8px 8px 8px 0;font-size:12px;color:var(--muted)">⚡ Running ' + engine + ' engine...</div>';
+  log.scrollTop = log.scrollHeight;
+  try {
+    let result;
+    if (ENGINES_API && ENGINES_API.conductor) {
+      result = await ENGINES_API.conductor(prompt, localStorage.getItem('ergio_business_id'), null);
+    } else if (CMD_API && CMD_API.command) {
+      result = await CMD_API.command(prompt, localStorage.getItem('ergio_business_id'), null);
+    } else {
+      const r = await fetch('/api/engines', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ engine: engine, action: 'run', prompt: prompt })
+      });
+      result = await r.json();
+    }
+    var loading = document.getElementById('agentLoading');
+    if (loading) loading.remove();
+    var summary = result.summary || result.message || result.result || 'Done';
+    if (typeof summary === 'object') summary = JSON.stringify(summary, null, 2);
+    log.innerHTML += '<div style="align-self:flex-start;background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:8px 8px 8px 0;font-size:12px;max-width:85%;color:var(--text);white-space:pre-wrap">✅ ' + summary + '</div>';
+    log.scrollTop = log.scrollHeight;
+  } catch(e) {
+    var loading = document.getElementById('agentLoading');
+    if (loading) loading.remove();
+    log.innerHTML += '<div style="color:var(--red);font-size:12px">❌ ' + e.message + '</div>';
+    log.scrollTop = log.scrollHeight;
+  }
+}
+
+async function sendAgentMessage() {
+  const input = document.getElementById('agentChatInput');
+  if (!input || !input.value.trim()) return;
+  const msg = input.value.trim();
+  input.value = '';
+  const log = document.getElementById('agentChatLog');
+  if (!log) return;
+  if (log.children.length === 1 && log.children[0].style.color) log.innerHTML = '';
+  log.innerHTML += '<div style="align-self:flex-end;background:rgba(0,217,255,.15);padding:8px 12px;border-radius:8px 8px 0 8px;font-size:12px;max-width:85%">' + msg + '</div>';
+  log.innerHTML += '<div id="agentLoading" style="align-self:flex-start;background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:8px 8px 8px 0;font-size:12px;color:var(--muted)">⚡ Thinking...</div>';
+  log.scrollTop = log.scrollHeight;
+  try {
+    let result;
+    if (ENGINES_API && ENGINES_API.streamConductor) {
+      var loadingEl = document.getElementById('agentLoading');
+      if (loadingEl) loadingEl.remove();
+      await ENGINES_API.streamConductor(msg, localStorage.getItem('ergio_business_id'), null, function(type, data) {
+        var m = data.message || '';
+        if (type === 'task_start' || type === 'task_done' || type === 'status' || type === 'result') {
+          log.innerHTML += '<div style="align-self:flex-start;padding:4px 12px;font-size:11px;color:' + (type==='task_done'?'#22c55e':type==='result'?'#22c55e':'var(--muted)') + '">' + (type==='task_done'?'✅ ':type==='result'?'🎯 ':'⚡ ') + m + '</div>';
+          log.scrollTop = log.scrollHeight;
+        }
+      });
+    } else if (ENGINES_API && ENGINES_API.conductor) {
+      result = await ENGINES_API.conductor(msg, localStorage.getItem('ergio_business_id'), null);
+      var loadingEl = document.getElementById('agentLoading');
+      if (loadingEl) loadingEl.remove();
+      var summary = result.summary || result.message || 'Done';
+      if (typeof summary === 'object') summary = JSON.stringify(summary, null, 2);
+      log.innerHTML += '<div style="align-self:flex-start;background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:8px 8px 8px 0;font-size:12px;max-width:85%;color:var(--text);white-space:pre-wrap">✅ ' + summary + '</div>';
+    } else if (CMD_API && CMD_API.command) {
+      result = await CMD_API.command(msg, localStorage.getItem('ergio_business_id'), null);
+      var loadingEl = document.getElementById('agentLoading');
+      if (loadingEl) loadingEl.remove();
+      log.innerHTML += '<div style="align-self:flex-start;background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:8px 8px 8px 0;font-size:12px;max-width:85%;color:var(--text)">✅ ' + (result.summary || 'Done') + '</div>';
+    } else {
+      const r = await fetch('/api/engines', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ engine: 'conductor', action: 'run', prompt: msg })
+      });
+      result = await r.json();
+      var loadingEl = document.getElementById('agentLoading');
+      if (loadingEl) loadingEl.remove();
+      log.innerHTML += '<div style="align-self:flex-start;background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:8px 8px 8px 0;font-size:12px;max-width:85%;color:var(--text)">✅ ' + (result.message || result.summary || 'Done') + '</div>';
+    }
+    log.scrollTop = log.scrollHeight;
+  } catch(e) {
+    var loadingEl = document.getElementById('agentLoading');
+    if (loadingEl) loadingEl.remove();
+    log.innerHTML += '<div style="color:var(--red);font-size:12px">❌ ' + e.message + '</div>';
+    log.scrollTop = log.scrollHeight;
+  }
+}
+
+// Init agent status on load
+setTimeout(checkAgentStatus, 1000);
+
 
 function startVoice() {
   if (!('webkitSpeechRecognition' in window)) {
