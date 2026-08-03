@@ -33,15 +33,13 @@ import critique from '../ergio/api/critique.js';
 import paystack from '../ergio/api/paystack.js';
 import site from '../ergio/api/site.js';
 import websites from '../ergio/api/websites.js';
-import testDeploy from '../ergio/api/test-deploy.js';
 
 const handlers = {
   auth, engines, business, bookings, payments, generate,
   leads, outreach, reviews, referrals, seo, analytics,
   notifications, card, expenses, invoices,
   'smart-pricing': smartPricing, social, upload, whatsapp, refine,
-  'test-deploy': testDeploy,
-  transform, agents, mcp, advisor, logo, critique, paystack, site, websites, 'test-deploy': testDeploy
+  transform, agents, mcp, advisor, logo, critique, paystack, site, websites
 };
 
 export default async function handler(req, res) {

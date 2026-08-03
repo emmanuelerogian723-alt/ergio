@@ -1,49 +1,16 @@
 {
   "functions": {
+    "api/[endpoint].js": {
+      "maxDuration": 60
+    },
     "api/health.js": {
       "maxDuration": 10
     },
     "api/firebase-config.js": {
       "maxDuration": 10
     },
-    "api/refine.js": {
-      "maxDuration": 60
-    },
-    "api/generate.js": {
-      "maxDuration": 60
-    },
-    "api/engines.js": {
-      "maxDuration": 60
-    },
-    "api/critique.js": {
-      "maxDuration": 60
-    },
-    "api/ai-assistant.js": {
-      "maxDuration": 60
-    },
-    "api/advisor.js": {
-      "maxDuration": 60
-    },
-    "api/logo.js": {
-      "maxDuration": 60
-    },
-    "api/outreach.js": {
-      "maxDuration": 60
-    },
-    "api/social.js": {
-      "maxDuration": 60
-    },
-    "api/seo.js": {
-      "maxDuration": 60
-    },
-    "api/smart-pricing.js": {
-      "maxDuration": 60
-    },
-    "api/whatsapp.js": {
-      "maxDuration": 60
-    },
-    "api/[[...route]].js": {
-      "maxDuration": 60
+    "api/console-bridge-sync.js": {
+      "maxDuration": 10
     }
   },
   "rewrites": [
