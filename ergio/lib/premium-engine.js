@@ -71,16 +71,16 @@ function heroBillboard(d) {
   return `<section style="min-height:100vh;position:relative;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;background:${bg}">
     <!-- Left: Typography -->
     <div style="display:flex;flex-direction:column;justify-content:center;padding:8% 6% 8% 7%;position:relative;z-index:2">
-      <div style="font-size:clamp(.65rem,1vw,.75rem);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:${primary};margin-bottom:1.5rem;opacity:0;animation:fadeIn .6s .1s forwards">
+      <div style="font-size:clamp(.65rem,1vw,.75rem);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:${primary};margin-bottom:1.5rem;animation:fadeIn .6s .1s forwards">
         ${d.category || d.type || 'Business'} · ${d.city || 'Nigeria'} · Est. ${new Date().getFullYear()}
       </div>
-      <h1 style="font-size:clamp(2.5rem,7vw,5.5rem);font-weight:900;line-height:0.92;letter-spacing:-0.04em;color:${text};margin-bottom:1.8rem;opacity:0;animation:fadeUp .8s .2s forwards">
+      <h1 style="font-size:clamp(2.5rem,7vw,5.5rem);font-weight:900;line-height:0.92;letter-spacing:-0.04em;color:${text};margin-bottom:1.8rem;animation:fadeUp .8s .2s forwards">
         ${d.headline || d.businessName}
       </h1>
-      <p style="font-size:clamp(1rem,1.8vw,1.25rem);color:${muted};max-width:440px;line-height:1.7;margin-bottom:2.5rem;opacity:0;animation:fadeUp .8s .4s forwards">
+      <p style="font-size:clamp(1rem,1.8vw,1.25rem);color:${muted};max-width:440px;line-height:1.7;margin-bottom:2.5rem;animation:fadeUp .8s .4s forwards">
         ${d.subheadline || d.tagline || ''}
       </p>
-      <div style="display:flex;gap:1rem;flex-wrap:wrap;opacity:0;animation:fadeUp .8s .6s forwards">
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;animation:fadeUp .8s .6s forwards">
         <a href="#contact" style="display:inline-flex;align-items:center;gap:.5rem;background:${primary};color:${bg};padding:1rem 2.2rem;border-radius:4px;font-weight:800;font-size:1rem;text-decoration:none;letter-spacing:-.01em;transition:all .3s;box-shadow:0 8px 24px ${primary}44">
           ${d.cta || 'Get Started'} <span style="font-size:1.1rem">→</span>
         </a>
@@ -89,7 +89,7 @@ function heroBillboard(d) {
         </a>
       </div>
       <!-- Stats strip -->
-      <div style="display:flex;gap:2.5rem;margin-top:3.5rem;padding-top:2rem;border-top:1px solid rgba(255,255,255,.08);opacity:0;animation:fadeIn .8s .8s forwards">
+      <div style="display:flex;gap:2.5rem;margin-top:3.5rem;padding-top:2rem;border-top:1px solid rgba(255,255,255,.08);animation:fadeIn .8s .8s forwards">
         ${(d.stats||[{label:'Happy Clients',value:'500+'},{label:'Projects',value:'200+'},{label:'Years',value:'5+'}]).slice(0,3).map(s => `
           <div>
             <div style="font-size:1.6rem;font-weight:900;color:${primary};letter-spacing:-.03em">${s.value}</div>
@@ -124,13 +124,13 @@ function heroCentered(d) {
   return `<section class="hero" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:${d.colors.bg};position:relative;overflow:hidden">
     <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 30%,${d.colors.primary}15,transparent 70%);z-index:0"></div>
     <div style="position:relative;z-index:2;padding:0 5%;max-width:900px">
-      <h1 style="font-size:clamp(3rem,10vw,7rem);font-weight:800;letter-spacing:-0.04em;line-height:1;margin-bottom:1.5rem;opacity:0;animation:fadeUp 1s .1s forwards;background:linear-gradient(180deg,${d.colors.text},${d.colors.muted});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${d.headline}</h1>
-      <p style="font-size:clamp(1.1rem,3vw,1.6rem);color:${d.colors.muted};margin-bottom:2.5rem;opacity:0;animation:fadeUp 1s .3s forwards">${d.subheadline}</p>
-      <div style="opacity:0;animation:fadeUp 1s .5s forwards">
+      <h1 style="font-size:clamp(3rem,10vw,7rem);font-weight:800;letter-spacing:-0.04em;line-height:1;margin-bottom:1.5rem;animation:fadeUp 1s .1s forwards;background:linear-gradient(180deg,${d.colors.text},${d.colors.muted});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${d.headline}</h1>
+      <p style="font-size:clamp(1.1rem,3vw,1.6rem);color:${d.colors.muted};margin-bottom:2.5rem;animation:fadeUp 1s .3s forwards">${d.subheadline}</p>
+      <div style="animation:fadeUp 1s .5s forwards">
         <a href="#contact" style="background:${d.colors.primary};color:${d.colors.bg};padding:1.2rem 2.5rem;border-radius:100px;font-weight:700;text-decoration:none;font-size:1.1rem;transition:all .3s;box-shadow:0 8px 30px ${d.colors.primary}66;display:inline-block">${d.cta||'Get Started'}</a>
       </div>
     </div>
-    <div style="position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);opacity:0;animation:fadeIn 1s 1s forwards;color:${d.colors.muted};font-size:0.8rem">Scroll to explore</div>
+    <div style="position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);animation:fadeIn 1s 1s forwards;color:${d.colors.muted};font-size:0.8rem">Scroll to explore</div>
   </section>`;
 }
 
@@ -139,14 +139,14 @@ function heroGradient(d) {
     <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,${d.colors.primary}33,transparent 50%),radial-gradient(ellipse at 80% 50%,${d.colors.accent}22,transparent 50%);z-index:0;animation:gradientShift 8s ease-in-out infinite alternate"></div>
     <div style="position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:0 5%;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center" class="hero-grid">
       <div>
-        <div style="display:inline-block;padding:0.4rem 1rem;border-radius:100px;background:${d.colors.primary}22;color:${d.colors.primary};font-size:0.8rem;font-weight:600;margin-bottom:1.5rem;opacity:0;animation:fadeUp .8s .1s forwards">${d.category||'Platform'}</div>
-        <h1 style="font-size:clamp(2.5rem,6vw,5rem);font-weight:800;line-height:1.05;letter-spacing:-0.02em;margin-bottom:1.5rem;opacity:0;animation:fadeUp .8s .2s forwards">${d.headline}</h1>
-        <p style="font-size:clamp(1rem,2.5vw,1.3rem);color:${d.colors.muted};margin-bottom:2rem;opacity:0;animation:fadeUp .8s .3s forwards">${d.subheadline}</p>
-        <div style="opacity:0;animation:fadeUp .8s .4s forwards">
+        <div style="display:inline-block;padding:0.4rem 1rem;border-radius:100px;background:${d.colors.primary}22;color:${d.colors.primary};font-size:0.8rem;font-weight:600;margin-bottom:1.5rem;animation:fadeUp .8s .1s forwards">${d.category||'Platform'}</div>
+        <h1 style="font-size:clamp(2.5rem,6vw,5rem);font-weight:800;line-height:1.05;letter-spacing:-0.02em;margin-bottom:1.5rem;animation:fadeUp .8s .2s forwards">${d.headline}</h1>
+        <p style="font-size:clamp(1rem,2.5vw,1.3rem);color:${d.colors.muted};margin-bottom:2rem;animation:fadeUp .8s .3s forwards">${d.subheadline}</p>
+        <div style="animation:fadeUp .8s .4s forwards">
           <a href="#contact" style="background:${d.colors.primary};color:${d.colors.bg};padding:1rem 2rem;border-radius:8px;font-weight:700;text-decoration:none;display:inline-block;transition:all .3s">${d.cta||'Start Free'}</a>
         </div>
       </div>
-      <div style="position:relative;opacity:0;animation:fadeIn 1s .5s forwards" class="hero-visual">
+      <div style="position:relative;animation:fadeIn 1s .5s forwards" class="hero-visual">
         <div style="background:${d.colors.surface};border:1px solid ${d.colors.border};border-radius:16px;padding:2rem;box-shadow:0 20px 60px rgba(0,0,0,0.3);backdrop-filter:blur(20px)">
           <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem"><div style="width:12px;height:12px;border-radius:50%;background:#ff5f57"></div><div style="width:12px;height:12px;border-radius:50%;background:#febc2e"></div><div style="width:12px;height:12px;border-radius:50%;background:#28c840"></div></div>
           <div style="font-family:monospace;font-size:0.85rem;color:${d.colors.muted};line-height:1.8">
@@ -184,27 +184,27 @@ function heroGlass(d) {
     <!-- Content -->
     <div style="position:relative;z-index:2;text-align:center;padding:5rem 5%;max-width:900px;margin:0 auto;width:100%">
       <!-- Badge -->
-      <div style="display:inline-flex;align-items:center;gap:.5rem;background:${isLight?'rgba(0,0,0,0.06)':'rgba(255,255,255,0.08)'};border:1px solid ${isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.12)'};border-radius:100px;padding:.35rem 1rem;font-size:.78rem;font-weight:600;color:${p};letter-spacing:.06em;text-transform:uppercase;margin-bottom:2rem;opacity:0;animation:fadeUp .6s .1s forwards">
+      <div style="display:inline-flex;align-items:center;gap:.5rem;background:${isLight?'rgba(0,0,0,0.06)':'rgba(255,255,255,0.08)'};border:1px solid ${isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.12)'};border-radius:100px;padding:.35rem 1rem;font-size:.78rem;font-weight:600;color:${p};letter-spacing:.06em;text-transform:uppercase;margin-bottom:2rem;animation:fadeUp .6s .1s forwards">
         ✦ ${d.category||d.type||'Business'} · ${d.city||'Nigeria'}
       </div>
       <!-- Headline -->
-      <h1 style="font-size:clamp(2.8rem,8vw,5.5rem);font-weight:900;letter-spacing:-0.04em;line-height:1.0;margin-bottom:1.5rem;opacity:0;animation:fadeUp .8s .2s forwards;background:linear-gradient(135deg,${tx} 0%,${tx}cc 60%,${p}88 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${d.headline||d.businessName}</h1>
+      <h1 style="font-size:clamp(2.8rem,8vw,5.5rem);font-weight:900;letter-spacing:-0.04em;line-height:1.0;margin-bottom:1.5rem;animation:fadeUp .8s .2s forwards;background:linear-gradient(135deg,${tx} 0%,${tx}cc 60%,${p}88 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${d.headline||d.businessName}</h1>
       <!-- Subheadline -->
-      <p style="font-size:clamp(1rem,2.5vw,1.35rem);color:${mu};margin:0 auto 2.5rem;max-width:580px;line-height:1.7;opacity:0;animation:fadeUp .8s .35s forwards">${d.subheadline||d.tagline||''}</p>
+      <p style="font-size:clamp(1rem,2.5vw,1.35rem);color:${mu};margin:0 auto 2.5rem;max-width:580px;line-height:1.7;animation:fadeUp .8s .35s forwards">${d.subheadline||d.tagline||''}</p>
       <!-- CTAs -->
-      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;opacity:0;animation:fadeUp .8s .5s forwards">
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;animation:fadeUp .8s .5s forwards">
         <a href="#contact" style="display:inline-flex;align-items:center;gap:.5rem;background:${p};color:${isLight?'#fff':bg};padding:1rem 2.2rem;border-radius:100px;font-weight:700;font-size:1rem;text-decoration:none;box-shadow:0 8px 30px ${p}44;transition:all .3s;letter-spacing:-.01em" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 40px ${p}66'" onmouseout="this.style.transform='';this.style.boxShadow='0 8px 30px ${p}44'">${d.cta||'Get Started'} →</a>
         <a href="#about" style="display:inline-flex;align-items:center;gap:.5rem;background:${isLight?'rgba(0,0,0,0.05)':'rgba(255,255,255,0.08)'};border:1px solid ${isLight?'rgba(0,0,0,0.12)':'rgba(255,255,255,0.15)'};color:${tx};padding:1rem 2rem;border-radius:100px;font-weight:600;font-size:1rem;text-decoration:none;transition:all .3s;backdrop-filter:blur(10px)">See Our Work</a>
       </div>
       <!-- Scroll hint -->
-      <div style="margin-top:4rem;opacity:0;animation:fadeIn 1s 1.2s forwards;display:flex;align-items:center;justify-content:center;gap:.8rem;color:${mu};font-size:.78rem;font-weight:500;letter-spacing:.06em">
+      <div style="margin-top:4rem;animation:fadeIn 1s 1.2s forwards;display:flex;align-items:center;justify-content:center;gap:.8rem;color:${mu};font-size:.78rem;font-weight:500;letter-spacing:.06em">
         <div style="width:1px;height:30px;background:linear-gradient(to bottom,transparent,${mu}66)"></div>
         SCROLL TO EXPLORE
         <div style="width:1px;height:30px;background:linear-gradient(to bottom,${mu}66,transparent)"></div>
       </div>
     </div>
     <!-- Floating ambient card (bottom right) -->
-    <div style="position:absolute;bottom:2.5rem;right:2.5rem;background:${isLight?'rgba(255,255,255,0.9)':'rgba(0,0,0,0.5)'};backdrop-filter:blur(20px);border:1px solid ${isLight?'rgba(0,0,0,0.08)':'rgba(255,255,255,0.1)'};border-radius:16px;padding:1rem 1.4rem;opacity:0;animation:fadeIn 1s 1.5s forwards;box-shadow:0 8px 32px rgba(0,0,0,0.15);max-width:220px">
+    <div style="position:absolute;bottom:2.5rem;right:2.5rem;background:${isLight?'rgba(255,255,255,0.9)':'rgba(0,0,0,0.5)'};backdrop-filter:blur(20px);border:1px solid ${isLight?'rgba(0,0,0,0.08)':'rgba(255,255,255,0.1)'};border-radius:16px;padding:1rem 1.4rem;animation:fadeIn 1s 1.5s forwards;box-shadow:0 8px 32px rgba(0,0,0,0.15);max-width:220px">
       <div style="font-size:.65rem;color:${mu};text-transform:uppercase;letter-spacing:.1em;font-weight:600">Based in</div>
       <div style="font-size:1rem;font-weight:800;color:${tx};margin:.25rem 0 .5rem">${d.city||'Nigeria'} 📍</div>
       <div style="width:100%;height:3px;border-radius:3px;background:linear-gradient(90deg,${p},${ac})"></div>
@@ -217,9 +217,9 @@ function hero3D(d) {
     <canvas id="hero-3d-canvas" style="position:absolute;inset:0;z-index:0;opacity:0.7"></canvas>
     <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,${d.colors.bg}cc 80%,${d.colors.bg} 100%);z-index:1"></div>
     <div style="position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:0 5%;width:100%;text-align:center">
-      <h1 style="font-size:clamp(3rem,10vw,7rem);font-weight:900;letter-spacing:-0.04em;line-height:0.95;margin-bottom:1.5rem;opacity:0;animation:fadeUp 1s .3s forwards;background:linear-gradient(135deg,${d.colors.text},${d.colors.primary});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${d.headline}</h1>
-      <p style="font-size:clamp(1.1rem,3vw,1.6rem);color:${d.colors.muted};margin-bottom:2.5rem;opacity:0;animation:fadeUp 1s .5s forwards">${d.subheadline}</p>
-      <div style="opacity:0;animation:fadeUp 1s .7s forwards">
+      <h1 style="font-size:clamp(3rem,10vw,7rem);font-weight:900;letter-spacing:-0.04em;line-height:0.95;margin-bottom:1.5rem;animation:fadeUp 1s .3s forwards;background:linear-gradient(135deg,${d.colors.text},${d.colors.primary});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${d.headline}</h1>
+      <p style="font-size:clamp(1.1rem,3vw,1.6rem);color:${d.colors.muted};margin-bottom:2.5rem;animation:fadeUp 1s .5s forwards">${d.subheadline}</p>
+      <div style="animation:fadeUp 1s .7s forwards">
         <a href="#contact" style="background:${d.colors.primary};color:${d.colors.bg};padding:1.2rem 3rem;border-radius:100px;font-weight:800;text-decoration:none;font-size:1.1rem;display:inline-block;box-shadow:0 10px 40px ${d.colors.primary}55;transition:all .3s">${d.cta||'Get Started'}</a>
       </div>
     </div>
@@ -261,13 +261,13 @@ function heroCinematic(d) {
     <div style="position:absolute;inset:0;background:linear-gradient(90deg,${bg}ee 0%,transparent 40%);z-index:1"></div>
     <!-- Content -->
     <div style="position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:0 5% 6rem;width:100%">
-      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:2rem;opacity:0;animation:fadeIn 1s .3s forwards">
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:2rem;animation:fadeIn 1s .3s forwards">
         <div style="width:48px;height:2px;background:${p}"></div>
         <span style="font-size:.7rem;font-weight:700;color:${p};letter-spacing:.18em;text-transform:uppercase">${d.category||d.type||'Luxury'} · ${d.city||'Nigeria'}</span>
       </div>
-      <h1 style="font-family:'Playfair Display',serif;font-size:clamp(2.8rem,8vw,6rem);font-weight:700;line-height:1.0;letter-spacing:-0.02em;margin-bottom:1.5rem;opacity:0;animation:fadeUp 1.2s .4s forwards;color:${tx}">${d.headline}</h1>
-      <p style="font-size:clamp(1rem,2.5vw,1.3rem);color:${mu};font-style:italic;margin-bottom:3rem;max-width:580px;line-height:1.7;opacity:0;animation:fadeUp 1.2s .6s forwards">${d.subheadline}</p>
-      <div style="display:flex;gap:1rem;flex-wrap:wrap;opacity:0;animation:fadeUp 1.2s .8s forwards">
+      <h1 style="font-family:'Playfair Display',serif;font-size:clamp(2.8rem,8vw,6rem);font-weight:700;line-height:1.0;letter-spacing:-0.02em;margin-bottom:1.5rem;animation:fadeUp 1.2s .4s forwards;color:${tx}">${d.headline}</h1>
+      <p style="font-size:clamp(1rem,2.5vw,1.3rem);color:${mu};font-style:italic;margin-bottom:3rem;max-width:580px;line-height:1.7;animation:fadeUp 1.2s .6s forwards">${d.subheadline}</p>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;animation:fadeUp 1.2s .8s forwards">
         <a href="#contact" style="background:${p};color:#000;padding:1rem 2.5rem;text-decoration:none;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.88rem;transition:all .3s;display:inline-block;box-shadow:0 8px 30px ${p}44">${d.cta||'Discover'}</a>
         <a href="#about" style="background:transparent;border:1px solid rgba(255,255,255,.3);color:${tx};padding:1rem 2.2rem;text-decoration:none;font-weight:600;letter-spacing:.04em;font-size:.88rem;transition:all .3s;display:inline-block;backdrop-filter:blur(8px)">Our Story</a>
       </div>
@@ -304,15 +304,15 @@ function heroFullscreen(d) {
     <div style="position:absolute;inset:0;background:linear-gradient(135deg,${bg}ee 0%,${bg}99 50%,${bg}bb 100%);z-index:1"></div>
     <!-- Content -->
     <div style="position:relative;z-index:2;text-align:center;max-width:900px;padding:0 5%">
-      <div style="display:inline-block;padding:.4rem 1.2rem;border-radius:100px;background:${p}20;border:1px solid ${p}33;color:${p};font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2rem;opacity:0;animation:fadeUp .6s .1s forwards">${d.category||d.type||'Business'}</div>
-      <h1 style="font-size:clamp(3.5rem,10vw,7.5rem);font-weight:900;letter-spacing:-0.04em;line-height:0.92;margin-bottom:1.8rem;opacity:0;animation:fadeUp .8s .2s forwards;text-shadow:0 4px 30px rgba(0,0,0,.3)">${d.headline||d.businessName}</h1>
-      <p style="font-size:clamp(1.1rem,2.8vw,1.5rem);color:${mu};margin:0 auto 3rem;max-width:600px;line-height:1.65;opacity:0;animation:fadeUp .8s .4s forwards">${d.subheadline||d.tagline||''}</p>
-      <div style="display:flex;gap:1.2rem;justify-content:center;flex-wrap:wrap;opacity:0;animation:fadeUp .8s .6s forwards">
+      <div style="display:inline-block;padding:.4rem 1.2rem;border-radius:100px;background:${p}20;border:1px solid ${p}33;color:${p};font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2rem;animation:fadeUp .6s .1s forwards">${d.category||d.type||'Business'}</div>
+      <h1 style="font-size:clamp(3.5rem,10vw,7.5rem);font-weight:900;letter-spacing:-0.04em;line-height:0.92;margin-bottom:1.8rem;animation:fadeUp .8s .2s forwards;text-shadow:0 4px 30px rgba(0,0,0,.3)">${d.headline||d.businessName}</h1>
+      <p style="font-size:clamp(1.1rem,2.8vw,1.5rem);color:${mu};margin:0 auto 3rem;max-width:600px;line-height:1.65;animation:fadeUp .8s .4s forwards">${d.subheadline||d.tagline||''}</p>
+      <div style="display:flex;gap:1.2rem;justify-content:center;flex-wrap:wrap;animation:fadeUp .8s .6s forwards">
         <a href="#contact" style="background:${p};color:${bg};padding:1.2rem 3rem;border-radius:100px;font-weight:800;text-decoration:none;font-size:1rem;transition:all .3s;box-shadow:0 10px 40px ${p}55;letter-spacing:-.01em">${d.cta||'Get Started'}</a>
         <a href="#about" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:${tx};padding:1.2rem 2.5rem;border-radius:100px;font-weight:600;text-decoration:none;font-size:1rem;transition:all .3s;backdrop-filter:blur(12px)">Learn More</a>
       </div>
       <!-- Bottom stats strip -->
-      <div style="display:flex;justify-content:center;gap:3rem;margin-top:4rem;padding-top:2.5rem;border-top:1px solid rgba(255,255,255,.08);opacity:0;animation:fadeIn .8s 1s forwards">
+      <div style="display:flex;justify-content:center;gap:3rem;margin-top:4rem;padding-top:2.5rem;border-top:1px solid rgba(255,255,255,.08);animation:fadeIn .8s 1s forwards">
         ${(d.stats||[{label:'Happy Clients',value:'500+'},{label:'Years Experience',value:'10+'},{label:'Success Rate',value:'98%'}]).slice(0,3).map(s => `
           <div style="text-align:center">
             <div style="font-size:1.8rem;font-weight:900;color:${p};letter-spacing:-.03em">${s.value}</div>
@@ -327,8 +327,8 @@ function heroPinned(d) {
   return `<section class="hero" style="height:100vh;display:flex;align-items:center;background:${d.colors.bg};position:relative;overflow:hidden;position:sticky;top:0">
     <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,${d.colors.primary}11,transparent 70%);z-index:0"></div>
     <div style="position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:0 5%;width:100%">
-      <h1 style="font-size:clamp(3rem,12vw,8rem);font-weight:900;letter-spacing:-0.05em;line-height:0.9;margin-bottom:1.5rem;opacity:0;animation:fadeUp 1s .3s forwards">${d.headline}</h1>
-      <p style="font-size:clamp(1.2rem,4vw,2rem);color:${d.colors.muted};max-width:700px;opacity:0;animation:fadeUp 1s .5s forwards">${d.subheadline}</p>
+      <h1 style="font-size:clamp(3rem,12vw,8rem);font-weight:900;letter-spacing:-0.05em;line-height:0.9;margin-bottom:1.5rem;animation:fadeUp 1s .3s forwards">${d.headline}</h1>
+      <p style="font-size:clamp(1.2rem,4vw,2rem);color:${d.colors.muted};max-width:700px;animation:fadeUp 1s .5s forwards">${d.subheadline}</p>
     </div>
   </section>`;
 }
@@ -336,10 +336,10 @@ function heroPinned(d) {
 function heroDashboard(d) {
   return `<section class="hero" style="min-height:90vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,${d.colors.bg} 0%,${d.colors.surface} 100%);position:relative;padding:4rem 5%">
     <div style="text-align:center;max-width:800px;margin-bottom:3rem">
-      <h1 style="font-size:clamp(2.5rem,7vw,5rem);font-weight:800;letter-spacing:-0.03em;line-height:1.05;margin-bottom:1.5rem;opacity:0;animation:fadeUp .8s .2s forwards">${d.headline}</h1>
-      <p style="font-size:clamp(1rem,2.5vw,1.4rem);color:${d.colors.muted};opacity:0;animation:fadeUp .8s .3s forwards">${d.subheadline}</p>
+      <h1 style="font-size:clamp(2.5rem,7vw,5rem);font-weight:800;letter-spacing:-0.03em;line-height:1.05;margin-bottom:1.5rem;animation:fadeUp .8s .2s forwards">${d.headline}</h1>
+      <p style="font-size:clamp(1rem,2.5vw,1.4rem);color:${d.colors.muted};animation:fadeUp .8s .3s forwards">${d.subheadline}</p>
     </div>
-    <div style="width:100%;max-width:900px;background:${d.colors.surface};border:1px solid ${d.colors.border};border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);opacity:0;animation:fadeUp .8s .5s forwards">
+    <div style="width:100%;max-width:900px;background:${d.colors.surface};border:1px solid ${d.colors.border};border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:fadeUp .8s .5s forwards">
       <div style="display:flex;border-bottom:1px solid ${d.colors.border}">
         <div style="width:200px;border-right:1px solid ${d.colors.border};padding:1rem">
           <div style="height:30px;background:${d.colors.primary}33;border-radius:6px;margin-bottom:0.8rem"></div>
@@ -622,6 +622,7 @@ export function generateSEO(d) {
 export const INTERACTION_JS = `
     const observer=new IntersectionObserver((e)=>{e.forEach(en=>{if(en.isIntersecting)en.target.classList.add('active')})},{threshold:0.1,rootMargin:'0px 0px -50px 0px'});
     document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger').forEach(el=>observer.observe(el));
+    setTimeout(function(){document.querySelectorAll('.reveal:not(.active),.reveal-left:not(.active),.reveal-right:not(.active),.stagger:not(.active)').forEach(function(el){el.classList.add('active')})},1500);
     document.querySelectorAll('.counter').forEach(el=>{const t=el.dataset.target;if(!t||isNaN(parseInt(t)))return;const n=parseInt(t);let c=0;const inc=n/50;const u=()=>{c+=inc;if(c<n){el.textContent=Math.ceil(c)+'+';requestAnimationFrame(u)}else{el.textContent=t}};const co=new IntersectionObserver((e)=>{if(e[0].isIntersecting){u();co.disconnect()}});co.observe(el)});
     const nav=document.getElementById('nav');if(nav)window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>50));
     const hb=document.querySelector('.hero img');if(hb)window.addEventListener('scroll',()=>hb.style.transform='translateY('+scrollY*0.3+'px)');
@@ -681,13 +682,13 @@ export function assemblePremiumWebsite(plan, content, colors, logoUrl, images, l
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
     @keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-    .reveal{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+    .reveal{opacity:1;transform:translateY(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
     .reveal.active{opacity:1;transform:translateY(0)}
-    .reveal-left{opacity:0;transform:translateX(-50px);transition:all .8s cubic-bezier(.16,1,.3,1)}
+    .reveal-left{opacity:1;transform:translateX(-50px);transition:all .8s cubic-bezier(.16,1,.3,1)}
     .reveal-left.active{opacity:1;transform:translateX(0)}
-    .reveal-right{opacity:0;transform:translateX(50px);transition:all .8s cubic-bezier(.16,1,.3,1)}
+    .reveal-right{opacity:1;transform:translateX(50px);transition:all .8s cubic-bezier(.16,1,.3,1)}
     .reveal-right.active{opacity:1;transform:translateX(0)}
-    .stagger>*{opacity:0;transform:translateY(30px);transition:all .6s cubic-bezier(.16,1,.3,1)}
+    .stagger>*{opacity:1;transform:translateY(30px);transition:all .6s cubic-bezier(.16,1,.3,1)}
     .stagger.active>*:nth-child(1){opacity:1;transform:none;transition-delay:.1s}
     .stagger.active>*:nth-child(2){opacity:1;transform:none;transition-delay:.2s}
     .stagger.active>*:nth-child(3){opacity:1;transform:none;transition-delay:.3s}
@@ -757,9 +758,9 @@ export function hero3DWithModel(d) {
     <canvas id="hero-gltf-canvas" style="position:absolute;inset:0;z-index:0"></canvas>
     <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,${d.colors.bg}cc 80%,${d.colors.bg} 100%);z-index:1"></div>
     <div style="position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:0 5%;width:100%;text-align:center">
-      <h1 style="font-size:clamp(3rem,10vw,7rem);font-weight:900;letter-spacing:-0.04em;line-height:0.95;margin-bottom:1.5rem;opacity:0;animation:fadeUp 1s .3s forwards;background:linear-gradient(135deg,${d.colors.text},${d.colors.primary});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${d.headline}</h1>
-      <p style="font-size:clamp(1.1rem,3vw,1.6rem);color:${d.colors.muted};margin-bottom:2.5rem;opacity:0;animation:fadeUp 1s .5s forwards">${d.subheadline}</p>
-      <div style="opacity:0;animation:fadeUp 1s .7s forwards">
+      <h1 style="font-size:clamp(3rem,10vw,7rem);font-weight:900;letter-spacing:-0.04em;line-height:0.95;margin-bottom:1.5rem;animation:fadeUp 1s .3s forwards;background:linear-gradient(135deg,${d.colors.text},${d.colors.primary});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${d.headline}</h1>
+      <p style="font-size:clamp(1.1rem,3vw,1.6rem);color:${d.colors.muted};margin-bottom:2.5rem;animation:fadeUp 1s .5s forwards">${d.subheadline}</p>
+      <div style="animation:fadeUp 1s .7s forwards">
         <a href="#contact" style="background:${d.colors.primary};color:${d.colors.bg};padding:1.2rem 3rem;border-radius:100px;font-weight:800;text-decoration:none;font-size:1.1rem;display:inline-block;box-shadow:0 10px 40px ${d.colors.primary}55">${d.cta||'Get Started'}</a>
       </div>
     </div>
@@ -811,10 +812,10 @@ export function heroVideo(d) {
     </video>` : `<div style="position:absolute;inset:0;z-index:0"><img src="${fallbackImg}" alt="${d.businessName}" style="width:100%;height:100%;object-fit:cover"></div>`}
     <div style="position:absolute;inset:0;background:linear-gradient(180deg,${d.colors.bg}33 0%,${d.colors.bg}99 70%,${d.colors.bg} 100%);z-index:1"></div>
     <div style="position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:0 5%;width:100%;text-align:center">
-      <div style="display:inline-block;padding:0.4rem 1rem;border-radius:100px;background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);color:${d.colors.primary};font-size:0.8rem;font-weight:600;margin-bottom:1.5rem;opacity:0;animation:fadeIn 1s .1s forwards">▶ Video Experience</div>
-      <h1 style="font-size:clamp(3rem,10vw,7rem);font-weight:900;letter-spacing:-0.04em;line-height:0.95;margin-bottom:1.5rem;opacity:0;animation:fadeUp 1s .3s forwards">${d.headline}</h1>
-      <p style="font-size:clamp(1.1rem,3vw,1.6rem);color:${d.colors.muted};margin-bottom:2.5rem;max-width:600px;margin-left:auto;margin-right:auto;opacity:0;animation:fadeUp 1s .5s forwards">${d.subheadline}</p>
-      <div style="opacity:0;animation:fadeUp 1s .7s forwards;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+      <div style="display:inline-block;padding:0.4rem 1rem;border-radius:100px;background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);color:${d.colors.primary};font-size:0.8rem;font-weight:600;margin-bottom:1.5rem;animation:fadeIn 1s .1s forwards">▶ Video Experience</div>
+      <h1 style="font-size:clamp(3rem,10vw,7rem);font-weight:900;letter-spacing:-0.04em;line-height:0.95;margin-bottom:1.5rem;animation:fadeUp 1s .3s forwards">${d.headline}</h1>
+      <p style="font-size:clamp(1.1rem,3vw,1.6rem);color:${d.colors.muted};margin-bottom:2.5rem;max-width:600px;margin-left:auto;margin-right:auto;animation:fadeUp 1s .5s forwards">${d.subheadline}</p>
+      <div style="animation:fadeUp 1s .7s forwards;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
         <a href="#contact" style="background:${d.colors.primary};color:${d.colors.bg};padding:1.2rem 3rem;border-radius:100px;font-weight:800;text-decoration:none;font-size:1.1rem;display:inline-block;box-shadow:0 10px 40px ${d.colors.primary}55">${d.cta||'Get Started'}</a>
         <a href="#about" style="border:1px solid ${d.colors.border};color:${d.colors.text};padding:1.2rem 3rem;border-radius:100px;font-weight:600;text-decoration:none;font-size:1.1rem;display:inline-block">Learn More</a>
       </div>
@@ -1002,7 +1003,7 @@ function generateSinglePage(pageName, pageData, d, slug) {
     .nav-links a{color:var(--muted);transition:color .3s;font-weight:600}
     .nav-links a:hover,.nav-links a.active{color:var(--primary)}
     .nav-toggle{display:none;background:none;border:none;color:var(--text);font-size:1.5rem;cursor:pointer}
-    section{padding:5rem 5%}.reveal{opacity:0;transform:translateY(40px);transition:all .8s cubic-bezier(.16,1,.3,1)}.reveal.active{opacity:1;transform:translateY(0)}
+    section{padding:5rem 5%}.reveal{opacity:1;transform:translateY(40px);transition:all .8s cubic-bezier(.16,1,.3,1)}.reveal.active{opacity:1;transform:translateY(0)}
     @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     @media(max-width:768px){.nav-links{display:none}.nav-toggle{display:block}section{padding:3rem 5%}}
@@ -1035,6 +1036,7 @@ function generateSinglePage(pageName, pageData, d, slug) {
   </footer>
   <script>
     new IntersectionObserver((e)=>{e.forEach(en=>{if(en.isIntersecting)en.target.classList.add('active')})},{threshold:0.1}).observe(document.querySelector('.reveal')||document.body);
+    setTimeout(function(){document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger:not(.active)').forEach(function(el){el.classList.add('active')})},1000);
     // Page transition on link click
     document.querySelectorAll('a[href^="/"]').forEach(a=>{a.addEventListener('click',e=>{if(a.target==='_blank')return;e.preventDefault();document.body.style.opacity='0';document.body.style.transition='opacity .3s';setTimeout(()=>location.href=a.href,300);});});
   </script>
@@ -1391,11 +1393,11 @@ export function assemblePremiumWebsiteV4(plan, content, colors, logoUrl, images,
     @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
     @keyframes scaleIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
     @keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-    .reveal{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+    .reveal{opacity:1;transform:translateY(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
     .reveal.active{opacity:1;transform:translateY(0)}
-    .reveal-left{opacity:0;transform:translateX(-50px);transition:all .8s cubic-bezier(.16,1,.3,1)}.reveal-left.active{opacity:1;transform:translateX(0)}
-    .reveal-right{opacity:0;transform:translateX(50px);transition:all .8s cubic-bezier(.16,1,.3,1)}.reveal-right.active{opacity:1;transform:translateX(0)}
-    .stagger>*{opacity:0;transform:translateY(30px);transition:all .6s cubic-bezier(.16,1,.3,1)}
+    .reveal-left{opacity:1;transform:translateX(-50px);transition:all .8s cubic-bezier(.16,1,.3,1)}.reveal-left.active{opacity:1;transform:translateX(0)}
+    .reveal-right{opacity:1;transform:translateX(50px);transition:all .8s cubic-bezier(.16,1,.3,1)}.reveal-right.active{opacity:1;transform:translateX(0)}
+    .stagger>*{opacity:1;transform:translateY(30px);transition:all .6s cubic-bezier(.16,1,.3,1)}
     .stagger.active>*:nth-child(1){opacity:1;transform:none;transition-delay:.1s}
     .stagger.active>*:nth-child(2){opacity:1;transform:none;transition-delay:.2s}
     .stagger.active>*:nth-child(3){opacity:1;transform:none;transition-delay:.3s}
