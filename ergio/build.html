@@ -1980,28 +1980,25 @@ function showPreview(html, title = 'Preview') {
   
   // Fix: Generated websites use .reveal { opacity:0 } with IntersectionObserver
   // to animate content in on scroll. Inside an iframe, the observer may not
-  // fire, leaving all content invisible. Override the CSS to make everything
-  // visible immediately, then inject a script to add .active class as backup.
-  var injectHtml = html;
-  // 1. Override reveal CSS to be visible by default
-  injectHtml = injectHtml.replace(/\.reveal\{opacity:0/g, '.reveal{opacity:1');
-  injectHtml = injectHtml.replace(/\.reveal-left\{opacity:0/g, '.reveal-left{opacity:1');
-  injectHtml = injectHtml.replace(/\.reveal-right\{opacity:0/g, '.reveal-right{opacity:1');
-  injectHtml = injectHtml.replace(/\.reveal-scale\{opacity:0/g, '.reveal-scale{opacity:1');
-  injectHtml = injectHtml.replace(/\.stagger\{opacity:0/g, '.stagger{opacity:1');
-  // 2. Also override transform so content isn't shifted off-screen
-  injectHtml = injectHtml.replace(/transform:translateY\(40px\)/g, 'transform:translateY(0)');
-  injectHtml = injectHtml.replace(/transform:translateX\(-40px\)/g, 'transform:translateX(0)');
-  injectHtml = injectHtml.replace(/transform:translateX\(40px\)/g, 'transform:translateX(0)');
-  injectHtml = injectHtml.replace(/transform:scale\(0\.9\)/g, 'transform:scale(1)');
-  // 3. Inject a backup script to add .active class
-  var revealFix = '<scr' + 'ipt>' +
+  // fire, leaving all content invisible. Inject a CSS override + script tag.
+  var overrideCSS = '<sty' + 'le>' +
+    '.reveal,.reveal-left,.reveal-right,.reveal-scale{opacity:1!important;transform:none!important}' +
+    '.stagger,.stagger>*{opacity:1!important;transform:none!important}' +
+    '.page-enter{opacity:1!important;transform:none!important}' +
+    '</sty' + 'le>';
+  var overrideJS = '<scr' + 'ipt>' +
     'document.querySelectorAll(".reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger").forEach(function(el){el.classList.add("active")});' +
     '</scr' + 'ipt>';
-  if (injectHtml.indexOf('</body>') > -1) {
-    injectHtml = injectHtml.replace('</body>', revealFix + '</body>');
+  var injectHtml = html;
+  if (injectHtml.indexOf('</head>') > -1) {
+    injectHtml = injectHtml.replace('</head>', overrideCSS + '</head>');
   } else {
-    injectHtml = injectHtml + revealFix;
+    injectHtml = overrideCSS + injectHtml;
+  }
+  if (injectHtml.indexOf('</body>') > -1) {
+    injectHtml = injectHtml.replace('</body>', overrideJS + '</body>');
+  } else {
+    injectHtml = injectHtml + overrideJS;
   }
   
   iframe.onload = function() {
