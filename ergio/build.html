@@ -1978,18 +1978,32 @@ function showPreview(html, title = 'Preview') {
   empty.style.display = 'none';
   iframe.style.display = 'block';
   
-  // Use srcdoc for reliable rendering (doc.write races with srcdoc and can blank the iframe)
+  // Inject a reveal-activation script into the HTML before setting srcdoc.
+  // This runs INSIDE the iframe so no cross-origin access needed.
+  var revealFix = '<script>' +
+    '(function(){' +
+    'function activateReveals(){' +
+    '  document.querySelectorAll(".reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger").forEach(function(el){el.classList.add("active")});' +
+    '}' +
+    'if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",activateReveals);' +
+    'else activateReveals();' +
+    'setTimeout(activateReveals,500);' +
+    'setTimeout(activateReveals,1500);' +
+    '})();' +
+    '<\/script>';
+  // Insert before </body> or append at end
+  var injectHtml = html;
+  if (injectHtml.indexOf('</body>') > -1) {
+    injectHtml = injectHtml.replace('</body>', revealFix + '</body>');
+  } else {
+    injectHtml = injectHtml + revealFix;
+  }
+  
   iframe.onload = function() {
     try {
-      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      var doc = iframe.contentDocument || iframe.contentWindow.document;
       if (doc && doc.body) {
-        // Activate all reveal animations — IntersectionObserver may not fire
-        // reliably inside a sandboxed iframe, so we force-activate them
-        doc.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger').forEach(function(el) {
-          el.classList.add('active');
-        });
-        // Set iframe height to match content
-        const h = Math.max(
+        var h = Math.max(
           doc.body.scrollHeight, doc.body.offsetHeight, doc.body.clientHeight,
           doc.documentElement.scrollHeight, doc.documentElement.offsetHeight
         );
@@ -1999,10 +2013,9 @@ function showPreview(html, title = 'Preview') {
         }
       }
     } catch(e) {}
-    // Ensure empty state stays hidden after load
     empty.style.display = 'none';
   };
-  iframe.srcdoc = html;
+  iframe.srcdoc = injectHtml;
   
   // Safety: if onload doesn't fire (rare), hide empty after 2s
   setTimeout(function() {
