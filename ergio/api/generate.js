@@ -443,7 +443,7 @@ Return ONLY JSON:
     // When the AI's bg color conflicts with the design palette (e.g. light bg vs dark design),
     // derive surface/text/muted from the AI's bg so the site looks visually consistent.
     const _dp = plan._design?.palette || {};
-    const _aiBg = plan.brandColors?.bg || _dp.bg || '#09090B';
+    const _aiBg = _dp.bg || plan.brandColors?.bg || '#09090B';
     const _isLightBg = _aiBg === '#fff' || _aiBg === '#ffffff' || 
       (_aiBg.startsWith('#') && parseInt(_aiBg.slice(1, 3), 16) > 200 &&
        parseInt(_aiBg.slice(3, 5), 16) > 200 && parseInt(_aiBg.slice(5, 7), 16) > 200);
@@ -451,9 +451,9 @@ Return ONLY JSON:
     const _bgMatchesDesign = _isLightBg === (_dp.bg === '#fff' || _dp.bg === '#ffffff' ||
       (_dp.bg?.startsWith('#') && parseInt(_dp.bg.slice(1, 3), 16) > 200));
     const colors = {
-      primary: plan.brandColors?.primary || _dp.primary || '#00D9FF',
+      primary: _dp.primary || plan.brandColors?.primary || '#00D9FF',
       secondary: plan.brandColors?.secondary || _dp.secondary || _dp.surface || '#09090B',
-      accent: plan.brandColors?.accent || _dp.accent || '#00FF9D',
+      accent: _dp.accent || plan.brandColors?.accent || '#00FF9D',
       bg: _aiBg,
       surface: _bgMatchesDesign ? (_dp.surface || '#111827') : (_isLightBg ? '#f8f9fa' : '#111827'),
       border: _bgMatchesDesign ? (_dp.border || 'rgba(255,255,255,0.1)') : (_isLightBg ? '#e5e7eb' : 'rgba(255,255,255,0.08)'),

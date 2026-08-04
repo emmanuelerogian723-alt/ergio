@@ -2013,16 +2013,26 @@ function showPreview(html, title = 'Preview') {
     try {
       var doc = iframe.contentDocument || iframe.contentWindow.document;
       if (doc && doc.body) {
-        var h = Math.max(
-          doc.body.scrollHeight, doc.body.offsetHeight, doc.body.clientHeight,
-          doc.documentElement.scrollHeight, doc.documentElement.offsetHeight
-        );
-        if (h > 100) {
-          iframe.style.height = h + 'px';
-          iframe.style.minHeight = h + 'px';
-        }
+        // Force all reveal elements visible immediately
+        doc.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger').forEach(function(el){el.classList.add('active')});
+        
+        // Calculate height — try multiple times as content may still be loading
+        var calcHeight = function() {
+          var h = Math.max(
+            doc.body.scrollHeight, doc.body.offsetHeight, doc.body.clientHeight,
+            doc.documentElement.scrollHeight, doc.documentElement.offsetHeight, 800
+          );
+          if (h > 100) {
+            iframe.style.height = h + 'px';
+            iframe.style.minHeight = h + 'px';
+          }
+        };
+        calcHeight();
+        // Retry after fonts/images load
+        setTimeout(calcHeight, 500);
+        setTimeout(calcHeight, 1500);
       }
-    } catch(e) {}
+    } catch(e) { console.log('iframe height error:', e); }
     empty.style.display = 'none';
   };
   iframe.srcdoc = injectHtml;
