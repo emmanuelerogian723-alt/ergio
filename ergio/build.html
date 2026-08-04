@@ -2009,6 +2009,10 @@ function showPreview(html, title = 'Preview') {
     injectHtml = injectHtml + overrideJS;
   }
   
+  // Use Blob URL instead of srcdoc for better reliability with large HTML
+  var blob = new Blob([injectHtml], { type: 'text/html' });
+  var blobUrl = URL.createObjectURL(blob);
+  
   iframe.onload = function() {
     try {
       var doc = iframe.contentDocument || iframe.contentWindow.document;
@@ -2028,14 +2032,16 @@ function showPreview(html, title = 'Preview') {
           }
         };
         calcHeight();
-        // Retry after fonts/images load
         setTimeout(calcHeight, 500);
         setTimeout(calcHeight, 1500);
+        setTimeout(calcHeight, 3000);
       }
     } catch(e) { console.log('iframe height error:', e); }
     empty.style.display = 'none';
+    // Clean up blob URL after load
+    setTimeout(function() { URL.revokeObjectURL(blobUrl); }, 1000);
   };
-  iframe.srcdoc = injectHtml;
+  iframe.src = blobUrl;
   
   // Safety: if onload doesn't fire (rare), hide empty after 2s
   setTimeout(function() {
