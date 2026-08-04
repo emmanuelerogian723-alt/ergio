@@ -1981,85 +1981,53 @@ function showPreview(html, title = 'Preview') {
   iframe.style.height = '3000px';
   iframe.style.minHeight = '3000px';
   
-  // Fix: Generated websites use opacity:0 with CSS animations and IntersectionObserver
-  // to reveal content on scroll. Inside a sandboxed iframe, animations may not fire
-  // and the observer never triggers, leaving all content invisible.
-  // Strategy: (1) strip opacity:0 from inline styles, (2) inject CSS !important override,
-  // (3) inject JS to add .active class as backup.
+  // Simple approach: inject reveal-fix CSS/JS into the HTML, then use srcdoc
   var injectHtml = html;
-  // 1. Strip opacity:0 from inline styles (replace with opacity:1)
-  injectHtml = injectHtml.replace(/opacity:0;/g, 'opacity:1;');
-  injectHtml = injectHtml.replace(/opacity: 0;/g, 'opacity:1;');
-  // 2. Inject CSS override for class-based reveal patterns
-  var overrideCSS = '<sty' + 'le>' +
-    '.reveal,.reveal-left,.reveal-right,.reveal-scale{opacity:1!important;transform:none!important}' +
-    '.stagger,.stagger>*{opacity:1!important;transform:none!important}' +
-    '.page-enter{opacity:1!important;transform:none!important}' +
-    '[style*="opacity:0"]{opacity:1!important}' +
+  
+  // Fix reveal animations: force opacity:1 and remove transforms
+  var fixCSS = '<sty' + 'le>' +
+    '.reveal,.reveal-left,.reveal-right,.reveal-scale{opacity:1!important;transform:none!important;animation:none!important}' +
+    '.stagger,.stagger>*{opacity:1!important;transform:none!important;animation:none!important}' +
+    '*{animation:none!important}' +
     '</sty' + 'le>';
   if (injectHtml.indexOf('</head>') > -1) {
-    injectHtml = injectHtml.replace('</head>', overrideCSS + '</head>');
-  } else {
-    injectHtml = overrideCSS + injectHtml;
-  }
-  // 3. Inject JS to add .active class to all reveal/stagger elements
-  var overrideJS = '<scr' + 'ipt>' +
-    'document.querySelectorAll(".reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger").forEach(function(el){el.classList.add("active")});' +
-    '</scr' + 'ipt>';
-  if (injectHtml.indexOf('</body>') > -1) {
-    injectHtml = injectHtml.replace('</body>', overrideJS + '</body>');
-  } else {
-    injectHtml = injectHtml + overrideJS;
+    injectHtml = injectHtml.replace('</head>', fixCSS + '</head>');
   }
   
-  // Use Blob URL instead of srcdoc for better reliability with large HTML
-  var blob = new Blob([injectHtml], { type: 'text/html' });
-  var blobUrl = URL.createObjectURL(blob);
+  // Add JS to force active class and set body visible
+  var fixJS = '<scr' + 'ipt>' +
+    'document.body.style.opacity="1";' +
+    'document.querySelectorAll("*").forEach(function(el){' +
+    '  if(el.style&&el.style.opacity==="0"){el.style.opacity="1";}' +
+    '  el.classList.add("active");' +
+    '});' +
+    '</scr' + 'ipt>';
+  if (injectHtml.indexOf('</body>') > -1) {
+    injectHtml = injectHtml.replace('</body>', fixJS + '</body>');
+  }
   
   iframe.onload = function() {
     try {
       var doc = iframe.contentDocument || iframe.contentWindow.document;
       if (doc && doc.body) {
-        // Force all reveal elements visible immediately
-        doc.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger').forEach(function(el){el.classList.add('active')});
-        
-        // Calculate height — try multiple times as content may still be loading
-        var calcHeight = function() {
-          var h = Math.max(
-            doc.body.scrollHeight, doc.body.offsetHeight, doc.body.clientHeight,
-            doc.documentElement.scrollHeight, doc.documentElement.offsetHeight, 800
-          );
-          if (h > 100) {
-            iframe.style.height = h + 'px';
-            iframe.style.minHeight = h + 'px';
-          }
-        };
-        calcHeight();
-        setTimeout(calcHeight, 500);
-        setTimeout(calcHeight, 1500);
-        setTimeout(calcHeight, 3000);
+        var h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight, 800);
+        iframe.style.height = h + 'px';
       }
-    } catch(e) { console.log('iframe height error:', e); }
+    } catch(e) {}
     empty.style.display = 'none';
-    // Clean up blob URL after load
-    setTimeout(function() { URL.revokeObjectURL(blobUrl); }, 1000);
   };
-  iframe.src = blobUrl;
   
-  // Fallback: if onload doesn't fire within 3s, force height
+  iframe.srcdoc = injectHtml;
+  
+  // Fallback height after 3s
   setTimeout(function() {
-    if (iframe.style.height === '3000px') {
-      // onload didn't update it, try to calculate now
-      try {
-        var doc = iframe.contentDocument || iframe.contentWindow.document;
-        if (doc && doc.body) {
-          var h = Math.max(doc.body.scrollHeight, doc.body.offsetHeight, 2000);
-          iframe.style.height = h + 'px';
-          iframe.style.minHeight = h + 'px';
-          doc.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger').forEach(function(el){el.classList.add('active')});
-        }
-      } catch(e) {}
-    }
+    try {
+      var doc = iframe.contentDocument || iframe.contentWindow.document;
+      if (doc && doc.body) {
+        var h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight, 800);
+        iframe.style.height = h + 'px';
+      }
+    } catch(e) {}
   }, 3000);
   
   // Safety: if onload doesn't fire (rare), hide empty after 2s
