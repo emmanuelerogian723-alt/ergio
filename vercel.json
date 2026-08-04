@@ -133,6 +133,10 @@
     {
       "source": "/manifest.json",
       "destination": "/ergio/manifest.json"
+    },
+    {
+      "source": "/test-preview.html",
+      "destination": "/ergio/test-preview.html"
     }
   ]
 }
