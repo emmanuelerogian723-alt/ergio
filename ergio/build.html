@@ -1977,6 +1977,9 @@ function showPreview(html, title = 'Preview') {
   overlay.style.display = 'none';
   empty.style.display = 'none';
   iframe.style.display = 'block';
+  // Set a large default height immediately — don't wait for onload
+  iframe.style.height = '3000px';
+  iframe.style.minHeight = '3000px';
   
   // Fix: Generated websites use opacity:0 with CSS animations and IntersectionObserver
   // to reveal content on scroll. Inside a sandboxed iframe, animations may not fire
@@ -2042,6 +2045,22 @@ function showPreview(html, title = 'Preview') {
     setTimeout(function() { URL.revokeObjectURL(blobUrl); }, 1000);
   };
   iframe.src = blobUrl;
+  
+  // Fallback: if onload doesn't fire within 3s, force height
+  setTimeout(function() {
+    if (iframe.style.height === '3000px') {
+      // onload didn't update it, try to calculate now
+      try {
+        var doc = iframe.contentDocument || iframe.contentWindow.document;
+        if (doc && doc.body) {
+          var h = Math.max(doc.body.scrollHeight, doc.body.offsetHeight, 2000);
+          iframe.style.height = h + 'px';
+          iframe.style.minHeight = h + 'px';
+          doc.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger').forEach(function(el){el.classList.add('active')});
+        }
+      } catch(e) {}
+    }
+  }, 3000);
   
   // Safety: if onload doesn't fire (rare), hide empty after 2s
   setTimeout(function() {
