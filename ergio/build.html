@@ -1978,21 +1978,26 @@ function showPreview(html, title = 'Preview') {
   empty.style.display = 'none';
   iframe.style.display = 'block';
   
-  // Inject a reveal-activation script into the HTML before setting srcdoc.
-  // This runs INSIDE the iframe so no cross-origin access needed.
-  var revealFix = '<script>' +
-    '(function(){' +
-    'function activateReveals(){' +
-    '  document.querySelectorAll(".reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger").forEach(function(el){el.classList.add("active")});' +
-    '}' +
-    'if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",activateReveals);' +
-    'else activateReveals();' +
-    'setTimeout(activateReveals,500);' +
-    'setTimeout(activateReveals,1500);' +
-    '})();' +
-    '<\/script>';
-  // Insert before </body> or append at end
+  // Fix: Generated websites use .reveal { opacity:0 } with IntersectionObserver
+  // to animate content in on scroll. Inside an iframe, the observer may not
+  // fire, leaving all content invisible. Override the CSS to make everything
+  // visible immediately, then inject a script to add .active class as backup.
   var injectHtml = html;
+  // 1. Override reveal CSS to be visible by default
+  injectHtml = injectHtml.replace(/\.reveal\{opacity:0/g, '.reveal{opacity:1');
+  injectHtml = injectHtml.replace(/\.reveal-left\{opacity:0/g, '.reveal-left{opacity:1');
+  injectHtml = injectHtml.replace(/\.reveal-right\{opacity:0/g, '.reveal-right{opacity:1');
+  injectHtml = injectHtml.replace(/\.reveal-scale\{opacity:0/g, '.reveal-scale{opacity:1');
+  injectHtml = injectHtml.replace(/\.stagger\{opacity:0/g, '.stagger{opacity:1');
+  // 2. Also override transform so content isn't shifted off-screen
+  injectHtml = injectHtml.replace(/transform:translateY\(40px\)/g, 'transform:translateY(0)');
+  injectHtml = injectHtml.replace(/transform:translateX\(-40px\)/g, 'transform:translateX(0)');
+  injectHtml = injectHtml.replace(/transform:translateX\(40px\)/g, 'transform:translateX(0)');
+  injectHtml = injectHtml.replace(/transform:scale\(0\.9\)/g, 'transform:scale(1)');
+  // 3. Inject a backup script to add .active class
+  var revealFix = '<scr' + 'ipt>' +
+    'document.querySelectorAll(".reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger").forEach(function(el){el.classList.add("active")});' +
+    '</scr' + 'ipt>';
   if (injectHtml.indexOf('</body>') > -1) {
     injectHtml = injectHtml.replace('</body>', revealFix + '</body>');
   } else {
