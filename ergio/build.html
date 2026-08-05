@@ -1974,6 +1974,8 @@ function showPreview(html, title = 'Preview') {
   const empty = document.getElementById('previewEmpty');
   const overlay = document.getElementById('scanOverlay');
   
+  console.log('showPreview called, html length:', html ? html.length : 0);
+  
   if (!html || html.length < 50) {
     console.warn('showPreview: empty or too-short HTML, skipping');
     return;
@@ -1982,83 +1984,29 @@ function showPreview(html, title = 'Preview') {
   overlay.style.display = 'none';
   empty.style.display = 'none';
   iframe.style.display = 'block';
-  iframe.style.height = '2000px';
-  iframe.style.minHeight = '2000px';
+  iframe.style.height = '3000px';
+  iframe.style.minHeight = '3000px';
   
   currentHTML = html;
   document.getElementById('codePre').textContent = html;
   
-  // Strip opacity:0 from the HTML to prevent hidden elements in iframe
-  var cleanHtml = html
-    .replace(/opacity:\s*0\s*[;"']/g, 'opacity:1$&')
-    .replace(/opacity:\s*0\.(\d)/g, 'opacity:1');
+  // Test 1: Try srcdoc with raw HTML, no modifications
+  iframe.srcdoc = html;
   
-  // Remove animation delays and set animation-fill-mode to both so elements
-  // are visible immediately (no waiting for animation to complete)
-  cleanHtml = cleanHtml.replace(
-    /animation\s*:\s*([^;]+)\s+forwards/g,
-    'animation:$1 both'
-  );
-  
-  // Use document.write — the most reliable way to render HTML in an iframe
-  // Step 1: set src to about:blank to get a fresh document
-  iframe.onload = function() {
+  // Test 2: Also try writing via contentDocument as backup
+  setTimeout(function() {
     try {
       var doc = iframe.contentDocument || iframe.contentWindow.document;
-      if (!doc) {
-        console.error('showPreview: cannot access iframe document');
-        return;
+      if (doc) {
+        console.log('iframe doc accessible, body exists:', !!doc.body);
+        console.log('iframe body innerHTML length:', doc.body ? doc.body.innerHTML.length : 0);
+        console.log('iframe body children:', doc.body ? doc.body.children.length : 0);
       }
-      
-      // Write the HTML directly into the iframe document
-      doc.open();
-      doc.write(cleanHtml);
-      doc.close();
-      
-      // Force all reveal elements visible
-      var allEls = doc.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger');
-      allEls.forEach(function(el) { el.classList.add('active'); });
-      
-      // Remove any opacity:0 inline styles
-      doc.querySelectorAll('[style*="opacity"]').forEach(function(el) {
-        if (el.style.opacity === '0' || el.style.opacity === '0.0') {
-          el.style.opacity = '1';
-        }
-      });
-      
-      // Calculate and set proper height after content loads
-      function setHeight() {
-        try {
-          var h = Math.max(
-            doc.body.scrollHeight,
-            doc.body.offsetHeight,
-            doc.documentElement.scrollHeight,
-            doc.documentElement.offsetHeight,
-            800
-          );
-          iframe.style.height = h + 'px';
-          iframe.style.minHeight = h + 'px';
-        } catch(e) {}
-      }
-      
-      setHeight();
-      // Retry after images/fonts load
-      setTimeout(setHeight, 500);
-      setTimeout(setHeight, 1500);
-      setTimeout(setHeight, 3000);
-      
     } catch(e) {
-      console.error('showPreview: document.write error:', e);
-      // Fallback to srcdoc
-      try { iframe.srcdoc = cleanHtml; } catch(e2) {}
+      console.error('iframe access error:', e.message);
     }
-  };
+  }, 2000);
   
-  // Trigger the load by setting src to about:blank
-  // If the iframe already has about:blank, force a reload
-  iframe.src = 'about:blank';
-  
-  // Schedule auto-save
   scheduleAutoSave();
 }
 
