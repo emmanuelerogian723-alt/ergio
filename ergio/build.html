@@ -1936,8 +1936,9 @@ function handleSSE(event, stepMap, prevStep) {
     // Mark all done
     BUILD_STEPS.forEach(s => updateStep(s.id, 'done'));
     
-    // Show final preview
-    showPreview(currentHTML, biz.businessName || 'Your Website');
+    // Show final preview — try URL-based loading first (most reliable)
+    var finalSlug = biz.slug || (biz.businessName || 'my-business').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    showPreviewFromUrl(finalSlug, currentHTML, biz.businessName || 'Your Website');
     
     // Add version
     addVersion(biz.businessName || 'v1', 'Initial build');
@@ -1969,53 +1970,43 @@ function handleSSE(event, stepMap, prevStep) {
   }
 }
 
-function showPreview(html, title = 'Preview') {
+function showPreviewFromUrl(slug, fallbackHtml, title) {
   var iframe = document.getElementById('previewIframe');
   var empty = document.getElementById('previewEmpty');
   var overlay = document.getElementById('scanOverlay');
-  
-  if (!html || html.length < 50) return;
   
   overlay.style.display = 'none';
   empty.style.display = 'none';
   iframe.style.display = 'block';
   iframe.style.width = '100%';
   iframe.style.border = 'none';
-  iframe.style.height = '100%';
   iframe.style.minHeight = '600px';
   
-  currentHTML = html;
-  document.getElementById('codePre').textContent = html;
+  currentHTML = fallbackHtml;
+  document.getElementById('codePre').textContent = fallbackHtml;
   
-  // Use srcdoc — now that sandbox is removed, this should render properly
+  var loaded = false;
+  
+  // Try loading from URL first (same-origin, most reliable in all browsers)
   iframe.onload = function() {
+    loaded = true;
     var doc = null;
     try {
       doc = iframe.contentDocument || iframe.contentWindow.document;
-    } catch(e) {
-      console.warn('Cannot access iframe doc:', e.message);
-    }
+    } catch(e) {}
     
     if (doc) {
-      // Force all reveal elements to active (in case IntersectionObserver doesn't fire)
       try {
         doc.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger').forEach(function(el) {
           el.classList.add('active');
         });
-        // Remove any opacity:0 inline styles
-        doc.querySelectorAll('[style]').forEach(function(el) {
-          if (el.style.opacity === '0') el.style.opacity = '1';
-        });
       } catch(e) {}
       
-      // Calculate proper height
       function adjustHeight() {
         try {
           var h = Math.max(
-            doc.body.scrollHeight,
-            doc.body.offsetHeight,
-            doc.documentElement.scrollHeight,
-            doc.documentElement.offsetHeight,
+            doc.body.scrollHeight, doc.body.offsetHeight,
+            doc.documentElement.scrollHeight, doc.documentElement.offsetHeight,
             600
           );
           iframe.style.height = h + 'px';
@@ -2028,18 +2019,89 @@ function showPreview(html, title = 'Preview') {
     }
   };
   
+  // Set iframe src to the site API endpoint — loads HTML from same origin
+  iframe.src = '/api/site?slug=' + encodeURIComponent(slug);
+  
+  // Fallback after 4s: if URL loading didn't work, use srcdoc
+  setTimeout(function() {
+    if (!loaded) {
+      console.log('URL load failed, falling back to srcdoc');
+      iframe.onload = null;
+      showPreview(fallbackHtml, title);
+    }
+  }, 4000);
+  
+  scheduleAutoSave();
+}
+
+function showPreview(html, title = 'Preview') {
+  var iframe = document.getElementById('previewIframe');
+  var empty = document.getElementById('previewEmpty');
+  var overlay = document.getElementById('scanOverlay');
+  
+  if (!html || html.length < 50) return;
+  
+  overlay.style.display = 'none';
+  empty.style.display = 'none';
+  iframe.style.display = 'block';
+  iframe.style.width = '100%';
+  iframe.style.border = 'none';
+  iframe.style.minHeight = '600px';
+  
+  currentHTML = html;
+  document.getElementById('codePre').textContent = html;
+  
+  // Primary approach: write HTML directly into iframe via document object
+  // This is more reliable than srcdoc in Chromium-based browsers
+  iframe.onload = function() {
+    var doc = null;
+    try {
+      doc = iframe.contentDocument || iframe.contentWindow.document;
+    } catch(e) { console.warn('iframe doc access failed:', e.message); }
+    
+    if (doc) {
+      // Force reveal elements visible
+      try {
+        doc.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger').forEach(function(el) {
+          el.classList.add('active');
+        });
+        doc.querySelectorAll('[style]').forEach(function(el) {
+          if (el.style.opacity === '0') el.style.opacity = '1';
+        });
+      } catch(e) {}
+      
+      // Adjust iframe height to content
+      function adjustHeight() {
+        try {
+          var h = Math.max(
+            doc.body.scrollHeight, doc.body.offsetHeight,
+            doc.documentElement.scrollHeight, doc.documentElement.offsetHeight,
+            600
+          );
+          iframe.style.height = h + 'px';
+        } catch(e) {}
+      }
+      adjustHeight();
+      setTimeout(adjustHeight, 500);
+      setTimeout(adjustHeight, 2000);
+      setTimeout(adjustHeight, 4000);
+    }
+  };
+  
+  // Use srcdoc to set the HTML content
   iframe.srcdoc = html;
   
-  // Fallback: if onload doesn't fire after 3s, try document.write
+  // Fallback after 3s: if srcdoc didn't work, try document.write
   setTimeout(function() {
     try {
       var doc = iframe.contentDocument || iframe.contentWindow.document;
-      if (doc && (!doc.body || doc.body.innerHTML.length < 100)) {
+      if (doc && (!doc.body || doc.body.children.length === 0 || doc.body.innerHTML.length < 100)) {
+        console.log('srcdoc failed, falling back to document.write');
         doc.open();
         doc.write(html);
         doc.close();
       }
-    } catch(e) {}
+    } catch(e) { console.warn('document.write fallback failed:', e.message); }
   }, 3000);
   
   scheduleAutoSave();
