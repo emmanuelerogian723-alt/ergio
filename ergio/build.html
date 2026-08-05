@@ -1974,75 +1974,91 @@ function showPreview(html, title = 'Preview') {
   const empty = document.getElementById('previewEmpty');
   const overlay = document.getElementById('scanOverlay');
   
+  if (!html || html.length < 50) {
+    console.warn('showPreview: empty or too-short HTML, skipping');
+    return;
+  }
+  
   overlay.style.display = 'none';
   empty.style.display = 'none';
   iframe.style.display = 'block';
-  // Set a large default height immediately — don't wait for onload
-  iframe.style.height = '3000px';
-  iframe.style.minHeight = '3000px';
+  iframe.style.height = '2000px';
+  iframe.style.minHeight = '2000px';
   
-  // Simple approach: inject reveal-fix CSS/JS into the HTML, then use srcdoc
-  var injectHtml = html;
+  currentHTML = html;
+  document.getElementById('codePre').textContent = html;
   
-  // Fix reveal animations: force opacity:1 and remove transforms
-  var fixCSS = '<sty' + 'le>' +
-    '.reveal,.reveal-left,.reveal-right,.reveal-scale{opacity:1!important;transform:none!important;animation:none!important}' +
-    '.stagger,.stagger>*{opacity:1!important;transform:none!important;animation:none!important}' +
-    '*{animation:none!important}' +
-    '</sty' + 'le>';
-  if (injectHtml.indexOf('</head>') > -1) {
-    injectHtml = injectHtml.replace('</head>', fixCSS + '</head>');
-  }
+  // Strip opacity:0 from the HTML to prevent hidden elements in iframe
+  var cleanHtml = html
+    .replace(/opacity:\s*0\s*[;"']/g, 'opacity:1$&')
+    .replace(/opacity:\s*0\.(\d)/g, 'opacity:1');
   
-  // Add JS to force active class and set body visible
-  var fixJS = '<scr' + 'ipt>' +
-    'document.body.style.opacity="1";' +
-    'document.querySelectorAll("*").forEach(function(el){' +
-    '  if(el.style&&el.style.opacity==="0"){el.style.opacity="1";}' +
-    '  el.classList.add("active");' +
-    '});' +
-    '</scr' + 'ipt>';
-  if (injectHtml.indexOf('</body>') > -1) {
-    injectHtml = injectHtml.replace('</body>', fixJS + '</body>');
-  }
+  // Remove animation delays and set animation-fill-mode to both so elements
+  // are visible immediately (no waiting for animation to complete)
+  cleanHtml = cleanHtml.replace(
+    /animation\s*:\s*([^;]+)\s+forwards/g,
+    'animation:$1 both'
+  );
   
+  // Use document.write — the most reliable way to render HTML in an iframe
+  // Step 1: set src to about:blank to get a fresh document
   iframe.onload = function() {
     try {
       var doc = iframe.contentDocument || iframe.contentWindow.document;
-      if (doc && doc.body) {
-        var h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight, 800);
-        iframe.style.height = h + 'px';
+      if (!doc) {
+        console.error('showPreview: cannot access iframe document');
+        return;
       }
-    } catch(e) {}
-    empty.style.display = 'none';
+      
+      // Write the HTML directly into the iframe document
+      doc.open();
+      doc.write(cleanHtml);
+      doc.close();
+      
+      // Force all reveal elements visible
+      var allEls = doc.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger');
+      allEls.forEach(function(el) { el.classList.add('active'); });
+      
+      // Remove any opacity:0 inline styles
+      doc.querySelectorAll('[style*="opacity"]').forEach(function(el) {
+        if (el.style.opacity === '0' || el.style.opacity === '0.0') {
+          el.style.opacity = '1';
+        }
+      });
+      
+      // Calculate and set proper height after content loads
+      function setHeight() {
+        try {
+          var h = Math.max(
+            doc.body.scrollHeight,
+            doc.body.offsetHeight,
+            doc.documentElement.scrollHeight,
+            doc.documentElement.offsetHeight,
+            800
+          );
+          iframe.style.height = h + 'px';
+          iframe.style.minHeight = h + 'px';
+        } catch(e) {}
+      }
+      
+      setHeight();
+      // Retry after images/fonts load
+      setTimeout(setHeight, 500);
+      setTimeout(setHeight, 1500);
+      setTimeout(setHeight, 3000);
+      
+    } catch(e) {
+      console.error('showPreview: document.write error:', e);
+      // Fallback to srcdoc
+      try { iframe.srcdoc = cleanHtml; } catch(e2) {}
+    }
   };
   
-  iframe.srcdoc = injectHtml;
+  // Trigger the load by setting src to about:blank
+  // If the iframe already has about:blank, force a reload
+  iframe.src = 'about:blank';
   
-  // Fallback height after 3s
-  setTimeout(function() {
-    try {
-      var doc = iframe.contentDocument || iframe.contentWindow.document;
-      if (doc && doc.body) {
-        var h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight, 800);
-        iframe.style.height = h + 'px';
-      }
-    } catch(e) {}
-  }, 3000);
-  
-  // Safety: if onload doesn't fire (rare), hide empty after 2s
-  setTimeout(function() {
-    if (iframe.srcdoc) {
-      empty.style.display = 'none';
-    }
-  }, 2000);
-  
-  currentHTML = html;
-  
-  // Update code view
-  document.getElementById('codePre').textContent = html;
-  
-  // Auto-save
+  // Schedule auto-save
   scheduleAutoSave();
 }
 
