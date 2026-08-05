@@ -1193,7 +1193,7 @@
         <div class="scan-steps-list" id="scanStepsList"></div>
       </div>
       <!-- Actual iframe -->
-      <iframe id="previewIframe" style="display:none" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-popups-to-escape-sandbox"></iframe>
+      <iframe id="previewIframe" style="display:none" ></iframe>
     </div>
 
     <!-- Code view -->
@@ -1970,42 +1970,77 @@ function handleSSE(event, stepMap, prevStep) {
 }
 
 function showPreview(html, title = 'Preview') {
-  const iframe = document.getElementById('previewIframe');
-  const empty = document.getElementById('previewEmpty');
-  const overlay = document.getElementById('scanOverlay');
+  var iframe = document.getElementById('previewIframe');
+  var empty = document.getElementById('previewEmpty');
+  var overlay = document.getElementById('scanOverlay');
   
-  console.log('showPreview called, html length:', html ? html.length : 0);
-  
-  if (!html || html.length < 50) {
-    console.warn('showPreview: empty or too-short HTML, skipping');
-    return;
-  }
+  if (!html || html.length < 50) return;
   
   overlay.style.display = 'none';
   empty.style.display = 'none';
   iframe.style.display = 'block';
-  iframe.style.height = '3000px';
-  iframe.style.minHeight = '3000px';
+  iframe.style.width = '100%';
+  iframe.style.border = 'none';
+  iframe.style.height = '100%';
+  iframe.style.minHeight = '600px';
   
   currentHTML = html;
   document.getElementById('codePre').textContent = html;
   
-  // Test 1: Try srcdoc with raw HTML, no modifications
+  // Use srcdoc — now that sandbox is removed, this should render properly
+  iframe.onload = function() {
+    var doc = null;
+    try {
+      doc = iframe.contentDocument || iframe.contentWindow.document;
+    } catch(e) {
+      console.warn('Cannot access iframe doc:', e.message);
+    }
+    
+    if (doc) {
+      // Force all reveal elements to active (in case IntersectionObserver doesn't fire)
+      try {
+        doc.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger').forEach(function(el) {
+          el.classList.add('active');
+        });
+        // Remove any opacity:0 inline styles
+        doc.querySelectorAll('[style]').forEach(function(el) {
+          if (el.style.opacity === '0') el.style.opacity = '1';
+        });
+      } catch(e) {}
+      
+      // Calculate proper height
+      function adjustHeight() {
+        try {
+          var h = Math.max(
+            doc.body.scrollHeight,
+            doc.body.offsetHeight,
+            doc.documentElement.scrollHeight,
+            doc.documentElement.offsetHeight,
+            600
+          );
+          iframe.style.height = h + 'px';
+        } catch(e) {}
+      }
+      adjustHeight();
+      setTimeout(adjustHeight, 500);
+      setTimeout(adjustHeight, 2000);
+      setTimeout(adjustHeight, 4000);
+    }
+  };
+  
   iframe.srcdoc = html;
   
-  // Test 2: Also try writing via contentDocument as backup
+  // Fallback: if onload doesn't fire after 3s, try document.write
   setTimeout(function() {
     try {
       var doc = iframe.contentDocument || iframe.contentWindow.document;
-      if (doc) {
-        console.log('iframe doc accessible, body exists:', !!doc.body);
-        console.log('iframe body innerHTML length:', doc.body ? doc.body.innerHTML.length : 0);
-        console.log('iframe body children:', doc.body ? doc.body.children.length : 0);
+      if (doc && (!doc.body || doc.body.innerHTML.length < 100)) {
+        doc.open();
+        doc.write(html);
+        doc.close();
       }
-    } catch(e) {
-      console.error('iframe access error:', e.message);
-    }
-  }, 2000);
+    } catch(e) {}
+  }, 3000);
   
   scheduleAutoSave();
 }
