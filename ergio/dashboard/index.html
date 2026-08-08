@@ -451,6 +451,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
     <div class="nav-item" data-tab="skills" onclick="switchTab('skills')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15 8 22 9 17 14 18 21 12 17 5 21 7 14 2 9 8 8 12 2"/></svg><span>Skills</span></div>
     <div class="nav-item" data-tab="integrations" onclick="switchTab('integrations')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg><span>Integrations</span></div>
     <div class="nav-item" data-tab="analytics" onclick="switchTab('analytics')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg><span>Analytics</span></div>
+    <div class="nav-item" data-tab="usage" onclick="switchTab('usage')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg><span>Usage & Plan</span><span class="nav-badge" style="background:var(--cyan);font-size:.55rem">FREE</span></div>
     <div class="nav-item" data-tab="billing" onclick="switchTab('billing')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg><span>Billing & Plans</span></div>
     <div class="nav-item" data-tab="profile" onclick="switchTab('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></div>
     <div class="nav-item" data-tab="console" onclick="window.location.href='/ergio/console/'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>ERGIO Console</span></div>
@@ -1073,6 +1074,42 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 </div>
 </div>
 
+
+<div class="tab-content" id="tab-usage">
+  <div style="max-width:900px;margin:0 auto;padding:1.5rem">
+    <!-- Current Plan Card -->
+    <div class="panel" style="margin-bottom:1.5rem">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Current Plan</div>
+          <div class="panel-sub">Your subscription and usage limits</div>
+        </div>
+        <span id="tierBadge" style="padding:.35rem 1rem;border-radius:8px;background:rgba(0,217,255,.1);color:var(--cyan);font-weight:600;font-size:.8rem">Free</span>
+      </div>
+      <div id="usageGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem;padding:1.5rem">
+        <!-- Usage cards will be populated by JS -->
+        <div style="text-align:center;padding:2rem;color:var(--muted)">
+          <div style="font-size:2rem;margin-bottom:.5rem">⏳</div>
+          <div>Loading usage data...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upgrade Plans -->
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Upgrade Your Plan</div>
+          <div class="panel-sub">Unlock more features and higher limits</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;padding:1.5rem" id="plansGrid">
+        <!-- Plans populated by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="tab-content" id="tab-profile">
   <div class="profile-wrap">
 
@@ -1671,6 +1708,158 @@ function deleteWebsite(id) {
   loadMyWebsites();
   if (typeof showToast === 'function') showToast('Website deleted', 'info');
 }
+
+
+// ══════════════════════════════════════════════════════════════════
+// FREEMIUM USAGE SYSTEM
+// ══════════════════════════════════════════════════════════════════
+
+const ERGIO_TIERS = {
+  free: { name: 'Free', price: 0, color: '#888', limits: {
+    'website_generations': 3, 'lead_scans': 5, 'ai_outreach': 3,
+    'conductor_messages': 20, 'social_content': 3, 'invoice_generations': 3,
+    'seo_reports': 2, 'smart_pricing': 2, 'website_refinements': 5
+  }},
+  starter: { name: 'Starter', price: 5000, color: '#00D9FF', limits: {
+    'website_generations': 25, 'lead_scans': 50, 'ai_outreach': 30,
+    'conductor_messages': 200, 'social_content': 20, 'invoice_generations': 50,
+    'seo_reports': 15, 'smart_pricing': 10, 'website_refinements': 100
+  }},
+  launch: { name: 'Launch', price: 12500, color: '#00FF9D', limits: {
+    'website_generations': 100, 'lead_scans': 200, 'ai_outreach': 150,
+    'conductor_messages': 1000, 'social_content': 100, 'invoice_generations': 200,
+    'seo_reports': 50, 'smart_pricing': 30, 'website_refinements': 500
+  }},
+  grow: { name: 'Grow', price: 25000, color: '#8B5CF6', limits: {
+    'website_generations': -1, 'lead_scans': -1, 'ai_outreach': -1,
+    'conductor_messages': -1, 'social_content': -1, 'invoice_generations': -1,
+    'seo_reports': -1, 'smart_pricing': -1, 'website_refinements': -1
+  }}
+};
+
+const FEATURE_LABELS = {
+  'website_generations': { icon: '🌐', label: 'Website Builds' },
+  'lead_scans': { icon: '🎯', label: 'Lead Scans' },
+  'ai_outreach': { icon: '📧', label: 'AI Outreach' },
+  'conductor_messages': { icon: '🤖', label: 'Conductor Messages' },
+  'social_content': { icon: '✍️', label: 'Social Content Kits' },
+  'invoice_generations': { icon: '📄', label: 'Invoices' },
+  'seo_reports': { icon: '📈', label: 'SEO Reports' },
+  'smart_pricing': { icon: '💰', label: 'Pricing Analysis' },
+  'website_refinements': { icon: '🔧', label: 'Website Edits' }
+};
+
+// Local usage tracking (localStorage fallback when backend not available)
+function getLocalUsage() {
+  try { return JSON.parse(localStorage.getItem('ergio_usage') || '{}'); }
+  catch { return {}; }
+}
+
+function incrementLocalUsage(feature) {
+  const usage = getLocalUsage();
+  usage[feature] = (usage[feature] || 0) + 1;
+  localStorage.setItem('ergio_usage', JSON.stringify(usage));
+  return usage[feature];
+}
+
+function checkUsage(feature) {
+  const tier = 'free'; // Default to free tier
+  const tierConfig = ERGIO_TIERS[tier];
+  const limit = tierConfig.limits[feature] || 0;
+  const usage = getLocalUsage();
+  const used = usage[feature] || 0;
+
+  if (limit === -1) return { allowed: true, used, limit: -1, remaining: -1 };
+
+  if (used >= limit) {
+    return { allowed: false, used, limit, remaining: 0,
+      message: `You've used all ${limit} free ${FEATURE_LABELS[feature]?.label || feature}. Upgrade to continue.` };
+  }
+
+  const remaining = limit - used;
+  return { allowed: true, used, limit, remaining,
+    lowWarning: remaining <= 2 && remaining > 0 };
+}
+
+function loadUsageTab() {
+  const usage = getLocalUsage();
+  const tier = 'free';
+  const tierConfig = ERGIO_TIERS[tier];
+
+  // Update tier badge
+  const badge = document.getElementById('tierBadge');
+  if (badge) {
+    badge.textContent = tierConfig.name;
+    badge.style.background = `${tierConfig.color}20`;
+    badge.style.color = tierConfig.color;
+  }
+
+  // Build usage cards
+  const grid = document.getElementById('usageGrid');
+  if (!grid) return;
+
+  grid.innerHTML = Object.entries(FEATURE_LABELS).map(([key, info]) => {
+    const limit = tierConfig.limits[key] || 0;
+    const used = usage[key] || 0;
+    const unlimited = limit === -1;
+    const remaining = unlimited ? -1 : Math.max(0, limit - used);
+    const pct = unlimited ? 0 : limit > 0 ? Math.min(100, (used / limit) * 100) : 100;
+    const barColor = pct >= 100 ? '#ef4444' : pct >= 80 ? '#f59e0b' : '#00D9FF';
+
+    return `
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:.75rem;padding:1rem">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem">
+          <span style="font-size:1.2rem">${info.icon}</span>
+          <span style="font-weight:600;font-size:.85rem;color:var(--text)">${info.label}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+          <span style="font-size:.75rem;color:var(--muted)">${used} used</span>
+          <span style="font-size:.75rem;font-weight:600;color:${remaining === 0 ? '#ef4444' : 'var(--text')}">
+            ${unlimited ? '∞' : remaining + ' left'}
+          </span>
+        </div>
+        ${unlimited ? '<div style="height:6px;background:rgba(0,255,157,.2);border-radius:100px"></div>' :
+        `<div style="height:6px;background:rgba(255,255,255,.05);border-radius:100px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${barColor};border-radius:100px;transition:width .3s"></div>
+        </div>`}
+      </div>`;
+  }).join('');
+
+  // Build plan cards
+  const plansGrid = document.getElementById('plansGrid');
+  if (!plansGrid) return;
+
+  const plans = [
+    { id: 'starter', name: 'Starter', price: 5000, features: ['25 website builds', '50 lead scans', 'AI outreach', 'Premium designs', '200 conductor messages'] },
+    { id: 'launch', name: 'Launch', price: 12500, features: ['100 website builds', '200 lead scans', 'Custom domain', 'Remove branding', 'Priority support', '1000 conductor messages'], popular: true },
+    { id: 'grow', name: 'Grow', price: 25000, features: ['Unlimited everything', 'API access', '10 team members', 'White-label', 'Priority support'] }
+  ];
+
+  plansGrid.innerHTML = plans.map(p => `
+    <div style="background:rgba(255,255,255,.03);border:1px solid ${p.popular ? 'var(--cyan)' : 'var(--border)'};border-radius:.75rem;padding:1.5rem;position:relative${p.popular ? ';box-shadow:0 0 30px rgba(0,217,255,.1)' : ''}">
+      ${p.popular ? '<div style="position:absolute;top:-.6rem;left:50%;transform:translateX(-50%);background:var(--cyan);color:#000;font-size:.65rem;font-weight:700;padding:.2rem .8rem;border-radius:100px">MOST POPULAR</div>' : ''}
+      <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:.25rem">${p.name}</div>
+      <div style="font-size:1.5rem;font-weight:800;color:${p.popular ? 'var(--cyan)' : 'var(--text)'};margin-bottom:.75rem">₦${p.price.toLocaleString()}<span style="font-size:.7rem;color:var(--muted);font-weight:400">/mo</span></div>
+      <div style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem">
+        ${p.features.map(f => `<div style="display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:var(--muted)"><span style="color:var(--cyan)">✓</span> ${f}</div>`).join('')}
+      </div>
+      <button onclick="upgradePlan('${p.id}')" style="width:100%;padding:.6rem;border:none;border-radius:.5rem;background:${p.popular ? 'var(--cyan)' : 'rgba(255,255,255,.05)'};color:${p.popular ? '#000' : 'var(--text)'};font-weight:600;font-size:.8rem;cursor:pointer;transition:all .2s">
+        Upgrade to ${p.name}
+      </button>
+    </div>`).join('');
+}
+
+function upgradePlan(planId) {
+  alert('Redirecting to Paystack checkout for ' + ERGIO_TIERS[planId].name + ' plan (₦' + ERGIO_TIERS[planId].price.toLocaleString() + '/mo)...\n\nPayment integration coming soon!');
+}
+
+// Load usage data when switching to the Usage tab
+const origSwitchTab = switchTab;
+switchTab = function(tab) {
+  origSwitchTab(tab);
+  if (tab === 'usage') loadUsageTab();
+};
+
 </script>
 
 <script>window.addEventListener("DOMContentLoaded", function() { setTimeout(loadMyWebsites, 300); });</script>
@@ -2833,6 +3022,20 @@ async function sendChatMessage(){
   if(!i||!chat||!btn)return;
   var text=i.value.trim();
   if(!text&&attachedFiles.length===0)return;
+  
+  /* Freemium usage check */
+  var usageCheck=checkUsage('conductor_messages');
+  if(!usageCheck.allowed){
+    var am=document.createElement('div');am.className='chat-msg ai';
+    am.innerHTML='<div class="av">🤖</div><div class="bubble" style="border-color:#ef4444">⚠️ '+usageCheck.message+'<br><br><button onclick="switchTab(\'usage\')" style="background:var(--cyan);color:#000;border:none;padding:.4rem .8rem;border-radius:6px;font-weight:600;cursor:pointer">View Plans</button></div>';
+    chat.appendChild(am);chat.scrollTop=chat.scrollHeight;return;
+  }
+  incrementLocalUsage('conductor_messages');
+  if(usageCheck.lowWarning){
+    var wm=document.createElement('div');wm.className='chat-msg ai';
+    wm.innerHTML='<div class="av">⚠️</div><div class="bubble" style="font-size:.78rem;color:var(--muted)">You have '+usageCheck.remaining+' free Conductor messages left. <a href="#" onclick="switchTab(\'usage\');return false" style="color:var(--cyan)">Upgrade</a> for more.</div>';
+    chat.appendChild(wm);
+  }
 
   /* Render user message */
   var mc=text.replace(/</g,'&lt;');
