@@ -1974,33 +1974,40 @@ showPreview(currentHTML, biz.businessName || 'Your Website');
 }
 
 function showPreview(html, title = 'Preview') {
-  var iframe = document.getElementById('previewIframe');
+  var container = document.getElementById('previewFrame');
   var empty = document.getElementById('previewEmpty');
   var overlay = document.getElementById('scanOverlay');
   
-  // DIAGNOSTIC: show HTML length in the address bar
-  var addrBar = document.getElementById('addressBar') || document.getElementById('previewUrl');
-  if (addrBar) addrBar.value = 'HTML length: ' + (html ? html.length : 0) + ' | showPreview called';
+  // DIAGNOSTIC: show status in chat
+  var htmlLen = html ? html.length : 0;
   
-  if (!html || html.length < 50) {
-    addMessage('ai', '⚠️ Preview skipped: HTML is empty or too short (' + (html ? html.length : 0) + ' bytes)');
+  if (!html || htmlLen < 50) {
+    addMessage('ai', '⚠️ Preview skipped: HTML is ' + htmlLen + ' bytes');
     return;
   }
-  if (!iframe) { console.error('previewIframe not found!'); return; }
+  if (!container) { console.error('previewFrame container not found!'); return; }
   
-  // Hide empty state and overlay, show iframe
+  // Hide empty state and overlay
   if (overlay) overlay.style.display = 'none';
   if (empty) empty.style.display = 'none';
-  iframe.style.display = 'block';
-  iframe.style.width = '100%';
-  iframe.style.border = 'none';
-  iframe.style.minHeight = '600px';
+  
+  // Remove old iframe if it exists
+  var oldIframe = document.getElementById('previewIframe');
+  if (oldIframe) oldIframe.remove();
+  
+  // Create fresh iframe
+  var iframe = document.createElement('iframe');
+  iframe.id = 'previewIframe';
+  iframe.style.cssText = 'width:100%;border:none;display:block;min-height:600px;height:600px';
+  
+  // Append to container
+  container.appendChild(iframe);
   
   currentHTML = html;
   var codePre = document.getElementById('codePre');
   if (codePre) codePre.textContent = html;
   
-  // Set the HTML via srcdoc — proven to work in all browsers
+  // Set srcdoc — the proven approach
   iframe.srcdoc = html;
   
   // Adjust height after load
@@ -2009,35 +2016,31 @@ function showPreview(html, title = 'Preview') {
       var doc = iframe.contentDocument || iframe.contentWindow.document;
       if (!doc || !doc.body) return;
       
-      // Force reveal animations to be visible
+      // Force reveal animations visible
       doc.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger').forEach(function(el) {
         el.classList.add('active');
         el.style.opacity = '1';
         el.style.transform = 'none';
       });
       
-      // Adjust iframe height to content
-      var h = Math.max(
-        doc.body.scrollHeight, doc.body.offsetHeight,
-        doc.documentElement.scrollHeight, doc.documentElement.offsetHeight,
-        600
-      );
-      iframe.style.height = h + 'px';
-      
-      // Re-check after a delay (fonts/images may change height)
-      setTimeout(function() {
-        var h2 = Math.max(
+      // Adjust height
+      function adjustH() {
+        var h = Math.max(
           doc.body.scrollHeight, doc.body.offsetHeight,
           doc.documentElement.scrollHeight, doc.documentElement.offsetHeight,
           600
         );
-        iframe.style.height = h2 + 'px';
-      }, 1000);
-    } catch(e) { console.warn('iframe height adjust failed:', e.message); }
+        iframe.style.height = h + 'px';
+      }
+      adjustH();
+      setTimeout(adjustH, 1000);
+      setTimeout(adjustH, 3000);
+    } catch(e) { console.warn('iframe onload error:', e.message); }
   };
   
   scheduleAutoSave();
 }
+
 
 async function refineWebsite(prompt) {
   if (!currentHTML || currentHTML.length < 50) {
