@@ -511,9 +511,7 @@ Return ONLY JSON:
       const layoutKey = planForHTML._profile?.layout || selectLayout(planForHTML.websiteCategory, designStyleKey, planForHTML.websiteType);
       const usePremium = !is3D && !isClay; // Premium handles most styles; 3D and clay keep dedicated generators
       if (usePremium) {
-        try {
           // Premium Engine v4.0 — all 15 features
-          // Use business profile's feature recommendations, falling back to all-enabled
           const profileFeatures = planForHTML._profile?.features || {};
           const v4Options = {
             megaMenu: profileFeatures.megaMenu !== false,
@@ -581,7 +579,8 @@ Return ONLY JSON:
                 ? generateClayHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
                 : generateWebsiteHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images);
       }
-        } catch(genErr) {
+      } // close if (usePremium)
+    } catch(genErr) {
       console.error('HTML generation error:', genErr.message, genErr.stack);
       // Fallback minimal HTML
       websiteHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${plan.businessName}</title><style>body{background:#09090B;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:1rem} h1{color:#00D9FF;font-size:3rem} p{color:#888}</style></head><body><h1>${plan.businessName}</h1><p>${plan.description || plan.type + ' in ' + plan.city}</p><p style="color:#00FF9D">Your website is being prepared...</p></body></html>`;
