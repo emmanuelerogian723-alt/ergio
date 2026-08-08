@@ -1566,7 +1566,7 @@ async function loadMyWebsites() {
   }
   
   if (websites.length === 0) {
-    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="icon">🌐</div><h3>No websites yet</h3><p>Build your first website with ERGIO and it will appear here automatically.</p><button class="btn btn-primary" onclick="window.open('/build.html','_blank')">🚀 Build a Website</button></div>';
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="icon">🌐</div><h3>No websites yet</h3><p>Build your first website with ERGIO and it will appear here automatically.</p><button class="btn btn-primary" onclick="window.open('/build.html','_blank')">🚀 Build a Website</button></div>`;
     return;
   }
   
@@ -1782,71 +1782,77 @@ function checkUsage(feature) {
 }
 
 function loadUsageTab() {
-  const usage = getLocalUsage();
-  const tier = 'free';
-  const tierConfig = ERGIO_TIERS[tier];
-
-  // Update tier badge
-  const badge = document.getElementById('tierBadge');
-  if (badge) {
-    badge.textContent = tierConfig.name;
-    badge.style.background = `${tierConfig.color}20`;
-    badge.style.color = tierConfig.color;
+  var tier = localStorage.getItem('ergio_tier') || 'free';
+  var usage = JSON.parse(localStorage.getItem('ergio_usage') || '{}');
+  var tierConfig = ERGIO_TIERS[tier] || ERGIO_TIERS['free'];
+  
+  // Build usage bars
+  var features = Object.keys(tierConfig.limits);
+  var barsHtml = '';
+  features.forEach(function(feat) {
+    var used = usage[feat] || 0;
+    var limit = tierConfig.limits[feat];
+    var unlimited = limit === -1;
+    var remaining = unlimited ? -1 : Math.max(0, limit - used);
+    var pct = unlimited ? 100 : Math.min(100, Math.round((used / limit) * 100));
+    var barColor = pct >= 90 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#22c55e';
+    var info = FEATURE_LABELS[feat] || { icon: '\u{1F4CA}', label: feat };
+    
+    barsHtml += '<div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:.75rem;padding:1rem;margin-bottom:.75rem">';
+    barsHtml += '<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">';
+    barsHtml += '<span style="font-size:1.2rem">' + info.icon + '</span>';
+    barsHtml += '<span style="font-weight:600;font-size:.85rem">' + info.label + '</span>';
+    barsHtml += '</div>';
+    barsHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem">';
+    barsHtml += '<span style="font-size:.75rem;color:var(--muted)">' + used + ' used</span>';
+    var leftText = unlimited ? '\u221e' : (remaining + ' left');
+    var leftColor = remaining === 0 ? '#ef4444' : 'var(--text)';
+    barsHtml += '<span style="font-size:.75rem;font-weight:600;color:' + leftColor + '">' + leftText + '</span>';
+    barsHtml += '</div>';
+    if (unlimited) {
+      barsHtml += '<div style="height:6px;background:rgba(34,197,94,.15);border-radius:100px"></div>';
+    } else {
+      barsHtml += '<div style="height:6px;background:rgba(255,255,255,.05);border-radius:100px;overflow:hidden">';
+      barsHtml += '<div style="height:100%;width:' + pct + '%;background:' + barColor + ';border-radius:100px;transition:width .3s"></div>';
+      barsHtml += '</div>';
+    }
+    barsHtml += '</div>';
+  });
+  
+  // Current plan card
+  var planCard = document.getElementById('currentPlanCard');
+  if (planCard) {
+    var planHtml = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">';
+    planHtml += '<div style="font-size:1.5rem;font-weight:700">' + tierConfig.name + ' Plan</div>';
+    planHtml += '<span style="background:' + tierConfig.color + ';color:#fff;padding:.25rem .75rem;border-radius:100px;font-size:.75rem;font-weight:600">' + tierConfig.name.toUpperCase() + '</span>';
+    planHtml += '</div>';
+    planHtml += barsHtml;
+    planCard.innerHTML = planHtml;
   }
-
-  // Build usage cards
-  const grid = document.getElementById('usageGrid');
-  if (!grid) return;
-
-  grid.innerHTML = Object.entries(FEATURE_LABELS).map(([key, info]) => {
-    const limit = tierConfig.limits[key] || 0;
-    const used = usage[key] || 0;
-    const unlimited = limit === -1;
-    const remaining = unlimited ? -1 : Math.max(0, limit - used);
-    const pct = unlimited ? 0 : limit > 0 ? Math.min(100, (used / limit) * 100) : 100;
-    const barColor = pct >= 100 ? '#ef4444' : pct >= 80 ? '#f59e0b' : '#00D9FF';
-
-    return `
-      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:.75rem;padding:1rem">
-        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem">
-          <span style="font-size:1.2rem">${info.icon}</span>
-          <span style="font-weight:600;font-size:.85rem;color:var(--text)">${info.label}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
-          <span style="font-size:.75rem;color:var(--muted)">${used} used</span>
-          <span style="font-size:.75rem;font-weight:600;color:${remaining === 0 ? '#ef4444' : 'var(--text')}">
-            ${unlimited ? '∞' : remaining + ' left'}
-          </span>
-        </div>
-        ${unlimited ? '<div style="height:6px;background:rgba(0,255,157,.2);border-radius:100px"></div>' :
-        `<div style="height:6px;background:rgba(255,255,255,.05);border-radius:100px;overflow:hidden">
-          <div style="height:100%;width:${pct}%;background:${barColor};border-radius:100px;transition:width .3s"></div>
-        </div>`}
-      </div>`;
-  }).join('');
-
-  // Build plan cards
-  const plansGrid = document.getElementById('plansGrid');
+  
+  // Build upgrade plans
+  var plansGrid = document.getElementById('plansGrid');
   if (!plansGrid) return;
-
-  const plans = [
-    { id: 'starter', name: 'Starter', price: 5000, features: ['25 website builds', '50 lead scans', 'AI outreach', 'Premium designs', '200 conductor messages'] },
+  var plans = [
+    { id: 'starter', name: 'Starter', price: 5000, features: ['25 website builds', '50 lead scans', 'AI outreach', '200 conductor messages', 'Premium designs'] },
     { id: 'launch', name: 'Launch', price: 12500, features: ['100 website builds', '200 lead scans', 'Custom domain', 'Remove branding', 'Priority support', '1000 conductor messages'], popular: true },
-    { id: 'grow', name: 'Grow', price: 25000, features: ['Unlimited everything', 'API access', '10 team members', 'White-label', 'Priority support'] }
+    { id: 'grow', name: 'Grow', price: 25000, features: ['500 website builds', '1000 lead scans', 'AI voice agent', 'Multi-business', 'Priority support', 'Unlimited conductor'] },
+    { id: 'scale', name: 'Scale', price: 60000, features: ['Unlimited builds', 'Unlimited leads', 'White-label', 'API access', 'Dedicated manager', 'Custom integrations'] }
   ];
-
-  plansGrid.innerHTML = plans.map(p => `
-    <div style="background:rgba(255,255,255,.03);border:1px solid ${p.popular ? 'var(--cyan)' : 'var(--border)'};border-radius:.75rem;padding:1.5rem;position:relative${p.popular ? ';box-shadow:0 0 30px rgba(0,217,255,.1)' : ''}">
-      ${p.popular ? '<div style="position:absolute;top:-.6rem;left:50%;transform:translateX(-50%);background:var(--cyan);color:#000;font-size:.65rem;font-weight:700;padding:.2rem .8rem;border-radius:100px">MOST POPULAR</div>' : ''}
-      <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:.25rem">${p.name}</div>
-      <div style="font-size:1.5rem;font-weight:800;color:${p.popular ? 'var(--cyan)' : 'var(--text)'};margin-bottom:.75rem">₦${p.price.toLocaleString()}<span style="font-size:.7rem;color:var(--muted);font-weight:400">/mo</span></div>
-      <div style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem">
-        ${p.features.map(f => `<div style="display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:var(--muted)"><span style="color:var(--cyan)">✓</span> ${f}</div>`).join('')}
-      </div>
-      <button onclick="upgradePlan('${p.id}')" style="width:100%;padding:.6rem;border:none;border-radius:.5rem;background:${p.popular ? 'var(--cyan)' : 'rgba(255,255,255,.05)'};color:${p.popular ? '#000' : 'var(--text)'};font-weight:600;font-size:.8rem;cursor:pointer;transition:all .2s">
-        Upgrade to ${p.name}
-      </button>
-    </div>`).join('');
+  var plansHtml = '';
+  plans.forEach(function(p) {
+    if (p.id === tier) return;
+    plansHtml += '<div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:.75rem;padding:1.25rem;text-align:center' + (p.popular ? ';border-color:var(--accent)' : '') + '">';
+    if (p.popular) plansHtml += '<div style="background:var(--accent);color:#fff;font-size:.65rem;font-weight:700;padding:.15rem .5rem;border-radius:100px;display:inline-block;margin-bottom:.5rem">MOST POPULAR</div>';
+    plansHtml += '<div style="font-size:1.1rem;font-weight:700;margin-bottom:.25rem">' + p.name + '</div>';
+    plansHtml += '<div style="font-size:1.75rem;font-weight:800;color:var(--accent);margin-bottom:.5rem">\u20a6' + p.price.toLocaleString() + '<span style="font-size:.7rem;font-weight:400;color:var(--muted)">/mo</span></div>';
+    plansHtml += '<div style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem;text-align:left">';
+    p.features.forEach(function(f) { plansHtml += '<div style="padding:.15rem 0">\u2713 ' + f + '</div>'; });
+    plansHtml += '</div>';
+    plansHtml += '<button class="btn btn-primary btn-sm" style="width:100%" onclick="upgradePlan(\'' + p.id + '\')">Upgrade to ' + p.name + '</button>';
+    plansHtml += '</div>';
+  });
+  plansGrid.innerHTML = plansHtml;
 }
 
 function upgradePlan(planId) {
