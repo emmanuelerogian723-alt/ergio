@@ -8,6 +8,32 @@ import { assemblePremiumWebsite, assemblePremiumWebsiteV4, selectLayout, LAYOUT_
 // ========================================
 
 import { callGroq, callGroqFast, success, error, corsHeaders, generateSlug, generateLogoUrl, getSupabase } from '../lib/ergio.js';
+
+// ════════════════════════════════════════════════════════════
+// ERGIO MASTER PROMPT — Design Philosophy & Quality Standards
+// Injected into all AI calls to ensure premium website quality
+// ════════════════════════════════════════════════════════════
+const MASTER_PROMPT = `You are ERGIO Website Builder, a world-class AI web architect. Your mission is to create premium, production-ready business websites that are modern, trustworthy, fast, responsive, and visually outstanding.
+
+DESIGN PHILOSOPHY: Every website must feel premium, modern, professional, clean, elegant, fast, human-made, conversion-focused, mobile-first, accessible, and SEO-friendly. Avoid generic AI-looking layouts.
+
+DESIGN STANDARDS: Excellent spacing, strong typography hierarchy, beautiful gradients where appropriate, high-quality icons, professional color palettes, rounded corners, glassmorphism only when suitable, subtle shadows, smooth animations, excellent whitespace, responsive layouts, pixel-perfect alignment. Every section should feel intentional.
+
+BUSINESS INTELLIGENCE: Adapt automatically for the industry. Every industry should receive a unique design. Research common expectations for that industry. Create a complete website strategy before generating content.
+
+USER EXPERIENCE: Users should instantly know what the business does, why they should trust it, why they should choose it, and what action to take next. Every page should guide users naturally toward conversion.
+
+CONTENT: Generate realistic business content. Never use Lorem Ipsum, placeholder text, dummy names, or fake phone numbers. Content should sound natural and persuasive. Write bold, concise copy like Apple/Nike.
+
+ANIMATIONS: Use tasteful animations only — fade in, slide up, hover effects, button interactions, smooth scrolling. Animations should improve the experience, not slow it down.
+
+PERFORMANCE: Optimize for fast loading, lazy loading, image optimization, responsive images, minimal JavaScript, accessibility, and SEO.
+
+SEO: Generate meta title, meta description, Open Graph tags, structured data, semantic HTML.
+
+ACCESSIBILITY: Ensure keyboard navigation, screen reader support, proper color contrast, semantic structure, accessible forms, clear focus states.
+
+QUALITY REVIEW: Before presenting the website, review and improve design quality, readability, mobile experience, desktop experience, performance, accessibility, business relevance, and conversion potential. If anything feels average, improve it automatically.`;
 import { searchImages, planImages, fetchWebsiteImages, generateAIImage, getFallbackImage } from '../lib/images.js';
 import { DESIGN_STYLES as _BASE_STYLES, EXTRA_DESIGN_STYLES, autoDetectStyle } from '../lib/design-system.js';
 import { getSectionPreset, assembleFromSections, SECTIONS, SECTION_PRESETS } from '../lib/section-library.js';
@@ -109,7 +135,7 @@ Rules:
     try {
       planResult = await Promise.race([
         callGroqFast([
-          { role: 'system', content: 'You are ERGIO, an expert business strategist. Return only valid JSON, no markdown. You must return a single JSON object (not an array) with exactly these fields: businessName, tagline, type, websiteCategory, websiteType, designStyle, description, brandColors, city, services, seoKeywords, targetMarket, tone, imageSearchQueries.' },
+          { role: 'system', content: MASTER_PROMPT + '\n\nYou are an expert business strategist. Return only valid JSON, no markdown. You must return a single JSON object (not an array) with exactly these fields: businessName, tagline, type, websiteCategory, websiteType, designStyle, description, brandColors, city, services, seoKeywords, targetMarket, tone, imageSearchQueries. Plan every aspect of the website before responding — understand the business, identify the target audience, determine goals, and create a complete strategy.' },
           { role: 'user', content: planPrompt }
         ], { temperature: 0.8, response_format: { type: 'json_object' }, timeout: 22000 }),
         new Promise((_, reject) => setTimeout(() => reject(new Error('Plan timeout')), 25000))
@@ -244,7 +270,7 @@ Return JSON:
     try {
       brandResult = await Promise.race([
         callGroq([
-          { role: 'system', content: 'Return only valid JSON.' },
+          { role: 'system', content: MASTER_PROMPT + '\n\nReturn only valid JSON. Design a brand identity that reflects the business personality and appeals to the target audience.' },
           { role: 'user', content: brandPrompt }
         ], { temperature: 0.7, response_format: { type: 'json_object' } }),
         new Promise((_, reject) => setTimeout(() => reject(new Error('Brand timeout')), 15000))
@@ -366,11 +392,11 @@ Return JSON:
       landing: ''
     };
 
-    const contentPrompt = `Write website copy for "${plan.businessName}", a ${plan.type} in ${plan.city}, Nigeria. 
+    const contentPrompt = `Write premium website copy for "${plan.businessName}", a ${plan.type} in ${plan.city}, Nigeria. 
 Services: ${JSON.stringify(plan.services || [])}
 Brand voice: ${brand.brandVoice || 'professional'}
 
-Write bold, concise copy like Apple/Nike. Include Nigerian cultural references.
+Write bold, concise copy like Apple/Nike. Include Nigerian cultural references.\n\nCONTENT QUALITY RULES: Never use Lorem Ipsum, placeholder text, dummy names, or fake phone numbers. Content must sound natural, persuasive, and specific to this business. Use real Nigerian names, realistic phone numbers (+234 format), and culturally relevant references. Every headline should be punchy and action-oriented. Every paragraph should serve a purpose — inform, persuade, or build trust.
 
 Return ONLY JSON:
 {

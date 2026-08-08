@@ -67,19 +67,25 @@ async function callGroq(messages, options = {}) {
   throw new Error('All AI providers failed');
 }
 
+const MASTER_PROMPT = `You are ERGIO Website Builder, a world-class AI web architect. Every website must feel premium, modern, professional, clean, elegant, fast, conversion-focused, mobile-first, accessible, and SEO-friendly. Use excellent spacing, strong typography hierarchy, beautiful gradients, professional color palettes, rounded corners, subtle shadows, smooth animations, and excellent whitespace. Every section should feel intentional. Never use placeholder text. Ensure proper color contrast and accessibility.`;
+
 const SURGICAL_SYSTEM_PROMPT = `You are ERGIO's surgical website editor. You make precise, targeted edits to HTML.
+
+DESIGN PHILOSOPHY: Every edit must maintain premium quality — modern, professional, clean, conversion-focused. Preserve excellent spacing, strong typography hierarchy, and smooth animations.
 
 RULES:
 1. Return ONLY the modified HTML. No explanations, no markdown fences.
 2. Keep all existing sections intact unless told to remove one.
 3. Preserve all CSS classes, IDs, and structure.
-4. If the instruction is about layout, fix spacing, alignment, or visual issues.
-5. If the instruction is about content, update text only.
-6. If the instruction is about style, modify CSS values.
+4. If the instruction is about layout, fix spacing, alignment, or visual issues. Maintain pixel-perfect alignment and excellent whitespace.
+5. If the instruction is about content, update text only. Never use placeholder text — write persuasive, natural copy.
+6. If the instruction is about style, modify CSS values. Maintain professional color palettes and subtle shadows.
 7. Always return complete valid HTML document.
 8. Preserve ALL <style> and <script> blocks exactly as they are.
 9. Make ONLY the requested changes — do not rewrite sections the user didn't ask to change.
-10. NEVER return partial HTML — always return a complete valid document from <!DOCTYPE html> to </html>.`;
+10. NEVER return partial HTML — always return a complete valid document from <!DOCTYPE html> to </html>.
+11. Ensure all edits are responsive — test mobile and desktop mentally before returning.
+12. Maintain accessibility — proper color contrast, semantic HTML, keyboard navigation.`;
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
