@@ -1922,6 +1922,7 @@ function handleSSE(event, stepMap, prevStep) {
   
   else if (type === 'website') {
     currentHTML = data.html;
+    addMessage('system', '📡 Received website HTML: ' + (data.html ? data.html.length : 0) + ' bytes');
     updateStep('website', 'done');
     updateStep('seo', 'done');
     // Show partial preview
@@ -1932,6 +1933,7 @@ function handleSSE(event, stepMap, prevStep) {
     const biz = data.business || {};
     // API sends "name" not "businessName" — map it for all existing code
     biz.businessName = biz.businessName || biz.name || 'Your Business';
+    addMessage('system', '📡 Complete event: websiteHtml=' + (biz.websiteHtml ? biz.websiteHtml.length : 0) + ' currentHTML=' + (currentHTML ? currentHTML.length : 0));
     currentHTML = biz.websiteHtml || currentHTML;
     buildData = { ...buildData, ...biz };
     
@@ -1976,7 +1978,14 @@ function showPreview(html, title = 'Preview') {
   var empty = document.getElementById('previewEmpty');
   var overlay = document.getElementById('scanOverlay');
   
-  if (!html || html.length < 50) return;
+  // DIAGNOSTIC: show HTML length in the address bar
+  var addrBar = document.getElementById('addressBar') || document.getElementById('previewUrl');
+  if (addrBar) addrBar.value = 'HTML length: ' + (html ? html.length : 0) + ' | showPreview called';
+  
+  if (!html || html.length < 50) {
+    addMessage('ai', '⚠️ Preview skipped: HTML is empty or too short (' + (html ? html.length : 0) + ' bytes)');
+    return;
+  }
   if (!iframe) { console.error('previewIframe not found!'); return; }
   
   // Hide empty state and overlay, show iframe
