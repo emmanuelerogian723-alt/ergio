@@ -1974,72 +1974,85 @@ showPreview(currentHTML, biz.businessName || 'Your Website');
 }
 
 function showPreview(html, title = 'Preview') {
-  var container = document.getElementById('previewFrame');
-  var empty = document.getElementById('previewEmpty');
-  var overlay = document.getElementById('scanOverlay');
-  
-  // DIAGNOSTIC: show status in chat
-  var htmlLen = html ? html.length : 0;
-  
-  if (!html || htmlLen < 50) {
-    addMessage('ai', '⚠️ Preview skipped: HTML is ' + htmlLen + ' bytes');
-    return;
-  }
-  if (!container) { console.error('previewFrame container not found!'); return; }
-  
-  // Hide empty state and overlay
-  if (overlay) overlay.style.display = 'none';
-  if (empty) empty.style.display = 'none';
-  
-  // Remove old iframe if it exists
-  var oldIframe = document.getElementById('previewIframe');
-  if (oldIframe) oldIframe.remove();
-  
-  // Create fresh iframe
-  var iframe = document.createElement('iframe');
-  iframe.id = 'previewIframe';
-  iframe.style.cssText = 'width:100%;border:none;display:block;min-height:600px;height:600px';
-  
-  // Append to container
-  container.appendChild(iframe);
-  
-  currentHTML = html;
-  var codePre = document.getElementById('codePre');
-  if (codePre) codePre.textContent = html;
-  
-  // Set srcdoc — the proven approach
-  iframe.srcdoc = html;
-  
-  // Adjust height after load
-  iframe.onload = function() {
-    try {
-      var doc = iframe.contentDocument || iframe.contentWindow.document;
-      if (!doc || !doc.body) return;
-      
-      // Force reveal animations visible
-      doc.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger').forEach(function(el) {
-        el.classList.add('active');
-        el.style.opacity = '1';
-        el.style.transform = 'none';
-      });
-      
-      // Adjust height
-      function adjustH() {
+  try {
+    var container = document.getElementById('previewFrame');
+    var empty = document.getElementById('previewEmpty');
+    var overlay = document.getElementById('scanOverlay');
+    
+    if (!html || html.length < 50) {
+      addMessage('ai', '⚠️ Preview skipped: HTML is ' + (html ? html.length : 0) + ' bytes');
+      return;
+    }
+    if (!container) { addMessage('ai', '⚠️ previewFrame container not found'); return; }
+    
+    // Hide empty state and overlay
+    if (overlay) overlay.style.display = 'none';
+    if (empty) empty.style.display = 'none';
+    
+    // Remove old iframe
+    var oldIframe = document.getElementById('previewIframe');
+    if (oldIframe) oldIframe.remove();
+    
+    // Create fresh iframe
+    var iframe = document.createElement('iframe');
+    iframe.id = 'previewIframe';
+    iframe.style.cssText = 'width:100%;border:none;display:block;min-height:600px;height:600px;background:#fff';
+    container.appendChild(iframe);
+    
+    currentHTML = html;
+    var codePre = document.getElementById('codePre');
+    if (codePre) codePre.textContent = html;
+    
+    // METHOD: document.write — most direct, bypasses srcdoc entirely
+    var doc = iframe.contentDocument || iframe.contentWindow.document;
+    doc.open();
+    doc.write(html);
+    doc.close();
+    
+    addMessage('system', '✅ Preview rendered via document.write (' + html.length + ' bytes)');
+    
+    // Force reveal animations + adjust height after load
+    setTimeout(function() {
+      try {
+        var d = iframe.contentDocument || iframe.contentWindow.document;
+        if (!d || !d.body) return;
+        
+        d.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.stagger').forEach(function(el) {
+          el.classList.add('active');
+          el.style.opacity = '1';
+          el.style.transform = 'none';
+        });
+        
         var h = Math.max(
-          doc.body.scrollHeight, doc.body.offsetHeight,
-          doc.documentElement.scrollHeight, doc.documentElement.offsetHeight,
+          d.body.scrollHeight, d.body.offsetHeight,
+          d.documentElement.scrollHeight, d.documentElement.offsetHeight,
           600
         );
         iframe.style.height = h + 'px';
-      }
-      adjustH();
-      setTimeout(adjustH, 1000);
-      setTimeout(adjustH, 3000);
-    } catch(e) { console.warn('iframe onload error:', e.message); }
-  };
+      } catch(e) {}
+    }, 500);
+    
+    setTimeout(function() {
+      try {
+        var d = iframe.contentDocument || iframe.contentWindow.document;
+        if (!d || !d.body) return;
+        var h = Math.max(
+          d.body.scrollHeight, d.body.offsetHeight,
+          d.documentElement.scrollHeight, d.documentElement.offsetHeight,
+          600
+        );
+        iframe.style.height = h + 'px';
+      } catch(e) {}
+    }, 2000);
+    
+  } catch(err) {
+    addMessage('ai', '⚠️ showPreview error: ' + err.message);
+    console.error('showPreview error:', err);
+  }
   
   scheduleAutoSave();
 }
+
 
 
 async function refineWebsite(prompt) {
