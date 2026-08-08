@@ -36,19 +36,47 @@ export async function generateWithDesignSystem(plan, content, brand, images, sty
     
     step('🧠 AI generating premium HTML...');
     
-    // 4. Call AI to generate the complete HTML
-    let html = await callAI(
-      [
-        { role: 'system', content: BUILDER_SYSTEM_PROMPT },
-        { role: 'user', content: fullPrompt }
-      ],
-      { 
-        maxTokens: 16000, 
-        temperature: 0.4, 
-        timeout: 45000,
-        model: 'meta-llama/llama-3.3-70b-instruct'
+    // 4. Call Mistral API to generate the complete HTML
+    // Using Mistral directly — fast, OpenAI-compatible, supports large output
+    const mistralKey = process.env.MISTRAL_API_KEY;
+    let html = '';
+    
+    if (mistralKey) {
+      const mistralResp = await fetch('https://api.mistral.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${mistralKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'mistral-medium-latest',
+          messages: [
+            { role: 'system', content: BUILDER_SYSTEM_PROMPT },
+            { role: 'user', content: fullPrompt }
+          ],
+          temperature: 0.4,
+          max_tokens: 12000,
+        }),
+        signal: AbortSignal.timeout(25000),
+      });
+      
+      if (mistralResp.ok) {
+        const data = await mistralResp.json();
+        html = data.choices?.[0]?.message?.content || '';
+      } else {
+        const errText = await mistralResp.text().catch(() => '');
+        throw new Error(`Mistral API error: ${mistralResp.status} ${errText.substring(0, 100)}`);
       }
-    );
+    } else {
+      // Fallback: use callAI (OpenRouter/Groq chain)
+      html = await callAI(
+        [
+          { role: 'system', content: BUILDER_SYSTEM_PROMPT },
+          { role: 'user', content: fullPrompt }
+        ],
+        { maxTokens: 12000, temperature: 0.4, timeout: 25000 }
+      );
+    }
     
     if (!html || html.length < 500) {
       throw new Error('AI returned insufficient HTML (' + (html?.length || 0) + ' bytes)');
