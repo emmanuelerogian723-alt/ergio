@@ -1820,7 +1820,15 @@ function loadUsageTab() {
   });
   
   // Current plan card
-  var planCard = document.getElementById('currentPlanCard');
+  // Update tier badge
+  var tierBadge = document.getElementById('tierBadge');
+  if (tierBadge && tierConfig) {
+    tierBadge.textContent = tierConfig.name;
+    tierBadge.style.background = tierConfig.color + '20';
+    tierBadge.style.color = tierConfig.color;
+  }
+  
+  var planCard = document.getElementById("usageGrid");
   if (planCard) {
     var planHtml = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">';
     planHtml += '<div style="font-size:1.5rem;font-weight:700">' + tierConfig.name + ' Plan</div>';
