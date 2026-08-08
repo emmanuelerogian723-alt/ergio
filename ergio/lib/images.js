@@ -165,21 +165,40 @@ export async function fetchWebsiteImages(imagePlan) {
   const promises = imagePlan.map(async (item) => {
     let images = [];
     
-    // Try real image APIs first (Pixabay, Unsplash)
+    // Pollinations AI as PRIMARY image source (reliable, free, no key needed)
+    // Pixabay/Unsplash are secondary enhancements when available
+    const seed = Math.floor(Math.random() * 999999);
+    const aiQuery = item.query || 'professional business Nigeria';
+    const dims = item.orientation === 'square' ? '800x800' : '1200x800';
+    const [w, h] = dims.split('x');
+    
+    // Start with Pollinations (always works)
+    images = [{
+      url: `https://image.pollinations.ai/prompt/\${encodeURIComponent(aiQuery + ' professional high quality photography Nigeria')}&width=\${w}&height=\${h}&nologo=true&model=flux&seed=\${seed}`,
+      source: 'pollinations',
+      credit: '',
+      tags: aiQuery
+    }];
+    
+    // Try to enhance with real photos (Pixabay/Unsplash) as secondary
     try {
-      images = await Promise.race([
+      const realImages = await Promise.race([
         searchImages(item.query, {
           orientation: item.orientation,
           perPage: item.count || 3
         }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 6000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 4000))
       ]);
+      if (realImages && realImages.length > 0) {
+        // Put real photos first, Pollinations as backup
+        images = [...realImages.slice(0, item.count || 3), ...images];
+      }
     } catch(e) {
-      images = [];
+      // Keep Pollinations images
     }
     
-    // If no real images found, use Pollinations AI as fallback
-    if (!images || images.length === 0) {
+    // If still no real images, generate variety with different seeds
+    if (images.length < 2) {
       const seed = Math.floor(Math.random() * 999999);
       const aiQuery = item.query || 'professional business Nigeria';
       const dims = item.orientation === 'square' ? '800x800' : '1200x800';

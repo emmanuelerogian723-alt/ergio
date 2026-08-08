@@ -39,6 +39,7 @@ import { DESIGN_STYLES as _BASE_STYLES, EXTRA_DESIGN_STYLES, autoDetectStyle } f
 import { getSectionPreset, assembleFromSections, SECTIONS, SECTION_PRESETS } from '../lib/section-library.js';
 import { lintWebsite, autoFixHtml } from '../lib/design-linter.js';
 import { detectBusinessProfile, getProfile, BUSINESS_PROFILES } from '../lib/business-profiles.js';
+import { generateWithDesignSystem } from '../lib/ai-builder.js';
 
 // Merge all design styles into one lookup
 const DESIGN_STYLES = { ..._BASE_STYLES, ...EXTRA_DESIGN_STYLES };
@@ -530,10 +531,36 @@ Return ONLY JSON:
           Object.keys(images).forEach(k => {
             normalizedImages[k] = (images[k] || []).map(img => typeof img === 'string' ? { url: img } : img);
           });
+
+      // ════════════════════════════════════════════════════════════
+      // ERGIO AI BUILDER v6.0 — AI-generated HTML with design tokens
+      // Primary path: AI generates complete HTML using design token system
+      // Fallback: Template-based assembly (premium engine v4)
+      // ════════════════════════════════════════════════════════════
+      send('status', { task: '🎨 AI Builder v6.0 — generating with design tokens...', step: 5, total: 8 });
+      
+      try {
+        websiteHtml = await generateWithDesignSystem(
+          plan, contentForHTML, brand, normalizedImages, designStyleKey,
+          callGroq, send
+        );
+      } catch(aiErr) {
+        console.error('AI builder error:', aiErr.message);
+      }
+      
+      if (websiteHtml) {
+        send('status', { task: '✅ AI-generated website complete', step: 6, total: 8 });
+      } else {
+        send('status', { task: '⚠️ AI builder unavailable, using template engine...', step: 5, total: 8 });
+      }
+      
+      // ── Fallback: Template-based assembly (premium engine v4) ──
+      if (!websiteHtml) {
+        try {
           websiteHtml = assemblePremiumWebsiteV4(planForHTML, contentForHTML, colors, logoUrl, normalizedImages, layoutKey, v4Options);
-          send('status', { task: `✨ Layout: ${LAYOUT_ARCHETYPES[layoutKey]?.name || layoutKey} — premium engine v4 with ${Object.values(v4Options).filter(Boolean).length} features`, step: 5, total: 8 });
+          send('status', { task: `✨ Template engine: ${LAYOUT_ARCHETYPES[layoutKey]?.name || layoutKey} — v4 with ${Object.values(v4Options).filter(Boolean).length} features`, step: 5, total: 8 });
         } catch(premiumErr) {
-          console.error('Premium engine v4 error, falling back to v3:', premiumErr.message);
+          console.error('Premium engine v4 error:', premiumErr.message);
           try {
             websiteHtml = assemblePremiumWebsite(planForHTML, contentForHTML, colors, logoUrl, images, layoutKey);
           } catch(e) {
@@ -541,18 +568,20 @@ Return ONLY JSON:
           }
         }
       }
+      
+      // ── Final fallback: Basic template generators ──
       if (!websiteHtml) {
-      websiteHtml = is3D 
-        ? generate3DWebsiteHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
-        : isTransix
-          ? generateTransixHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
-          : isEditorial
-            ? generateEditorialHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
-            : isClay
-              ? generateClayHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
-              : generateWebsiteHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images);
+        websiteHtml = is3D 
+          ? generate3DWebsiteHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
+          : isTransix
+            ? generateTransixHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
+            : isEditorial
+              ? generateEditorialHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
+              : isClay
+                ? generateClayHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
+                : generateWebsiteHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images);
       }
-    } catch(genErr) {
+        } catch(genErr) {
       console.error('HTML generation error:', genErr.message, genErr.stack);
       // Fallback minimal HTML
       websiteHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${plan.businessName}</title><style>body{background:#09090B;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:1rem} h1{color:#00D9FF;font-size:3rem} p{color:#888}</style></head><body><h1>${plan.businessName}</h1><p>${plan.description || plan.type + ' in ' + plan.city}</p><p style="color:#00FF9D">Your website is being prepared...</p></body></html>`;
