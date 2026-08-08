@@ -2003,7 +2003,6 @@ function showPreview(html, title = 'Preview') {
     var codePre = document.getElementById('codePre');
     if (codePre) codePre.textContent = html;
     
-    // METHOD 1: Blob URL — same-origin URL, most reliable (works like Base44/Lovable)
     var loaded = false;
     
     iframe.onload = function() {
@@ -2037,30 +2036,19 @@ function showPreview(html, title = 'Preview') {
       } catch(e) { console.warn('iframe onload error:', e.message); }
     };
     
-    // Create Blob URL from HTML
+    // METHOD 1: Data URL — URL-based, works in all browsers and screenshot tools
     try {
-      var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-      var blobUrl = URL.createObjectURL(blob);
-      iframe.src = blobUrl;
-      // Clean up the Blob URL after load
-      iframe.addEventListener('load', function() {
-        setTimeout(function() { URL.revokeObjectURL(blobUrl); }, 1000);
-      }, { once: true });
-    } catch(blobErr) {
-      // METHOD 2: Fallback to srcdoc if Blob URL fails
-      console.warn('Blob URL failed, using srcdoc:', blobErr.message);
+      iframe.src = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
+    } catch(dataErr) {
+      // METHOD 2: Fallback to srcdoc
+      console.warn('Data URL failed, using srcdoc:', dataErr.message);
       iframe.srcdoc = html;
     }
     
-    // METHOD 3: Final fallback — if Blob URL doesn't load in 5s, switch to srcdoc
+    // METHOD 3: Final fallback — if data URL doesn't load in 5s, switch to srcdoc
     setTimeout(function() {
       if (!loaded) {
-        console.log('Blob URL timeout, switching to srcdoc');
-        try { 
-          var oldBlob = iframe.src;
-          if (oldBlob && oldBlob.startsWith('blob:')) URL.revokeObjectURL(oldBlob);
-        } catch(e) {}
-        iframe.src = 'about:blank';
+        console.log('Data URL timeout, switching to srcdoc');
         iframe.srcdoc = html;
       }
     }, 5000);
@@ -2072,6 +2060,7 @@ function showPreview(html, title = 'Preview') {
   
   scheduleAutoSave();
 }
+
 
 
 
