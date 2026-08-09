@@ -3027,6 +3027,27 @@ async function analyzeWebsite(url,bubble){
   }
 }
 /* Claude-like response system — distinguish conversation from execution */
+// Vercel-side AI fallback for Conductor (works even when Render is down)
+async function vercelConductorAI(message, systemPrompt, history) {
+  try {
+    var resp = await fetch('/api/conductor-ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: message,
+        history: history || [],
+        context: systemPrompt ? systemPrompt.substring(0, 500) : ''
+      })
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    var data = await resp.json();
+    return data.response || data.text || data.message || null;
+  } catch (e) {
+    console.log('[Vercel AI] failed:', e.message);
+    return null;
+  }
+}
+
 async function sendChatMessage(){
   var i=document.getElementById('chatInput'),chat=document.getElementById('chatMessages'),btn=document.getElementById('chatSendBtn');
   if(!i||!chat||!btn)return;
@@ -3136,15 +3157,28 @@ async function sendChatMessage(){
             });
           }
         }catch(e){
-          console.log('AI chat failed:',e.message);
-          resp=genDemo(text,ctx);
-          resp=cleanConductorResponse(resp);
-          bubble.innerHTML='';
-          renderSimulatedStream(bubble,resp);btn.disabled=false;
+          console.log('AI chat (Render) failed, trying Vercel AI:',e.message);
+          var vresp=await vercelConductorAI(text,systemPrompt,conductorMemory.messages.slice(-6));
+          if(vresp){
+            resp=cleanConductorResponse(vresp);
+            bubble.innerHTML='';
+            renderSimulatedStream(bubble,resp);btn.disabled=false;
+          }else{
+            resp=genDemo(text,ctx);
+            resp=cleanConductorResponse(resp);
+            bubble.innerHTML='';
+            renderSimulatedStream(bubble,resp);btn.disabled=false;
+          }
         }
       }else{
-        resp=genDemo(text,ctx);
-        resp=cleanConductorResponse(resp);
+        /* No ENGINES.aiChat — try Vercel AI directly */
+        var vresp4=await vercelConductorAI(text,systemPrompt,conductorMemory.messages.slice(-6));
+        if(vresp4){
+          resp=cleanConductorResponse(vresp4);
+        }else{
+          resp=genDemo(text,ctx);
+          resp=cleanConductorResponse(resp);
+        }
         bubble.innerHTML='';
         renderSimulatedStream(bubble,resp);btn.disabled=false;
       }
@@ -3188,14 +3222,26 @@ async function sendChatMessage(){
           bubble.innerHTML='';
           renderSimulatedStream(bubble,resp);btn.disabled=false;
         }catch(e){
-          resp=genDemo(text,ctx);
-          resp=cleanConductorResponse(resp);
+          console.log('Action mode AI failed, trying Vercel AI...');
+          var vresp2=await vercelConductorAI(text,systemPrompt,conductorMemory.messages.slice(-6));
+          if(vresp2){
+            resp=cleanConductorResponse(vresp2);
+          }else{
+            resp=genDemo(text,ctx);
+            resp=cleanConductorResponse(resp);
+          }
           bubble.innerHTML='';
           renderSimulatedStream(bubble,resp);btn.disabled=false;
         }
       }else{
-        resp=genDemo(text,ctx);
-        resp=cleanConductorResponse(resp);
+        /* No ENGINES object — try Vercel AI directly */
+        var vresp3=await vercelConductorAI(text,systemPrompt,conductorMemory.messages.slice(-6));
+        if(vresp3){
+          resp=cleanConductorResponse(vresp3);
+        }else{
+          resp=genDemo(text,ctx);
+          resp=cleanConductorResponse(resp);
+        }
         bubble.innerHTML='';
         renderSimulatedStream(bubble,resp);btn.disabled=false;
       }
