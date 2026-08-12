@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S.T.E.W Agent — The Road to $1B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#050608;--bg2:#0a0d12;--surface:rgba(0,255,65,0.03);--surface2:rgba(0,255,65,0.06);
+  --border:rgba(0,255,65,0.12);--border2:rgba(0,255,65,0.25);
+  --green:#00ff41;--green-dim:#00cc33;--green-glow:rgba(0,255,65,0.4);
+  --white:#ffffff;--gray:#a0a0a0;--gray2:#606060;--gray3:#3a3a3a;
+  --amber:#fbbf24;--blue:#3b82f6;--purple:#a78bfa;--red:#ef4444;
+  --font:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:var(--font);overflow-x:hidden;line-height:1.5}
+
+/* Grid background */
+.grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,65,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,65,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.glow{position:fixed;width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,65,0.08),transparent 70%);pointer-events:none;z-index:0;filter:blur(40px)}
+.glow1{top:-200px;left:-200px}
+.glow2{bottom:-300px;right:-200px;background:radial-gradient(circle,rgba(59,130,246,0.06),transparent 70%)}
+
+/* Navigation */
+.slide-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 40px;background:rgba(5,6,8,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.slide-nav .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16px}
+.slide-nav .logo .box{width:30px;height:30px;background:var(--green);color:#000;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;font-family:var(--mono)}
+.slide-nav .dots{display:flex;gap:6px}
+.slide-nav .dot{width:8px;height:8px;border-radius:50%;background:var(--gray3);cursor:pointer;transition:all 0.3s}
+.slide-nav .dot.active{background:var(--green);box-shadow:0 0 12px var(--green-glow)}
+.slide-nav .counter{font-family:var(--mono);font-size:13px;color:var(--gray);font-weight:500}
+
+/* Slide system */
+.slides{position:relative;z-index:1}
+.slide{min-height:100vh;display:none;flex-direction:column;align-items:center;justify-content:center;padding:100px 40px 60px;position:relative}
+.slide.active{display:flex;animation:slideIn 0.6s cubic-bezier(0.16,1,0.3,1)}
+@keyframes slideIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+
+/* Typography */
+.slide-tag{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;padding:6px 16px;background:var(--surface);border:1px solid var(--border);border-radius:100px;display:inline-flex;align-items:center;gap:8px}
+.slide-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+.slide-title{font-size:clamp(2rem,5vw,4rem);font-weight:900;line-height:1.1;margin-bottom:20px;letter-spacing:-0.02em}
+.slide-title .accent{color:var(--green)}
+.slide-subtitle{font-size:clamp(1rem,2vw,1.3rem);color:var(--gray);max-width:700px;text-align:center;margin-bottom:40px;line-height:1.6}
+
+/* ===== SLIDE 1: HERO ===== */
+#slide1{padding-top:0}
+.hero-badge{font-family:var(--mono);font-size:13px;color:var(--green);padding:8px 20px;border:1px solid var(--border2);border-radius:100px;background:var(--surface);margin-bottom:32px;display:inline-flex;align-items:center;gap:10px}
+.hero-badge::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green-glow);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.hero-title{font-size:clamp(2.5rem,7vw,5.5rem);font-weight:900;line-height:1.05;letter-spacing:-0.03em;text-align:center;max-width:1000px;margin-bottom:24px}
+.hero-title .green{color:var(--green)}
+.hero-desc{font-size:clamp(1rem,2vw,1.35rem);color:var(--gray);max-width:650px;text-align:center;line-height:1.6;margin-bottom:48px}
+.hero-stats{display:flex;gap:48px;align-items:center;justify-content:center;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat .num{font-size:2.5rem;font-weight:900;color:var(--green);font-family:var(--mono)}
+.hero-stat .label{font-size:11px;color:var(--gray2);text-transform:uppercase;letter-spacing:1.5px;margin-top:4px}
+.hero-metrics{display:flex;gap:24px;margin-top:40px;flex-wrap:wrap;justify-content:center}
+.hero-metric{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px 32px;text-align:center;min-width:160px}
+.hero-metric .icon{font-size:28px;margin-bottom:8px}
+.hero-metric .val{font-size:1.8rem;font-weight:900;color:var(--white)}
+.hero-metric .desc{font-size:12px;color:var(--gray);margin-top:4px}
+
+/* ===== SLIDE 2: THE PROBLEM ===== */
+.problem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:1100px;width:100%;margin-top:20px}
+.problem-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px;position:relative;overflow:hidden;transition:all 0.3s}
+.problem-card:hover{border-color:var(--border2);transform:translateY(-4px)}
+.problem-card .icon{font-size:36px;margin-bottom:16px}
+.problem-card h3{font-size:1.2rem;font-weight:700;margin-bottom:10px;color:var(--white)}
+.problem-card p{color:var(--gray);font-size:0.92rem;line-height:1.6}
+.problem-card .stat{position:absolute;top:20px;right:20px;font-family:var(--mono);font-size:11px;color:var(--red);background:rgba(239,68,68,0.1);padding:4px 10px;border-radius:6px}
+
+/* ===== SLIDE 3: THE SOLUTION ===== */
+.solution-card{max-width:900px;width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:24px;padding:48px;position:relative;overflow:hidden}
+.solution-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--green),transparent)}
+.solution-card .code-block{background:#000;border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:24px;font-family:var(--mono);font-size:13px;line-height:1.8;overflow-x:auto}
+.solution-card .code-block .key{color:var(--green)}
+.solution-card .code-block .str{color:var(--amber)}
+.solution-card .code-block .comment{color:var(--gray2)}
+.solution-features{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:32px}
+.solution-feature{display:flex;align-items:flex-start;gap:12px;padding:16px;background:var(--surface);border-radius:12px;border:1px solid var(--border)}
+.solution-feature .check{color:var(--green);font-size:18px;flex-shrink:0;margin-top:1px}
+.solution-feature .txt{font-size:0.9rem;color:var(--gray)}
+.solution-feature .txt b{color:var(--white)}
+
+/* ===== SLIDE 4: MARKET ===== */
+.market-size{display:flex;align-items:center;justify-content:center;gap:0;margin-top:40px;max-width:1000px;width:100%}
+.market-ring{position:relative;width:320px;height:320px;display:flex;align-items:center;justify-content:center}
+.market-ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.market-ring circle{fill:none;stroke-width:8}
+.market-ring .bg{stroke:var(--border)}
+.market-ring .fg{stroke:var(--green);stroke-linecap:round;transition:stroke-dashoffset 1s ease;filter:drop-shadow(0 0 8px var(--green-glow))}
+.market-ring .center{text-align:center;z-index:1}
+.market-ring .center .big{font-size:2.8rem;font-weight:900;color:var(--green);font-family:var(--mono)}
+.market-ring .center .small{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:1px}
+.market-items{display:flex;flex-direction:column;gap:16px;margin-left:40px;flex:1}
+.market-item{display:flex;align-items:center;gap:16px;padding:20px 24px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;transition:all 0.3s}
+.market-item:hover{border-color:var(--border2);transform:translateX(8px)}
+.market-item .icon{font-size:28px}
+.market-item .info h4{font-size:1rem;font-weight:700;color:var(--white)}
+.market-item .info p{font-size:0.85rem;color:var(--gray);margin-top:2px}
+.market-item .val{margin-left:auto;font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--green)}
+
+/* ===== SLIDE 5: TRACTION ===== */
+.traction-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;max-width:1000px;width:100%;margin-top:20px}
+.traction-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px;text-align:center;transition:all 0.3s}
+.traction-card:hover{border-color:var(--border2);transform:translateY(-4px)}
+.traction-card .big{font-size:3rem;font-weight:900;color:var(--green);font-family:var(--mono);line-height:1}
+.traction-card .label{font-size:13px;color:var(--gray);margin-top:8px;text-transform:uppercase;letter-spacing:1px}
+.traction-card .sub{font-size:11px;color:var(--gray2);margin-top:4px}
+.traction-bar{max-width:800px;width:100%;margin-top:40px}
+.traction-bar h4{font-size:14px;color:var(--gray);margin-bottom:16px;text-align:center}
+.bar-chart{display:flex;align-items:flex-end;gap:12px;height:160px;justify-content:center}
+.bar{width:50px;background:linear-gradient(180deg,var(--green),var(--green-dim));border-radius:8px 8px 0 0;position:relative;transition:all 0.5s}
+.bar .val{position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:11px;color:var(--green);font-weight:700}
+.bar .lbl{position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--gray2)}
+
+/* ===== SLIDE 6: BUSINESS MODEL ===== */
+.pricing-tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;max-width:1100px;width:100%;margin-top:20px}
+.tier{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px 24px;position:relative;transition:all 0.3s}
+.tier:hover{border-color:var(--border2);transform:translateY(-6px)}
+.tier.popular{border-color:var(--green);box-shadow:0 0 40px rgba(0,255,65,0.08)}
+.tier .badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--green);color:#000;font-size:10px;font-weight:800;padding:4px 14px;border-radius:100px;text-transform:uppercase;letter-spacing:1px}
+.tier .name{font-size:14px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:8px}
+.tier .price{font-size:2.2rem;font-weight:900;color:var(--white);font-family:var(--mono)}
+.tier .price .cur{font-size:1rem;color:var(--gray)}
+.tier .period{font-size:12px;color:var(--gray2);margin-bottom:20px}
+.tier ul{list-style:none}
+.tier li{font-size:0.85rem;color:var(--gray);padding:6px 0;display:flex;align-items:center;gap:8px}
+.tier li::before{content:'✓';color:var(--green);font-weight:700}
+.tier li.muted{color:var(--gray3)}
+.tier li.muted::before{content:'—';color:var(--gray3)}
+.revenue-math{margin-top:40px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:800px;width:100%}
+.revenue-math h4{font-size:14px;color:var(--gray);margin-bottom:16px;text-align:center;text-transform:uppercase;letter-spacing:1px}
+.math-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.math-row:last-child{border-bottom:none;padding-top:16px}
+.math-row .label{font-size:0.9rem;color:var(--gray)}
+.math-row .val{font-family:var(--mono);font-weight:700;font-size:1rem}
+.math-row .val.green{color:var(--green)}
+.math-row.total .label{font-weight:700;color:var(--white)}
+.math-row.total .val{font-size:1.4rem;color:var(--green)}
+
+/* ===== SLIDE 7: ROADMAP ===== */
+.timeline{max-width:1000px;width:100%;margin-top:20px;position:relative}
+.timeline::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;background:linear-gradient(180deg,transparent,var(--border2),var(--border2),transparent);transform:translateX(-50%)}
+.phase{display:flex;align-items:center;gap:40px;margin-bottom:40px;position:relative}
+.phase:nth-child(even){flex-direction:row-reverse}
+.phase .content{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;transition:all 0.3s}
+.phase .content:hover{border-color:var(--border2)}
+.phase .content .year{font-family:var(--mono);font-size:12px;color:var(--green);font-weight:700;margin-bottom:8px}
+.phase .content h4{font-size:1.1rem;font-weight:700;color:var(--white);margin-bottom:6px}
+.phase .content p{font-size:0.85rem;color:var(--gray);line-height:1.5}
+.phase .content .metrics{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap}
+.phase .content .metric{font-family:var(--mono);font-size:11px;color:var(--green);background:var(--surface);padding:4px 10px;border-radius:6px;border:1px solid var(--border)}
+.phase .dot{width:16px;height:16px;border-radius:50%;background:var(--green);border:3px solid var(--bg);box-shadow:0 0 12px var(--green-glow);z-index:1;flex-shrink:0}
+.phase .spacer{flex:1}
+
+/* ===== SLIDE 8: COMPETITION ===== */
+.compare-table{max-width:1000px;width:100%;border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-top:20px}
+.compare-table table{width:100%;border-collapse:collapse}
+.compare-table th{background:var(--bg2);padding:16px 20px;text-align:left;font-size:13px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)}
+.compare-table th.stew{color:var(--green)}
+.compare-table td{padding:16px 20px;font-size:0.9rem;border-bottom:1px solid var(--border);color:var(--gray)}
+.compare-table td.stew{color:var(--white);font-weight:500;background:var(--surface)}
+.compare-table tr:last-child td{border-bottom:none}
+.compare-table .yes{color:var(--green);font-weight:700}
+.compare-table .no{color:var(--gray3)}
+
+/* ===== SLIDE 9: THE ASK ===== */
+.ask-card{max-width:700px;width:100%;background:linear-gradient(135deg,var(--bg2),rgba(0,255,65,0.04));border:1px solid var(--border2);border-radius:28px;padding:48px;text-align:center;position:relative;overflow:hidden}
+.ask-card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(0,255,65,0.05),transparent 60%);animation:rotate 20s linear infinite}
+@keyframes rotate{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.ask-card .content{position:relative;z-index:1}
+.ask-card .label{font-family:var(--mono);font-size:12px;color:var(--green);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px}
+.ask-card .amount{font-size:5rem;font-weight:900;color:var(--green);font-family:var(--mono);line-height:1;margin-bottom:8px;text-shadow:0 0 40px var(--green-glow)}
+.ask-card .desc{font-size:1.1rem;color:var(--gray);margin-bottom:32px;max-width:500px;margin-left:auto;margin-right:auto}
+.ask-breakdown{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:32px}
+.ask-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:left}
+.ask-item .pct{font-family:var(--mono);font-size:1.5rem;font-weight:900;color:var(--green)}
+.ask-item .label2{font-size:0.85rem;color:var(--gray);margin-top:4px}
+
+/* ===== SLIDE 10: VISION ===== */
+.vision-card{max-width:800px;width:100%;text-align:center}
+.vision-card .emoji{font-size:64px;margin-bottom:24px}
+.vision-card h2{font-size:clamp(2rem,5vw,3.5rem);font-weight:900;line-height:1.15;margin-bottom:24px}
+.vision-card h2 .green{color:var(--green)}
+.vision-card p{font-size:1.2rem;color:var(--gray);max-width:600px;margin:0 auto 40px;line-height:1.6}
+.vision-stats{display:flex;gap:48px;justify-content:center;flex-wrap:wrap;margin-top:40px}
+.vision-stat{text-align:center}
+.vision-stat .big{font-size:3rem;font-weight:900;color:var(--green);font-family:var(--mono)}
+.vision-stat .small{font-size:12px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.cta-final{margin-top:48px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.cta-btn{padding:16px 36px;border-radius:100px;font-weight:700;font-size:1rem;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.3s}
+.cta-btn.primary{background:var(--green);color:#000}
+.cta-btn.primary:hover{box-shadow:0 0 30px var(--green-glow);transform:scale(1.05)}
+.cta-btn.secondary{background:transparent;color:var(--white);border:1px solid var(--border2)}
+.cta-btn.secondary:hover{background:var(--surface)}
+
+/* Nav arrows */
+.nav-arrows{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);display:flex;gap:16px;z-index:100}
+.nav-btn{width:48px;height:48px;border-radius:50%;background:var(--bg2);border:1px solid var(--border2);color:var(--green);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s}
+.nav-btn:hover{background:var(--green);color:#000;box-shadow:0 0 20px var(--green-glow)}
+.nav-btn:disabled{opacity:0.3;cursor:not-allowed}
+
+/* Responsive */
+@media(max-width:768px){
+  .slide{padding:80px 20px 60px}
+  .hero-stats{gap:24px}
+  .market-size{flex-direction:column}
+  .market-items{margin-left:0;margin-top:32px}
+  .timeline::before{left:20px}
+  .phase{flex-direction:row!important;gap:16px}
+  .phase .spacer{display:none}
+  .ask-breakdown{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="glow glow1"></div>
+<div class="glow glow2"></div>
+
+<!-- Navigation -->
+<nav class="slide-nav">
+  <div class="logo">
+    <div class="box">STW</div>
+    S.T.E.W Agent
+  </div>
+  <div class="dots" id="navDots"></div>
+  <div class="counter" id="slideCounter">01 / 10</div>
+</nav>
+
+<!-- Arrow navigation -->
+<div class="nav-arrows">
+  <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">←</button>
+  <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">→</button>
+</div>
+
+<div class="slides">
+
+<!-- ===== SLIDE 1: HERO ===== -->
+<div class="slide active" id="slide1">
+  <div class="hero-badge">● NOW WITH MISTRAL AI · 6 AI PROVIDERS</div>
+  <h1 class="hero-title">The Road to<br><span class="green">$1,000,000,000</span></h1>
+  <p class="hero-desc">How S.T.E.W Agent — Africa's most powerful AI agent API — becomes the continent's first AI unicorn.</p>
+  <div class="hero-metrics">
+    <div class="hero-metric"><div class="icon">🛠️</div><div class="val">60+</div><div class="desc">AI Skills</div></div>
+    <div class="hero-metric"><div class="icon">🎭</div><div class="val">12</div><div class="desc">Personas</div></div>
+    <div class="hero-metric"><div class="icon">🧠</div><div class="val">6</div><div class="desc">AI Models</div></div>
+    <div class="hero-metric"><div class="icon">🇳🇬</div><div class="val">100%</div><div class="desc">Nigerian-Built</div></div>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num">2,856</div><div class="label">Active Requests/min</div></div>
+    <div class="hero-stat"><div class="num">₦0</div><div class="label">Dollar Card Needed</div></div>
+    <div class="hero-stat"><div class="num">1</div><div class="label">Endpoint. Everything.</div></div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 2: THE PROBLEM ===== -->
+<div class="slide" id="slide2">
+  <div class="slide-tag">The Problem</div>
+  <h2 class="slide-title">Africa is <span class="accent">locked out</span> of the AI revolution.</h2>
+  <p class="slide-subtitle">Developers and businesses across the continent face barriers that make building AI-powered apps nearly impossible.</p>
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="stat">98% blocked</div>
+      <div class="icon">💳</div>
+      <h3>Dollar Card Wall</h3>
+      <p>OpenAI, Anthropic, Google AI all require dollar-denominated cards. Most African developers can't pay. No card, no API key, no AI app.</p>
+    </div>
+    <div class="problem-card">
+      <div class="stat">$0.06/call</div>
+      <div class="icon">💸</div>
+      <h3>Prohibitive Pricing</h3>
+      <p>Western AI APIs price in dollars at Silicon Valley rates. A single complex agent task costs more than a Nigerian developer's daily wage.</p>
+    </div>
+    <div class="problem-card">
+      <div class="stat">6+ tools</div>
+      <div class="icon">🧩</div>
+      <h3>Fragmented Stack</h3>
+      <p>To build one AI app you need: web search, code gen, document export, scraping, auth, billing — 6+ separate services, each with its own billing and API.</p>
+    </div>
+    <div class="problem-card">
+      <div class="stat">0 context</div>
+      <div class="icon">🌍</div>
+      <h3>No Local Context</h3>
+      <p>Western AI models don't understand Nigerian Pidgin, Yoruba, Hausa, Igbo. They don't know the market, the regulations, the culture, the payment systems.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 3: THE SOLUTION ===== -->
+<div class="slide" id="slide3">
+  <div class="slide-tag">The Solution</div>
+  <h2 class="slide-title">One API. <span class="accent">Every skill.</span></h2>
+  <p class="slide-subtitle">S.T.E.W is a single endpoint that gives African developers everything: web research, code generation, document export, 100-agent swarms — billed in Naira.</p>
+  <div class="solution-card">
+    <div class="code-block">
+<span class="comment"># One endpoint. Everything your app needs.</span>
+<span class="key">POST</span> https://stew-agent.onrender.com/chat
+<span class="key">Authorization:</span> Bearer stew_your_api_key
+
+{
+  <span class="str">"message"</span>: <span class="str">"Research top Nigerian fintechs and generate a PDF report"</span>,
+  <span class="str">"persona"</span>: <span class="str">"startup"</span>,
+  <span class="str">"skills"</span>: [<span class="str">"web_search"</span>, <span class="str">"pdf_generator"</span>]
+}
+
+<span class="comment">→ Searches web → Analyzes 8 results → Generates branded PDF</span>
+<span class="comment">→ All in one call. Naira billing. No dollar card.</span>
+    </div>
+    <div class="solution-features">
+      <div class="solution-feature"><span class="check">✓</span><span class="txt"><b>60+ Skills</b> — PDF, DOCX, XLSX, PPTX, web scraping, code gen, Telegram bot</span></div>
+      <div class="solution-feature"><span class="check">✓</span><span class="txt"><b>12 Personas</b> — Medical, Legal, Finance, Startup, Developer & more</span></div>
+      <div class="solution-feature"><span class="check">✓</span><span class="txt"><b>6 AI Providers</b> — Groq, Mistral, NVIDIA NIM, OpenRouter, HuggingFace, OpenAI</span></div>
+      <div class="solution-feature"><span class="check">✓</span><span class="txt"><b>Paystack Billing</b> — ₦9,900/mo. No dollar card. Naira native.</span></div>
+      <div class="solution-feature"><span class="check">✓</span><span class="txt"><b>100-Agent Swarm</b> — Parallel orchestration for complex enterprise tasks</span></div>
+      <div class="solution-feature"><span class="check">✓</span><span class="txt"><b>Nigerian Languages</b> — Pidgin, Yoruba, Igbo, Hausa built in</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 4: MARKET ===== -->
+<div class="slide" id="slide4">
+  <div class="slide-tag">Market Opportunity</div>
+  <h2 class="slide-title">A <span class="accent">$4.8B</span> market hiding in plain sight.</h2>
+  <p class="slide-subtitle">Africa's developer population is exploding. The AI infrastructure to serve them doesn't exist — until now.</p>
+  <div class="market-size">
+    <div class="market-ring">
+      <svg viewBox="0 0 200 200" width="320" height="320">
+        <circle class="bg" cx="100" cy="100" r="90" />
+        <circle class="fg" cx="100" cy="100" r="90" stroke-dasharray="565" stroke-dashoffset="113" />
+      </svg>
+      <div class="center">
+        <div class="big">$4.8B</div>
+        <div class="small">Africa AI Market<br>by 2030</div>
+      </div>
+    </div>
+    <div class="market-items">
+      <div class="market-item">
+        <div class="icon">👨‍💻</div>
+        <div class="info"><h4>690K+ Developers</h4><p>Active developers across Africa, growing 25% YoY</p></div>
+        <div class="val">690K</div>
+      </div>
+      <div class="market-item">
+        <div class="icon">🏢</div>
+        <div class="info"><h4>2.1M SMEs</h4><p>Nigerian small businesses needing AI automation</p></div>
+        <div class="val">2.1M</div>
+      </div>
+      <div class="market-item">
+        <div class="icon">🏦</div>
+        <div class="info"><h4>300+ Fintechs</h4><p>African fintech companies that need AI infrastructure</p></div>
+        <div class="val">300+</div>
+      </div>
+      <div class="market-item">
+        <div class="icon">📱</div>
+        <div class="info"><h4>500M+ Users</h4><p>Mobile-first internet users across the continent</p></div>
+        <div class="val">500M</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 5: TRACTION ===== -->
+<div class="slide" id="slide5">
+  <div class="slide-tag">Current Traction</div>
+  <h2 class="slide-title">Already <span class="accent">live and growing.</span></h2>
+  <p class="slide-subtitle">S.T.E.W is not a concept. It's a running product with real users, real revenue, and real skills.</p>
+  <div class="traction-grid">
+    <div class="traction-card">
+      <div class="big">2,856</div>
+      <div class="label">Active API Requests/min</div>
+      <div class="sub">Live on Render</div>
+    </div>
+    <div class="traction-card">
+      <div class="big">60+</div>
+      <div class="label">Production Skills</div>
+      <div class="sub">All working today</div>
+    </div>
+    <div class="traction-card">
+      <div class="big">6</div>
+      <div class="label">AI Provider Integrations</div>
+      <div class="sub">Auto-failover enabled</div>
+    </div>
+    <div class="traction-card">
+      <div class="big">12</div>
+      <div class="label">Domain Personas</div>
+      <div class="sub">Fine-tuned & tested</div>
+    </div>
+  </div>
+  <div class="traction-bar">
+    <h4>Projected API Call Volume (Monthly)</h4>
+    <div class="bar-chart">
+      <div class="bar" style="height:20px"><span class="val">30K</span><span class="lbl">Now</span></div>
+      <div class="bar" style="height:40px"><span class="val">120K</span><span class="lbl">Q1</span></div>
+      <div class="bar" style="height:70px"><span class="val">450K</span><span class="lbl">Q2</span></div>
+      <div class="bar" style="height:100px"><span class="val">1.2M</span><span class="lbl">Q3</span></div>
+      <div class="bar" style="height:140px"><span class="val">3.5M</span><span class="lbl">Q4</span></div>
+      <div class="bar" style="height:160px"><span class="val">8M+</span><span class="lbl">2027</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 6: BUSINESS MODEL ===== -->
+<div class="slide" id="slide6">
+  <div class="slide-tag">Business Model</div>
+  <h2 class="slide-title">Naira-first pricing. <span class="accent">Dollar-scale margins.</span></h2>
+  <p class="slide-subtitle">Built for African wallets. Designed for global-scale revenue.</p>
+  <div class="pricing-tiers">
+    <div class="tier">
+      <div class="name">Free</div>
+      <div class="price"><span class="cur">₦</span>0</div>
+      <div class="period">forever</div>
+      <ul>
+        <li>3,000 API calls/month</li>
+        <li>All 60+ skills</li>
+        <li>Web research</li>
+        <li>Fine-tune personas</li>
+        <li>100-agent swarm</li>
+      </ul>
+    </div>
+    <div class="tier popular">
+      <div class="badge">Most Popular</div>
+      <div class="name">Pro</div>
+      <div class="price"><span class="cur">₦</span>9,900</div>
+      <div class="period">per month · ~$6</div>
+      <ul>
+        <li>10,000 API calls/month</li>
+        <li>Priority routing</li>
+        <li>Custom Mistral key ✓</li>
+        <li>Conversation memory</li>
+        <li>Email support</li>
+      </ul>
+    </div>
+    <div class="tier">
+      <div class="name">Business</div>
+      <div class="price"><span class="cur">₦</span>29K</div>
+      <div class="period">per month · ~$18</div>
+      <ul>
+        <li>100,000 API calls/month</li>
+        <li>Telegram bot setup</li>
+        <li>All 12 personas</li>
+        <li>Priority support</li>
+        <li>Custom system prompts</li>
+      </ul>
+    </div>
+    <div class="tier">
+      <div class="name">Enterprise</div>
+      <div class="price"><span class="cur">₦</span>49K+</div>
+      <div class="period">per month · custom</div>
+      <ul>
+        <li>Unlimited API calls</li>
+        <li>Dedicated AI instances</li>
+        <li>White-label option</li>
+        <li>SLA guarantee</li>
+        <li>On-premise deployment</li>
+      </ul>
+    </div>
+  </div>
+  <div class="revenue-math">
+    <h4>Path to $100M ARR</h4>
+    <div class="math-row"><span class="label">100 enterprise customers @ ₦200K/mo</span><span class="val green">₦240M/yr</span></div>
+    <div class="math-row"><span class="label">1,000 business customers @ ₦29K/mo</span><span class="val green">₦348M/yr</span></div>
+    <div class="math-row"><span class="label">10,000 pro customers @ ₦9,900/mo</span><span class="val green">₦1.188B/yr</span></div>
+    <div class="math-row"><span class="label">50,000 free → 15% conversion</span><span class="val green">₦891M/yr</span></div>
+    <div class="math-row total"><span class="label">Total Projected ARR (Year 3)</span><span class="val green">₦2.66B / ~$3.2M</span></div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 7: ROADMAP ===== -->
+<div class="slide" id="slide7">
+  <div class="slide-tag">The Roadmap</div>
+  <h2 class="slide-title">From <span class="accent">Live Product</span> to $1B Unicorn.</h2>
+  <p class="slide-subtitle">Four phases. 36 months. A clear path from Nigerian API to African unicorn.</p>
+  <div class="timeline">
+    <div class="phase">
+      <div class="content">
+        <div class="year">PHASE 1 — Q1 2026 (NOW)</div>
+        <h4>🚀 Scale the Core</h4>
+        <p>Move from Render to dedicated infrastructure. Launch self-serve onboarding. Hit 1,000 active API keys.</p>
+        <div class="metrics"><span class="metric">$500K seed</span><span class="metric">1K keys</span><span class="metric">30K calls/day</span></div>
+      </div>
+      <div class="dot"></div>
+      <div class="spacer"></div>
+    </div>
+    <div class="phase">
+      <div class="spacer"></div>
+      <div class="dot"></div>
+      <div class="content">
+        <div class="year">PHASE 2 — Q2-Q3 2026</div>
+        <h4>🌍 Pan-African Expansion</h4>
+        <p>Expand to Ghana, Kenya, South Africa. Add local payment methods (Mpesa, Flutterwave GH/ZA). Launch white-label for fintechs.</p>
+        <div class="metrics"><span class="metric">$5M Series A</span><span class="metric">10K keys</span><span class="metric">5 countries</span></div>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="content">
+        <div class="year">PHASE 3 — Q4 2026 - Q2 2027</div>
+        <h4>🏢 Enterprise & White-Label</h4>
+        <p>On-premise deployment for banks. White-label API for telcos. Launch S.T.E.W Cloud — managed AI infrastructure for African enterprise.</p>
+        <div class="metrics"><span class="metric">$25M Series B</span><span class="metric">50K keys</span><span class="metric">$10M ARR</span></div>
+      </div>
+      <div class="dot"></div>
+      <div class="spacer"></div>
+    </div>
+    <div class="phase">
+      <div class="spacer"></div>
+      <div class="dot"></div>
+      <div class="content">
+        <div class="year">PHASE 4 — Q3 2027 - Q4 2028</div>
+        <h4>👑 The Billion Dollar Play</h4>
+        <p>200K+ active developers. 500 enterprise clients. $100M ARR. S.T.E.W becomes the AI infrastructure layer for all of Africa — the AWS of African AI.</p>
+        <div class="metrics"><span class="metric">$100M+ raised</span><span class="metric">$100M ARR</span><span class="metric">$1B valuation</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 8: COMPETITION ===== -->
+<div class="slide" id="slide8">
+  <div class="slide-tag">Competitive Edge</div>
+  <h2 class="slide-title">Why S.T.E.W <span class="accent">wins Africa.</span></h2>
+  <p class="slide-subtitle">Western AI APIs can't serve Africa. S.T.E.W was built for it from day one.</p>
+  <div class="compare-table">
+    <table>
+      <tr>
+        <th>Feature</th>
+        <th class="stew">S.T.E.W Agent</th>
+        <th>OpenAI API</th>
+        <th>Anthropic</th>
+        <th>Google AI</th>
+      </tr>
+      <tr>
+        <td>Naira billing</td>
+        <td class="stew yes">✓ Paystack native</td>
+        <td class="no">✗ Dollar only</td>
+        <td class="no">✗ Dollar only</td>
+        <td class="no">✗ Dollar only</td>
+      </tr>
+      <tr>
+        <td>60+ built-in skills</td>
+        <td class="stew yes">✓ PDF, DOCX, scrape, bot</td>
+        <td class="no">✗ Chat only</td>
+        <td class="no">✗ Chat only</td>
+        <td class="no">✗ Chat only</td>
+      </tr>
+      <tr>
+        <td>Nigerian languages</td>
+        <td class="stew yes">✓ Pidgin, Yoruba, Igbo, Hausa</td>
+        <td class="no">✗ English-focused</td>
+        <td class="no">✗ English-focused</td>
+        <td class="no">✗ Limited</td>
+      </tr>
+      <tr>
+        <td>Domain personas</td>
+        <td class="stew yes">✓ 12 fine-tuned</td>
+        <td class="no">✗ Generic</td>
+        <td class="no">✗ Generic</td>
+        <td class="no">✗ Generic</td>
+      </tr>
+      <tr>
+        <td>100-agent swarm</td>
+        <td class="stew yes">✓ Built-in</td>
+        <td class="no">✗ Build your own</td>
+        <td class="no">✗ Build your own</td>
+        <td class="no">✗ Build your own</td>
+      </tr>
+      <tr>
+        <td>Single endpoint</td>
+        <td class="stew yes">✓ One API, everything</td>
+        <td class="no">✗ Multiple APIs</td>
+        <td class="no">✗ Multiple APIs</td>
+        <td class="no">✗ Multiple APIs</td>
+      </tr>
+      <tr>
+        <td>Auto-failover</td>
+        <td class="stew yes">✓ 6 providers</td>
+        <td class="no">✗ Single point</td>
+        <td class="no">✗ Single point</td>
+        <td class="no">✗ Single point</td>
+      </tr>
+      <tr>
+        <td>Entry price</td>
+        <td class="stew yes">₦0 → ₦9,900/mo</td>
+        <td class="no">$20+/mo + card</td>
+        <td class="no">$20+/mo + card</td>
+        <td class="no">Varies + card</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- ===== SLIDE 9: THE ASK ===== -->
+<div class="slide" id="slide9">
+  <div class="slide-tag">The Ask</div>
+  <h2 class="slide-title">Raising <span class="accent">$5M Seed</span></h2>
+  <p class="slide-subtitle">To scale infrastructure, expand across Africa, and capture the market before Western competitors wake up.</p>
+  <div class="ask-card">
+    <div class="content">
+      <div class="label">Seed Round · Q1 2026</div>
+      <div class="amount">$5M</div>
+      <div class="desc">18-month runway to hit $10M ARR and Series A readiness. Building the AI infrastructure layer for 1.3 billion Africans.</div>
+      <div class="ask-breakdown">
+        <div class="ask-item">
+          <div class="pct">40%</div>
+          <div class="label2">Infrastructure — dedicated GPU servers, CDN, multi-region deploy</div>
+        </div>
+        <div class="ask-item">
+          <div class="pct">30%</div>
+          <div class="label2">Engineering — 15 senior engineers (AI, backend, DevOps)</div>
+        </div>
+        <div class="ask-item">
+          <div class="pct">20%</div>
+          <div class="label2">Go-to-market — dev evangelism, partnerships, fintech integrations</div>
+        </div>
+        <div class="ask-item">
+          <div class="pct">10%</div>
+          <div class="label2">Operations & legal — entity setup, compliance, reserves</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 10: VISION ===== -->
+<div class="slide" id="slide10">
+  <div class="slide-tag">The Vision</div>
+  <div class="vision-card">
+    <div class="emoji">🌍</div>
+    <h2>Be the <span class="green">AWS of African AI.</span><br>The infrastructure that powers<br>a continent's intelligence.</h2>
+    <p>Every African startup, bank, hospital, school, and business that builds with AI — builds on S.T.E.W. We don't sell chatbots. We sell the layer that makes the entire continent AI-capable.</p>
+    <div class="vision-stats">
+      <div class="vision-stat"><div class="big">200K+</div><div class="small">Developers by 2028</div></div>
+      <div class="vision-stat"><div class="big">500+</div><div class="small">Enterprise Clients</div></div>
+      <div class="vision-stat"><div class="big">$100M</div><div class="small">ARR Target</div></div>
+      <div class="vision-stat"><div class="big">$1B</div><div class="small">Valuation</div></div>
+    </div>
+    <div class="cta-final">
+      <a href="https://stew-agent.onrender.com" target="_blank" class="cta-btn primary">🚀 Try S.T.E.W Free →</a>
+      <a href="https://stew-agent.onrender.com" target="_blank" class="cta-btn secondary">View API Docs</a>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+let currentSlide = 1;
+const totalSlides = 10;
+
+function showSlide(n) {
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById('slide' + n).classList.add('active');
+  
+  // Update nav dots
+  document.querySelectorAll('.slide-nav .dot').forEach((d, i) => {
+    d.classList.toggle('active', i + 1 === n);
+  });
+  
+  // Update counter
+  document.getElementById('slideCounter').textContent = 
+    String(n).padStart(2, '0') + ' / ' + String(totalSlides).padStart(2, '0');
+  
+  // Update arrows
+  document.getElementById('prevBtn').disabled = n === 1;
+  document.getElementById('nextBtn').disabled = n === totalSlides;
+  
+  currentSlide = n;
+}
+
+function changeSlide(dir) {
+  const next = currentSlide + dir;
+  if (next >= 1 && next <= totalSlides) showSlide(next);
+}
+
+// Build nav dots
+const dotsContainer = document.getElementById('navDots');
+for (let i = 1; i <= totalSlides; i++) {
+  const dot = document.createElement('div');
+  dot.className = 'dot' + (i === 1 ? ' active' : '');
+  dot.onclick = () => showSlide(i);
+  dotsContainer.appendChild(dot);
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+    e.preventDefault();
+    changeSlide(1);
+  } else if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    changeSlide(-1);
+  }
+});
+
+// Touch/swipe support
+let touchStartX = 0;
+document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+document.addEventListener('touchend', (e) => {
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+
+// Init
+showSlide(1);
+</script>
+
+</body>
+</html>
