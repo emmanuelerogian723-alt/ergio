@@ -1,5 +1,5 @@
 // ERGIO Unified API Router
-import { callGroq, callGroqFast, searxngSearch, scrapePage, getSupabase, success, error, corsHeaders, generateSlug, generateLogoUrl, paystackInit, paystackVerify, delay } from '../lib/ergio.js';
+import { callGroq, callGroqFast, callMistral, searxngSearch, scrapePage, getSupabase, success, error, corsHeaders, generateSlug, generateLogoUrl, paystackInit, paystackVerify, delay } from '../lib/ergio.js';
 import { lintWebsite, autoFixHtml } from '../lib/design-linter.js';
 import { getPremiumCSS, getAnimationJS, getGoogleFonts } from '../lib/premium-template.js';
 import mcpHandler from './mcp.js';
@@ -58,6 +58,8 @@ export default async function handler(req, res) {
       case 'mcp': return await mcpHandler(req, res);
       case 'crm': return await crmHandler(req, res);
       case 'assistant': return await assistantHandler(req, res);
+      case 'conductor-ai': return await handleConductorAI(req, res);
+      case 'ai-mistral': return await handleMistralAI(req, res);
       case 'ai': return await assistantHandler(req, res);
       case 'console-bridge': return await handleConsoleBridge(req, res);
       case 'console-bridge-sync': return await handleConsoleBridgeSync(req, res);
@@ -996,4 +998,87 @@ async function handlePreview(req, res) {
   }
   
   return error(res, 'Method not allowed', 405);
+}
+// ── Conductor AI (Vercel-side fallback) ──
+async function handleConductorAI(req, res) {
+  if (req.method !== 'POST') return error(res, 'Use POST', 405);
+  
+  const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+  const { message, history = [], context = '' } = body;
+  
+  if (!message) return error(res, 'Message required', 400);
+  
+  const CONDUCTOR_SYSTEM = 'You are ERGIO Conductor, an AI business operating system for African entrepreneurs. ' +
+    'You help with finding leads, building websites, sending outreach, analyzing competitors, ' +
+    'generating content, processing payments, managing bookings, and more. ' +
+    'Be warm, practical, and actionable. Give specific Nigerian naira figures when discussing money. ' +
+    'Reference real Nigerian platforms (Paystack, Flutterwave, USSD, WhatsApp Business). ' +
+    'Be concise but thorough. Respond in plain text, NOT JSON.';
+  
+  const messages = [
+    { role: 'system', content: CONDUCTOR_SYSTEM + (context ? '\n\nBusiness context: ' + context : '') },
+    ...history.slice(-10).map(h => ({
+      role: h.role === 'user' ? 'user' : 'assistant',
+      content: h.text || h.content || ''
+    })),
+    { role: 'user', content: message }
+  ];
+  
+  try {
+    const response = await callMistral(messages, {
+      temperature: 0.7,
+      maxTokens: 1500,
+      timeout: 30000
+    });
+    
+    return success(res, { response, provider: 'mistral' });
+  } catch (err) {
+    console.error('[Conductor AI] Error:', err.message);
+    return error(res, err.message, 500);
+  }
+}
+// ── Mistral AI proxy ──
+async function handleMistralAI(req, res) {
+  if (req.method !== 'POST') return error(res, 'Use POST', 405);
+  
+  const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+  const { messages, model, temperature, max_tokens, json_mode } = body;
+  
+  if (!messages || !Array.isArray(messages)) return error(res, 'messages array required', 400);
+  
+  const mistralKey = process.env.MISTRAL_API_KEY;
+  if (!mistralKey) return error(res, 'Mistral API not configured. Set MISTRAL_API_KEY env var.', 503);
+  
+  const bodyData = {
+    model: model || 'mistral-small-latest',
+    messages,
+    temperature: temperature ?? 0.7,
+    max_tokens: max_tokens ?? 4096,
+  };
+  if (json_mode) bodyData.response_format = { type: 'json_object' };
+  
+  try {
+    const resp = await fetch('https://api.mistral.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${mistralKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(bodyData),
+    });
+    
+    if (!resp.ok) {
+      const errText = await resp.text();
+      return error(res, `Mistral API error: ${resp.status} - ${errText.substring(0, 200)}`, resp.status);
+    }
+    
+    const data = await resp.json();
+    return success(res, {
+      content: data.choices?.[0]?.message?.content || '',
+      model: data.model,
+      usage: data.usage,
+    });
+  } catch (err) {
+    return error(res, err.message, 500);
+  }
 }
