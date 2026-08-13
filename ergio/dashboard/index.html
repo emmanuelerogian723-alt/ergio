@@ -1888,13 +1888,14 @@ try{const U=window.ERGIO_CONFIG?.supabaseUrl,K=window.ERGIO_CONFIG?.supabaseAnon
 function showToast(m,t='info'){const e=document.createElement('div');e.className='toast '+t;e.textContent=m;document.body.appendChild(e);setTimeout(()=>e.remove(),3000)}
 /* ===== PAYWALL SYSTEM ===== */
 var FEATURE_PLANS={
-  // free features
+  // free features — basic dashboards/monitoring should never block a user from trying the product
   overview:'free',website:'free',leads:'free',bookings:'free',
   conductor:'free',engines:'free',plugins:'free',profile:'free',
-  // pro features
-  agents:'pro',skills:'pro',analytics:'pro',insights:'pro',
-  scheduler:'pro',memory:'pro',integrations:'pro',
-  // business features
+  agents:'free',skills:'free',analytics:'free',insights:'free',
+  memory:'free',integrations:'free',
+  // pro features — recurring automation has real ongoing cost, keep gated
+  scheduler:'pro',
+  // business features — autonomous "AI employee" style infra, the actual paid product
   cloud:'business',employees:'business',missions:'business',
   health:'business',security:'business',workspace:'business',
   // billing always accessible

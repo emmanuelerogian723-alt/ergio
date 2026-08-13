@@ -527,8 +527,8 @@
     .modal { border-radius: 20px; }
   }
 
-  /* ===== MOBILE LAYOUT (max-width: 768px) ===== */
-  @media (max-width: 768px) {
+  /* ===== MOBILE LAYOUT (max-width: 768px, OR any touch device that reports a wider viewport e.g. "Desktop site" mode) ===== */
+  @media (max-width: 768px), (max-width: 1024px) and (pointer: coarse) {
     .app { flex-direction: column; }
     
     /* Preview fills screen */
@@ -759,30 +759,23 @@
       }
     }
     
-    /* Landscape mode on mobile */
-    @media (max-width: 768px) and (orientation: landscape) {
+    /* Landscape mode on mobile — keep the bottom-sheet pattern (consistent, no side-panel squeeze), just shorter */
+    @media (max-width: 768px) and (orientation: landscape), (max-width: 1024px) and (pointer: coarse) and (orientation: landscape) {
       .sidebar {
-        width: 50%;
-        max-width: 50%;
-        height: 100vh !important;
-        max-height: 100vh !important;
-        border-top: none;
-        border-right: 1px solid var(--border);
-        border-radius: 0 20px 20px 0;
-        transform: translateX(-100%);
-        bottom: 0;
-        top: 0;
-        left: 0;
+        width: 100%;
+        max-width: 100%;
+        height: 55vh;
+        max-height: 55vh;
+        transform: translateY(calc(100% - 48px));
       }
       .sidebar.expanded,
       .sidebar.mobile-open {
-        transform: translateX(0);
+        transform: translateY(0);
+        height: 80vh;
+        max-height: 80vh;
       }
       .sidebar.collapsed {
-        transform: translateX(-100%);
-      }
-      .drag-handle {
-        display: none !important;
+        transform: translateY(calc(100% - 48px));
       }
       .preview-panel {
         flex: 1;
@@ -1278,7 +1271,14 @@
       const overlay = document.getElementById('sidebarOverlay');
       const toggle = document.getElementById('mobileToggle');
       
-      if (window.innerWidth <= 768) {
+
+    // Robust mobile detection: matches CSS media query logic above (width OR touch+wide-viewport e.g. "Desktop site" mode)
+    function isMobileViewport() {
+      var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+      return window.innerWidth <= 768 || (coarse && window.innerWidth <= 1024);
+    }
+
+      if (isMobileViewport()) {
         if (sidebar.classList.contains('mobile-open')) {
           closeSidebar();
         } else {
@@ -1305,7 +1305,7 @@
       sidebar.classList.remove('mobile-open');
       overlay.classList.remove('active');
       const toggle = document.getElementById('mobileToggle');
-      if (toggle && window.innerWidth <= 768) toggle.style.display = 'flex';
+      if (toggle && isMobileViewport()) toggle.style.display = 'flex';
     }
     
     // ===== DRAG HANDLE (swipe up/down to open/close sidebar) =====
@@ -1314,7 +1314,7 @@
     let isDragging = false;
     
     function handleDragStart(e) {
-      if (window.innerWidth > 768) return;
+      if (!isMobileViewport()) return;
       e.preventDefault();
       isDragging = true;
       dragStartY = e.touches[0].clientY;
@@ -1369,14 +1369,14 @@
     let touchStartTime = 0;
     
     document.addEventListener('touchstart', function(e) {
-      if (window.innerWidth > 768) return;
+      if (!isMobileViewport()) return;
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
       touchStartTime = Date.now();
     }, { passive: true });
     
     document.addEventListener('touchend', function(e) {
-      if (window.innerWidth > 768) return;
+      if (!isMobileViewport()) return;
       const touch = e.changedTouches[0];
       const dx = touch.clientX - touchStartX;
       const dy = touch.clientY - touchStartY;
@@ -1506,7 +1506,7 @@
     
     // ===== CLOSE SIDEBAR ON OUTSIDE TAP (mobile) =====
     document.addEventListener('click', function(e) {
-      if (window.innerWidth <= 768 && e.target.id === 'sidebarOverlay') {
+      if (isMobileViewport() && e.target.id === 'sidebarOverlay') {
         closeSidebar();
       }
     });
@@ -1514,7 +1514,7 @@
     // ===== HANDLE ORIENTATION CHANGE =====
     window.addEventListener('orientationchange', function() {
       setTimeout(() => {
-        if (window.innerWidth > 768) {
+        if (!isMobileViewport()) {
           closeSidebar();
         }
         // Refresh preview to fit new dimensions
@@ -3563,7 +3563,7 @@ window.addEventListener('load', () => {
       }
       
       // Re-check sidebar state
-      if (window.innerWidth > 768) {
+      if (!isMobileViewport()) {
         const sidebar = document.getElementById('sidebar');
         if (sidebar) {
           sidebar.classList.remove('mobile-open', 'collapsed');
@@ -3665,7 +3665,7 @@ window.addEventListener('load', () => {
   let longPressTarget = null;
   
   document.addEventListener('touchstart', function(e) {
-    if (window.innerWidth > 768) return;
+    if (!isMobileViewport()) return;
     if (editModeActive) return;
     
     const target = e.target.closest('.icon-btn, .device-btn, .deploy-btn, .version-item, .plugin-card, .sidebar-tab');
