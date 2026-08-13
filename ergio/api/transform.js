@@ -28,6 +28,7 @@ export default async function handler(req, res) {
     send('status', { task: `Scraping ${url}...`, step: 1, total: 5 });
 
     const scraped = await scrapePage(url, { timeout: 12000 });
+    if (!scraped || !scraped.text) { send("error", { message: "Could not scrape this URL. Try a different URL." }); return res.end(); }
 
     if (!scraped) {
       send('error', { message: 'Could not access that website. Check the URL and try again.' });
@@ -37,7 +38,7 @@ export default async function handler(req, res) {
     send('scraped', {
       title: scraped.title,
       description: scraped.metaDescription,
-      contentPreview: scraped.content.substring(0, 500),
+      contentPreview: scraped.text.substring(0, 500),
       emails: scraped.emails,
       phones: scraped.phones,
       socials: scraped.socials
@@ -51,7 +52,7 @@ export default async function handler(req, res) {
 Current website content:
 Title: ${scraped.title}
 Description: ${scraped.metaDescription}
-Content: ${scraped.content.substring(0, 3000)}
+Content: ${scraped.text.substring(0, 3000)}
 
 Contact info found:
 - Emails: ${(scraped.emails || []).join(', ')}
@@ -112,7 +113,7 @@ Return ONLY valid JSON:
 
     const contentPrompt = `Write website copy for the transformed version of "${plan.businessName}", a ${plan.type}.
 
-Original content to preserve and improve: ${scraped.content.substring(0, 2000)}
+Original content to preserve and improve: ${scraped.text.substring(0, 2000)}
 
 Return ONLY valid JSON:
 {

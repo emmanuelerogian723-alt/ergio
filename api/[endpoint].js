@@ -41,7 +41,7 @@ const handlers = {
   leads, outreach, reviews, referrals, seo, analytics,
   notifications, card, expenses, invoices,
   'smart-pricing': smartPricing, social, upload, whatsapp, refine,
-  transform, agents, mcp, advisor, logo, critique, paystack, site, websites,
+  transform, agents, mcp, advisor, logo, critique, paystack, site, websites, assistant,
   'conductor-ai': conductorAI,
   'ai-mistral': aiMistral
 };
