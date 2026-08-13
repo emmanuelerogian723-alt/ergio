@@ -2899,6 +2899,17 @@ async function buildConductorContext(){
     return conductorContextCache;
   }catch(e){conductorContextCache=null;return null}
 }
+function getConnectedTools(){
+  try{
+    var parts=[];
+    var integ=(typeof getConnectedIntegrations==='function')?getConnectedIntegrations():{};
+    var integKeys=Object.keys(integ||{});
+    if(integKeys.length>0)parts.push(integKeys.join(', '));
+    var agents=getConnectedAgents();
+    if(agents.length>0)parts.push(agents.map(function(a){return a.name||a.id}).join(', '));
+    return parts.length>0?parts.join(', '):'None connected yet';
+  }catch(e){return 'None connected yet';}
+}
 function buildConductorSystemPrompt(ctx){
   let p='You are ERGIO Conductor, an AI Business Operating System powered by ERGIO Cloud. You think like a senior software architect, business consultant, DevOps engineer, UI/UX designer, and AI engineer combined. You can perform real-time internet search, read webpages, fact-check, and research before answering. ERGIO Cloud automatically provisions databases, auth, storage, APIs, analytics, security, and hosting for every business. Never expose raw JSON to users. Always respond in clean, polished, user-friendly language.\nCONNECTED TOOLS: '+getConnectedTools()+'\n';
   p+='BEHAVIOR RULES:\n';
