@@ -33,6 +33,7 @@ import critique from '../ergio/api/critique.js';
 import paystack from '../ergio/api/paystack.js';
 import site from '../ergio/api/site.js';
 import websites from '../ergio/api/websites.js';
+import assistant from '../ergio/api/ai-assistant.js';
 import conductorAI from '../ergio/api/conductor-ai.js';
 import aiMistral from '../ergio/api/ai-mistral.js';
 
