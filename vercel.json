@@ -205,6 +205,26 @@
     {
       "source": "/eko-visage.html",
       "destination": "/ergio/eko-visage.html"
+    },
+    {
+      "source": "/auth/login",
+      "destination": "/ergio/auth/login.html"
+    },
+    {
+      "source": "/auth/signup",
+      "destination": "/ergio/auth/signup.html"
+    },
+    {
+      "source": "/auth/login.html",
+      "destination": "/ergio/auth/login.html"
+    },
+    {
+      "source": "/auth/signup.html",
+      "destination": "/ergio/auth/signup.html"
+    },
+    {
+      "source": "/templates",
+      "destination": "/ergio/templates.html"
     }
   ]
 }
