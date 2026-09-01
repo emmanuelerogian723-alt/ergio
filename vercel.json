@@ -137,6 +137,74 @@
     {
       "source": "/test-preview.html",
       "destination": "/ergio/test-preview.html"
+    },
+    {
+      "source": "/build",
+      "destination": "/ergio/build.html"
+    },
+    {
+      "source": "/directory",
+      "destination": "/ergio/directory.html"
+    },
+    {
+      "source": "/directory.html",
+      "destination": "/ergio/directory.html"
+    },
+    {
+      "source": "/match",
+      "destination": "/ergio/match.html"
+    },
+    {
+      "source": "/pay",
+      "destination": "/ergio/pay.html"
+    },
+    {
+      "source": "/refer",
+      "destination": "/ergio/refer.html"
+    },
+    {
+      "source": "/critique",
+      "destination": "/ergio/critique.html"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/ergio/privacy.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/ergio/terms.html"
+    },
+    {
+      "source": "/logo",
+      "destination": "/ergio/logo.html"
+    },
+    {
+      "source": "/logo.html",
+      "destination": "/ergio/logo.html"
+    },
+    {
+      "source": "/guide",
+      "destination": "/ergio/guide.html"
+    },
+    {
+      "source": "/templates.html",
+      "destination": "/ergio/templates.html"
+    },
+    {
+      "source": "/v4-demo.html",
+      "destination": "/ergio/v4-demo.html"
+    },
+    {
+      "source": "/v4-live-demo.html",
+      "destination": "/ergio/v4-live-demo.html"
+    },
+    {
+      "source": "/stew-pitch.html",
+      "destination": "/ergio/stew-pitch.html"
+    },
+    {
+      "source": "/eko-visage.html",
+      "destination": "/ergio/eko-visage.html"
     }
   ]
 }
