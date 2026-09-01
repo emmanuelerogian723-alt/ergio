@@ -512,7 +512,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
     <div class="tab-content" id="tab-skills"><div class="panel"><div class="panel-header"><div><div class="panel-title">Skills Marketplace</div><div class="panel-sub">Reusable AI skills for the Conductor</div></div><button class="btn btn-primary btn-sm" onclick="showSkillForm()">+ Create Skill</button></div><div id="skillForm" style="display:none;margin-bottom:1rem;padding:1rem;background:var(--card2);border:1px solid var(--border);border-radius:10px"><div class="form-group"><label class="form-label">Skill Name</label><input class="form-input" id="skillName" placeholder="e.g. Competitor Price Analysis"></div><div class="form-group"><label class="form-label">Description</label><input class="form-input" id="skillDesc" placeholder="What does this skill do?"></div><div class="form-group"><label class="form-label">Instructions</label><textarea class="form-textarea" id="skillInstr" placeholder="Step-by-step instructions for the AI agent..."></textarea></div><div class="form-group"><label class="form-label">Category</label><select class="form-select" id="skillCat"><option value="marketing">Marketing</option><option value="sales">Sales</option><option value="finance">Finance</option><option value="ops">Operations</option><option value="tech">Technology</option><option value="research">Research</option></select></div><button class="btn btn-primary" onclick="createSkill()">Publish Skill</button></div><div class="int-grid" id="skillsGrid"></div></div></div>
     <div class="tab-content" id="tab-integrations">
 <div class="panel">
-<div class="panel-header"><div><div class="panel-title">Integrations & MCP Connections</div><div class="panel-sub">Bring your own API keys - connect services like Claude Desktop. ERGIO uses YOUR keys to act on YOUR behalf.</div></div>
+<div class="panel-header"><div><div class="panel-title">Integrations &amp; MCP Connections</div><div class="panel-sub">Bring your own API keys - connect services like Claude Desktop. ERGIO uses YOUR keys on YOUR behalf.</div></div>
 <div style="display:flex;gap:.5rem;align-items:center">
 <span class="badge bc" id="mcpLiveCount" style="display:none">0 connected</span>
 <button class="btn btn-ghost btn-sm" onclick="refreshMcpStatus()">Refresh Status</button>
@@ -522,7 +522,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 <div class="int-grid" id="integrationsGrid"></div>
 </div>
 <div class="panel">
-<div class="panel-header"><div><div class="panel-title">Add Custom MCP Server</div><div class="panel-sub">Connect any MCP-compatible server by URL (like Claude Desktop)</div></div></div>
+<div class="panel-header"><div><div class="panel-title">Add Custom MCP Server</div><div class="panel-sub">Connect any MCP-compatible server by URL (like Claude Desktop plugins)</div></div></div>
 <div style="padding:1rem">
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:.8rem">
 <div><label style="font-size:.75rem;color:var(--muted);display:block;margin-bottom:.3rem">Server Name</label><input class="input-field" id="customMcpName" placeholder="e.g. My Notion MCP" style="width:100%"></div>
@@ -2065,28 +2065,19 @@ async function loadOverview(){
       }
     }catch(e2){}
   }
-  // Try Supabase for bookings and revenue (needs auth) — with 5s timeout
+  // Try Supabase for bookings and revenue (needs auth)
   if(sbClient){
     try{
-      var sbTimeout=new Promise(function(_,reject){setTimeout(function(){reject(new Error('Supabase timeout'))},5000)});
-      var bookingsQuery=sbClient.from('bookings').select('*',{count:'exact',head:true});
-      var bookingsResult=await Promise.race([bookingsQuery,sbTimeout]);
-      document.getElementById('kpiBookings').textContent=bookingsResult.count||0;
+      const{count:b}=await sbClient.from('bookings').select('*',{count:'exact',head:true});
+      document.getElementById('kpiBookings').textContent=b||0;
       document.getElementById('kpiBookingsTrend').textContent='Total';
-      try{
-        var pmtsTimeout=new Promise(function(_,reject){setTimeout(function(){reject(new Error('timeout'))},5000)});
-        var pmtsQuery=sbClient.from('payments').select('amount');
-        var pmtsResult=await Promise.race([pmtsQuery,pmtsTimeout]);
-        let rev=0;(pmtsResult.data||[]).forEach(p=>rev+=(p.amount||0));
-        document.getElementById('kpiRevenue').textContent='₦'+rev.toLocaleString();
-        document.getElementById('kpiRevTrend').textContent='From payments';
-      }catch(e3){
-        document.getElementById('kpiRevTrend').textContent='No payments yet';
-      }
+      const{data:pmts}=await sbClient.from('payments').select('amount');
+      let rev=0;(pmts||[]).forEach(p=>rev+=(p.amount||0));
+      document.getElementById('kpiRevenue').textContent='₦'+rev.toLocaleString();
+      document.getElementById('kpiRevTrend').textContent='From payments';
     }catch(e){
-      console.log('Supabase queries failed:',e.message);
-      document.getElementById('kpiBookingsTrend').textContent='Sign in to view';
-      document.getElementById('kpiRevTrend').textContent='Sign in to view';
+      document.getElementById('kpiBookingsTrend').textContent='Connect Supabase';
+      document.getElementById('kpiRevTrend').textContent='Connect Supabase';
     }
   }else{
     document.getElementById('kpiBookings').textContent='0';
@@ -2117,22 +2108,18 @@ async function loadActivity(){
       events.push({icon:'⚡',text:'<strong>Vercel mode active</strong> — 8 AI engines running serverless',time:'now',color:'var(--green)'});
     }
   }
-  // Try Supabase for additional events — with 5s timeout
+  // Try Supabase for additional events
   if(sbClient){
     try{
-      var sbTO=new Promise(function(_,reject){setTimeout(function(){reject(new Error('timeout'))},5000)});
-      var leadsQuery=sbClient.from('leads').select('*').order('created_at',{ascending:false}).limit(5);
-      var leadsResult=await Promise.race([leadsQuery,sbTO]);
-      if(leadsResult.data&&leadsResult.data.length){
-        leadsResult.data.forEach(function(l){
+      const{data:leads}=await sbClient.from('leads').select('*').order('created_at',{ascending:false}).limit(5);
+      if(leads&&leads.length){
+        leads.forEach(function(l){
           events.push({icon:'🎯',text:'New lead: <strong>'+(l.name||l.business_name||'Unknown')+'</strong>',time:'recent',color:'var(--cyan)'});
         });
       }
-      var sbTO2=new Promise(function(_,reject){setTimeout(function(){reject(new Error('timeout'))},5000)});
-      var bkQuery=sbClient.from('bookings').select('*').order('created_at',{ascending:false}).limit(3);
-      var bkResult=await Promise.race([bkQuery,sbTO2]);
-      if(bkResult.data&&bkResult.data.length){
-        bkResult.data.forEach(function(b){
+      const{data:bk}=await sbClient.from('bookings').select('*').order('created_at',{ascending:false}).limit(3);
+      if(bk&&bk.length){
+        bk.forEach(function(b){
           events.push({icon:'📅',text:'Booking: <strong>'+(b.name||b.service||'New booking')+'</strong>',time:'recent',color:'var(--green)'});
         });
       }
@@ -2140,14 +2127,9 @@ async function loadActivity(){
       // Supabase not available, skip
     }
   }
-  // Fallback: show system status events even when ENGINES/Supabase unavailable
   if(events.length===0){
-    events.push({icon:'⚡',text:'<strong>Vercel mode active</strong> — 8 AI engines running serverless',time:'now',color:'var(--green)'});
-    events.push({icon:'🤖',text:'<strong>Conductor Agent</strong> online and ready',time:'now',color:'var(--cyan)'});
-    events.push({icon:'🌐',text:'<strong>Website Builder</strong> ready to launch',time:'now',color:'var(--blue)'});
-    events.push({icon:'🎯',text:'<strong>Lead Scanner</strong> standing by',time:'now',color:'var(--amber)'});
-  }
-  if(events.length>0){
+    c.innerHTML='<div class="empty"><div class="icon">📋</div><h3>No activity yet</h3><p>Engine activity will appear here.</p></div>';
+  }else{
     c.innerHTML=events.map(function(e){
       return '<div style="display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid var(--border)"><div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;font-size:1.1rem">'+e.icon+'</div><div style="flex:1"><div style="font-size:.82rem;color:var(--text)">'+e.text+'</div><div style="font-size:.68rem;color:var(--muted);margin-top:2px">'+e.time+'</div></div></div>';
     }).join('');
@@ -2630,95 +2612,8 @@ function injectChatbot(html,bizName,bizType){
 var chatbotCSS='<style id="ergio-chatbot">.ergio-chat-fab{position:fixed;bottom:20px;right:20px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#00d1ff,#007bff);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 20px rgba(0,209,255,.4);z-index:99999;transition:all .3s ease}.ergio-chat-fab:hover{transform:scale(1.1);box-shadow:0 6px 30px rgba(0,209,255,.6)}.ergio-chat-window{position:fixed;bottom:90px;right:20px;width:360px;max-width:calc(100vw - 40px);height:500px;max-height:calc(100vh - 120px);background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.15);z-index:99999;display:none;flex-direction:column;overflow:hidden}.ergio-chat-open{display:flex}.ergio-chat-header{padding:16px;background:linear-gradient(135deg,#00d1ff,#007bff);color:#fff;display:flex;align-items:center;gap:10px}.ergio-chat-header img{width:36px;height:36px;border-radius:50%}.ergio-chat-header-info h4{margin:0;font-size:.95rem;font-weight:600}.ergio-chat-header-info p{margin:0;font-size:.7rem;opacity:.9}.ergio-chat-messages{flex:1;overflow-y:auto;padding:16px;background:#f8f9fa}.ergio-chat-msg{margin-bottom:12px;max-width:80%}.ergio-chat-msg.ai{margin-right:auto}.ergio-chat-msg.user{margin-left:auto;text-align:right}.ergio-chat-msg .bubble{display:inline-block;padding:10px 14px;border-radius:14px;font-size:.85rem;line-height:1.5}.ergio-chat-msg.ai .bubble{background:#fff;border:1px solid #e0e0e0;border-bottom-left-radius:4px;color:#333}.ergio-chat-msg.user .bubble{background:#007bff;color:#fff;border-bottom-right-radius:4px}.ergio-chat-input{padding:12px;background:#fff;border-top:1px solid #e0e0e0;display:flex;gap:8px}.ergio-chat-input input{flex:1;padding:10px 14px;border:1px solid #e0e0e0;border-radius:20px;font-size:.85rem;outline:none}.ergio-chat-input button{width:40px;height:40px;border-radius:50%;background:#007bff;color:#fff;border:none;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center}.ergio-chat-typing{display:inline-block;padding:10px 14px;border-radius:14px;background:#fff;border:1px solid #e0e0e0;font-size:.85rem;color:#999}.ergio-chat-typing span{display:inline-block;width:6px;height:6px;border-radius:50%;background:#999;margin:0 2px;animation:ergio-typing 1.4s infinite}.ergio-chat-typing span:nth-child(2){animation-delay:.2s}.ergio-chat-typing span:nth-child(3){animation-delay:.4s}@keyframes ergio-typing{0%,60%,100%{opacity:.3}30%{opacity:1}}.ergio-chat-badge{position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:#28a745;border:2px solid #fff;font-size:0}</style>';
 var chatbotHTML='<div id="ergioChatWidget"><div class="ergio-chat-fab" onclick="ergioToggleChat()" style="position:fixed;bottom:20px;right:20px;z-index:99999">💬<span class="ergio-chat-badge"></span></div><div class="ergio-chat-window" id="ergioChatWin" style="position:fixed;z-index:99999"><div class="ergio-chat-header"><div style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.2rem">🤖</div><div class="ergio-chat-header-info"><h4>'+bizName+' Assistant</h4><p>Powered by ERGIO Cloud</p></div></div><div class="ergio-chat-messages" id="ergioChatMessages"><div class="ergio-chat-msg ai"><div class="bubble">Hi! 👋 I am the AI assistant for '+bizName+'. How can I help you today?</div></div></div><div class="ergio-chat-input"><input type="text" id="ergioChatInput" placeholder="Type your message..." onkeydown="if(event.key===\'Enter\')ergioSendChat()"><button onclick="ergioSendChat()">➤</button></div></div></div>';
 var chatbotJS='<script>function ergioToggleChat(){var w=document.getElementById("ergioChatWin");w.classList.toggle("ergio-chat-open")}function ergioSendChat(){var i=document.getElementById("ergioChatInput"),m=i.value.trim();if(!m)return;var msgs=document.getElementById("ergioChatMessages");msgs.innerHTML+=\'<div class="ergio-chat-msg user"><div class="bubble">\'+m+\'</div></div>\';i.value="";msgs.innerHTML+=\'<div class="ergio-chat-typing" id="ergioTyping"><span></span><span></span><span></span></div>\';msgs.scrollTop=msgs.scrollHeight;setTimeout(function(){var t=document.getElementById("ergioTyping");if(t)t.remove();var responses={"price":"You can find our pricing on the pricing page. Would you like me to direct you there?","hours":"Our hours are Monday to Saturday, 8am to 8pm. We\'re closed on Sundays.","location":"We\'re located in the heart of the city. Check our contact page for directions!","book":"I\'d be happy to help you book! Please visit our bookings page or call us directly.","services":"We offer a wide range of services. Let me know what you\'re interested in and I can provide details!","contact":"You can reach us through our contact form, by phone, or by email. Check our contact page for details.","hello":"Hello! Welcome to '+bizName+'! How can I assist you today?","hi":"Hi there! 👋 How can I help you?"};var resp="Thanks for your message! A team member from '+bizName+' will get back to you soon. In the meantime, feel free to browse our website for more info.";var ml=m.toLowerCase();for(var key in responses){if(ml.includes(key)){resp=responses[key];break}}msgs.innerHTML+=\'<div class="ergio-chat-msg ai"><div class="bubble">\'+resp+\'</div></div>\';msgs.scrollTop=msgs.scrollHeight},800)}<\/script>';
-/* Inject before 
-<!-- Integration Connect Modal -->
-<div id="integModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;padding:1rem">
-<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;max-width:480px;width:100%;padding:0;overflow:hidden">
-<div style="padding:1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.8rem">
-<div id="integModalIcon" style="width:48px;height:48px;border-radius:12px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:1.4rem">🔌</div>
-<div style="flex:1"><div id="integModalTitle" style="font-weight:800;font-size:1.1rem">Connect</div><div id="integModalDesc" style="font-size:.78rem;color:var(--muted);margin-top:.2rem">Description</div></div>
-<button onclick="closeIntegModal()" style="background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer">×</button>
-</div>
-<div style="padding:1.5rem">
-<div style="margin-bottom:1rem">
-<label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:.4rem">API Key</label>
-<input id="integApiKey" type="password" class="input-field" placeholder="Paste your API key" style="width:100%">
-</div>
-<div id="integExtraField" style="margin-bottom:1rem;display:none">
-<label id="integExtraLabel" style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:.4rem">Extra Field</label>
-<input id="integExtraValue" class="input-field" placeholder="" style="width:100%">
-</div>
-<div id="integCapsInfo" style="margin-bottom:1rem;display:none"></div>
-<div id="integConnectStatus" style="display:none;margin-bottom:1rem;padding:.6rem .8rem;border-radius:8px;font-size:.82rem"></div>
-<div style="display:flex;gap:.6rem;margin-bottom:.8rem">
-<a id="integDocsLink" href="#" target="_blank" class="btn btn-ghost" style="flex:1;text-align:center;text-decoration:none">📚 Docs</a>
-<a id="integConnectLink" href="#" target="_blank" class="btn btn-ghost" style="flex:1;text-align:center;text-decoration:none">🔗 Get API Key</a>
-</div>
-<button onclick="saveIntegration()" class="btn btn-primary" style="width:100%;padding:.7rem;font-size:.9rem">Connect Service</button>
-<button id="integDisconnectBtn" onclick="disconnectIntegration(currentIntegKey)" class="btn btn-ghost" style="width:100%;padding:.6rem;margin-top:.5rem;border-color:var(--red);color:var(--red);display:none">Disconnect</button>
-</div>
-</div>
-</div>
-</body> */
-html=html.replace('
-<!-- Integration Connect Modal -->
-<div id="integModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;padding:1rem">
-<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;max-width:480px;width:100%;padding:0;overflow:hidden">
-<div style="padding:1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.8rem">
-<div id="integModalIcon" style="width:48px;height:48px;border-radius:12px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:1.4rem">🔌</div>
-<div style="flex:1"><div id="integModalTitle" style="font-weight:800;font-size:1.1rem">Connect</div><div id="integModalDesc" style="font-size:.78rem;color:var(--muted);margin-top:.2rem">Description</div></div>
-<button onclick="closeIntegModal()" style="background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer">×</button>
-</div>
-<div style="padding:1.5rem">
-<div style="margin-bottom:1rem">
-<label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:.4rem">API Key</label>
-<input id="integApiKey" type="password" class="input-field" placeholder="Paste your API key" style="width:100%">
-</div>
-<div id="integExtraField" style="margin-bottom:1rem;display:none">
-<label id="integExtraLabel" style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:.4rem">Extra Field</label>
-<input id="integExtraValue" class="input-field" placeholder="" style="width:100%">
-</div>
-<div id="integCapsInfo" style="margin-bottom:1rem;display:none"></div>
-<div id="integConnectStatus" style="display:none;margin-bottom:1rem;padding:.6rem .8rem;border-radius:8px;font-size:.82rem"></div>
-<div style="display:flex;gap:.6rem;margin-bottom:.8rem">
-<a id="integDocsLink" href="#" target="_blank" class="btn btn-ghost" style="flex:1;text-align:center;text-decoration:none">📚 Docs</a>
-<a id="integConnectLink" href="#" target="_blank" class="btn btn-ghost" style="flex:1;text-align:center;text-decoration:none">🔗 Get API Key</a>
-</div>
-<button onclick="saveIntegration()" class="btn btn-primary" style="width:100%;padding:.7rem;font-size:.9rem">Connect Service</button>
-<button id="integDisconnectBtn" onclick="disconnectIntegration(currentIntegKey)" class="btn btn-ghost" style="width:100%;padding:.6rem;margin-top:.5rem;border-color:var(--red);color:var(--red);display:none">Disconnect</button>
-</div>
-</div>
-</div>
-</body>',chatbotCSS+chatbotHTML+chatbotJS+'
-<!-- Integration Connect Modal -->
-<div id="integModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;padding:1rem">
-<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;max-width:480px;width:100%;padding:0;overflow:hidden">
-<div style="padding:1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.8rem">
-<div id="integModalIcon" style="width:48px;height:48px;border-radius:12px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:1.4rem">🔌</div>
-<div style="flex:1"><div id="integModalTitle" style="font-weight:800;font-size:1.1rem">Connect</div><div id="integModalDesc" style="font-size:.78rem;color:var(--muted);margin-top:.2rem">Description</div></div>
-<button onclick="closeIntegModal()" style="background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer">×</button>
-</div>
-<div style="padding:1.5rem">
-<div style="margin-bottom:1rem">
-<label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:.4rem">API Key</label>
-<input id="integApiKey" type="password" class="input-field" placeholder="Paste your API key" style="width:100%">
-</div>
-<div id="integExtraField" style="margin-bottom:1rem;display:none">
-<label id="integExtraLabel" style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:.4rem">Extra Field</label>
-<input id="integExtraValue" class="input-field" placeholder="" style="width:100%">
-</div>
-<div id="integCapsInfo" style="margin-bottom:1rem;display:none"></div>
-<div id="integConnectStatus" style="display:none;margin-bottom:1rem;padding:.6rem .8rem;border-radius:8px;font-size:.82rem"></div>
-<div style="display:flex;gap:.6rem;margin-bottom:.8rem">
-<a id="integDocsLink" href="#" target="_blank" class="btn btn-ghost" style="flex:1;text-align:center;text-decoration:none">📚 Docs</a>
-<a id="integConnectLink" href="#" target="_blank" class="btn btn-ghost" style="flex:1;text-align:center;text-decoration:none">🔗 Get API Key</a>
-</div>
-<button onclick="saveIntegration()" class="btn btn-primary" style="width:100%;padding:.7rem;font-size:.9rem">Connect Service</button>
-<button id="integDisconnectBtn" onclick="disconnectIntegration(currentIntegKey)" class="btn btn-ghost" style="width:100%;padding:.6rem;margin-top:.5rem;border-color:var(--red);color:var(--red);display:none">Disconnect</button>
-</div>
-</div>
-</div>
-</body>');
+/* Inject before </body> */
+html=html.replace('</body>',chatbotCSS+chatbotHTML+chatbotJS+'</body>');
 return html;
 }
 
@@ -3692,7 +3587,6 @@ function loadSkillsGrid(){const g=document.getElementById('skillsGrid');if(!g)re
 function showSkillForm(){const f=document.getElementById('skillForm');f.style.display=f.style.display==='none'?'block':'none'}
 function createSkill(){const n=document.getElementById('skillName').value.trim(),d=document.getElementById('skillDesc').value.trim(),i=document.getElementById('skillInstr').value.trim(),c=document.getElementById('skillCat').value;if(!n||!d){showToast('Name and description required','error');return}const local=JSON.parse(localStorage.getItem('ergio_skills')||'[]');local.push({id:'local-'+Date.now(),name:n,desc:d,cat:c,author:currentUser?.email||'you',dl:0,rt:0});localStorage.setItem('ergio_skills',JSON.stringify(local));showToast('✅ Skill created!','success');document.getElementById('skillForm').style.display='none';loadSkillsGrid()}
 function installSkill(id,name){const inst=JSON.parse(localStorage.getItem('ergio_installed_skills')||'[]');if(!inst.includes(id)){inst.push(id);localStorage.setItem('ergio_installed_skills',JSON.stringify(inst));showToast('✅ '+name+' installed!','success')}else{showToast(name+' already installed','info')}}
-
 async function loadAnalytics(){const c=document.getElementById('analyticsContent');if(!c)return;if(sbClient){try{const{data:ev}=await sbClient.from('analytics_events').select('*');const{data:pm}=await sbClient.from('payments').select('amount');const{data:ld}=await sbClient.from('leads').select('*');const{data:bk}=await sbClient.from('bookings').select('*');document.getElementById('anPageViews').textContent=(ev||[]).length;document.getElementById('anClicks').textContent=(ev||[]).filter(e=>e.event_type==='click').length;document.getElementById('anConversions').textContent=(bk||[]).length;document.getElementById('anEnginesRun').textContent=(ev||[]).filter(e=>e.event_type==='engine_run').length;let rev=0;(pm||[]).forEach(p=>rev+=(p.amount||0));document.getElementById('kpiRevenue').textContent='₦'+rev.toLocaleString();c.innerHTML='<table class="data-table"><thead><tr><th>Metric</th><th>Value</th><th>Source</th></tr></thead><tbody><tr><td>Total Events</td><td>'+(ev||[]).length+'</td><td>Supabase</td></tr><tr><td>Total Leads</td><td>'+(ld||[]).length+'</td><td>Supabase</td></tr><tr><td>Total Bookings</td><td>'+(bk||[]).length+'</td><td>Supabase</td></tr><tr><td>Payments</td><td>'+(pm||[]).length+'</td><td>Supabase</td></tr><tr><td>Revenue</td><td>₦'+rev.toLocaleString()+'</td><td>Supabase</td></tr></tbody></table>';return}catch(e){}}c.innerHTML='<div class="empty"><div class="icon">📊</div><h3>No analytics data</h3><p>Connect Supabase to see analytics.</p></div>'}
 function handleLogout(){if(fbAuth)try{fbAuth.signOut()}catch(e){}if(sbClient)try{sbClient.auth.signOut()}catch(e){}localStorage.removeItem('ergio_user');window.location.href='../auth/login.html'}
 
@@ -5148,10 +5042,9 @@ const ENGINES_BASE = window.ERGIO_CONFIG?.enginesApiBase || 'https://ergio-engin
 const INTEG_CONFIG = window.ERGIO_CONFIG?.integrations || {};
 const MCP_CATEGORIES = ['All', 'Payments', 'Communication', 'Productivity', 'Marketing', 'Analytics', 'AI & Automation'];
 let currentIntegFilter = 'All';
-let mcpLiveStatus = {}; // live status from Render backend
+let mcpLiveStatus = {};
 let customMcps = JSON.parse(localStorage.getItem('ergio_custom_mcps') || '[]');
 
-// === MCP STATUS FROM RENDER ===
 async function refreshMcpStatus() {
   try {
     const r = await fetch(ENGINES_BASE + '/mcp/list', { signal: AbortSignal.timeout(8000) });
@@ -5167,19 +5060,18 @@ async function refreshMcpStatus() {
   renderCustomMcps();
 }
 
-// === INTEGRATION GRID ===
 function getConnectedIntegrations() {
   return JSON.parse(localStorage.getItem('ergio_integrations') || '{}');
 }
 
 function saveIntegrationKey(id, key, extra) {
   const s = getConnectedIntegrations();
-  s[id] = { name: INTEG_CONFIG[id]?.name || id, key: btoa(key), extra: extra || '', connected_at: new Date().toISOString() };
+  s[id] = { name: (INTEG_CONFIG[id] && INTEG_CONFIG[id].name) || id, key: btoa(key), extra: extra || '', connected_at: new Date().toISOString() };
   localStorage.setItem('ergio_integrations', JSON.stringify(s));
 }
 
 function isLiveConnected(id) {
-  return mcpLiveStatus[id]?.configured === true;
+  return mcpLiveStatus[id] && mcpLiveStatus[id].configured === true;
 }
 
 function isConnected(id) {
@@ -5192,27 +5084,33 @@ function renderIntegrations(filter) {
   const connected = getConnectedIntegrations();
   const integs = Object.entries(INTEG_CONFIG);
   const filtered = filter && filter !== 'All'
-    ? integs.filter(([,v]) => v.category === filter)
+    ? integs.filter(function(entry) { return entry[1].category === filter; })
     : integs;
 
-  grid.innerHTML = filtered.map(([id, integ]) => {
-    const conn = !!connected[id];
-    const live = isLiveConnected(id);
-    const statusDot = live
+  grid.innerHTML = filtered.map(function(entry) {
+    var id = entry[0], integ = entry[1];
+    var conn = !!connected[id];
+    var live = isLiveConnected(id);
+    var statusDot = live
       ? '<span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;box-shadow:0 0 6px #10b981"></span>'
       : conn
       ? '<span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;display:inline-block"></span>'
       : '<span style="width:8px;height:8px;border-radius:50%;background:#475569;display:inline-block"></span>';
-    const statusText = live
-      ? '<span style="color:#10b981;font-size:.75rem;font-weight:600">● Live</span>'
+    var statusText = live
+      ? '<span style="color:#10b981;font-size:.75rem;font-weight:600">Live</span>'
       : conn
-      ? '<span style="color:#f59e0b;font-size:.75rem">Saved (offline)</span>'
+      ? '<span style="color:#f59e0b;font-size:.75rem">Saved</span>'
       : '<span style="color:#475569;font-size:.75rem">Not connected</span>';
-    const iconBg = 'background:' + integ.color + '22;border:1px solid ' + integ.color + '44';
-    const iconStyle = 'width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;' + iconBg;
-    const caps = mcpLiveStatus[id]?.capabilities || [];
-    const capsHtml = caps.length ? '<div style="font-size:.65rem;color:var(--muted);margin-top:.4rem">' + caps.slice(0,3).join(' • ') + (caps.length > 3 ? ' +'+(caps.length-3) : '') + '</div>' : '';
-    return '<div class="integ-card" data-category="' + integ.category + '" style="background:var(--surface);border:1px solid ' + (live ? '#10b98140' : conn ? '#f59e0b30' : 'var(--border)') + ';border-radius:14px;padding:1.2rem;position:relative;transition:border-color .2s">' +
+    var iconBg = 'background:' + integ.color + '22;border:1px solid ' + integ.color + '44';
+    var iconStyle = 'width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;' + iconBg;
+    var caps = (mcpLiveStatus[id] && mcpLiveStatus[id].capabilities) || [];
+    var capsHtml = caps.length ? '<div style="font-size:.65rem;color:var(--muted);margin-top:.4rem">' + caps.slice(0,3).join(' / ') + (caps.length > 3 ? ' +' + (caps.length-3) : '') + '</div>' : '';
+    var borderColor = live ? '#10b98140' : conn ? '#f59e0b30' : 'var(--border)';
+    var btnBg = live ? 'rgba(16,185,129,.1)' : 'linear-gradient(135deg,var(--cyan),var(--blue))';
+    var btnBorder = live ? '#10b981' : 'transparent';
+    var btnColor = live ? '#10b981' : '#000';
+    var btnText = live ? 'Manage' : '+ Connect';
+    return '<div class="integ-card" data-category="' + integ.category + '" style="background:var(--surface);border:1px solid ' + borderColor + ';border-radius:14px;padding:1.2rem;position:relative;transition:border-color .2s">' +
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.8rem">' +
         '<div style="display:flex;align-items:center;gap:.7rem">' +
           '<div style="' + iconStyle + '">' + integ.icon + '</div>' +
@@ -5224,8 +5122,8 @@ function renderIntegrations(filter) {
       '<p style="color:var(--muted);font-size:.82rem;margin-bottom:.6rem;line-height:1.5">' + integ.description + '</p>' +
       capsHtml +
       '<div style="display:flex;gap:.4rem;margin-top:.8rem">' +
-        '<button onclick="openIntegModal(\''+id+'\')" style="flex:1;padding:.6rem;border-radius:8px;background:' + (live ? 'rgba(16,185,129,.1)' : 'linear-gradient(135deg,var(--cyan),var(--blue))') + ';border:1px solid ' + (live ? '#10b981' : 'transparent') + ';color:' + (live ? '#10b981' : '#000') + ';font-weight:700;font-size:.82rem;cursor:pointer">' + (live ? '⚙ Manage' : '+ Connect') + '</button>' +
-        '<a href="' + (integ.connectUrl || '#') + '" target="_blank" style="padding:.6rem .8rem;border-radius:8px;background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:.82rem;cursor:pointer;text-decoration:none" title="Get API key">🔗 Get Key</a>' +
+        '<button onclick="openIntegModal(\'' + id + '\')" style="flex:1;padding:.6rem;border-radius:8px;background:' + btnBg + ';border:1px solid ' + btnBorder + ';color:' + btnColor + ';font-weight:700;font-size:.82rem;cursor:pointer">' + btnText + '</button>' +
+        '<a href="' + (integ.connectUrl || '#') + '" target="_blank" style="padding:.6rem .8rem;border-radius:8px;background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:.82rem;cursor:pointer;text-decoration:none" title="Get API key">Key</a>' +
       '</div>' +
     '</div>';
   }).join('');
@@ -5233,8 +5131,8 @@ function renderIntegrations(filter) {
 
 function filterIntegrations(cat) {
   currentIntegFilter = cat;
-  document.querySelectorAll('.integ-filter').forEach(btn => {
-    const active = btn.textContent.trim() === cat;
+  document.querySelectorAll('.integ-filter').forEach(function(btn) {
+    var active = btn.textContent.trim() === cat;
     btn.style.background = active ? 'var(--cyan)' : 'transparent';
     btn.style.color = active ? '#000' : 'var(--muted)';
     btn.style.borderColor = active ? 'var(--cyan)' : 'var(--border)';
@@ -5242,56 +5140,49 @@ function filterIntegrations(cat) {
   renderIntegrations(cat);
 }
 
-// === CONNECT MODAL ===
 let currentIntegKey = null;
 
 function openIntegModal(id) {
   currentIntegKey = id;
-  const integ = INTEG_CONFIG[id];
+  var integ = INTEG_CONFIG[id];
   if (!integ) return;
-  const conn = getConnectedIntegrations()[id];
-  const live = isLiveConnected(id);
-  const modal = document.getElementById('integModal');
-  if (!modal) { alert('Modal not found: ' + id); return; }
+  var conn = getConnectedIntegrations()[id];
+  var live = isLiveConnected(id);
+  var modal = document.getElementById('integModal');
+  if (!modal) return;
   modal.style.display = 'flex';
-  document.getElementById('integModalTitle').textContent = (live ? '⚙ Manage ' : '+ Connect ') + integ.name;
+  document.getElementById('integModalTitle').textContent = (live ? 'Manage ' : '+ Connect ') + integ.name;
   document.getElementById('integModalDesc').textContent = integ.description;
   document.getElementById('integModalIcon').textContent = integ.icon;
-  document.getElementById('integApiKey').value = conn ? '••••••••••••••••' : '';
+  document.getElementById('integApiKey').value = conn ? '--------' : '';
   document.getElementById('integApiKey').placeholder = 'Paste your ' + integ.name + ' API key';
   document.getElementById('integDocsLink').href = integ.docsUrl || '#';
   document.getElementById('integConnectLink').href = integ.connectUrl || '#';
   document.getElementById('integConnectStatus').style.display = 'none';
-
-  // Show capability info
-  const capsInfo = document.getElementById('integCapsInfo');
-  const caps = mcpLiveStatus[id]?.capabilities || [];
+  var capsInfo = document.getElementById('integCapsInfo');
+  var caps = (mcpLiveStatus[id] && mcpLiveStatus[id].capabilities) || [];
   if (caps.length) {
     capsInfo.style.display = 'block';
-    capsInfo.innerHTML = '<div style="font-size:.75rem;color:var(--muted);margin-bottom:.4rem">This MCP provides ' + caps.length + ' capabilities:</div><div style="display:flex;flex-wrap:wrap;gap:.3rem">' + caps.map(c => '<span style="background:var(--surface);border:1px solid var(--border);padding:.2rem .6rem;border-radius:6px;font-size:.68rem">' + c.replace(/_/g,' ') + '</span>').join('') + '</div>';
+    capsInfo.innerHTML = '<div style="font-size:.75rem;color:var(--muted);margin-bottom:.4rem">Provides ' + caps.length + ' capabilities:</div><div style="display:flex;flex-wrap:wrap;gap:.3rem">' + caps.map(function(c) { return '<span style="background:var(--surface);border:1px solid var(--border);padding:.2rem .6rem;border-radius:6px;font-size:.68rem">' + c.replace(/_/g, ' ') + '</span>'; }).join('') + '</div>';
   } else {
     capsInfo.style.display = 'none';
   }
-
-  // Show extra fields for specific integrations
-  const extraField = document.getElementById('integExtraField');
-  const extraLabel = document.getElementById('integExtraLabel');
-  const extraValue = document.getElementById('integExtraValue');
+  var extraField = document.getElementById('integExtraField');
+  var extraLabel = document.getElementById('integExtraLabel');
+  var extraValue = document.getElementById('integExtraValue');
   if (id === 'paystack' || id === 'flutterwave' || id === 'stripe') {
     extraField.style.display = 'block';
     extraLabel.textContent = 'Public Key (optional)';
-    extraValue.value = conn?.extra || '';
+    extraValue.value = (conn && conn.extra) || '';
   } else if (id === 'supabase') {
     extraField.style.display = 'block';
     extraLabel.textContent = 'Project URL';
-    extraValue.value = conn?.extra || '';
+    extraValue.value = (conn && conn.extra) || '';
   } else {
     extraField.style.display = 'none';
     extraValue.value = '';
   }
-
-  // Show disconnect button if connected
-  const discBtn = document.getElementById('integDisconnectBtn');
+  var discBtn = document.getElementById('integDisconnectBtn');
   discBtn.style.display = (conn || live) ? 'block' : 'none';
 }
 
@@ -5302,58 +5193,53 @@ function closeIntegModal() {
 
 async function saveIntegration() {
   if (!currentIntegKey) return;
-  const apiKey = document.getElementById('integApiKey').value.trim();
-  const extra = document.getElementById('integExtraValue').value.trim();
-  const integ = INTEG_CONFIG[currentIntegKey];
-  const statusEl = document.getElementById('integConnectStatus');
+  var apiKey = document.getElementById('integApiKey').value.trim();
+  var extra = document.getElementById('integExtraValue').value.trim();
+  var integ = INTEG_CONFIG[currentIntegKey];
+  var statusEl = document.getElementById('integConnectStatus');
 
-  if (!apiKey || apiKey === '••••••••••••••••') {
+  if (!apiKey || apiKey === '--------') {
     statusEl.style.display = 'block';
     statusEl.style.color = '#ef4444';
-    statusEl.textContent = '⚠️ Please enter a valid API key';
+    statusEl.textContent = 'Please enter a valid API key';
     return;
   }
 
   statusEl.style.display = 'block';
   statusEl.style.color = 'var(--cyan)';
-  statusEl.textContent = '⏳ Sending key to ERGIO Engines...';
+  statusEl.textContent = 'Sending key to ERGIO Engines...';
 
   try {
-    // Send key to Render engines for use
-    const r = await fetch(ENGINES_BASE + '/mcp/configure', {
+    var r = await fetch(ENGINES_BASE + '/mcp/configure', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ integration: currentIntegKey, apiKey: apiKey, extra: extra })
     });
 
     if (r.ok) {
-      const result = await r.json();
       saveIntegrationKey(currentIntegKey, apiKey, extra);
       statusEl.style.color = '#10b981';
-      statusEl.textContent = '✅ ' + integ.name + ' connected! Your ERGIO engines can now use it.';
-      setTimeout(() => { closeIntegModal(); refreshMcpStatus(); }, 1500);
+      statusEl.textContent = integ.name + ' connected! Your ERGIO engines can now use it.';
+      setTimeout(function() { closeIntegModal(); refreshMcpStatus(); }, 1500);
     } else {
-      // Still save locally even if Render fails
       saveIntegrationKey(currentIntegKey, apiKey, extra);
       statusEl.style.color = '#f59e0b';
-      statusEl.textContent = '⚠️ Saved locally. Engines service will pick it up when online.';
-      setTimeout(() => { closeIntegModal(); refreshMcpStatus(); }, 2000);
+      statusEl.textContent = 'Saved locally. Engines service will pick it up when online.';
+      setTimeout(function() { closeIntegModal(); refreshMcpStatus(); }, 2000);
     }
   } catch(e) {
-    // Still save locally
     saveIntegrationKey(currentIntegKey, apiKey, extra);
     statusEl.style.color = '#10b981';
-    statusEl.textContent = '✅ ' + integ.name + ' saved! (Engines starting up...)';
-    setTimeout(() => { closeIntegModal(); refreshMcpStatus(); }, 1500);
+    statusEl.textContent = integ.name + ' saved! (Engines starting up...)';
+    setTimeout(function() { closeIntegModal(); refreshMcpStatus(); }, 1500);
   }
 }
 
 async function disconnectIntegration(id) {
-  if (!confirm('Disconnect ' + (INTEG_CONFIG[id]?.name || id) + '?')) return;
-  const s = getConnectedIntegrations();
+  if (!confirm('Disconnect ' + ((INTEG_CONFIG[id] && INTEG_CONFIG[id].name) || id) + '?')) return;
+  var s = getConnectedIntegrations();
   delete s[id];
   localStorage.setItem('ergio_integrations', JSON.stringify(s));
-  // Also tell Render to remove it
   try {
     await fetch(ENGINES_BASE + '/mcp/configure', {
       method: 'POST',
@@ -5365,110 +5251,109 @@ async function disconnectIntegration(id) {
   refreshMcpStatus();
 }
 
-// === CONNECTED SERVICES PANEL ===
 function loadConnectedIntegrations() {
-  const c = document.getElementById('connectedList');
+  var c = document.getElementById('connectedList');
   if (!c) return;
-  const saved = getConnectedIntegrations();
-  const all = new Set([...Object.keys(saved), ...Object.keys(mcpLiveStatus).filter(k => mcpLiveStatus[k].configured)]);
-  const arr = [...all];
-  const countEl = document.getElementById('connectedCount');
+  var saved = getConnectedIntegrations();
+  var allIds = Object.keys(saved).concat(Object.keys(mcpLiveStatus).filter(function(k) { return mcpLiveStatus[k].configured; }));
+  var seen = {};
+  var arr = allIds.filter(function(id) { if (seen[id]) return false; seen[id] = true; return true; });
+  var countEl = document.getElementById('connectedCount');
   if (countEl) countEl.textContent = arr.length + ' service' + (arr.length !== 1 ? 's' : '') + ' connected';
 
   if (arr.length === 0) {
-    c.innerHTML = '<div style="color:var(--muted);padding:1.5rem;text-align:center;font-size:.85rem">No services connected yet. Click "Connect" on any integration above to add your API key.</div>';
+    c.innerHTML = '<div style="color:var(--muted);padding:1.5rem;text-align:center;font-size:.85rem">No services connected yet. Click Connect on any integration above to add your API key.</div>';
     return;
   }
-  c.innerHTML = arr.map(id => {
-    const integ = INTEG_CONFIG[id];
-    const name = integ?.name || saved[id]?.name || id;
-    const live = isLiveConnected(id);
-    const caps = mcpLiveStatus[id]?.capabilities || [];
-    const icon = integ?.icon || '🔌';
-    const color = integ?.color || '#333';
-    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;background:var(--surface);border:1px solid ' + (live ? '#10b98130' : 'var(--border)') + ';border-radius:10px;margin-bottom:.5rem">' +
+  c.innerHTML = arr.map(function(id) {
+    var integ = INTEG_CONFIG[id];
+    var name = (integ && integ.name) || (saved[id] && saved[id].name) || id;
+    var live = isLiveConnected(id);
+    var caps = (mcpLiveStatus[id] && mcpLiveStatus[id].capabilities) || [];
+    var icon = (integ && integ.icon) || '\\ud83d\\udd0c';
+    var color = (integ && integ.color) || '#333';
+    var borderC = live ? '#10b98130' : 'var(--border)';
+    var statusLabel = live ? 'Live - ' + caps.length + ' capabilities' : 'Saved (offline)';
+    var dateStr = (saved[id] && saved[id].connected_at) ? new Date(saved[id].connected_at).toLocaleDateString() : 'n/a';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;background:var(--surface);border:1px solid ' + borderC + ';border-radius:10px;margin-bottom:.5rem">' +
       '<div style="display:flex;align-items:center;gap:.7rem">' +
         '<div style="width:36px;height:36px;border-radius:8px;background:' + color + '22;display:flex;align-items:center;justify-content:center;font-size:1rem">' + icon + '</div>' +
         '<div><div style="font-weight:600;font-size:.85rem">' + name + '</div>' +
-        '<div style="font-size:.72rem;color:var(--muted)">' + (live ? '● Live — ' + caps.length + ' capabilities' : 'Saved (offline)') + ' • Connected ' + (saved[id]?.connected_at ? new Date(saved[id].connected_at).toLocaleDateString() : 'n/a') + '</div></div>' +
+        '<div style="font-size:.72rem;color:var(--muted)">' + statusLabel + ' / Connected ' + dateStr + '</div></div>' +
       '</div>' +
-      '<button class="btn btn-ghost btn-sm" style="border-color:var(--red);color:var(--red)" onclick="disconnectIntegration(\''+id+'\')">Disconnect</button>' +
+      '<button class="btn btn-ghost btn-sm" style="border-color:var(--red);color:var(--red)" onclick="disconnectIntegration(\'' + id + '\')">Disconnect</button>' +
     '</div>';
   }).join('');
 }
 
-// === CUSTOM MCP SERVERS ===
 function addCustomMcp() {
-  const name = document.getElementById('customMcpName').value.trim();
-  const url = document.getElementById('customMcpUrl').value.trim();
-  const key = document.getElementById('customMcpKey').value.trim();
-  const transport = document.getElementById('customMcpTransport').value;
-  if (!name || !url) { showIntegToast('⚠️ Name and URL are required'); return; }
-  const mcp = { id: 'custom_' + Date.now(), name, url, key: key ? btoa(key) : '', transport, created_at: new Date().toISOString() };
+  var name = document.getElementById('customMcpName').value.trim();
+  var url = document.getElementById('customMcpUrl').value.trim();
+  var key = document.getElementById('customMcpKey').value.trim();
+  var transport = document.getElementById('customMcpTransport').value;
+  if (!name || !url) { showIntegToast('Name and URL are required'); return; }
+  var mcp = { id: 'custom_' + Date.now(), name: name, url: url, key: key ? btoa(key) : '', transport: transport, created_at: new Date().toISOString() };
   customMcps.push(mcp);
   localStorage.setItem('ergio_custom_mcps', JSON.stringify(customMcps));
-  // Also send to Render
   fetch(ENGINES_BASE + '/mcp/configure', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ integration: name, apiKey: key || url, extra: url, transport: transport })
-  }).catch(() => {});
+  }).catch(function() {});
   document.getElementById('customMcpName').value = '';
   document.getElementById('customMcpUrl').value = '';
   document.getElementById('customMcpKey').value = '';
-  showIntegToast('✅ ' + name + ' MCP server added!');
+  showIntegToast(name + ' MCP server added!');
   renderCustomMcps();
 }
 
 function removeCustomMcp(id) {
-  customMcps = customMcps.filter(m => m.id !== id);
+  customMcps = customMcps.filter(function(m) { return m.id !== id; });
   localStorage.setItem('ergio_custom_mcps', JSON.stringify(customMcps));
   renderCustomMcps();
 }
 
 function renderCustomMcps() {
-  const c = document.getElementById('customMcpList');
+  var c = document.getElementById('customMcpList');
   if (!c) return;
   if (customMcps.length === 0) {
     c.innerHTML = '<div style="color:var(--muted);font-size:.78rem;padding:.5rem">No custom MCP servers added yet.</div>';
     return;
   }
-  c.innerHTML = customMcps.map(m => {
+  c.innerHTML = customMcps.map(function(m) {
+    var shortUrl = m.url.length > 40 ? m.url.substring(0, 40) + '...' : m.url;
     return '<div style="display:flex;align-items:center;justify-content:space-between;padding:.7rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:.5rem">' +
       '<div style="display:flex;align-items:center;gap:.6rem">' +
-        '<div style="width:32px;height:32px;border-radius:8px;background:rgba(0,217,255,.1);display:flex;align-items:center;justify-content:center;font-size:.9rem">🔌</div>' +
+        '<div style="width:32px;height:32px;border-radius:8px;background:rgba(0,217,255,.1);display:flex;align-items:center;justify-content:center;font-size:.9rem">\ud83d\udd0c</div>' +
         '<div><div style="font-weight:600;font-size:.82rem">' + m.name + '</div>' +
-        '<div style="font-size:.68rem;color:var(--muted)">' + m.transport.toUpperCase() + ' • ' + m.url.substring(0,40) + (m.url.length > 40 ? '...' : '') + '</div></div>' +
+        '<div style="font-size:.68rem;color:var(--muted)">' + m.transport.toUpperCase() + ' / ' + shortUrl + '</div></div>' +
       '</div>' +
-      '<button class="btn btn-ghost btn-sm" style="border-color:var(--red);color:var(--red)" onclick="removeCustomMcp(\''+m.id+'\')">Remove</button>' +
+      '<button class="btn btn-ghost btn-sm" style="border-color:var(--red);color:var(--red)" onclick="removeCustomMcp(\'' + m.id + '\')">Remove</button>' +
     '</div>';
   }).join('');
 }
 
-// === TEST ALL CONNECTIONS ===
 async function testAllConnections() {
-  showIntegToast('⏳ Testing all connections...');
+  showIntegToast('Testing all connections...');
   await refreshMcpStatus();
-  const liveCount = Object.values(mcpLiveStatus).filter(m => m.configured).length;
-  showIntegToast('✅ ' + liveCount + ' services are live and operational');
+  var liveCount = Object.values(mcpLiveStatus).filter(function(m) { return m.configured; }).length;
+  showIntegToast(liveCount + ' services are live and operational');
 }
 
 function showIntegToast(msg) {
-  const toast = document.createElement('div');
+  var toast = document.createElement('div');
   toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--bg4);border:1px solid var(--border2);color:var(--text);padding:.8rem 1.2rem;border-radius:12px;font-weight:600;font-size:.85rem;z-index:99999;box-shadow:0 4px 20px rgba(0,0,0,.4)';
   toast.textContent = msg;
   document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 4000);
+  setTimeout(function() { toast.remove(); }, 4000);
 }
 
-// === INIT ===
 function initIntegrationsTab() {
-  // Render category filters
-  const cc = document.getElementById('intCategories');
+  var cc = document.getElementById('intCategories');
   if (cc) {
-    cc.innerHTML = MCP_CATEGORIES.map(c =>
-      '<button class="btn btn-ghost btn-sm integ-filter" onclick="filterIntegrations(\''+c+'\')" style="padding:.4rem .8rem;border-radius:8px;font-size:.78rem">' + c + '</button>'
-    ).join('');
+    cc.innerHTML = MCP_CATEGORIES.map(function(c) {
+      return '<button class="btn btn-ghost btn-sm integ-filter" onclick="filterIntegrations(\'' + c + '\')" style="padding:.4rem .8rem;border-radius:8px;font-size:.78rem">' + c + '</button>';
+    }).join('');
   }
   renderIntegrations('All');
   loadConnectedIntegrations();
@@ -5476,14 +5361,6 @@ function initIntegrationsTab() {
   refreshMcpStatus();
 }
 
-// Hook into switchTab
-const _origSwitchTab = typeof switchTab === 'function' ? switchTab : null;
-if (_origSwitchTab) {
-  window.switchTab = function(tab) {
-    _origSwitchTab(tab);
-    if (tab === 'integrations') setTimeout(initIntegrationsTab, 50);
-  };
-}
 
 // Override runEngine functions to use Render backend
 async function runEngineOnRender(endpoint, payload, statusId, panelTitle) {
@@ -5541,6 +5418,17 @@ async function testMCPConnection(tool) {
   } catch(e) {}
   return { connected: false, tools: [] };
 }
+
+// Hook into switchTab for integrations
+(function() {
+  var orig = window.switchTab;
+  if (typeof orig === 'function') {
+    window.switchTab = function(tab) {
+      orig(tab);
+      if (tab === 'integrations') setTimeout(initIntegrationsTab, 50);
+    };
+  }
+})();
 </script>
 
 
@@ -5549,9 +5437,9 @@ async function testMCPConnection(tool) {
 <div id="integModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;padding:1rem">
 <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;max-width:480px;width:100%;padding:0;overflow:hidden">
 <div style="padding:1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.8rem">
-<div id="integModalIcon" style="width:48px;height:48px;border-radius:12px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:1.4rem">🔌</div>
+<div id="integModalIcon" style="width:48px;height:48px;border-radius:12px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:1.4rem">plug</div>
 <div style="flex:1"><div id="integModalTitle" style="font-weight:800;font-size:1.1rem">Connect</div><div id="integModalDesc" style="font-size:.78rem;color:var(--muted);margin-top:.2rem">Description</div></div>
-<button onclick="closeIntegModal()" style="background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer">×</button>
+<button onclick="closeIntegModal()" style="background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer">x</button>
 </div>
 <div style="padding:1.5rem">
 <div style="margin-bottom:1rem">
@@ -5565,8 +5453,8 @@ async function testMCPConnection(tool) {
 <div id="integCapsInfo" style="margin-bottom:1rem;display:none"></div>
 <div id="integConnectStatus" style="display:none;margin-bottom:1rem;padding:.6rem .8rem;border-radius:8px;font-size:.82rem"></div>
 <div style="display:flex;gap:.6rem;margin-bottom:.8rem">
-<a id="integDocsLink" href="#" target="_blank" class="btn btn-ghost" style="flex:1;text-align:center;text-decoration:none">📚 Docs</a>
-<a id="integConnectLink" href="#" target="_blank" class="btn btn-ghost" style="flex:1;text-align:center;text-decoration:none">🔗 Get API Key</a>
+<a id="integDocsLink" href="#" target="_blank" class="btn btn-ghost" style="flex:1;text-align:center;text-decoration:none">Docs</a>
+<a id="integConnectLink" href="#" target="_blank" class="btn btn-ghost" style="flex:1;text-align:center;text-decoration:none">Get Key</a>
 </div>
 <button onclick="saveIntegration()" class="btn btn-primary" style="width:100%;padding:.7rem;font-size:.9rem">Connect Service</button>
 <button id="integDisconnectBtn" onclick="disconnectIntegration(currentIntegKey)" class="btn btn-ghost" style="width:100%;padding:.6rem;margin-top:.5rem;border-color:var(--red);color:var(--red);display:none">Disconnect</button>
