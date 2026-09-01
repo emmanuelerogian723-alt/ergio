@@ -1,65 +1,48 @@
-// ========================================
 // ERGIO Expense Tracker
-// Track business income & expenses with categories
-// ========================================
-
 import { getSupabase } from '../lib/ergio.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
   if (req.method === 'OPTIONS') return res.status(200).end();
 
+  const sb = getSupabase(req);
+  const action = req.query.action || 'list';
+  const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
+  const businessId = req.query.business_id || body.business_id;
+
   try {
-    const action = req.query.action || 'list';
-
-
-    const sb = getSupabase(req);
-    const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-    const businessId = req.query.business_id || body.business_id;
-
     if (req.method === 'GET' && action === 'list') {
-      let query = sb.from('transactions').select('*').order('created_at', { ascending: false }).limit(100);
-      if (businessId) query = query.eq('business_id', businessId);
-      const { data, error } = await query;
-      if (error) return res.status(200).json({ data: [], error: e.message });
-
-      const income = (data || []).filter(t => t.type === 'income').reduce((s, t) => s + parseFloat(t.amount || 0), 0);
-      const expenses = (data || []).filter(t => t.type === 'expense').reduce((s, t) => s + parseFloat(t.amount || 0), 0);
-
-      return res.status(200).json({
-        transactions: data || [],
-        summary: { income, expenses, profit: income - expenses, count: (data || []).length }
-      });
+      const { data, error } = await sb.from('transactions').select('*').order('created_at', { ascending: false }).limit(100);
+      if (error) return res.status(200).json({ expenses: [], income: 0, total_expenses: 0 });
+      const expenses = (data || []).filter(t => t.type === 'expense');
+      const income = (data || []).filter(t => t.type === 'income');
+      const totalExpenses = expenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+      const totalIncome = income.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+      return res.status(200).json({ transactions: data || [], expenses, income: totalIncome, total_expenses: totalExpenses });
     }
 
-    if (req.method === 'POST' && action === 'create') {
+    if (req.method === 'POST') {
       const { type, amount, category, description, date } = body;
       if (!type || !amount) return res.status(400).json({ error: 'Type and amount required' });
-
       const { data, error } = await sb.from('transactions').insert({
         business_id: businessId, type, amount: parseFloat(amount),
-        category: category || 'general', description: description || '',
-        date: date || new Date().toISOString().split('T')[0]
+        category: category || 'general', description: description || '', date: date || new Date().toISOString()
       }).select();
-
-      if (error) return res.status(200).json({ data: [], error: e.message });
+      if (error) return res.status(200).json({ success: false, error: error.message });
       return res.status(200).json({ success: true, transaction: data?.[0] });
     }
 
     if (req.method === 'DELETE') {
-      const id = req.query.id;
-      if (!id) return res.status(400).json({ error: 'ID required' });
+      const { id } = req.query;
       const { error } = await sb.from('transactions').delete().eq('id', id);
-      if (error) return res.status(200).json({ data: [], error: e.message });
+      if (error) return res.status(200).json({ success: false, error: error.message });
       return res.status(200).json({ success: true });
     }
 
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(200).json({ transactions: [], expenses: [], income: 0, total_expenses: 0 });
   } catch (err) {
-    console.error('Expense error:', err);
-    return res.status(200).json({ data: [], error: e.message });
+    return res.status(200).json({ transactions: [], expenses: [], income: 0, total_expenses: 0, error: err.message });
   }
 }
