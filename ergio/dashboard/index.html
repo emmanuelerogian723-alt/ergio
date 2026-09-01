@@ -377,6 +377,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .security-item{display:flex;justify-content:space-between;align-items:center;padding:1rem;background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:.8rem}
 .security-item-left{display:flex;align-items:center;gap:.8rem}
 .security-item-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.input-field{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.7rem .8rem;color:var(--text);font-family:inherit;font-size:.85rem;outline:none;transition:border-color .2s}.input-field:focus{border-color:var(--cyan)}
 </style>
 </head>
 <body>
@@ -509,7 +510,45 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
     <div class="tab-content" id="tab-agents"><div class="panel"><div class="panel-header"><div class="panel-title">AI Agent Frameworks</div><div class="panel-sub">Connect external AI agent systems</div></div><div class="int-grid" id="agentsGrid"></div></div></div>
     <div class="tab-content" id="tab-plugins"><div class="panel"><div class="panel-header"><div><div class="panel-title">MCP Servers and Plugins</div><div class="panel-sub">Model Context Protocol integrations</div></div><button class="btn btn-primary btn-sm" onclick="showAddMCP()">+ Add Custom MCP</button></div><div id="mcpAddForm" style="display:none;margin-bottom:1rem;padding:1rem;background:var(--card2);border:1px solid var(--border);border-radius:10px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.6rem"><input class="form-input" id="mcpName" placeholder="MCP Name"><input class="form-input" id="mcpUrl" placeholder="https://mcp-url.com"></div><div style="display:flex;gap:.6rem"><select class="form-select" id="mcpTransport" style="width:auto"><option value="http">HTTP</option><option value="sse">SSE</option><option value="ws">WebSocket</option></select><input class="form-input" id="mcpApiKey" placeholder="API Key (optional)" style="flex:1"><button class="btn btn-primary" onclick="connectMCP()">Connect</button></div></div><div class="engine-grid" id="mcpGrid"></div></div><div class="panel"><div class="panel-header"><div class="panel-title">Available Plugins</div><div class="panel-sub">Extend ERGIO capabilities</div></div><div class="int-grid" id="pluginsGrid"></div></div></div>
     <div class="tab-content" id="tab-skills"><div class="panel"><div class="panel-header"><div><div class="panel-title">Skills Marketplace</div><div class="panel-sub">Reusable AI skills for the Conductor</div></div><button class="btn btn-primary btn-sm" onclick="showSkillForm()">+ Create Skill</button></div><div id="skillForm" style="display:none;margin-bottom:1rem;padding:1rem;background:var(--card2);border:1px solid var(--border);border-radius:10px"><div class="form-group"><label class="form-label">Skill Name</label><input class="form-input" id="skillName" placeholder="e.g. Competitor Price Analysis"></div><div class="form-group"><label class="form-label">Description</label><input class="form-input" id="skillDesc" placeholder="What does this skill do?"></div><div class="form-group"><label class="form-label">Instructions</label><textarea class="form-textarea" id="skillInstr" placeholder="Step-by-step instructions for the AI agent..."></textarea></div><div class="form-group"><label class="form-label">Category</label><select class="form-select" id="skillCat"><option value="marketing">Marketing</option><option value="sales">Sales</option><option value="finance">Finance</option><option value="ops">Operations</option><option value="tech">Technology</option><option value="research">Research</option></select></div><button class="btn btn-primary" onclick="createSkill()">Publish Skill</button></div><div class="int-grid" id="skillsGrid"></div></div></div>
-    <div class="tab-content" id="tab-integrations"><div class="panel"><div class="panel-header"><div><div class="panel-title">Integrations</div><div class="panel-sub">Connect external services to ERGIO</div></div></div><div style="display:flex;gap:.4rem;margin-bottom:1rem;flex-wrap:wrap" id="intCategories"></div><div class="int-grid" id="integrationsGrid"></div></div><div class="panel"><div class="panel-header"><div class="panel-title">Connected Integrations</div></div><div id="connectedList"></div></div></div>
+    <div class="tab-content" id="tab-integrations">
+<div class="panel">
+<div class="panel-header"><div><div class="panel-title">Integrations & MCP Connections</div><div class="panel-sub">Bring your own API keys - connect services like Claude Desktop. ERGIO uses YOUR keys to act on YOUR behalf.</div></div>
+<div style="display:flex;gap:.5rem;align-items:center">
+<span class="badge bc" id="mcpLiveCount" style="display:none">0 connected</span>
+<button class="btn btn-ghost btn-sm" onclick="refreshMcpStatus()">Refresh Status</button>
+</div>
+</div>
+<div style="display:flex;gap:.4rem;margin-bottom:1rem;flex-wrap:wrap" id="intCategories"></div>
+<div class="int-grid" id="integrationsGrid"></div>
+</div>
+<div class="panel">
+<div class="panel-header"><div><div class="panel-title">Add Custom MCP Server</div><div class="panel-sub">Connect any MCP-compatible server by URL (like Claude Desktop)</div></div></div>
+<div style="padding:1rem">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:.8rem">
+<div><label style="font-size:.75rem;color:var(--muted);display:block;margin-bottom:.3rem">Server Name</label><input class="input-field" id="customMcpName" placeholder="e.g. My Notion MCP" style="width:100%"></div>
+<div><label style="font-size:.75rem;color:var(--muted);display:block;margin-bottom:.3rem">Server URL or Command</label><input class="input-field" id="customMcpUrl" placeholder="https://my-server.com/sse or npx @mcp/server" style="width:100%"></div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:.8rem">
+<div><label style="font-size:.75rem;color:var(--muted);display:block;margin-bottom:.3rem">API Key (optional)</label><input class="input-field" id="customMcpKey" placeholder="Bearer token or API key" style="width:100%" type="password"></div>
+<div><label style="font-size:.75rem;color:var(--muted);display:block;margin-bottom:.3rem">Transport Type</label>
+<select class="input-field" id="customMcpTransport" style="width:100%">
+<option value="sse">SSE (Server-Sent Events)</option>
+<option value="stdio">stdio (local command)</option>
+<option value="http">HTTP REST</option>
+</select>
+</div>
+</div>
+<button class="btn btn-primary" onclick="addCustomMcp()" style="width:100%">+ Add MCP Server</button>
+<div id="customMcpList" style="margin-top:1rem"></div>
+</div>
+</div>
+<div class="panel">
+<div class="panel-header"><div><div class="panel-title">Connected Services</div><div class="panel-sub" id="connectedCount">No services connected yet</div></div>
+<button class="btn btn-ghost btn-sm" onclick="testAllConnections()">Test All</button>
+</div>
+<div id="connectedList"></div>
+</div>
+</div>
     <div class="tab-content" id="tab-analytics"><div class="kpi-grid"><div class="kpi-card"><div class="kpi-icon" style="background:rgba(0,217,255,.1)">👁️</div><div class="kpi-value" id="anPageViews">0</div><div class="kpi-label">Page Views</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(0,255,157,.1)">👆</div><div class="kpi-value" id="anClicks">0</div><div class="kpi-label">Clicks</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(139,92,246,.1)">📞</div><div class="kpi-value" id="anConversions">0</div><div class="kpi-label">Conversions</div></div><div class="kpi-card"><div class="kpi-icon" style="background:rgba(255,184,0,.1)">⚡</div><div class="kpi-value" id="anEnginesRun">0</div><div class="kpi-label">Engine Runs</div></div></div><div class="panel"><div class="panel-header"><div class="panel-title">Revenue and Activity</div><div class="panel-sub">From Supabase database</div></div><div id="analyticsContent"><div class="empty"><div class="icon">📊</div><h3>Loading analytics...</h3><p>Fetching data from Supabase.</p></div></div></div></div><div class="tab-content" id="tab-insights">
   <div class="panel" style="margin-bottom:1rem">
     <div class="panel-header">
@@ -2591,8 +2630,95 @@ function injectChatbot(html,bizName,bizType){
 var chatbotCSS='<style id="ergio-chatbot">.ergio-chat-fab{position:fixed;bottom:20px;right:20px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#00d1ff,#007bff);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 20px rgba(0,209,255,.4);z-index:99999;transition:all .3s ease}.ergio-chat-fab:hover{transform:scale(1.1);box-shadow:0 6px 30px rgba(0,209,255,.6)}.ergio-chat-window{position:fixed;bottom:90px;right:20px;width:360px;max-width:calc(100vw - 40px);height:500px;max-height:calc(100vh - 120px);background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.15);z-index:99999;display:none;flex-direction:column;overflow:hidden}.ergio-chat-open{display:flex}.ergio-chat-header{padding:16px;background:linear-gradient(135deg,#00d1ff,#007bff);color:#fff;display:flex;align-items:center;gap:10px}.ergio-chat-header img{width:36px;height:36px;border-radius:50%}.ergio-chat-header-info h4{margin:0;font-size:.95rem;font-weight:600}.ergio-chat-header-info p{margin:0;font-size:.7rem;opacity:.9}.ergio-chat-messages{flex:1;overflow-y:auto;padding:16px;background:#f8f9fa}.ergio-chat-msg{margin-bottom:12px;max-width:80%}.ergio-chat-msg.ai{margin-right:auto}.ergio-chat-msg.user{margin-left:auto;text-align:right}.ergio-chat-msg .bubble{display:inline-block;padding:10px 14px;border-radius:14px;font-size:.85rem;line-height:1.5}.ergio-chat-msg.ai .bubble{background:#fff;border:1px solid #e0e0e0;border-bottom-left-radius:4px;color:#333}.ergio-chat-msg.user .bubble{background:#007bff;color:#fff;border-bottom-right-radius:4px}.ergio-chat-input{padding:12px;background:#fff;border-top:1px solid #e0e0e0;display:flex;gap:8px}.ergio-chat-input input{flex:1;padding:10px 14px;border:1px solid #e0e0e0;border-radius:20px;font-size:.85rem;outline:none}.ergio-chat-input button{width:40px;height:40px;border-radius:50%;background:#007bff;color:#fff;border:none;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center}.ergio-chat-typing{display:inline-block;padding:10px 14px;border-radius:14px;background:#fff;border:1px solid #e0e0e0;font-size:.85rem;color:#999}.ergio-chat-typing span{display:inline-block;width:6px;height:6px;border-radius:50%;background:#999;margin:0 2px;animation:ergio-typing 1.4s infinite}.ergio-chat-typing span:nth-child(2){animation-delay:.2s}.ergio-chat-typing span:nth-child(3){animation-delay:.4s}@keyframes ergio-typing{0%,60%,100%{opacity:.3}30%{opacity:1}}.ergio-chat-badge{position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:#28a745;border:2px solid #fff;font-size:0}</style>';
 var chatbotHTML='<div id="ergioChatWidget"><div class="ergio-chat-fab" onclick="ergioToggleChat()" style="position:fixed;bottom:20px;right:20px;z-index:99999">💬<span class="ergio-chat-badge"></span></div><div class="ergio-chat-window" id="ergioChatWin" style="position:fixed;z-index:99999"><div class="ergio-chat-header"><div style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.2rem">🤖</div><div class="ergio-chat-header-info"><h4>'+bizName+' Assistant</h4><p>Powered by ERGIO Cloud</p></div></div><div class="ergio-chat-messages" id="ergioChatMessages"><div class="ergio-chat-msg ai"><div class="bubble">Hi! 👋 I am the AI assistant for '+bizName+'. How can I help you today?</div></div></div><div class="ergio-chat-input"><input type="text" id="ergioChatInput" placeholder="Type your message..." onkeydown="if(event.key===\'Enter\')ergioSendChat()"><button onclick="ergioSendChat()">➤</button></div></div></div>';
 var chatbotJS='<script>function ergioToggleChat(){var w=document.getElementById("ergioChatWin");w.classList.toggle("ergio-chat-open")}function ergioSendChat(){var i=document.getElementById("ergioChatInput"),m=i.value.trim();if(!m)return;var msgs=document.getElementById("ergioChatMessages");msgs.innerHTML+=\'<div class="ergio-chat-msg user"><div class="bubble">\'+m+\'</div></div>\';i.value="";msgs.innerHTML+=\'<div class="ergio-chat-typing" id="ergioTyping"><span></span><span></span><span></span></div>\';msgs.scrollTop=msgs.scrollHeight;setTimeout(function(){var t=document.getElementById("ergioTyping");if(t)t.remove();var responses={"price":"You can find our pricing on the pricing page. Would you like me to direct you there?","hours":"Our hours are Monday to Saturday, 8am to 8pm. We\'re closed on Sundays.","location":"We\'re located in the heart of the city. Check our contact page for directions!","book":"I\'d be happy to help you book! Please visit our bookings page or call us directly.","services":"We offer a wide range of services. Let me know what you\'re interested in and I can provide details!","contact":"You can reach us through our contact form, by phone, or by email. Check our contact page for details.","hello":"Hello! Welcome to '+bizName+'! How can I assist you today?","hi":"Hi there! 👋 How can I help you?"};var resp="Thanks for your message! A team member from '+bizName+' will get back to you soon. In the meantime, feel free to browse our website for more info.";var ml=m.toLowerCase();for(var key in responses){if(ml.includes(key)){resp=responses[key];break}}msgs.innerHTML+=\'<div class="ergio-chat-msg ai"><div class="bubble">\'+resp+\'</div></div>\';msgs.scrollTop=msgs.scrollHeight},800)}<\/script>';
-/* Inject before </body> */
-html=html.replace('</body>',chatbotCSS+chatbotHTML+chatbotJS+'</body>');
+/* Inject before 
+<!-- Integration Connect Modal -->
+<div id="integModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;padding:1rem">
+<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;max-width:480px;width:100%;padding:0;overflow:hidden">
+<div style="padding:1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.8rem">
+<div id="integModalIcon" style="width:48px;height:48px;border-radius:12px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:1.4rem">🔌</div>
+<div style="flex:1"><div id="integModalTitle" style="font-weight:800;font-size:1.1rem">Connect</div><div id="integModalDesc" style="font-size:.78rem;color:var(--muted);margin-top:.2rem">Description</div></div>
+<button onclick="closeIntegModal()" style="background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer">×</button>
+</div>
+<div style="padding:1.5rem">
+<div style="margin-bottom:1rem">
+<label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:.4rem">API Key</label>
+<input id="integApiKey" type="password" class="input-field" placeholder="Paste your API key" style="width:100%">
+</div>
+<div id="integExtraField" style="margin-bottom:1rem;display:none">
+<label id="integExtraLabel" style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:.4rem">Extra Field</label>
+<input id="integExtraValue" class="input-field" placeholder="" style="width:100%">
+</div>
+<div id="integCapsInfo" style="margin-bottom:1rem;display:none"></div>
+<div id="integConnectStatus" style="display:none;margin-bottom:1rem;padding:.6rem .8rem;border-radius:8px;font-size:.82rem"></div>
+<div style="display:flex;gap:.6rem;margin-bottom:.8rem">
+<a id="integDocsLink" href="#" target="_blank" class="btn btn-ghost" style="flex:1;text-align:center;text-decoration:none">📚 Docs</a>
+<a id="integConnectLink" href="#" target="_blank" class="btn btn-ghost" style="flex:1;text-align:center;text-decoration:none">🔗 Get API Key</a>
+</div>
+<button onclick="saveIntegration()" class="btn btn-primary" style="width:100%;padding:.7rem;font-size:.9rem">Connect Service</button>
+<button id="integDisconnectBtn" onclick="disconnectIntegration(currentIntegKey)" class="btn btn-ghost" style="width:100%;padding:.6rem;margin-top:.5rem;border-color:var(--red);color:var(--red);display:none">Disconnect</button>
+</div>
+</div>
+</div>
+</body> */
+html=html.replace('
+<!-- Integration Connect Modal -->
+<div id="integModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;padding:1rem">
+<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;max-width:480px;width:100%;padding:0;overflow:hidden">
+<div style="padding:1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.8rem">
+<div id="integModalIcon" style="width:48px;height:48px;border-radius:12px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:1.4rem">🔌</div>
+<div style="flex:1"><div id="integModalTitle" style="font-weight:800;font-size:1.1rem">Connect</div><div id="integModalDesc" style="font-size:.78rem;color:var(--muted);margin-top:.2rem">Description</div></div>
+<button onclick="closeIntegModal()" style="background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer">×</button>
+</div>
+<div style="padding:1.5rem">
+<div style="margin-bottom:1rem">
+<label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:.4rem">API Key</label>
+<input id="integApiKey" type="password" class="input-field" placeholder="Paste your API key" style="width:100%">
+</div>
+<div id="integExtraField" style="margin-bottom:1rem;display:none">
+<label id="integExtraLabel" style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:.4rem">Extra Field</label>
+<input id="integExtraValue" class="input-field" placeholder="" style="width:100%">
+</div>
+<div id="integCapsInfo" style="margin-bottom:1rem;display:none"></div>
+<div id="integConnectStatus" style="display:none;margin-bottom:1rem;padding:.6rem .8rem;border-radius:8px;font-size:.82rem"></div>
+<div style="display:flex;gap:.6rem;margin-bottom:.8rem">
+<a id="integDocsLink" href="#" target="_blank" class="btn btn-ghost" style="flex:1;text-align:center;text-decoration:none">📚 Docs</a>
+<a id="integConnectLink" href="#" target="_blank" class="btn btn-ghost" style="flex:1;text-align:center;text-decoration:none">🔗 Get API Key</a>
+</div>
+<button onclick="saveIntegration()" class="btn btn-primary" style="width:100%;padding:.7rem;font-size:.9rem">Connect Service</button>
+<button id="integDisconnectBtn" onclick="disconnectIntegration(currentIntegKey)" class="btn btn-ghost" style="width:100%;padding:.6rem;margin-top:.5rem;border-color:var(--red);color:var(--red);display:none">Disconnect</button>
+</div>
+</div>
+</div>
+</body>',chatbotCSS+chatbotHTML+chatbotJS+'
+<!-- Integration Connect Modal -->
+<div id="integModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;padding:1rem">
+<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;max-width:480px;width:100%;padding:0;overflow:hidden">
+<div style="padding:1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.8rem">
+<div id="integModalIcon" style="width:48px;height:48px;border-radius:12px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:1.4rem">🔌</div>
+<div style="flex:1"><div id="integModalTitle" style="font-weight:800;font-size:1.1rem">Connect</div><div id="integModalDesc" style="font-size:.78rem;color:var(--muted);margin-top:.2rem">Description</div></div>
+<button onclick="closeIntegModal()" style="background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer">×</button>
+</div>
+<div style="padding:1.5rem">
+<div style="margin-bottom:1rem">
+<label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:.4rem">API Key</label>
+<input id="integApiKey" type="password" class="input-field" placeholder="Paste your API key" style="width:100%">
+</div>
+<div id="integExtraField" style="margin-bottom:1rem;display:none">
+<label id="integExtraLabel" style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:.4rem">Extra Field</label>
+<input id="integExtraValue" class="input-field" placeholder="" style="width:100%">
+</div>
+<div id="integCapsInfo" style="margin-bottom:1rem;display:none"></div>
+<div id="integConnectStatus" style="display:none;margin-bottom:1rem;padding:.6rem .8rem;border-radius:8px;font-size:.82rem"></div>
+<div style="display:flex;gap:.6rem;margin-bottom:.8rem">
+<a id="integDocsLink" href="#" target="_blank" class="btn btn-ghost" style="flex:1;text-align:center;text-decoration:none">📚 Docs</a>
+<a id="integConnectLink" href="#" target="_blank" class="btn btn-ghost" style="flex:1;text-align:center;text-decoration:none">🔗 Get API Key</a>
+</div>
+<button onclick="saveIntegration()" class="btn btn-primary" style="width:100%;padding:.7rem;font-size:.9rem">Connect Service</button>
+<button id="integDisconnectBtn" onclick="disconnectIntegration(currentIntegKey)" class="btn btn-ghost" style="width:100%;padding:.6rem;margin-top:.5rem;border-color:var(--red);color:var(--red);display:none">Disconnect</button>
+</div>
+</div>
+</div>
+</body>');
 return html;
 }
 
@@ -3566,14 +3692,7 @@ function loadSkillsGrid(){const g=document.getElementById('skillsGrid');if(!g)re
 function showSkillForm(){const f=document.getElementById('skillForm');f.style.display=f.style.display==='none'?'block':'none'}
 function createSkill(){const n=document.getElementById('skillName').value.trim(),d=document.getElementById('skillDesc').value.trim(),i=document.getElementById('skillInstr').value.trim(),c=document.getElementById('skillCat').value;if(!n||!d){showToast('Name and description required','error');return}const local=JSON.parse(localStorage.getItem('ergio_skills')||'[]');local.push({id:'local-'+Date.now(),name:n,desc:d,cat:c,author:currentUser?.email||'you',dl:0,rt:0});localStorage.setItem('ergio_skills',JSON.stringify(local));showToast('✅ Skill created!','success');document.getElementById('skillForm').style.display='none';loadSkillsGrid()}
 function installSkill(id,name){const inst=JSON.parse(localStorage.getItem('ergio_installed_skills')||'[]');if(!inst.includes(id)){inst.push(id);localStorage.setItem('ergio_installed_skills',JSON.stringify(inst));showToast('✅ '+name+' installed!','success')}else{showToast(name+' already installed','info')}}
-const intCats=['all','communication','payments','ai','productivity','devops','marketing','database'];
-const intCatalog=[{id:'supabase',name:'Supabase',logo:'https://cdn.simpleicons.org/supabase/3ECF8E',bg:'#3ECF8E',icon:'🗄️',cat:'database',desc:'PostgreSQL database with auth, storage, realtime.',free:true,env:[]},{id:'stripe',name:'Stripe',logo:'https://cdn.simpleicons.org/stripe/635BFF',bg:'#635BFF',icon:'💳',cat:'payments',desc:'Accept payments globally.',free:false,env:['STRIPE_KEY']},{id:'paystack',name:'Paystack',logo:'https://cdn.simpleicons.org/paystack/00C3F7',bg:'#00C3F7',icon:'💰',cat:'payments',desc:'Payments for Africa.',free:false,env:['PAYSTACK_KEY']},{id:'flutterwave',name:'Flutterwave',logo:'https://cdn.simpleicons.org/flutterwave/F5A623',bg:'#F5A623',icon:'🦋',cat:'payments',desc:'African payment gateway.',free:false,env:['FLW_KEY']},{id:'slack',name:'Slack',logo:'https://cdn.simpleicons.org/slack/4A154B',bg:'#4A154B',icon:'💬',cat:'communication',desc:'Team messaging.',free:true,env:['SLACK_TOKEN']},{id:'gmail',name:'Gmail',logo:'https://cdn.simpleicons.org/gmail/EA4335',bg:'#EA4335',icon:'📧',cat:'communication',desc:'Email integration.',free:true,env:['GMAIL_KEY']},{id:'whatsapp',name:'WhatsApp',logo:'https://cdn.simpleicons.org/whatsapp/25D366',bg:'#25D366',icon:'📱',cat:'communication',desc:'WhatsApp Business API.',free:false,env:['WA_KEY']},{id:'twilio',name:'Twilio',logo:'https://cdn.simpleicons.org/twilio/F22F46',bg:'#F22F46',icon:'📞',cat:'communication',desc:'SMS and voice.',free:false,env:['TWILIO_KEY']},{id:'openai',name:'OpenAI',logo:'https://cdn.simpleicons.org/openai/FFFFFF',bg:'#000000',icon:'🧠',cat:'ai',desc:'GPT-4 and more.',free:false,env:['OPENAI_KEY']},{id:'groq',name:'Groq',logo:'https://cdn.simpleicons.org/groq/F55036',bg:'#F55036',icon:'⚡',cat:'ai',desc:'Ultra-fast inference.',free:true,env:['GROQ_KEY']},{id:'perplexity',name:'Perplexity',logo:'https://cdn.simpleicons.org/perplexity/20808D',bg:'#20808D',icon:'🔮',cat:'ai',desc:'AI search and answers.',free:false,env:['PERP_KEY']}]
-function loadIntegrations(){const cc=document.getElementById('intCategories');cc.innerHTML=intCats.map(c=>'<button class="btn '+(currentIntCategory===c?'btn-primary':'btn-ghost')+' btn-sm" onclick="setIntCategory(\''+c+'\')">'+c.charAt(0).toUpperCase()+c.slice(1)+'</button>').join('');renderIntegrationsGrid();loadConnectedIntegrations()}
-function setIntCategory(c){currentIntCategory=c;loadIntegrations()}
-function renderIntegrationsGrid(){const g=document.getElementById('integrationsGrid');if(!g)return;const f=currentIntCategory==='all'?intCatalog:intCatalog.filter(i=>i.cat===currentIntCategory);const c=JSON.parse(localStorage.getItem('ergio_integrations')||'{}');g.innerHTML=f.map(i=>{const on=c[i.id]||i.id==='supabase';const logo=i.logo||'';const bg=i.bg||'#333';return'<div class="int-card" style="border-top:3px solid '+bg+'"><div class="top"><div class="int-icon" style="background:'+bg+';display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:10px;width:40px;height:40px;flex-shrink:0">'+(logo?'<img src="'+logo+'" alt="'+i.name+'" style="width:22px;height:22px" onerror="this.style.display=\'none\'">':i.icon)+'</div><div style="flex:1"><div class="name">'+i.name+'</div><div class="cat">'+i.cat+'</div></div><div class="int-dot '+(on?'on':'off')+'"></div></div><p class="desc">'+i.desc+'</p>'+(i.free?'<span class="badge badge-green">FREE</span>':'<span class="badge badge-yellow">PAID</span>')+'<button class="int-connect '+(on?'connected':'')+'" onclick="connectIntegration(\''+i.id+'\',\''+i.name+'\')">'+(on?'✅ Connected':'Connect')+'</button></div>'}).join('')}
-function connectIntegration(id,name){const int=intCatalog.find(i=>i.id===id);if(int&&int.env.length>0){const k=prompt('Enter your '+int.env[0]+' for '+name+':');if(!k)return;if(ENGINES)ENGINES.connectPlugin({id,name,envVars:{[int.env[0]]:k}}).catch(()=>{})}const s=JSON.parse(localStorage.getItem('ergio_integrations')||'{}');s[id]={name,connected_at:new Date().toISOString()};localStorage.setItem('ergio_integrations',JSON.stringify(s));showToast('✅ '+name+' connected!','success');renderIntegrationsGrid();loadConnectedIntegrations()}
-function loadConnectedIntegrations(){const c=document.getElementById('connectedList');if(!c)return;const s=JSON.parse(localStorage.getItem('ergio_integrations')||'{}');const k=Object.keys(s);if(k.length===0){c.innerHTML='<div style="color:var(--muted);padding:1rem;text-align:center;font-size:.85rem">No integrations connected yet.</div>';return}c.innerHTML=k.map(x=>'<div style="display:flex;align-items:center;justify-content:space-between;padding:.7rem 1rem;background:var(--card2);border:1px solid var(--border);border-radius:10px;margin-bottom:.5rem"><div style="display:flex;align-items:center;gap:.6rem"><div class="int-dot on"></div><div><div style="font-weight:600;font-size:.85rem">'+s[x].name+'</div><div style="font-size:.72rem;color:var(--muted)">Connected '+new Date(s[x].connected_at).toLocaleDateString()+'</div></div></div><button class="engine-btn" style="border-color:var(--red);color:var(--red)" onclick="disconnectIntegration(\''+x+'\')">Disconnect</button></div>').join('')}
-function disconnectIntegration(id){const s=JSON.parse(localStorage.getItem('ergio_integrations')||'{}');delete s[id];localStorage.setItem('ergio_integrations',JSON.stringify(s));if(ENGINES)ENGINES.disconnectPlugin(id).catch(()=>{});showToast('Disconnected','info');renderIntegrationsGrid();loadConnectedIntegrations()}
+
 async function loadAnalytics(){const c=document.getElementById('analyticsContent');if(!c)return;if(sbClient){try{const{data:ev}=await sbClient.from('analytics_events').select('*');const{data:pm}=await sbClient.from('payments').select('amount');const{data:ld}=await sbClient.from('leads').select('*');const{data:bk}=await sbClient.from('bookings').select('*');document.getElementById('anPageViews').textContent=(ev||[]).length;document.getElementById('anClicks').textContent=(ev||[]).filter(e=>e.event_type==='click').length;document.getElementById('anConversions').textContent=(bk||[]).length;document.getElementById('anEnginesRun').textContent=(ev||[]).filter(e=>e.event_type==='engine_run').length;let rev=0;(pm||[]).forEach(p=>rev+=(p.amount||0));document.getElementById('kpiRevenue').textContent='₦'+rev.toLocaleString();c.innerHTML='<table class="data-table"><thead><tr><th>Metric</th><th>Value</th><th>Source</th></tr></thead><tbody><tr><td>Total Events</td><td>'+(ev||[]).length+'</td><td>Supabase</td></tr><tr><td>Total Leads</td><td>'+(ld||[]).length+'</td><td>Supabase</td></tr><tr><td>Total Bookings</td><td>'+(bk||[]).length+'</td><td>Supabase</td></tr><tr><td>Payments</td><td>'+(pm||[]).length+'</td><td>Supabase</td></tr><tr><td>Revenue</td><td>₦'+rev.toLocaleString()+'</td><td>Supabase</td></tr></tbody></table>';return}catch(e){}}c.innerHTML='<div class="empty"><div class="icon">📊</div><h3>No analytics data</h3><p>Connect Supabase to see analytics.</p></div>'}
 function handleLogout(){if(fbAuth)try{fbAuth.signOut()}catch(e){}if(sbClient)try{sbClient.auth.signOut()}catch(e){}localStorage.removeItem('ergio_user');window.location.href='../auth/login.html'}
 
@@ -5027,22 +5146,46 @@ sendChatMessage=function(){
 // ======================================================
 const ENGINES_BASE = window.ERGIO_CONFIG?.enginesApiBase || 'https://ergio-engines.onrender.com';
 const INTEG_CONFIG = window.ERGIO_CONFIG?.integrations || {};
-let currentIntegKey = null;
+const MCP_CATEGORIES = ['All', 'Payments', 'Communication', 'Productivity', 'Marketing', 'Analytics', 'AI & Automation'];
+let currentIntegFilter = 'All';
+let mcpLiveStatus = {}; // live status from Render backend
+let customMcps = JSON.parse(localStorage.getItem('ergio_custom_mcps') || '[]');
 
-// Load saved integrations from localStorage
+// === MCP STATUS FROM RENDER ===
+async function refreshMcpStatus() {
+  try {
+    const r = await fetch(ENGINES_BASE + '/mcp/list', { signal: AbortSignal.timeout(8000) });
+    if (r.ok) {
+      mcpLiveStatus = await r.json();
+      const count = Object.values(mcpLiveStatus).filter(m => m.configured).length;
+      const badge = document.getElementById('mcpLiveCount');
+      if (badge) { badge.style.display = 'inline-flex'; badge.textContent = count + ' live connected'; }
+    }
+  } catch(e) { console.log('MCP status fetch failed:', e.message); }
+  renderIntegrations(currentIntegFilter);
+  loadConnectedIntegrations();
+  renderCustomMcps();
+}
+
+// === INTEGRATION GRID ===
 function getConnectedIntegrations() {
-  try { return JSON.parse(localStorage.getItem('ergio_integrations') || '{}'); } catch { return {}; }
-}
-function saveIntegrationKey(id, key, extra) {
-  const store = getConnectedIntegrations();
-  store[id] = { key, extra, connectedAt: new Date().toISOString() };
-  localStorage.setItem('ergio_integrations', JSON.stringify(store));
-}
-function isConnected(id) {
-  return !!getConnectedIntegrations()[id];
+  return JSON.parse(localStorage.getItem('ergio_integrations') || '{}');
 }
 
-// Render the integrations grid
+function saveIntegrationKey(id, key, extra) {
+  const s = getConnectedIntegrations();
+  s[id] = { name: INTEG_CONFIG[id]?.name || id, key: btoa(key), extra: extra || '', connected_at: new Date().toISOString() };
+  localStorage.setItem('ergio_integrations', JSON.stringify(s));
+}
+
+function isLiveConnected(id) {
+  return mcpLiveStatus[id]?.configured === true;
+}
+
+function isConnected(id) {
+  return !!getConnectedIntegrations()[id] || isLiveConnected(id);
+}
+
 function renderIntegrations(filter) {
   const grid = document.getElementById('integrationsGrid');
   if (!grid) return;
@@ -5054,31 +5197,42 @@ function renderIntegrations(filter) {
 
   grid.innerHTML = filtered.map(([id, integ]) => {
     const conn = !!connected[id];
-    const statusDot = conn
-      ? '<span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block"></span>'
+    const live = isLiveConnected(id);
+    const statusDot = live
+      ? '<span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;box-shadow:0 0 6px #10b981"></span>'
+      : conn
+      ? '<span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;display:inline-block"></span>'
       : '<span style="width:8px;height:8px;border-radius:50%;background:#475569;display:inline-block"></span>';
-    const statusText = conn ? '<span style="color:#10b981;font-size:.75rem;font-weight:600">Connected</span>' : '<span style="color:#475569;font-size:.75rem">Not connected</span>';
-    const iconBg = `background:${integ.color}22;border:1px solid ${integ.color}44`;
-    const iconStyle = `width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;${iconBg}`;
-    return `<div class="integ-card" data-category="${integ.category}" style="background:var(--surface);border:1px solid ${conn ? '#10b98140' : 'var(--border)'};border-radius:14px;padding:1.2rem;position:relative;transition:border-color .2s">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.8rem">
-        <div style="display:flex;align-items:center;gap:.7rem">
-          <div style="${iconStyle}">${integ.icon}</div>
-          <div>
-            <div style="font-weight:700;font-size:.9rem">${integ.name}</div>
-            <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">${integ.category}</div>
-          </div>
-        </div>
-        <div style="display:flex;gap:.3rem;align-items:center">${statusDot} ${statusText}</div>
-      </div>
-      <p style="color:var(--muted);font-size:.82rem;margin-bottom:1rem;line-height:1.5">${integ.description}</p>
-      <button onclick="openIntegModal('${id}')" style="width:100%;padding:.6rem;border-radius:8px;background:${conn ? 'rgba(16,185,129,.1)' : 'linear-gradient(135deg,var(--cyan),var(--blue))'};border:1px solid ${conn ? '#10b981' : 'transparent'};color:${conn ? '#10b981' : '#000'};font-weight:700;font-size:.82rem;cursor:pointer">${conn ? '✓ Manage' : '+ Connect'}</button>
-    </div>`;
+    const statusText = live
+      ? '<span style="color:#10b981;font-size:.75rem;font-weight:600">● Live</span>'
+      : conn
+      ? '<span style="color:#f59e0b;font-size:.75rem">Saved (offline)</span>'
+      : '<span style="color:#475569;font-size:.75rem">Not connected</span>';
+    const iconBg = 'background:' + integ.color + '22;border:1px solid ' + integ.color + '44';
+    const iconStyle = 'width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;' + iconBg;
+    const caps = mcpLiveStatus[id]?.capabilities || [];
+    const capsHtml = caps.length ? '<div style="font-size:.65rem;color:var(--muted);margin-top:.4rem">' + caps.slice(0,3).join(' • ') + (caps.length > 3 ? ' +'+(caps.length-3) : '') + '</div>' : '';
+    return '<div class="integ-card" data-category="' + integ.category + '" style="background:var(--surface);border:1px solid ' + (live ? '#10b98140' : conn ? '#f59e0b30' : 'var(--border)') + ';border-radius:14px;padding:1.2rem;position:relative;transition:border-color .2s">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.8rem">' +
+        '<div style="display:flex;align-items:center;gap:.7rem">' +
+          '<div style="' + iconStyle + '">' + integ.icon + '</div>' +
+          '<div><div style="font-weight:700;font-size:.9rem">' + integ.name + '</div>' +
+          '<div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">' + integ.category + '</div></div>' +
+        '</div>' +
+        '<div style="display:flex;gap:.3rem;align-items:center">' + statusDot + ' ' + statusText + '</div>' +
+      '</div>' +
+      '<p style="color:var(--muted);font-size:.82rem;margin-bottom:.6rem;line-height:1.5">' + integ.description + '</p>' +
+      capsHtml +
+      '<div style="display:flex;gap:.4rem;margin-top:.8rem">' +
+        '<button onclick="openIntegModal(\''+id+'\')" style="flex:1;padding:.6rem;border-radius:8px;background:' + (live ? 'rgba(16,185,129,.1)' : 'linear-gradient(135deg,var(--cyan),var(--blue))') + ';border:1px solid ' + (live ? '#10b981' : 'transparent') + ';color:' + (live ? '#10b981' : '#000') + ';font-weight:700;font-size:.82rem;cursor:pointer">' + (live ? '⚙ Manage' : '+ Connect') + '</button>' +
+        '<a href="' + (integ.connectUrl || '#') + '" target="_blank" style="padding:.6rem .8rem;border-radius:8px;background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:.82rem;cursor:pointer;text-decoration:none" title="Get API key">🔗 Get Key</a>' +
+      '</div>' +
+    '</div>';
   }).join('');
 }
 
 function filterIntegrations(cat) {
-  // Update button styles
+  currentIntegFilter = cat;
   document.querySelectorAll('.integ-filter').forEach(btn => {
     const active = btn.textContent.trim() === cat;
     btn.style.background = active ? 'var(--cyan)' : 'transparent';
@@ -5088,18 +5242,36 @@ function filterIntegrations(cat) {
   renderIntegrations(cat);
 }
 
+// === CONNECT MODAL ===
+let currentIntegKey = null;
+
 function openIntegModal(id) {
   currentIntegKey = id;
   const integ = INTEG_CONFIG[id];
   if (!integ) return;
   const conn = getConnectedIntegrations()[id];
-  document.getElementById('integModal').style.display = 'flex';
-  document.getElementById('integModalTitle').textContent = (conn ? '⚙️ Manage ' : '+ Connect ') + integ.name;
+  const live = isLiveConnected(id);
+  const modal = document.getElementById('integModal');
+  if (!modal) { alert('Modal not found: ' + id); return; }
+  modal.style.display = 'flex';
+  document.getElementById('integModalTitle').textContent = (live ? '⚙ Manage ' : '+ Connect ') + integ.name;
   document.getElementById('integModalDesc').textContent = integ.description;
+  document.getElementById('integModalIcon').textContent = integ.icon;
   document.getElementById('integApiKey').value = conn ? '••••••••••••••••' : '';
   document.getElementById('integApiKey').placeholder = 'Paste your ' + integ.name + ' API key';
   document.getElementById('integDocsLink').href = integ.docsUrl || '#';
+  document.getElementById('integConnectLink').href = integ.connectUrl || '#';
   document.getElementById('integConnectStatus').style.display = 'none';
+
+  // Show capability info
+  const capsInfo = document.getElementById('integCapsInfo');
+  const caps = mcpLiveStatus[id]?.capabilities || [];
+  if (caps.length) {
+    capsInfo.style.display = 'block';
+    capsInfo.innerHTML = '<div style="font-size:.75rem;color:var(--muted);margin-bottom:.4rem">This MCP provides ' + caps.length + ' capabilities:</div><div style="display:flex;flex-wrap:wrap;gap:.3rem">' + caps.map(c => '<span style="background:var(--surface);border:1px solid var(--border);padding:.2rem .6rem;border-radius:6px;font-size:.68rem">' + c.replace(/_/g,' ') + '</span>').join('') + '</div>';
+  } else {
+    capsInfo.style.display = 'none';
+  }
 
   // Show extra fields for specific integrations
   const extraField = document.getElementById('integExtraField');
@@ -5109,14 +5281,18 @@ function openIntegModal(id) {
     extraField.style.display = 'block';
     extraLabel.textContent = 'Public Key (optional)';
     extraValue.value = conn?.extra || '';
-  } else if (id === 'supabase' || id === 'github') {
+  } else if (id === 'supabase') {
     extraField.style.display = 'block';
-    extraLabel.textContent = id === 'supabase' ? 'Project URL' : 'Repository (owner/repo)';
+    extraLabel.textContent = 'Project URL';
     extraValue.value = conn?.extra || '';
   } else {
     extraField.style.display = 'none';
     extraValue.value = '';
   }
+
+  // Show disconnect button if connected
+  const discBtn = document.getElementById('integDisconnectBtn');
+  discBtn.style.display = (conn || live) ? 'block' : 'none';
 }
 
 function closeIntegModal() {
@@ -5140,81 +5316,173 @@ async function saveIntegration() {
 
   statusEl.style.display = 'block';
   statusEl.style.color = 'var(--cyan)';
-  statusEl.textContent = '⏳ Testing connection...';
+  statusEl.textContent = '⏳ Sending key to ERGIO Engines...';
 
   try {
-    // Test the key against Render engines MCP endpoint
-    const r = await fetch(ENGINES_BASE + '/health', { method: 'GET' });
-    const ok = r.ok;
+    // Send key to Render engines for use
+    const r = await fetch(ENGINES_BASE + '/mcp/configure', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ integration: currentIntegKey, apiKey: apiKey, extra: extra })
+    });
 
-    if (ok || apiKey.length > 10) {
+    if (r.ok) {
+      const result = await r.json();
       saveIntegrationKey(currentIntegKey, apiKey, extra);
       statusEl.style.color = '#10b981';
-      statusEl.textContent = '✅ ' + integ.name + ' connected successfully!';
-      
-      // Send key to Render engines for use
-      await fetch(ENGINES_BASE + '/mcp/configure', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ integration: currentIntegKey, apiKey, extra })
-      }).catch(() => {});
-
-      setTimeout(() => {
-        closeIntegModal();
-        renderIntegrations();
-        // Show toast
-        showIntegToast('✅ ' + integ.name + ' connected! Your ERGIO engines can now use it.');
-      }, 1200);
+      statusEl.textContent = '✅ ' + integ.name + ' connected! Your ERGIO engines can now use it.';
+      setTimeout(() => { closeIntegModal(); refreshMcpStatus(); }, 1500);
     } else {
-      statusEl.style.color = '#ef4444';
-      statusEl.textContent = '❌ Connection failed. Check your API key.';
+      // Still save locally even if Render fails
+      saveIntegrationKey(currentIntegKey, apiKey, extra);
+      statusEl.style.color = '#f59e0b';
+      statusEl.textContent = '⚠️ Saved locally. Engines service will pick it up when online.';
+      setTimeout(() => { closeIntegModal(); refreshMcpStatus(); }, 2000);
     }
   } catch(e) {
-    // Still save locally even if Render is sleeping
+    // Still save locally
     saveIntegrationKey(currentIntegKey, apiKey, extra);
     statusEl.style.color = '#10b981';
-    statusEl.textContent = '✅ ' + integ.name + ' saved! (Engines service starting up...)';
-    setTimeout(() => { closeIntegModal(); renderIntegrations(); }, 1500);
+    statusEl.textContent = '✅ ' + integ.name + ' saved! (Engines starting up...)';
+    setTimeout(() => { closeIntegModal(); refreshMcpStatus(); }, 1500);
   }
+}
+
+async function disconnectIntegration(id) {
+  if (!confirm('Disconnect ' + (INTEG_CONFIG[id]?.name || id) + '?')) return;
+  const s = getConnectedIntegrations();
+  delete s[id];
+  localStorage.setItem('ergio_integrations', JSON.stringify(s));
+  // Also tell Render to remove it
+  try {
+    await fetch(ENGINES_BASE + '/mcp/configure', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ integration: id, apiKey: '', remove: true })
+    });
+  } catch(e) {}
+  closeIntegModal();
+  refreshMcpStatus();
+}
+
+// === CONNECTED SERVICES PANEL ===
+function loadConnectedIntegrations() {
+  const c = document.getElementById('connectedList');
+  if (!c) return;
+  const saved = getConnectedIntegrations();
+  const all = new Set([...Object.keys(saved), ...Object.keys(mcpLiveStatus).filter(k => mcpLiveStatus[k].configured)]);
+  const arr = [...all];
+  const countEl = document.getElementById('connectedCount');
+  if (countEl) countEl.textContent = arr.length + ' service' + (arr.length !== 1 ? 's' : '') + ' connected';
+
+  if (arr.length === 0) {
+    c.innerHTML = '<div style="color:var(--muted);padding:1.5rem;text-align:center;font-size:.85rem">No services connected yet. Click "Connect" on any integration above to add your API key.</div>';
+    return;
+  }
+  c.innerHTML = arr.map(id => {
+    const integ = INTEG_CONFIG[id];
+    const name = integ?.name || saved[id]?.name || id;
+    const live = isLiveConnected(id);
+    const caps = mcpLiveStatus[id]?.capabilities || [];
+    const icon = integ?.icon || '🔌';
+    const color = integ?.color || '#333';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;background:var(--surface);border:1px solid ' + (live ? '#10b98130' : 'var(--border)') + ';border-radius:10px;margin-bottom:.5rem">' +
+      '<div style="display:flex;align-items:center;gap:.7rem">' +
+        '<div style="width:36px;height:36px;border-radius:8px;background:' + color + '22;display:flex;align-items:center;justify-content:center;font-size:1rem">' + icon + '</div>' +
+        '<div><div style="font-weight:600;font-size:.85rem">' + name + '</div>' +
+        '<div style="font-size:.72rem;color:var(--muted)">' + (live ? '● Live — ' + caps.length + ' capabilities' : 'Saved (offline)') + ' • Connected ' + (saved[id]?.connected_at ? new Date(saved[id].connected_at).toLocaleDateString() : 'n/a') + '</div></div>' +
+      '</div>' +
+      '<button class="btn btn-ghost btn-sm" style="border-color:var(--red);color:var(--red)" onclick="disconnectIntegration(\''+id+'\')">Disconnect</button>' +
+    '</div>';
+  }).join('');
+}
+
+// === CUSTOM MCP SERVERS ===
+function addCustomMcp() {
+  const name = document.getElementById('customMcpName').value.trim();
+  const url = document.getElementById('customMcpUrl').value.trim();
+  const key = document.getElementById('customMcpKey').value.trim();
+  const transport = document.getElementById('customMcpTransport').value;
+  if (!name || !url) { showIntegToast('⚠️ Name and URL are required'); return; }
+  const mcp = { id: 'custom_' + Date.now(), name, url, key: key ? btoa(key) : '', transport, created_at: new Date().toISOString() };
+  customMcps.push(mcp);
+  localStorage.setItem('ergio_custom_mcps', JSON.stringify(customMcps));
+  // Also send to Render
+  fetch(ENGINES_BASE + '/mcp/configure', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ integration: name, apiKey: key || url, extra: url, transport: transport })
+  }).catch(() => {});
+  document.getElementById('customMcpName').value = '';
+  document.getElementById('customMcpUrl').value = '';
+  document.getElementById('customMcpKey').value = '';
+  showIntegToast('✅ ' + name + ' MCP server added!');
+  renderCustomMcps();
+}
+
+function removeCustomMcp(id) {
+  customMcps = customMcps.filter(m => m.id !== id);
+  localStorage.setItem('ergio_custom_mcps', JSON.stringify(customMcps));
+  renderCustomMcps();
+}
+
+function renderCustomMcps() {
+  const c = document.getElementById('customMcpList');
+  if (!c) return;
+  if (customMcps.length === 0) {
+    c.innerHTML = '<div style="color:var(--muted);font-size:.78rem;padding:.5rem">No custom MCP servers added yet.</div>';
+    return;
+  }
+  c.innerHTML = customMcps.map(m => {
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:.7rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:.5rem">' +
+      '<div style="display:flex;align-items:center;gap:.6rem">' +
+        '<div style="width:32px;height:32px;border-radius:8px;background:rgba(0,217,255,.1);display:flex;align-items:center;justify-content:center;font-size:.9rem">🔌</div>' +
+        '<div><div style="font-weight:600;font-size:.82rem">' + m.name + '</div>' +
+        '<div style="font-size:.68rem;color:var(--muted)">' + m.transport.toUpperCase() + ' • ' + m.url.substring(0,40) + (m.url.length > 40 ? '...' : '') + '</div></div>' +
+      '</div>' +
+      '<button class="btn btn-ghost btn-sm" style="border-color:var(--red);color:var(--red)" onclick="removeCustomMcp(\''+m.id+'\')">Remove</button>' +
+    '</div>';
+  }).join('');
+}
+
+// === TEST ALL CONNECTIONS ===
+async function testAllConnections() {
+  showIntegToast('⏳ Testing all connections...');
+  await refreshMcpStatus();
+  const liveCount = Object.values(mcpLiveStatus).filter(m => m.configured).length;
+  showIntegToast('✅ ' + liveCount + ' services are live and operational');
 }
 
 function showIntegToast(msg) {
   const toast = document.createElement('div');
-  toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#10b981;color:#000;padding:.8rem 1.2rem;border-radius:12px;font-weight:700;font-size:.9rem;z-index:99999;box-shadow:0 4px 20px rgba(16,185,129,.4);animation:slideIn .3s ease';
+  toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--bg4);border:1px solid var(--border2);color:var(--text);padding:.8rem 1.2rem;border-radius:12px;font-weight:600;font-size:.85rem;z-index:99999;box-shadow:0 4px 20px rgba(0,0,0,.4)';
   toast.textContent = msg;
   document.body.appendChild(toast);
   setTimeout(() => toast.remove(), 4000);
 }
 
-// Init integrations on tab switch
-const _origSwitchTab = typeof switchTab === 'function' ? switchTab : null;
-document.addEventListener('DOMContentLoaded', () => {
-  // Auto-render when integrations tab is shown
-  const observer = new MutationObserver(() => {
-    const tab = document.getElementById('tab-integrations');
-    if (tab && tab.classList.contains('active')) renderIntegrations('All');
-  });
-  const container = document.querySelector('.content-area') || document.body;
-  if (container) observer.observe(container, { attributes: true, subtree: true, attributeFilter: ['class'] });
-  
-  // Also hook into switchTab calls
-  const origSwitch = window.switchTab;
-  if (origSwitch) {
-    window.switchTab = function(tab) {
-      origSwitch(tab);
-      if (tab === 'integrations') setTimeout(() => renderIntegrations('All'), 50);
-    };
+// === INIT ===
+function initIntegrationsTab() {
+  // Render category filters
+  const cc = document.getElementById('intCategories');
+  if (cc) {
+    cc.innerHTML = MCP_CATEGORIES.map(c =>
+      '<button class="btn btn-ghost btn-sm integ-filter" onclick="filterIntegrations(\''+c+'\')" style="padding:.4rem .8rem;border-radius:8px;font-size:.78rem">' + c + '</button>'
+    ).join('');
   }
-});
+  renderIntegrations('All');
+  loadConnectedIntegrations();
+  renderCustomMcps();
+  refreshMcpStatus();
+}
 
-// ======================================================
-// ENGINES — USE RENDER BACKEND (not Vercel API)
-// ======================================================
-async function wakeEngines() {
-  try {
-    const r = await fetch(ENGINES_BASE + '/health', { signal: AbortSignal.timeout(5000) });
-    return r.ok;
-  } catch { return false; }
+// Hook into switchTab
+const _origSwitchTab = typeof switchTab === 'function' ? switchTab : null;
+if (_origSwitchTab) {
+  window.switchTab = function(tab) {
+    _origSwitchTab(tab);
+    if (tab === 'integrations') setTimeout(initIntegrationsTab, 50);
+  };
 }
 
 // Override runEngine functions to use Render backend
@@ -5276,5 +5544,34 @@ async function testMCPConnection(tool) {
 </script>
 
 
+
+<!-- Integration Connect Modal -->
+<div id="integModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;padding:1rem">
+<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;max-width:480px;width:100%;padding:0;overflow:hidden">
+<div style="padding:1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.8rem">
+<div id="integModalIcon" style="width:48px;height:48px;border-radius:12px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:1.4rem">🔌</div>
+<div style="flex:1"><div id="integModalTitle" style="font-weight:800;font-size:1.1rem">Connect</div><div id="integModalDesc" style="font-size:.78rem;color:var(--muted);margin-top:.2rem">Description</div></div>
+<button onclick="closeIntegModal()" style="background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer">×</button>
+</div>
+<div style="padding:1.5rem">
+<div style="margin-bottom:1rem">
+<label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:.4rem">API Key</label>
+<input id="integApiKey" type="password" class="input-field" placeholder="Paste your API key" style="width:100%">
+</div>
+<div id="integExtraField" style="margin-bottom:1rem;display:none">
+<label id="integExtraLabel" style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:.4rem">Extra Field</label>
+<input id="integExtraValue" class="input-field" placeholder="" style="width:100%">
+</div>
+<div id="integCapsInfo" style="margin-bottom:1rem;display:none"></div>
+<div id="integConnectStatus" style="display:none;margin-bottom:1rem;padding:.6rem .8rem;border-radius:8px;font-size:.82rem"></div>
+<div style="display:flex;gap:.6rem;margin-bottom:.8rem">
+<a id="integDocsLink" href="#" target="_blank" class="btn btn-ghost" style="flex:1;text-align:center;text-decoration:none">📚 Docs</a>
+<a id="integConnectLink" href="#" target="_blank" class="btn btn-ghost" style="flex:1;text-align:center;text-decoration:none">🔗 Get API Key</a>
+</div>
+<button onclick="saveIntegration()" class="btn btn-primary" style="width:100%;padding:.7rem;font-size:.9rem">Connect Service</button>
+<button id="integDisconnectBtn" onclick="disconnectIntegration(currentIntegKey)" class="btn btn-ghost" style="width:100%;padding:.6rem;margin-top:.5rem;border-color:var(--red);color:var(--red);display:none">Disconnect</button>
+</div>
+</div>
+</div>
 </body>
 </html>
