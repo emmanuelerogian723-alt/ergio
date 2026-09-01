@@ -55,6 +55,10 @@
       "destination": "/ergio/widget/:path*"
     },
     {
+      "source": "/templates",
+      "destination": "/ergio/templates.html"
+    },
+    {
       "source": "/templates/:path*",
       "destination": "/ergio/templates/:path*.html"
     },
@@ -205,10 +209,6 @@
     {
       "source": "/eko-visage.html",
       "destination": "/ergio/eko-visage.html"
-    },
-    {
-      "source": "/templates",
-      "destination": "/ergio/templates.html"
     }
   ]
 }
