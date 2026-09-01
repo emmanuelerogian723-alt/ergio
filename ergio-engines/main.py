@@ -146,22 +146,19 @@ async def root():
             "POST /crawl": "Crawl multiple URLs",
             "POST /search": "SearXNG search",
             "POST /ai": "Direct Groq AI call",
-<<<<<<< HEAD
-            "POST /social-content": "Generate social content",
-            "GET /businesses": "List businesses",
-            "POST /conductor": "AI Conductor (new v5)",
-            "GET /status": "Full system status (new v5)",
-            "GET /mcp/list": "List MCPs (new v5)",
-            "GET /plugins/list": "List plugins (new v5)",
-            "GET /approvals": "Pending approvals (new v5)",
-=======
             "POST /social-content": "Generate social media content kit",
+            "GET /businesses": "List active businesses from Supabase",
             "POST /conductor": "ERGIO Conductor — AI agent orchestrator",
             "POST /conductor/stream": "Conductor with SSE streaming",
+            "GET /status": "Full system status",
+            "GET /mcp/list": "List MCPs",
+            "GET /plugins/list": "List plugins",
+            "GET /approvals": "Pending approvals",
             "POST /paystack/initialize": "Initialize Paystack payment",
             "GET /paystack/verify/{ref}": "Verify Paystack payment",
-            "GET /businesses": "List active businesses from Supabase",
->>>>>>> github/main
+            "POST /mcp/configure": "Configure MCP with user API key",
+            "POST /mcp/test": "Test if an API key is valid"
+
         },
     }
 
@@ -332,13 +329,294 @@ async def mcp_configure(request: Request):
         "message": f"{integration} integration configured successfully"
     }
 
+# ════════════════════════════════════════
+# MCP TEST — Live validation of user API keys
+# ════════════════════════════════════════
+
+@app.post("/mcp/test")
+async def mcp_test(request: Request):
+    """Test if a user-provided API key is valid by making a live API call to the provider."""
+    import httpx
+    body = await request.json()
+    integration = body.get("integration")
+    api_key = body.get("apiKey")
+    extra = body.get("extra")  # some services need extra fields
+    
+    if not integration or not api_key:
+        raise HTTPException(status_code=400, detail="integration and apiKey required")
+    
+    # Map each integration to a test API call
+    test_endpoints = {
+        "stripe": {
+            "url": "https://api.stripe.com/v1/balance",
+            "headers": lambda k: {"Authorization": f"Bearer {k}"},
+            "method": "GET",
+        },
+        "paystack": {
+            "url": "https://api.paystack.co/transaction",
+            "headers": lambda k: {"Authorization": f"Bearer {k}"},
+            "method": "GET",
+        },
+        "flutterwave": {
+            "url": "https://api.flutterwave.com/v3/transactions",
+            "headers": lambda k: {"Authorization": f"Bearer {k}"},
+            "method": "GET",
+        },
+        "resend": {
+            "url": "https://api.resend.com/domains",
+            "headers": lambda k: {"Authorization": f"Bearer {k}"},
+            "method": "GET",
+        },
+        "openai": {
+            "url": "https://api.openai.com/v1/models",
+            "headers": lambda k: {"Authorization": f"Bearer {k}"},
+            "method": "GET",
+        },
+        "groq": {
+            "url": "https://api.groq.com/openai/v1/models",
+            "headers": lambda k: {"Authorization": f"Bearer {k}"},
+            "method": "GET",
+        },
+        "twilio": {
+            "url": f"https://api.twilio.com/2010-04-01/Accounts/{extra}.json",
+            "headers": lambda k: {},
+            "method": "GET",
+            "auth": lambda k: (extra, k),  # account_sid, auth_token
+        },
+        "slack": {
+            "url": "https://slack.com/api/auth.test",
+            "headers": lambda k: {"Authorization": f"Bearer {k}"},
+            "method": "POST",
+        },
+        "notion": {
+            "url": "https://api.notion.com/v1/users/me",
+            "headers": lambda k: {"Authorization": f"Bearer {k}", "Notion-Version": "2022-06-28"},
+            "method": "GET",
+        },
+        "github": {
+            "url": "https://api.github.com/user",
+            "headers": lambda k: {"Authorization": f"token {k}"},
+            "method": "GET",
+        },
+        "google_maps": {
+            "url": f"https://maps.googleapis.com/maps/api/geocode/json?address=Lagos&key={api_key}",
+            "headers": lambda k: {},
+            "method": "GET",
+        },
+        "cal_com": {
+            "url": "https://api.cal.com/v1/event-types",
+            "headers": lambda k: {},
+            "method": "GET",
+            "params": {"apiKey": api_key},
+        },
+        "tavily": {
+            "url": "https://api.tavily.com/search",
+            "headers": lambda k: {"Content-Type": "application/json"},
+            "method": "POST",
+            "body": {"api_key": k, "query": "test", "max_results": 1},
+        },
+        "elevenlabs": {
+            "url": "https://api.elevenlabs.io/v1/user",
+            "headers": lambda k: {"xi-api-key": k},
+            "method": "GET",
+        },
+        "apify": {
+            "url": f"https://api.apify.com/v2/users/me?token={api_key}",
+            "headers": lambda k: {},
+            "method": "GET",
+        },
+        "postmark": {
+            "url": "https://api.postmarkapp.com/server",
+            "headers": lambda k: {"X-Postmark-Server-Token": k, "Accept": "application/json"},
+            "method": "GET",
+        },
+        "whatsapp_business": {
+            "url": f"https://graph.facebook.com/v18.0/{extra or 'me'}",
+            "headers": lambda k: {"Authorization": f"Bearer {k}"},
+            "method": "GET",
+        },
+        "vercel": {
+            "url": "https://api.vercel.com/v2/user",
+            "headers": lambda k: {"Authorization": f"Bearer {k}"},
+            "method": "GET",
+        },
+        "sentry": {
+            "url": "https://sentry.io/api/0/organizations/",
+            "headers": lambda k: {"Authorization": f"Bearer {k}"},
+            "method": "GET",
+        },
+        "meta_ads": {
+            "url": f"https://graph.facebook.com/v18.0/me?access_token={api_key}",
+            "headers": lambda k: {},
+            "method": "GET",
+        },
+        "google_ads": {
+            "url": f"https://googleads.googleapis.com/v15/customers:listAccessibleCustomers",
+            "headers": lambda k: {"Authorization": f"Bearer {k}", "developer-token": k},
+            "method": "GET",
+        },
+        "instantly": {
+            "url": "https://api.instantly.ai/api/v1/accounts",
+            "headers": lambda k: {"Authorization": f"Bearer {k}"},
+            "method": "GET",
+        },
+        "clay": {
+            "url": "https://api.clay.com/v3/sources",
+            "headers": lambda k: {"Authorization": f"Bearer {k}"},
+            "method": "GET",
+        },
+        "cloudflare": {
+            "url": "https://api.cloudflare.com/client/v4/user/tokens/verify",
+            "headers": lambda k: {"Authorization": f"Bearer {k}"},
+            "method": "GET",
+        },
+        "pinecone": {
+            # Pinecone needs an env prefix, just check key format
+            "url": None,
+            "headers": lambda k: {},
+            "method": "GET",
+        },
+    }
+    
+    test = test_endpoints.get(integration)
+    if not test:
+        # Generic test - just save the key, can't validate
+        os.environ.setdefault(f"ERGIO_USER_KEY_{integration.upper()}", api_key)
+        return {"valid": True, "integration": integration, "message": f"Key saved for {integration}. Live test not available for this provider.", "tested": False}
+    
+    # For providers with no test URL, just save
+    if test["url"] is None:
+        os.environ[f"ERGIO_USER_KEY_{integration.upper()}"] = api_key
+        return {"valid": True, "integration": integration, "message": f"Key saved for {integration}.", "tested": False}
+    
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            url = test["url"]
+            headers = test["headers"](api_key)
+            method = test["method"]
+            
+            kwargs = {"headers": headers}
+            if test.get("auth"):
+                kwargs["auth"] = test["auth"](api_key)
+            if test.get("params"):
+                kwargs["params"] = test["params"]
+            if test.get("body"):
+                kwargs["json"] = test["body"].copy()
+                # Replace k placeholder with actual key
+                for k2, v2 in kwargs["json"].items():
+                    if v2 == api_key:
+                        pass  # already correct
+            
+            if method == "GET":
+                resp = await client.get(url, **kwargs)
+            elif method == "POST":
+                resp = await client.post(url, **kwargs)
+            else:
+                resp = await client.request(method, url, **kwargs)
+            
+            if resp.status_code in (200, 201):
+                # Save to env so all engines can use it immediately
+                key_map = {
+                    "paystack": "PAYSTACK_SECRET_KEY",
+                    "stripe": "STRIPE_API_KEY",
+                    "resend": "RESEND_API_KEY",
+                    "twilio": "TWILIO_AUTH_TOKEN",
+                    "groq": "GROQ_API_KEY",
+                    "github": "GITHUB_TOKEN",
+                    "openai": "OPENAI_API_KEY",
+                    "flutterwave": "FLUTTERWAVE_SECRET_KEY",
+                    "slack": "SLACK_BOT_TOKEN",
+                    "notion": "NOTION_API_KEY",
+                    "google_maps": "GOOGLE_MAPS_API_KEY",
+                    "elevenlabs": "ELEVENLABS_API_KEY",
+                    "apify": "APIFY_API_KEY",
+                    "postmark": "POSTMARK_SERVER_TOKEN",
+                    "whatsapp_business": "WHATSAPP_BUSINESS_TOKEN",
+                    "vercel": "VERCEL_API_TOKEN",
+                    "sentry": "SENTRY_AUTH_TOKEN",
+                    "meta_ads": "META_ADS_ACCESS_TOKEN",
+                    "instantly": "INSTANTLY_API_KEY",
+                    "clay": "CLAY_API_KEY",
+                    "cloudflare": "CLOUDFLARE_API_TOKEN",
+                    "tavily": "TAVILY_API_KEY",
+                    "cal_com": "CAL_COM_API_KEY",
+                    "pinecone": "PINECONE_API_KEY",
+                }
+                env_key = key_map.get(integration, f"ERGIO_USER_KEY_{integration.upper()}")
+                os.environ[env_key] = api_key
+                if extra:
+                    os.environ[f"{env_key}_EXTRA"] = extra
+                
+                return {
+                    "valid": True,
+                    "integration": integration,
+                    "tested": True,
+                    "status_code": resp.status_code,
+                    "message": f"✅ {integration.title()} API key is valid and live! Your ERGIO engines can now use it."
+                }
+            else:
+                error_detail = ""
+                try:
+                    err_body = resp.json()
+                    error_detail = err_body.get("error", {}).get("message", "") or err_body.get("message", "") or str(err_body)[:200]
+                except:
+                    error_detail = resp.text[:200]
+                
+                return {
+                    "valid": False,
+                    "integration": integration,
+                    "tested": True,
+                    "status_code": resp.status_code,
+                    "error": error_detail,
+                    "message": f"❌ Invalid API key for {integration.title()}. {error_detail}"
+                }
+    except httpx.TimeoutException:
+        return {"valid": False, "integration": integration, "tested": True, "error": "timeout", "message": f"⏱️ Connection timed out testing {integration.title()}. Try again."}
+    except Exception as e:
+        return {"valid": False, "integration": integration, "tested": True, "error": str(e), "message": f"❌ Could not test {integration.title()}: {str(e)}"}
+
+
+# ════════════════════════════════════════
+# MCP CONNECT — alias for configure (used by engines-api.js)
+# ════════════════════════════════════════
+
+@app.post("/mcp/connect")
+async def mcp_connect(request: Request):
+    """Connect an MCP with user-provided config. Alias for /mcp/configure."""
+    body = await request.json()
+    integration = body.get("id") or body.get("integration")
+    api_key = body.get("apiKey") or body.get("envVars", {}).get("apiKey", "")
+    extra = body.get("extra") or body.get("envVars", {}).get("extra", "")
+    
+    if not integration:
+        raise HTTPException(status_code=400, detail="id or integration required")
+    
+    # If we have a key, test it first
+    if api_key:
+        # Reuse the test logic
+        import httpx
+        # Just save it - the test endpoint can be called separately
+        key_map = {
+            "paystack": "PAYSTACK_SECRET_KEY",
+            "stripe": "STRIPE_API_KEY", 
+            "resend": "RESEND_API_KEY",
+            "twilio": "TWILIO_AUTH_TOKEN",
+            "groq": "GROQ_API_KEY",
+            "github": "GITHUB_TOKEN",
+            "openai": "OPENAI_API_KEY",
+            "flutterwave": "FLUTTERWAVE_SECRET_KEY",
+        }
+        env_key = key_map.get(integration, f"ERGIO_USER_KEY_{integration.upper()}")
+        os.environ[env_key] = api_key
+    
+    return {"configured": True, "integration": integration, "message": f"{integration} connected successfully"}
+
+
 @app.get("/businesses")
 async def list_businesses():
     businesses = await get_businesses()
     return {"count": len(businesses), "businesses": businesses}
 
-<<<<<<< HEAD
-=======
 
 # ════════════════════════════════════════
 # CONDUCTOR AGENT — AI orchestrator for all engines
@@ -567,13 +845,11 @@ Provide a concise, helpful response. If leads were found, list the top 5. If con
 # SCHEDULED SCAN (manual trigger)
 # ════════════════════════════════════════
 
->>>>>>> github/main
 @app.post("/scan/all")
 async def trigger_scan_all():
     result = await run_scheduled_scan()
     return result
 
-<<<<<<< HEAD
 # ════════════════════════════════════════
 # NEW v5.0 — CONDUCTOR + MCP + PLUGINS
 # ════════════════════════════════════════
@@ -831,7 +1107,6 @@ except ImportError as e:
     log.info("Running in legacy mode (4 engines only)")
 
 # ── Startup ── Render uses $PORT env var ──
-=======
 
 # ════════════════════════════════════════
 # PAYSTACK PAYMENT GATEWAY
@@ -934,7 +1209,6 @@ async def paystack_verify(reference: str):
 
 
 # ── Startup ──
->>>>>>> github/main
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))

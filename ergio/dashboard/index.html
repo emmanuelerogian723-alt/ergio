@@ -3579,7 +3579,7 @@ function loadMCPGrid(){const g=document.getElementById('mcpGrid');if(!g)return;i
 function renderMCPDemo(){const g=document.getElementById('mcpGrid');const c=JSON.parse(localStorage.getItem('ergio_mcps')||'{}');g.innerHTML=mcpServers.map(m=>{const on=c[m.id]||m.id==='supabase';const bg=m.bg||'#333';return'<div class="engine-card" style="border-top:3px solid '+bg+'"><div class="header"><div class="mcp-logo-wrap" style="display:flex;align-items:center;gap:.6rem"><div style="width:40px;height:40px;border-radius:10px;background:'+bg+';display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="'+(m.logo||'')+'" alt="'+m.name+'" style="width:22px;height:22px" onerror="this.style.display=\'none\'"></div><div><div class="name" style="font-size:.9rem;font-weight:600">'+m.name+'</div><div style="font-size:.65rem;color:var(--muted)">MCP Server</div></div></div><div class="engine-dot '+(on?'online':'offline')+'"></div></div><div class="desc">'+m.desc+'</div><div style="display:flex;gap:.4rem;align-items:center;justify-content:space-between"><div>'+(m.free?'<span class="badge badge-green" style="font-size:.6rem">FREE</span>':'<span class="badge badge-yellow" style="font-size:.6rem">PAID</span>')+'</div><button class="engine-btn" style="font-size:.72rem;padding:.4rem .8rem" onclick="connectMCPItem(\''+m.id+'\',\''+m.name+'\')">'+(on?'Connected':'Connect')+'</button></div></div>'}).join('')}
 function showAddMCP(){const f=document.getElementById('mcpAddForm');f.style.display=f.style.display==='none'?'block':'none'}
 async function connectMCP(){const n=document.getElementById('mcpName').value.trim(),u=document.getElementById('mcpUrl').value.trim(),t=document.getElementById('mcpTransport').value,k=document.getElementById('mcpApiKey').value.trim();if(!n||!u){showToast('Name and URL required','error');return}if(ENGINES){try{await ENGINES.connectMcp({id:n.toLowerCase().replace(/\s/g,'_'),name:n,url:u,transport:t,apiKey:k});showToast('✅ Connected!','success');loadMCPGrid()}catch(e){showToast('❌ '+e.message,'error')}}else{const s=JSON.parse(localStorage.getItem('ergio_mcps')||'{}');s[n.toLowerCase().replace(/\s/g,'_')]={name:n,connected_at:new Date().toISOString()};localStorage.setItem('ergio_mcps',JSON.stringify(s));showToast('✅ Saved locally','success');loadMCPGrid()}document.getElementById('mcpAddForm').style.display='none'}
-function connectMCPItem(id,name){const m=mcpServers.find(x=>x.id===id);if(m&&m.env.length>0){const k=prompt('Enter your '+m.env[0]+' for '+name+':');if(!k)return;if(ENGINES){ENGINES.connectMcp({id,name,url:'',transport:'http',apiKey:k}).then(()=>{showToast('✅ '+name+' connected!','success');loadMCPGrid()}).catch(()=>showToast('❌ Failed','error'))}else{const s=JSON.parse(localStorage.getItem('ergio_mcps')||'{}');s[id]={name,connected_at:new Date().toISOString()};localStorage.setItem('ergio_mcps',JSON.stringify(s));showToast('✅ '+name+' connected (local)','success');loadMCPGrid()}}else{const s=JSON.parse(localStorage.getItem('ergio_mcps')||'{}');s[id]={name,connected_at:new Date().toISOString()};localStorage.setItem('ergio_mcps',JSON.stringify(s));if(ENGINES)ENGINES.connectMcp({id,name,url:'',transport:'http'}).catch(()=>{});showToast('✅ '+name+' connected!','success');loadMCPGrid()}}
+async function connectMCPItem(id,name){const m=mcpServers.find(x=>x.id===id);if(m&&m.env.length>0){const k=prompt('Enter your '+m.env[0]+' for '+name+':');if(!k)return;showToast('Testing '+name+' API key...','info');if(ENGINES){try{const tr=await fetch(ENGINES_BASE+'/mcp/test',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({integration:id,apiKey:k})});const test=await tr.json();if(test.valid===true){showToast(test.message||('✅ '+name+' key is valid & live!'),'success');await ENGINES.connectMcp({id,name,url:'',transport:'http',apiKey:k});loadMCPGrid()}else if(test.valid===false){showToast(test.message||('❌ Invalid key for '+name),'error')}else{await ENGINES.connectMcp({id,name,url:'',transport:'http',apiKey:k});showToast('✅ '+name+' saved (will validate when backend is online)','success');loadMCPGrid()}}catch(e){const s=JSON.parse(localStorage.getItem('ergio_mcps')||'{}');s[id]={name,connected_at:new Date().toISOString()};localStorage.setItem('ergio_mcps',JSON.stringify(s));showToast('✅ '+name+' saved locally (backend starting...)','success');loadMCPGrid()}}else{const s=JSON.parse(localStorage.getItem('ergio_mcps')||'{}');s[id]={name,connected_at:new Date().toISOString()};localStorage.setItem('ergio_mcps',JSON.stringify(s));showToast('✅ '+name+' saved locally','success');loadMCPGrid()}}else{const s=JSON.parse(localStorage.getItem('ergio_mcps')||'{}');s[id]={name,connected_at:new Date().toISOString()};localStorage.setItem('ergio_mcps',JSON.stringify(s));if(ENGINES)ENGINES.connectMcp({id,name,url:'',transport:'http'}).catch(()=>{});showToast('✅ '+name+' connected!','success');loadMCPGrid()}}
 function disconnectMCP(id){if(ENGINES)ENGINES.disconnectMcp(id).catch(()=>{});const s=JSON.parse(localStorage.getItem('ergio_mcps')||'{}');delete s[id];localStorage.setItem('ergio_mcps',JSON.stringify(s));loadMCPGrid()}
 
 const pluginIcons={seo:{icon:'📈',bg:'#0069F0',color:'#fff',logo:'https://cdn.simpleicons.org/googlesheets/0069F0'},social:{icon:'📱',bg:'#E1306C',color:'#fff',logo:'https://cdn.simpleicons.org/instagram/E1306C'},invoice:{icon:'🧾',bg:'#0EA5E9',color:'#fff',logo:'https://cdn.simpleicons.org/googlesheets/0EA5E9'},booking:{icon:'📅',bg:'#8B5CF6',color:'#fff',logo:'https://cdn.simpleicons.org/googlecalendar/8B5CF6'},crm:{icon:'🗃️',bg:'#F59E0B',color:'#fff',logo:'https://cdn.simpleicons.org/airtable/F59E0B'},analytics:{icon:'📊',bg:'#10B981',color:'#fff',logo:'https://cdn.simpleicons.org/googleanalytics/10B981'},email:{icon:'📨',bg:'#6366F1',color:'#fff',logo:'https://cdn.simpleicons.org/gmail/6366F1'},chat:{icon:'💬',bg:'#06B6D4',color:'#fff',logo:'https://cdn.simpleicons.org/slack/06B6D4'},reviews:{icon:'⭐',bg:'#FBBF24',color:'#fff',logo:'https://cdn.simpleicons.org/google/FBBF24'},sms:{icon:'📲',bg:'#22C55E',color:'#fff',logo:'https://cdn.simpleicons.org/twilio/22C55E'},payments:{icon:'💳',bg:'#00C3F7',color:'#fff',logo:'https://cdn.simpleicons.org/paystack/00C3F7'},aiwriter:{icon:'✍️',bg:'#8B5CF6',color:'#fff',logo:'https://cdn.simpleicons.org/openai/8B5CF6'}};
@@ -5201,6 +5201,7 @@ async function saveIntegration() {
   var extra = document.getElementById('integExtraValue').value.trim();
   var integ = INTEG_CONFIG[currentIntegKey];
   var statusEl = document.getElementById('integConnectStatus');
+  var btn = document.getElementById('integConnectBtn');
 
   if (!apiKey || apiKey === '--------') {
     statusEl.style.display = 'block';
@@ -5211,31 +5212,59 @@ async function saveIntegration() {
 
   statusEl.style.display = 'block';
   statusEl.style.color = 'var(--cyan)';
-  statusEl.textContent = 'Sending key to ERGIO Engines...';
+  statusEl.textContent = 'Testing your API key with ' + (integ ? integ.name : currentIntegKey) + '...';
+  if (btn) { btn.disabled = true; btn.textContent = 'Testing...'; }
 
+  /* Step 1: Test the key live against the provider */
+  var testResult = null;
   try {
-    var r = await fetch(ENGINES_BASE + '/mcp/configure', {
+    var tr = await fetch(ENGINES_BASE + '/mcp/test', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ integration: currentIntegKey, apiKey: apiKey, extra: extra })
     });
-
-    if (r.ok) {
-      saveIntegrationKey(currentIntegKey, apiKey, extra);
-      statusEl.style.color = '#10b981';
-      statusEl.textContent = integ.name + ' connected! Your ERGIO engines can now use it.';
-      setTimeout(function() { closeIntegModal(); refreshMcpStatus(); }, 1500);
-    } else {
-      saveIntegrationKey(currentIntegKey, apiKey, extra);
-      statusEl.style.color = '#f59e0b';
-      statusEl.textContent = 'Saved locally. Engines service will pick it up when online.';
-      setTimeout(function() { closeIntegModal(); refreshMcpStatus(); }, 2000);
-    }
+    testResult = await tr.json();
   } catch(e) {
+    /* If backend is sleeping, try Vercel proxy */
+    try {
+      var tr2 = await fetch('/api/engines?action=mcp-test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ integration: currentIntegKey, apiKey: apiKey, extra: extra })
+      });
+      testResult = await tr2.json();
+    } catch(e2) {
+      testResult = { valid: null, tested: false, message: 'Backend not reachable. Key saved for when engines come online.' };
+    }
+  }
+
+  if (testResult && testResult.valid === true) {
+    /* Key is VALID and TESTED — save it and confirm */
     saveIntegrationKey(currentIntegKey, apiKey, extra);
     statusEl.style.color = '#10b981';
-    statusEl.textContent = integ.name + ' saved! (Engines starting up...)';
-    setTimeout(function() { closeIntegModal(); refreshMcpStatus(); }, 1500);
+    statusEl.textContent = testResult.message || (integ.name + ' ✅ Live & connected! Engines can use it now.');
+    if (btn) { btn.textContent = '✓ Connected'; btn.style.background = '#10b981'; btn.style.color = '#000'; btn.disabled = false; }
+    /* Also send to /mcp/configure to persist on the backend */
+    try {
+      await fetch(ENGINES_BASE + '/mcp/configure', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ integration: currentIntegKey, apiKey: apiKey, extra: extra })
+      });
+    } catch(e) {}
+    setTimeout(function() { closeIntegModal(); refreshMcpStatus(); }, 2000);
+  } else if (testResult && testResult.valid === false) {
+    /* Key is INVALID — don't save, show error */
+    statusEl.style.color = '#ef4444';
+    statusEl.textContent = testResult.message || ('❌ Invalid API key for ' + (integ ? integ.name : currentIntegKey));
+    if (btn) { btn.disabled = false; btn.textContent = 'Connect'; }
+  } else {
+    /* Couldn't test (backend sleeping) — save locally with warning */
+    saveIntegrationKey(currentIntegKey, apiKey, extra);
+    statusEl.style.color = '#f59e0b';
+    statusEl.textContent = testResult ? (testResult.message || 'Saved locally. Engines will validate when online.') : 'Saved locally. Engines will validate when online.';
+    if (btn) { btn.disabled = false; btn.textContent = 'Connect'; }
+    setTimeout(function() { closeIntegModal(); refreshMcpStatus(); }, 2500);
   }
 }
 
