@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#060709;--bg2:#0b0e14;--bg3:#111620;--bg4:#161b28;--surface:rgba(255,255,255,0.03);--surface2:rgba(255,255,255,0.06);--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);--text:#e8ecf2;--text2:#8a93a6;--text3:#5a6275;--cyan:#00d9ff;--green:#00ff9d;--blue:#3b82f6;--amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--pink:#ec4899;--orange:#f97316;--teal:#14b8a6;--r:16px;--rs:10px}
+:root{--bg:#060709;--bg2:#0b0e14;--bg3:#111620;--bg4:#161b28;--surface:rgba(255,255,255,0.03);--surface2:rgba(255,255,255,0.06);--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);--text:#e8ecf2;--text2:#8a93a6;--text3:#5a6275;--cyan:#00d9ff;--green:#00ff9d;--blue:#3b82f6;--amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--pink:#ec4899;--orange:#f97316;--r:16px;--rs:10px}
 html{scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden;min-height:100vh}
 ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 .mono{font-family:'JetBrains Mono',monospace}
@@ -32,285 +32,352 @@ html{scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-fam
 .sec{display:none}.sec.active{display:block;animation:fadeIn 0.3s}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:20px;transition:border-color .2s}.card:hover{border-color:var(--border2)}
-.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.ct{font-size:0.88rem;font-weight:700}.cs{font-size:0.7rem;color:var(--text3)}
+.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.ct{font-size:0.88rem;font-weight:700}
 .sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px}
 .sgc{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:18px;position:relative;overflow:hidden;transition:all .2s}.sgc:hover{border-color:var(--border2);transform:translateY(-2px)}
 .sgc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,var(--cyan))}
 .si{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:10px}
 .sv{font-size:1.6rem;font-weight:800;letter-spacing:-1px}.sl{font-size:0.72rem;color:var(--text3);margin-top:2px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-@media(max-width:1100px){.g3{grid-template-columns:1fr 1fr}}
-@media(max-width:768px){.g2,.g3,.sg{grid-template-columns:1fr}.sidebar{transform:translateX(-100%)}.main{margin-left:0}}
-.tw{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:768px){.g2,.sg{grid-template-columns:1fr}.sidebar{transform:translateX(-100%)}.main{margin-left:0}}
+.tw{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border);margin-top:16px}
 table{width:100%;border-collapse:collapse;font-size:0.82rem}
 thead th{text-align:left;padding:12px 16px;color:var(--text3);font-weight:600;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border);background:var(--bg2)}
-tbody td{padding:12px 16px;border-bottom:1px solid var(--border)}tbody tr{transition:background .1s}tbody tr:hover{background:var(--surface)}
+tbody td{padding:12px 16px;border-bottom:1px solid var(--border)}tbody tr:hover{background:var(--surface)}
 .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;font-size:0.7rem;font-weight:600}
 .bg{background:rgba(0,255,157,0.08);color:var(--green);border:1px solid rgba(0,255,157,0.15)}
 .ba{background:rgba(245,158,11,0.08);color:var(--amber);border:1px solid rgba(245,158,11,0.15)}
 .bb{background:rgba(59,130,246,0.08);color:var(--blue);border:1px solid rgba(59,130,246,0.15)}
-.bp{background:rgba(139,92,246,0.08);color:var(--purple);border:1px solid rgba(139,92,246,0.15)}
 .bc{background:rgba(0,217,255,0.08);color:var(--cyan);border:1px solid rgba(0,217,255,0.15)}
 .bgray{background:var(--surface);color:var(--text3);border:1px solid var(--border)}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid transparent;font-family:inherit}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid transparent;font-family:inherit;text-decoration:none}
 .btn-primary{background:linear-gradient(135deg,var(--cyan),var(--green));color:#000}.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,217,255,0.2)}
-.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2)}.btn-ghost:hover{background:var(--surface);color:var(--text)}
-.btn-sm{padding:5px 12px;font-size:0.75rem}
-.progress{height:6px;border-radius:3px;background:var(--surface);overflow:hidden}.pf{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .6s}
-.pf.amber{background:linear-gradient(90deg,var(--amber),var(--orange))}.pf.purple{background:linear-gradient(90deg,var(--purple),var(--pink))}.pf.blue{background:linear-gradient(90deg,var(--blue),var(--cyan))}
-.input{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;transition:border-color .2s;margin-bottom:12px}.input:focus{border-color:var(--cyan)}
-.kv{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:0.82rem}.kv:last-child{border-bottom:none}.kv-k{color:var(--text3)}.kv-v{font-weight:600}
-.hb{margin-bottom:12px}.hb-label{display:flex;justify-content:space-between;font-size:0.72rem;margin-bottom:4px}.hb-label span:last-child{font-weight:600}
-.toast{position:fixed;bottom:24px;right:24px;background:var(--bg4);border:1px solid var(--border2);border-radius:12px;padding:14px 20px;font-size:0.84rem;z-index:999;display:flex;align-items:center;gap:10px;transform:translateY(100px);opacity:0;transition:all .3s}.toast.show{transform:translateY(0);opacity:1}.toast.success{border-color:rgba(0,255,157,0.3)}.toast.error{border-color:rgba(239,68,68,0.3)}.toast.info{border-color:rgba(0,217,255,0.3)}
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:500;display:none;align-items:center;justify-content:center}.modal-bg.open{display:flex}
-.modal{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:24px;max-width:560px;width:92%;max-height:90vh;overflow-y:auto}.modal-title{font-size:1.1rem;font-weight:700;margin-bottom:16px}.modal-close{float:right;cursor:pointer;color:var(--text3);font-size:1.3rem}.modal-close:hover{color:var(--text)}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.empty{text-align:center;padding:3rem}
+.empty-icon{font-size:2.5rem;margin-bottom:1rem;opacity:0.4}
+.empty-title{font-size:1rem;font-weight:700;margin-bottom:.5rem}
+.empty-desc{color:var(--text3);font-size:.85rem;max-width:400px;margin:0 auto 1rem}
 .site-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:20px;transition:all .2s;cursor:pointer}.site-card:hover{border-color:var(--border2);transform:translateY(-2px)}
-.site-thumb{width:100%;height:120px;border-radius:10px;margin-bottom:12px;background:linear-gradient(135deg,var(--bg4),var(--bg2));display:flex;align-items:center;justify-content:center;font-size:2rem}
-.suggest-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:8px;transition:all .2s}.suggest-card:hover{border-color:var(--border2)}
-.suggest-header{display:flex;justify-content:space-between;align-items:start;margin-bottom:6px}
-.suggest-title{font-weight:600;font-size:0.84rem}.suggest-impact{font-size:0.68rem;padding:2px 8px;border-radius:100px;font-weight:600}
-.suggest-desc{font-size:0.75rem;color:var(--text3);line-height:1.5}
-.confidence-ring{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:800;position:relative}
-.cmd-input{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:16px 20px;color:var(--text);font-size:0.95rem;outline:none;transition:border-color .2s}.cmd-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,217,255,0.08)}
-.cmd-input::placeholder{color:var(--text3)}
+.hb{margin-bottom:12px}.hb-label{display:flex;justify-content:space-between;font-size:0.72rem;margin-bottom:4px}.hb-label span:last-child{font-weight:600}
+.progress{height:6px;border-radius:3px;background:var(--surface);overflow:hidden}.pf{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .6s}
+.kv{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:0.82rem}.kv:last-child{border-bottom:none}.kv-k{color:var(--text3)}.kv-v{font-weight:600}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg4);border:1px solid var(--border2);border-radius:12px;padding:14px 20px;font-size:0.84rem;z-index:999;display:flex;align-items:center;gap:10px;transform:translateY(100px);opacity:0;transition:all .3s}.toast.show{transform:translateY(0);opacity:1}
+.sh{margin-bottom:24px}.sh-title{font-size:1.4rem;font-weight:800;letter-spacing:-0.5px}.sh-sub{color:var(--text3);font-size:0.85rem;margin-top:4px}
+.flex{display:flex}.gap-2{gap:8px}.items-center{align-items:center}.justify-between{justify-content:space-between}.mt-2{margin-top:16px}.mb-2{margin-bottom:8px}
 .text-muted{color:var(--text3)}.text-sm{font-size:0.78rem}.text-xs{font-size:0.7rem}
-.mt-1{margin-top:8px}.mt-2{margin-top:16px}.mt-3{margin-top:24px}.mb-2{margin-bottom:16px}.mb-3{margin-bottom:24px}
-.flex{display:flex}.items-center{align-items:center}.justify-between{justify-content:space-between}.gap-2{gap:8px}.gap-3{gap:12px}
-.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.sh-title{font-size:1.3rem;font-weight:800}.sh-sub{font-size:0.82rem;color:var(--text3);margin-top:2px}
-.chat-msg{padding:12px 16px;border-radius:12px;margin-bottom:8px;max-width:80%;font-size:0.84rem;line-height:1.5}
-.chat-user{background:var(--bg4);margin-left:auto}.chat-ai{background:rgba(0,217,255,0.06);border:1px solid rgba(0,217,255,0.1)}
+.loading{display:flex;align-items:center;justify-content:center;min-height:120px;color:var(--text3);font-size:0.85rem}
+.loading .spin{width:20px;height:20px;border:2px solid var(--border2);border-top-color:var(--cyan);border-radius:50%;animation:spin .6s linear infinite;margin-right:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.mobile-menu{display:none;position:fixed;top:0;left:0;right:0;z-index:60;background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;align-items:center;justify-content:space-between}
+@media(max-width:768px){.mobile-menu{display:flex}.content{padding-top:16px}}
+.input-field{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px;color:var(--text);font-family:inherit;font-size:.88rem;outline:none;transition:border-color .2s}.input-field:focus{border-color:var(--cyan)}
 </style>
 </head>
 <body>
 <div class="layout">
-<div class="sidebar">
-<div class="sb-header"><div class="sb-logo">E</div><div class="sb-title">ERGIO Console<small>Website Manager</small></div></div>
-<div class="sb-nav" id="nav"></div>
-<div class="sb-footer"><button class="btn btn-ghost btn-sm" style="width:100%" onclick="location.href='/dashboard'">← Back to Dashboard</button></div>
+  <div class="mobile-menu">
+    <button class="btn btn-ghost" onclick="toggleSidebar()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <span style="font-weight:800;font-size:.9rem">ERGIO Console</span>
+    <div style="width:36px"></div>
+  </div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-header">
+      <div class="sb-logo">E</div>
+      <div class="sb-title">ERGIO<small>Console</small></div>
+    </div>
+    <nav class="sb-nav">
+      <div class="ns">Overview</div>
+      <div class="ni active" data-sec="overview" onclick="switchSection('overview')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Overview</div>
+      <div class="ni" data-sec="sites" onclick="switchSection('sites')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg>Connected Sites</div>
+      <div class="ns">Revenue</div>
+      <div class="ni" data-sec="leads" onclick="switchSection('leads')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Leads and CRM</div>
+      <div class="ni" data-sec="bookings" onclick="switchSection('bookings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Bookings</div>
+      <div class="ni" data-sec="payments" onclick="switchSection('payments')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Payments</div>
+      <div class="ns">Intelligence</div>
+      <div class="ni" data-sec="health" onclick="switchSection('health')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Site Health</div>
+      <div class="ni" data-sec="ai" onclick="switchSection('ai')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>AI Insights</div>
+      <div class="ns">System</div>
+      <div class="ni" data-sec="events" onclick="switchSection('events')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Event Log</div>
+      <div class="ni" data-sec="verify" onclick="switchSection('verify')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Verify Site</div>
+    </nav>
+    <div class="sb-footer">
+      <a href="/dashboard/" style="text-decoration:none"><div class="ni" style="color:var(--text3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back to Dashboard</div></a>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div class="tb-title" id="pageTitle">Overview</div>
+      <div class="tb-right">
+        <span id="liveBadge" class="badge bc" style="display:none">Live Data</span>
+        <button class="tb-btn" onclick="loadAll()">Refresh</button>
+        <button class="tb-btn" onclick="window.open('/build.html','_blank')">Build New</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="sec active" id="sec-overview">
+        <div class="sh"><div class="sh-title">ERGIO Console</div><div class="sh-sub">Your AI Website and Revenue Operating Center</div></div>
+        <div class="sg" id="overviewStats"></div>
+        <div class="g2 mt-2">
+          <div class="card"><div class="ch"><div class="ct">Connected Websites</div></div><div id="overviewSites"></div></div>
+          <div class="card"><div class="ch"><div class="ct">Recent Leads</div></div><div id="overviewLeads"></div></div>
+        </div>
+      </div>
+      <div class="sec" id="sec-sites"><div class="sh"><div class="sh-title">Connected Sites</div><div class="sh-sub">Websites built and managed by ERGIO</div></div><div id="sitesContent"></div></div>
+      <div class="sec" id="sec-leads"><div class="sh"><div class="sh-title">Leads and CRM</div><div class="sh-sub">Every lead ERGIO discovered for your business</div></div><div id="leadsContent"></div></div>
+      <div class="sec" id="sec-bookings"><div class="sh"><div class="sh-title">Bookings</div><div class="sh-sub">Customer bookings and appointments</div></div><div id="bookingsContent"></div></div>
+      <div class="sec" id="sec-payments"><div class="sh"><div class="sh-title">Payments</div><div class="sh-sub">Revenue collected through ERGIO</div></div><div id="paymentsContent"></div></div>
+      <div class="sec" id="sec-health"><div class="sh"><div class="sh-title">Website Health</div><div class="sh-sub">SEO, performance, and feature analysis of each site</div></div><div id="healthContent"></div></div>
+      <div class="sec" id="sec-ai"><div class="sh"><div class="sh-title">AI Insights</div><div class="sh-sub">Automated revenue opportunities and recommendations</div></div><div id="aiContent"></div></div>
+      <div class="sec" id="sec-events"><div class="sh"><div class="sh-title">Event Log</div><div class="sh-sub">Real-time activity from your ERGIO system</div></div><div id="eventsContent"></div></div>
+      <div class="sec" id="sec-verify"><div class="sh"><div class="sh-title">Verify External Website</div><div class="sh-sub">Connect a website you own to ERGIO Console</div></div>
+        <div class="card mb-2">
+          <div class="ct mb-2">Step 1: Enter Website URL</div>
+          <input class="input-field" placeholder="https://yourbusiness.com" id="verifyUrl" style="margin-bottom:12px"/>
+          <button class="btn btn-primary" onclick="generateToken()">Generate Verification Token</button>
+        </div>
+        <div class="card" id="tokenSection" style="display:none">
+          <div class="ct mb-2">Step 2: Add this meta tag to your homepage</div>
+          <pre style="background:var(--bg2);padding:12px;border-radius:8px;font-size:.75rem;overflow-x:auto;color:var(--green)" id="tokenCode"></pre>
+          <button class="btn btn-primary mt-2" onclick="verifySite()">Verify Website</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-<div class="main">
-<div class="topbar"><div class="tb-title" id="pt">Console Overview</div><div class="tb-right"><button class="tb-btn" onclick="openModal(connectModal())">🔗 Connect Website</button></div></div>
-<div class="content" id="ct"></div>
-</div>
-</div>
-<div class="toast" id="toast"><span id="toastIcon">✅</span><span id="toastMsg"></span></div>
-<div class="modal-bg" id="modalBg" onclick="closeModal(event)"><div class="modal" id="modalBox"></div></div>
+<div class="toast" id="toast"><span id="toastIcon"></span><span id="toastMsg"></span></div>
 <script>
-/* Load sites from localStorage or seed with demo data */
-function loadConsoleSites(){
+var DATA={sites:[],metrics:{},leads:[],bookings:[],payments:[],recentEvents:[],eventsByType:{},businesses:[]};
+var API_BASE=window.location.origin;
+var CONSOLE_API=API_BASE+'/api/console-data';
+var titles={overview:'Overview',sites:'Connected Sites',leads:'Leads and CRM',bookings:'Bookings',payments:'Payments',health:'Website Health',ai:'AI Insights',events:'Event Log',verify:'Verify Site'};
+
+function showToast(m,t){t=t||'success';var ic=t==='success'?'✅':'❌';document.getElementById('toastIcon').textContent=ic;document.getElementById('toastMsg').textContent=m;var el=document.getElementById('toast');el.className='toast '+(t||'success')+' show';setTimeout(function(){el.classList.remove('show')},3000)}
+function toggleSidebar(){var s=document.getElementById('sidebar');s.style.transform=s.style.transform==='translateX(0px)'?'translateX(-100%)':'translateX(0px)'}
+function switchSection(s){
+  document.querySelectorAll('.sec').forEach(function(x){x.classList.remove('active')});
+  document.querySelectorAll('.ni').forEach(function(x){x.classList.remove('active')});
+  var el=document.getElementById('sec-'+s);if(el)el.classList.add('active');
+  var ni=document.querySelector('[data-sec="'+s+'"]');if(ni)ni.classList.add('active');
+  document.getElementById('pageTitle').textContent=titles[s]||s;
+  if(window.innerWidth<=768)document.getElementById('sidebar').style.transform='translateX(-100%)';
+}
+function fmtNaira(n){return '\u20a6'+(n||0).toLocaleString('en-NG',{maximumFractionDigits:0})}
+function fmtDate(d){if(!d)return '\u2014';var dt=new Date(d);if(isNaN(dt.getTime()))return '\u2014';return dt.toLocaleDateString('en-NG',{month:'short',day:'numeric'})}
+function fmtTime(d){if(!d)return '';var dt=new Date(d);if(isNaN(dt.getTime()))return '';return dt.toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit'})}
+function escapeHtml(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function statCard(label,val,color,icon){return '<div class="sgc" style="--accent:var('+color+')"><div class="si" style="background:rgba(255,255,255,0.05)">'+icon+'</div><div class="sv">'+val+'</div><div class="sl">'+label+'</div></div>'}
+function bar(label,pct,val){return '<div class="hb"><div class="hb-label"><span class="text-muted">'+label+'</span><span>'+val+'</span></div><div class="progress"><div class="pf" style="width:'+pct+'%"></div></div></div>'}
+
+async function loadAll(){
+  document.getElementById('overviewStats').innerHTML='<div class="loading" style="grid-column:1/-1"><div class="spin"></div>Loading real data from Supabase...</div>';
+  document.getElementById('overviewSites').innerHTML='<div class="loading"><div class="spin"></div></div>';
+  document.getElementById('overviewLeads').innerHTML='<div class="loading"><div class="spin"></div></div>';
   try{
-    var saved=localStorage.getItem('ergio_console_sites');
-    if(saved)return JSON.parse(saved);
-  }catch(e){}
-  /* Start with empty — no demo data */
-  localStorage.setItem('ergio_console_sites',JSON.stringify([]));
-  return [];
-}
-function saveConsoleSites(sites){
-  localStorage.setItem('ergio_console_sites',JSON.stringify(sites));
-}
-var sites=loadConsoleSites();
-var NAV=[
-{s:'overview',l:'Console Overview',i:'M3 3v18h18M3 9h18',g:'MAIN'},
-{s:'sites',l:'Connected Sites',i:'M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z',g:'MAIN'},
-{s:'verify',l:'Verify Website',i:'M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',g:'MAIN'},
-{s:'brain',l:'AI Site Brain',i:'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z M12 8v8',g:'AI INTELLIGENCE'},
-{s:'memory',l:'AI Memory',i:'M9 12l2 2 4-4',g:'AI INTELLIGENCE'},
-{s:'confidence',l:'Business Confidence',i:'M22 12h-4l-3 9L9 3l-3 9H2',g:'AI INTELLIGENCE'},
-{s:'health',l:'Website Health',i:'M22 12h-4l-3 9L9 3l-3 9H2',g:'ANALYTICS'},
-{s:'suggestions',l:'AI Suggestions',i:'M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4',g:'ANALYTICS'},
-{s:'knowledge',l:'Knowledge & Skills',i:'M4 19.5A2.5 2.5 0 0 1 6.5 17H20',g:'ANALYTICS'},
-{s:'automation',l:'AI Automation',i:'M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z',g:'OPERATIONS'},
-{s:'versions',l:'Version History',i:'M12 8v4l3 3',g:'OPERATIONS'},
-{s:'permissions',l:'Team Permissions',i:'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2',g:'OPERATIONS'},
-{s:'ops',l:'Operations Center',i:'M12 2v4M12 18v4M4.93 4.93l2.83 2.83',g:'ADMIN'},
-{s:'training',l:'Training Academy',i:'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z',g:'ADMIN'},
-];
-var T={overview:'Console Overview',sites:'Connected Sites',verify:'Verify Website',brain:'AI Site Brain',memory:'AI Memory',confidence:'Business Confidence',health:'Website Health',suggestions:'AI Suggestions',knowledge:'Knowledge & Skills',automation:'AI Automation',versions:'Version History',permissions:'Team Permissions',ops:'Operations Center',training:'Training Academy'};
-function sc(l,v,c,i){return '<div class="sgc" style="--accent:var('+c+')"><div class="si" style="background:rgba(255,255,255,0.05)">'+i+'</div><div class="sv">'+v+'</div><div class="sl">'+l+'</div></div>';}
-function hb(l,p,v){return '<div class="hb"><div class="hb-label"><span class="text-muted">'+l+'</span><span>'+p+'</span></div><div class="progress"><div class="pf" style="width:'+v+'%"></div></div></div>';}
-function kv(k,v){return '<div class="kv"><span class="kv-k">'+k+'</span><span class="kv-v">'+v+'</span></div>';}
-function showToast(m,t){t=t||'success';document.getElementById('toastIcon').textContent=t==='success'?'✅':t==='error'?'❌':'ℹ️';document.getElementById('toastMsg').textContent=m;var el=document.getElementById('toast');el.className='toast '+t+' show';setTimeout(()=>el.classList.remove('show'),3000);}
-function openModal(h){document.getElementById('modalBox').innerHTML=h;document.getElementById('modalBg').classList.add('open');}
-function closeModal(e){if(!e||e.target===document.getElementById('modalBg'))document.getElementById('modalBg').classList.remove('open');}
-
-var R={};
-R.overview=function(){return '<div class="sh"><div><div class="sh-title">ERGIO Console</div><div class="sh-sub">Your AI Website & Business Operating System</div></div><button class="btn btn-primary" onclick="openModal(connectModal())">🔗 Connect Website</button></div><div class="sg">'+sc('Connected Sites',String(sites.length),'--cyan','🌐')+sc('Avg Health',sites.length?Math.round(sites.reduce(function(a,s){return a+s.health},0)/sites.length)+'%':'0%','--green','💚')+sc('Avg Confidence',sites.length?Math.round(sites.reduce(function(a,s){return a+s.confidence},0)/sites.length)+'%':'0%','--purple','🧠')+sc('Total Pages',String(sites.reduce(function(a,s){return a+s.pages},0)),'--blue','📄')+sc('Total Traffic',sites.length?sites.map(function(s){return s.traffic||'0'}).join(' + '):'0','--green','📈')+sc('AI Suggestions','0','--amber','💡')+'</div><div class="g2 mt-2"><div class="card"><div class="ch"><div class="ct">Connected Websites</div></div>'+(sites.length?sites.map(s=>'<div class="site-card mb-2" onclick="switchSection(\'health\')"><div class="flex items-center justify-between"><div><div style="font-weight:600;font-size:0.86rem">'+s.name+'</div><div class="text-xs text-muted">'+s.url+' · '+s.type+'</div></div><div class="flex gap-2 items-center"><span class="badge '+(s.verified?'bg':'ba')+'">'+(s.verified?'Verified':'Pending')+'</span><span class="badge bc">'+s.health+'%</span></div></div></div>').join(''):'<div style="padding:24px;text-align:center;color:var(--text-muted)"><div style="font-size:2rem;margin-bottom:8px">🌐</div><div style="font-size:.9rem;margin-bottom:4px">No websites connected yet</div><div style="font-size:.8rem;margin-bottom:16px">Connect your first website to get started</div><button class="btn btn-primary" onclick="openModal(connectModal())">🔗 Connect Website</button></div>')+'</div><div class="card"><div class="ch"><div class="ct">Quick Actions</div></div><div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-ghost" style="justify-content:flex-start" onclick="openModal(connectModal())">🔗 Connect a new website</button><button class="btn btn-ghost" style="justify-content:flex-start" onclick="switchSection(\'automation\')">🤖 Run AI automation</button><button class="btn btn-ghost" style="justify-content:flex-start" onclick="switchSection(\'suggestions\')">💡 View AI suggestions</button><button class="btn btn-ghost" style="justify-content:flex-start" onclick="switchSection(\'knowledge\')">📚 Upload knowledge</button><button class="btn btn-ghost" style="justify-content:flex-start" onclick="switchSection(\'versions\')">⏪ Rollback a change</button></div></div></div>'};
-
-R.sites=function(){
-return '<div class="sh"><div><div class="sh-title">Connected Sites</div><div class="sh-sub">Websites managed by ERGIO Console</div></div><button class="btn btn-primary" onclick="openModal(connectModal())">🔗 Connect Website</button></div>'+(sites.length?'<div class="g2">'+sites.map(s=>'<div class="site-card"><div class="site-thumbnail" style="height:120px;border-radius:10px;margin-bottom:12px;background:linear-gradient(135deg,var(--bg4),var(--bg2));display:flex;align-items:center;justify-content:center;font-size:2.5rem">🌐</div><div style="font-weight:700;font-size:0.92rem">'+s.name+'</div><div class="text-xs text-muted mt-1">'+s.url+'</div><div class="flex gap-2 mt-2"><span class="badge bc">'+s.type+'</span>'+(s.verified?'<span class="badge bg">✓ Verified</span>':'<span class="badge ba">Pending</span>')+'</div><div class="mt-2">'+hb('Health',s.health+'%',s.health)+'</div><div class="flex gap-2 mt-2"><button class="btn btn-primary btn-sm" onclick="switchSection(\'brain\')">🧠 View Brain</button><button class="btn btn-ghost btn-sm" onclick="switchSection(\'health\')">📊 Health</button></div></div>').join('')+'</div>':'<div class="card" style="text-align:center;padding:3rem"><div style="font-size:2.5rem;margin-bottom:1rem">🌐</div><div style="font-size:1rem;color:var(--text);margin-bottom:.5rem">No Sites Connected</div><div style="color:var(--text3);font-size:.85rem;max-width:400px;margin:0 auto 1rem">Connect your first website to get started with ERGIO Console.</div><button class="btn btn-primary" onclick="openModal(connectModal())">🔗 Connect Website</button></div>');
-};
-
-R.verify=function(){return '<div class="sh"><div><div class="sh-title">Verify Website</div><div class="sh-sub">Connect any website to ERGIO</div></div></div><div class="card mb-3"><div class="ct mb-2">Step 1: Enter Website URL</div><input class="input" placeholder="https://yourbusiness.com" id="verifyUrl"/><button class="btn btn-primary" onclick="generateToken()">Generate Verification Token</button></div><div class="card mb-3" id="tokenSection" style="display:none"><div class="ct mb-2">Step 2: Choose Verification Method</div><div class="g2"><div style="padding:16px;border:1px solid var(--border2);border-radius:10px;cursor:pointer" onclick="selectMethod(\'meta\')"><div style="font-weight:600;font-size:0.84rem">HTML Meta Tag</div><div class="text-xs text-muted mt-1">Add a meta tag to your homepage</div><div class="mt-2 mono text-xs" style="background:var(--bg2);padding:8px;border-radius:6px">&lt;meta name="ergio-verification" content="ergio_8x7k2m..."/&gt;</div></div><div style="padding:16px;border:1px solid var(--border2);border-radius:10px;cursor:pointer" onclick="selectMethod(\'js\')"><div style="font-weight:600;font-size:0.84rem">JavaScript Snippet</div><div class="text-xs text-muted mt-1">Add a script tag</div><div class="mt-2 mono text-xs" style="background:var(--bg2);padding:8px;border-radius:6px">&lt;script src="https://ergio.app/v.js?t=..."/&gt;</div></div><div style="padding:16px;border:1px solid var(--border2);border-radius:10px;cursor:pointer" onclick="selectMethod(\'file\')"><div style="font-weight:600;font-size:0.84rem">Verification File</div><div class="text-xs text-muted mt-1">Upload an HTML file</div><div class="mt-2 mono text-xs" style="background:var(--bg2);padding:8px;border-radius:6px">ergio-verify.html</div></div><div style="padding:16px;border:1px solid var(--border2);border-radius:10px;cursor:pointer" onclick="selectMethod(\'dns\')"><div style="font-weight:600;font-size:0.84rem">DNS Verification</div><div class="text-xs text-muted mt-1">Add a TXT record</div><div class="mt-2 mono text-xs" style="background:var(--bg2);padding:8px;border-radius:6px">TXT @ ergio-verify=8x7k2m...</div></div></div><button class="btn btn-primary mt-2" onclick="verifySite()">✓ Verify Website</button></div>'};
-
-R.brain=function(){
-if(!sites.length)return '<div class="sh"><div class="sh-title">AI Site Brain</div><div class="sh-sub">ERGIO\'s understanding of your website</div></div><div class="card" style="text-align:center;padding:3rem"><div style="font-size:2.5rem;margin-bottom:1rem">🧠</div><div style="font-size:1rem;color:var(--text);margin-bottom:.5rem">No Website Connected</div><div style="color:var(--text3);font-size:.85rem;max-width:400px;margin:0 auto 1rem">Connect a website to let ERGIO learn its structure, content, and brand identity automatically.</div><button class="btn btn-primary" onclick="openModal(connectModal())">🔗 Connect Website</button></div>';
-var s=sites[0];
-var brain=JSON.parse(localStorage.getItem('ergio_brain_'+s.url)||'{}');
-return '<div class="sh"><div class="sh-title">AI Site Brain</div><div class="sh-sub">ERGIO\'s understanding of '+s.name+'</div></div><div class="sg">'+sc('Pages Learned',String(brain.pages||s.pages||0),'--cyan','📄')+sc('Products Found',String(brain.products||0),'--green','🛍️')+sc('Services Mapped',String(brain.services||0),'--blue','⚙️')+sc('Brand Identity',(brain.brandIdentity||s.confidence||0)+'%','--purple','🎨')+'</div><div class="g2"><div class="card"><div class="ct mb-2">What ERGIO Knows</div>'+(brain.known?Object.entries(brain.known).map(function(e){return kv(e[0],e[1])}).join(''):kv('Status','Learning in progress'),kv('Website',s.url),kv('Type',s.type))+'</div><div class="card"><div class="ct mb-2">Site Structure Map</div><div class="tw"><table><thead><tr><th>Page</th><th>Type</th><th>Status</th></tr></thead><tbody>'+(brain.structure?brain.structure.map(function(p){return '<tr><td>'+p.name+'</td><td>'+p.type+'</td><td><span class="badge bg">'+p.status+'</span></td></tr>'}).join(''):'<tr><td colspan="3" style="text-align:center;color:var(--text3)">Site structure will appear after ERGIO analyzes your website</td></tr>')+'</tbody></table></div></div></div>';
-};
-
-R.memory=function(){
-var mem=JSON.parse(localStorage.getItem('ergio_console_memory')||'[]');
-if(!mem.length&&!sites.length)return '<div class="sh"><div class="sh-title">AI Memory</div><div class="sh-sub">ERGIO never forgets your website</div></div><div class="card" style="text-align:center;padding:3rem"><div style="font-size:2.5rem;margin-bottom:1rem">💾</div><div style="font-size:1rem;color:var(--text);margin-bottom:.5rem">No Memory Yet</div><div style="color:var(--text3);font-size:.85rem;max-width:400px;margin:0 auto 1rem">ERGIO will build a memory of your website changes, content updates, and commands once you connect a site.</div><button class="btn btn-primary" onclick="openModal(connectModal())">🔗 Connect Website</button></div>';
-return '<div class="sh"><div class="sh-title">AI Memory</div><div class="sh-sub">ERGIO never forgets your website</div></div><div class="card mb-2"><div class="ct mb-2">Memory Timeline</div>'+(mem.length?'<div class="tw"><table><thead><tr><th>Date</th><th>Event</th><th>Type</th></tr></thead><tbody>'+mem.map(function(m){return '<tr><td>'+new Date(m.time).toLocaleDateString()+'</td><td>'+m.event+'</td><td><span class="badge bg">'+m.type+'</span></td></tr>'}).join('')+'</tbody></table></div>':'<p class="text-muted">No events recorded yet. Changes and commands will appear here.</p>')+'</div><div class="card"><div class="ct mb-2">Permanent Memory</div>'+(mem.length?mem.filter(function(m){return m.permanent}).map(function(m){return kv(m.key,m.value)}).join(''):'<p class="text-muted">ERGIO will store key facts about your business here as it learns.</p>')+'</div>';
-};
-
-R.confidence=function(){
-if(!sites.length)return '<div class="sh"><div class="sh-title">Business Confidence</div><div class="sh-sub">How well ERGIO understands your business</div></div><div class="card" style="text-align:center;padding:3rem"><div style="font-size:2.5rem;margin-bottom:1rem">📊</div><div style="font-size:1rem;color:var(--text);margin-bottom:.5rem">No Data Yet</div><div style="color:var(--text3);font-size:.85rem;max-width:400px;margin:0 auto 1rem">Connect a website for ERGIO to assess your business confidence across products, sales, marketing, SEO, and more.</div><button class="btn btn-primary" onclick="openModal(connectModal())">🔗 Connect Website</button></div>';
-var s=sites[0];
-var conf=JSON.parse(localStorage.getItem('ergio_confidence_'+s.url)||'{}');
-var areas=['Products','Business Knowledge','Sales','Customer Support','Marketing','SEO','Automation'];
-var colors=['--green','--cyan','--blue','--purple','--amber','--green','--cyan'];
-return '<div class="sh"><div class="sh-title">Business Confidence</div><div class="sh-sub">How well ERGIO understands '+s.name+'</div></div><div class="card"><div class="flex" style="justify-content:space-around;flex-wrap:wrap;gap:16px">'+areas.map(function(a,i){var v=conf[a]||s.confidence||0;return '<div style="text-align:center"><div class="confidence-ring" style="background:conic-gradient(var('+colors[i]+') 0% '+v+'%,var(--surface) '+v+'%)">'+v+'%</div><div class="text-sm mt-1">'+a+'</div></div>'}).join('')+'</div></div><div class="card mt-2"><div class="ct mb-2">Overall Confidence: '+(conf.overall||s.confidence||0)+'%</div>'+areas.map(function(a,i){var v=conf[a]||s.confidence||0;return hb(a,v+'%',v)}).join('')+'</div>';
-};
-
-R.health=function(){
-if(!sites.length)return '<div class="sh"><div class="sh-title">Website Health</div><div class="sh-sub">Comprehensive health analysis</div></div><div class="card" style="text-align:center;padding:3rem"><div style="font-size:2.5rem;margin-bottom:1rem">💚</div><div style="font-size:1rem;color:var(--text);margin-bottom:.5rem">No Website Connected</div><div style="color:var(--text3);font-size:.85rem;max-width:400px;margin:0 auto 1rem">Connect a website to get a comprehensive health analysis — SEO, performance, security, and more.</div><button class="btn btn-primary" onclick="openModal(connectModal())">🔗 Connect Website</button></div>';
-var s=sites[0];
-return '<div class="sh"><div class="sh-title">Website Health</div><div class="sh-sub">Analysis for '+s.name+'</div></div><div class="sg">'+sc('Overall Health',s.health+'%','--green','💚')+sc('SEO Score',String(s.seo||0),'--cyan','🔍')+sc('Performance',String(s.perf||0),'--blue','⚡')+sc('Speed',String(s.speed||0),'--amber','📱')+sc('Confidence',String(s.confidence||0),'--purple','🧠')+sc('Pages',String(s.pages||0),'--blue','📄')+'</div><div class="g2"><div class="card"><div class="ct mb-2">Health Breakdown</div>'+hb('SEO Score',s.seo+'%',s.seo)+hb('Performance',s.perf+'%',s.perf)+hb('Speed Index',s.speed+'%',s.speed)+hb('Overall Health',s.health+'%',s.health)+hb('Confidence',s.confidence+'%',s.confidence)+'</div><div class="card"><div class="ct mb-2">Issues Found</div>'+(s.issues&&s.issues.length?s.issues.map(function(i){return '<div class="suggest-card"><div class="suggest-header"><div class="suggest-title">'+i.title+'</div><span class="badge '+i.severity+'">'+i.level+'</span></div><div class="suggest-desc">'+i.desc+'</div></div>'}).join(''):'<p class="text-muted">No issues detected. Run a health scan for a detailed analysis.</p>')+'</div></div>';
-};
-
-R.suggestions=function(){
-var sugg=JSON.parse(localStorage.getItem('ergio_console_suggestions')||'[]');
-if(!sites.length&&!sugg.length)return '<div class="sh"><div class="sh-title">AI Suggestions</div><div class="sh-sub">Continuous improvement recommendations</div></div><div class="card" style="text-align:center;padding:3rem"><div style="font-size:2.5rem;margin-bottom:1rem">💡</div><div style="font-size:1rem;color:var(--text);margin-bottom:.5rem">No Suggestions Yet</div><div style="color:var(--text3);font-size:.85rem;max-width:400px;margin:0 auto 1rem">Connect a website and ERGIO will analyze it for improvement opportunities.</div><button class="btn btn-primary" onclick="openModal(connectModal())">🔗 Connect Website</button></div>';
-return '<div class="sh"><div class="sh-title">AI Suggestions</div><div class="sh-sub">Continuous improvement recommendations</div></div><div class="card"><div class="ch"><div class="ct">'+sugg.length+' Active Suggestions</div></div>'+(sugg.length?sugg.map(function(s){return '<div class="suggest-card"><div class="suggest-header"><div class="suggest-title">'+s.title+'</div><span class="badge '+s.badgeClass+'">'+s.impact+'</span></div><div class="suggest-desc">'+s.desc+'</div></div>'}).join(''):'<p class="text-muted">No suggestions yet. ERGIO will analyze your website and suggest improvements once connected.</p>')+'</div>';
-};
-
-R.knowledge=function(){
-var docs=JSON.parse(localStorage.getItem('ergio_console_docs')||'[]');
-return '<div class="sh"><div class="sh-title">Knowledge & Skills</div><div class="sh-sub">Upload business knowledge for ERGIO to learn</div></div><div class="card mb-2"><div class="ct mb-2">Upload Documents</div><div style="border:2px dashed var(--border2);border-radius:14px;padding:2rem;text-align:center;cursor:pointer" onclick="showToast(\'File picker opened\',\'info\')"><div style="font-size:2.5rem">📚</div><div class="text-sm mt-1"><strong style="color:var(--text)">Click to upload</strong> or drag & drop</div><div class="text-xs text-muted">PDF, DOCX, SOPs, manuals, FAQs — up to 50MB</div></div></div><div class="card"><div class="ct mb-2">Learned Knowledge ('+docs.length+' documents)</div>'+(docs.length?'<div class="tw"><table><thead><tr><th>Document</th><th>Type</th><th>Pages</th><th>Learned</th><th>Status</th></tr></thead><tbody>'+docs.map(function(d){return '<tr><td>'+d.name+'</td><td>'+d.type+'</td><td>'+d.pages+'</td><td>'+new Date(d.uploaded).toLocaleDateString()+'</td><td><span class="badge '+d.statusClass+'">'+d.status+'</span></td></tr>'}).join('')+'</tbody></table></div>':'<p class="text-muted">No documents uploaded yet. Upload business manuals, FAQs, and SOPs for ERGIO to learn.</p>')+'</div>';
-};
-
-R.automation=function(){
-var hist=JSON.parse(localStorage.getItem('ergio_console_history')||'[]');
-return '<div class="sh"><div class="sh-title">AI Automation</div><div class="sh-sub">Command ERGIO in natural language</div></div><div class="card mb-2"><div class="ct mb-2">Natural Language Command</div><input class="cmd-input" placeholder="e.g. Improve my website SEO" id="cmdInput" onkeydown="if(event.key===\'Enter\')executeCmd()"/><div class="flex gap-2 mt-1"><button class="btn btn-ghost btn-sm" onclick="document.getElementById(\'cmdInput\').value=\'Update homepage\'">Update homepage</button><button class="btn btn-ghost btn-sm" onclick="document.getElementById(\'cmdInput\').value=\'Improve SEO\'">Improve SEO</button><button class="btn btn-ghost btn-sm" onclick="document.getElementById(\'cmdInput\').value=\'Publish a blog post\'">Publish blog</button><button class="btn btn-ghost btn-sm" onclick="document.getElementById(\'cmdInput\').value=\'Optimize loading speed\'">Optimize speed</button></div><button class="btn btn-primary mt-2" onclick="executeCmd()">▶ Execute</button></div><div class="card"><div class="ct mb-2">Execution History</div>'+(hist.length?hist.map(function(h){return '<div class="chat-msg chat-user">'+h.cmd+'</div><div class="chat-msg chat-ai">'+h.result+'</div>'}).join(''):'<p class="text-muted">No commands executed yet. Type a command above to get started.</p>')+'</div>';
-};
-
-R.versions=function(){
-var vers=JSON.parse(localStorage.getItem('ergio_console_versions')||'[]');
-return '<div class="sh"><div class="sh-title">Version History</div><div class="sh-sub">Every change is reversible</div></div><div class="card"><div class="ct mb-2">All Versions</div>'+(vers.length?'<div class="tw"><table><thead><tr><th>Version</th><th>Date</th><th>Changes</th><th>Author</th><th>Action</th></tr></thead><tbody>'+vers.map(function(v,i){return '<tr><td>v'+v.version+'</td><td>'+new Date(v.date).toLocaleDateString()+'</td><td>'+v.changes+'</td><td>'+v.author+'</td><td>'+(i===0?'<span class="badge bg">Current</span>':'<button class="btn btn-ghost btn-sm" onclick="showToast(\'Rollback?\',\'info\')">⏪ Rollback</button>')+'</td></tr>'}).join('')+'</tbody></table></div>':'<p class="text-muted">No versions recorded yet. Changes to your website will be tracked here.</p>')+'</div>';
-};
-
-R.permissions=function(){
-var team=JSON.parse(localStorage.getItem('ergio_console_team')||'[]');
-return '<div class="sh"><div class="sh-title">Team Permissions</div><div class="sh-sub">Manage who can access and control your website</div></div><div class="card mb-2"><div class="ch"><div class="ct">Team Members ('+team.length+')</div><button class="btn btn-primary btn-sm" onclick="showToast(\'Invite dialog\',\'info\')">➕ Invite</button></div>'+(team.length?'<div class="tw"><table><thead><tr><th>Member</th><th>Role</th><th>Permissions</th><th>Status</th></tr></thead><tbody>'+team.map(function(m){return '<tr><td>'+m.name+'</td><td>'+m.role+'</td><td><span class="badge '+m.permClass+'">'+m.permissions+'</span></td><td><span class="badge '+m.statusClass+'">'+m.status+'</span></td></tr>'}).join('')+'</tbody></table></div>':'<p class="text-muted">No team members yet. Invite team members to collaborate on your website.</p>')+'</div><div class="card"><div class="ct mb-2">Permission Levels</div>'+kv('Owner','Full control, can delete')+kv('Administrator','All except delete')+kv('Manager','Edit + publish content')+kv('Marketing','Edit marketing content')+kv('Sales','View + edit products')+kv('Customer Support','View + respond to messages')+kv('SEO','Edit SEO settings')+kv('Developer','Edit code + settings')+kv('Viewer','Read only access')+'</div>';
-};
-
-R.ops=function(){
-return '<div class="sh"><div class="sh-title">Operations Center</div><div class="sh-sub">ERGIO administrative dashboard</div></div><div class="sg">'+sc('Connected Sites',String(sites.length),'--cyan','🌐')+sc('Total Pages',String(sites.reduce(function(a,s){return a+(s.pages||0)},0)),'--blue','📄')+sc('Avg Health',sites.length?Math.round(sites.reduce(function(a,s){return a+s.health},0)/sites.length)+'%':'0%','--green','💚')+sc('Avg Confidence',sites.length?Math.round(sites.reduce(function(a,s){return a+s.confidence},0)/sites.length)+'%':'0%','--purple','🧠')+'</div><div class="g2"><div class="card"><div class="ct mb-2">System Status</div>'+kv('Console Version','2.0')+kv('Connected Sites',String(sites.length))+kv('Total Pages Tracked',String(sites.reduce(function(a,s){return a+(s.pages||0)},0)))+kv('Avg Health Score',sites.length?Math.round(sites.reduce(function(a,s){return a+s.health},0)/sites.length)+'%':'N/A')+'</div><div class="card"><div class="ct mb-2">Quick Actions</div><button class="btn btn-ghost btn-sm" style="width:100%;text-align:left;margin-bottom:4px" onclick="switchSection(\'verify\')">🔗 Connect a new site</button><button class="btn btn-ghost btn-sm" style="width:100%;text-align:left;margin-bottom:4px" onclick="switchSection(\'automation\')">🤖 Run automation</button><button class="btn btn-ghost btn-sm" style="width:100%;text-align:left;margin-bottom:4px" onclick="switchSection(\'health\')">📊 Check site health</button><button class="btn btn-ghost btn-sm" style="width:100%;text-align:left" onclick="location.href=\'/ergio/admin/\'">🔐 Open Admin HQ</button></div></div>';
-};
-
-R.training=function(){
-var courses=JSON.parse(localStorage.getItem('ergio_console_courses')||'[]');
-var trainees=JSON.parse(localStorage.getItem('ergio_console_trainees')||'[]');
-return '<div class="sh"><div class="sh-title">Training Academy</div><div class="sh-sub">Developing the next generation of AI professionals</div></div><div class="sg">'+sc('Trainees',String(trainees.length),'--green','🎓')+sc('Courses',String(courses.length),'--cyan','📚')+sc('Completed','0','--blue','✅')+sc('Avg Score','0%','--purple','⭐')+'</div><div class="card mb-2"><div class="ct mb-2">Available Courses</div>'+(courses.length?'<div class="tw"><table><thead><tr><th>Course</th><th>Duration</th><th>Enrolled</th><th>Completion</th><th>Level</th></tr></thead><tbody>'+courses.map(function(c){return '<tr><td>'+c.name+'</td><td>'+c.duration+'</td><td>'+c.enrolled+'</td><td>'+c.completion+'%</td><td><span class="badge '+c.levelClass+'">'+c.level+'</span></td></tr>'}).join('')+'</tbody></table></div>':'<p class="text-muted">No courses created yet.</p>')+'</div><div class="card"><div class="ct mb-2">Top Trainees</div>'+(trainees.length?'<div class="tw"><table><thead><tr><th>Name</th><th>Course</th><th>Score</th><th>Tasks Completed</th><th>Status</th></tr></thead><tbody>'+trainees.map(function(t){return '<tr><td>'+t.name+'</td><td>'+t.course+'</td><td>'+t.score+'%</td><td>'+t.tasks+'</td><td><span class="badge '+t.statusClass+'">'+t.status+'</span></td></tr>'}).join('')+'</tbody></table></div>':'<p class="text-muted">No trainees enrolled yet.</p>')+'</div>';
-};
-
-function connectModal(){return '<div class="modal-title">🔗 Connect Website <span class="modal-close" onclick="closeModal()">×</span></div><p class="text-sm text-muted mb-2">Connect any website to ERGIO — WordPress, Shopify, Wix, custom, or ERGIO-built.</p><input class="input" id="connectUrl" placeholder="https://yourbusiness.com" onkeydown="if(event.key===\'Enter\')connectSite()"/><select class="input" id="connectType"><option value="ERGIO Built">ERGIO Built</option><option value="WordPress">WordPress</option><option value="Shopify">Shopify</option><option value="Wix">Wix</option><option value="Custom">Custom HTML</option></select><div class="text-xs text-muted mb-2">ERGIO will verify ownership and begin learning your website.</div><div class="flex gap-2"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="connectSite()">🔗 Connect & Verify</button></div>';}
-function connectSite(){
-  var url=document.getElementById('connectUrl').value.trim();
-  if(!url){showToast('Enter a URL','error');return;}
-  var type=document.getElementById('connectType')?document.getElementById('connectType').value:'Custom';
-  if(url.indexOf('http')!==0)url='https://'+url;
-  showToast('Connecting to '+url+'...','info');
-  var cleanUrl=url.replace(/^https?:\/\//,'');
-  var siteName=cleanUrl.replace(/\.[a-z]+.*$/,'').replace(/\b\w/g,function(c){return c.toUpperCase()});
-  var newSite={url:cleanUrl,name:siteName,type:type,verified:true,health:0,seo:0,perf:0,speed:0,confidence:0,pages:0,traffic:'0/mo',added:Date.now()};
-  sites.push(newSite);
-  saveConsoleSites(sites);
-  var mem=JSON.parse(localStorage.getItem('ergio_console_memory')||'[]');
-  mem.unshift({time:Date.now(),event:'Connected '+siteName+' ('+cleanUrl+')',type:'Setup',permanent:false});
-  localStorage.setItem('ergio_console_memory',JSON.stringify(mem));
-  var vers=JSON.parse(localStorage.getItem('ergio_console_versions')||'[]');
-  vers.unshift({version:'1.0',date:Date.now(),changes:'Initial connection',author:'You'});
-  localStorage.setItem('ergio_console_versions',JSON.stringify(vers));
-  showToast(siteName+' connected! Analyzing...','success');
-  closeModal();
-  switchSection('brain');
-  /* Analyze website via Vercel AI */
-  fetch('/api/conductor-ai',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      message:'Analyze the website '+url+'. Give me: 1) SEO score (0-100), 2) Performance (0-100), 3) Speed (0-100), 4) Overall health (0-100), 5) Page count estimate, 6) Key issues. Respond as JSON: {seo,perf,speed,health,pages,issues}',
-      history:[],
-      context:'You are ERGIO Console website analyzer.'
-    })
-  }).then(function(r){return r.json();}).then(function(data){
-    var resp=data.response||'';
-    try{
-      var jsonMatch=resp.match(/\{[\s\S]*?\}/);
-      if(jsonMatch){
-        var parsed=JSON.parse(jsonMatch[0]);
-        newSite.seo=parsed.seo||75;newSite.perf=parsed.perf||72;
-        newSite.speed=parsed.speed||70;newSite.health=parsed.health||78;
-        newSite.confidence=85;newSite.pages=parsed.pages||12;
-        newSite.traffic='2.5K/mo';
-      }else{throw new Error('no json')}
-    }catch(e){
-      newSite.health=82;newSite.seo=78;newSite.perf=75;newSite.speed=73;newSite.confidence=85;newSite.pages=12;newSite.traffic='2.5K/mo';
+    var resp=await fetch(CONSOLE_API);
+    DATA=await resp.json();
+    if(!DATA.success&&DATA.error){
+      document.getElementById('overviewStats').innerHTML='<div class="card" style="grid-column:1/-1"><div class="empty"><div class="empty-icon">\u26a0\ufe0f</div><div class="empty-title">Database Connection</div><div class="empty-desc">'+escapeHtml(DATA.error)+'</div><button class="btn btn-primary" onclick="loadAll()">Retry</button></div></div>';
+      return;
     }
-    saveConsoleSites(sites);
-    showToast('Analysis complete for '+siteName+'!','success');
-    switchSection('health');
-  }).catch(function(e){
-    newSite.health=82;newSite.seo=78;newSite.perf=75;newSite.speed=73;newSite.confidence=85;newSite.pages=12;newSite.traffic='2.5K/mo';
-    saveConsoleSites(sites);
-    switchSection('health');
-  });
+    document.getElementById('liveBadge').style.display='inline-flex';
+    renderOverview();renderSites();renderLeads();renderBookings();renderPayments();renderHealth();renderAI();renderEvents();
+  }catch(e){
+    document.getElementById('overviewStats').innerHTML='<div class="card" style="grid-column:1/-1"><div class="empty"><div class="empty-icon">\ud83d\udd0c</div><div class="empty-title">Connection Error</div><div class="empty-desc">'+escapeHtml(e.message)+'</div><button class="btn btn-primary" onclick="loadAll()">Retry</button></div></div>';
+  }
 }
 
-function selectMethod(m){showToast('Method selected: '+m,'info');}
-
-function executeCmd(){
-  var cmd=document.getElementById('cmdInput').value;
-  if(!cmd){showToast('Enter a command','error');return;}
-  showToast('Executing: '+cmd,'info');
-  var out=document.getElementById('cmdOutput');
-  if(out)out.innerHTML='<div class="card"><div style="color:var(--cyan);margin-bottom:6px">⏳ Processing...</div><div style="font-size:.82rem;color:var(--text2);line-height:1.6">Sending command to ERGIO AI...</div></div>';
-  /* Try Vercel AI endpoint first (always available) */
-  fetch('/api/conductor-ai',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({message:cmd,history:[],context:'You are ERGIO Console, managing websites. Execute the user command and explain what you did.'})
-  }).then(function(r){return r.json();}).then(function(data){
-    var resp=data.response||data.text||data.message||'Command completed.';
-    showToast('Command completed!','success');
-    if(out)out.innerHTML='<div class="card"><div style="color:var(--green);margin-bottom:6px">Done</div><div style="font-size:.82rem;color:var(--text2);line-height:1.6">'+String(resp).substring(0,800)+'</div></div>';
-    var hist=JSON.parse(localStorage.getItem('ergio_console_history')||'[]');
-    hist.unshift({cmd:cmd,result:String(resp).substring(0,500),time:Date.now()});
-    localStorage.setItem('ergio_console_history',JSON.stringify(hist.slice(0,20)));
-  }).catch(function(e){
-    /* Fallback to Render */
-    fetch('https://ergio-engines.onrender.com/ai',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({prompt:cmd,json_mode:false})
-    }).then(function(r){return r.json();}).then(function(data){
-      var resp=data.text||data.response||data.result||'Command completed.';
-      showToast('Command completed!','success');
-      if(out)out.innerHTML='<div class="card"><div style="color:var(--green);margin-bottom:6px">Done</div><div style="font-size:.82rem;color:var(--text2);line-height:1.6">'+String(resp).substring(0,800)+'</div></div>';
-    }).catch(function(e2){
-      showToast('AI is processing','info');
-      if(out)out.innerHTML='<div class="card"><div style="color:var(--amber);margin-bottom:6px">Queued</div><div style="font-size:.82rem;color:var(--text2);line-height:1.6">Command queued. AI will process it shortly.</div></div>';
-    });
-  });
+function renderOverview(){
+  var m=DATA.metrics||{};
+  var html='';
+  html+=statCard('Connected Sites',m.totalSites||0,'--cyan','\ud83c\udf10');
+  html+=statCard('Total Leads',m.totalLeads||0,'--green','\ud83c\udfaf');
+  html+=statCard('Qualified Leads',m.qualifiedLeads||0,'--amber','\u2b50');
+  html+=statCard('Avg Lead Score',m.avgLeadScore||0,'--blue','\ud83d\udcca');
+  html+=statCard('Bookings',m.totalBookings||0,'--purple','\ud83d\udcc5');
+  html+=statCard('Revenue',fmtNaira(m.totalRevenue||0),'--green','\ud83d\udcb0');
+  document.getElementById('overviewStats').innerHTML=html;
+  var sites=DATA.sites||[];
+  document.getElementById('overviewSites').innerHTML=sites.length?sites.slice(0,5).map(function(s){
+    return '<div class="site-card mb-2" onclick="switchSection(\'sites\')">'+
+      '<div class="flex items-center justify-between">'+
+        '<div><div style="font-weight:600;font-size:.86rem">'+escapeHtml(s.name)+'</div>'+
+        '<div class="text-xs text-muted">'+escapeHtml(s.type)+'</div></div>'+
+        '<div class="flex gap-2 items-center">'+
+          '<span class="badge bc">'+s.health+'%</span>'+
+          '<span class="badge '+(s.features.seo?'bg':'bgray')+'">SEO</span>'+
+          '<span class="badge '+(s.features.payments?'bg':'bgray')+'">\u20a6</span>'+
+        '</div></div></div>';
+  }).join(''):'<div class="empty"><div class="empty-icon">\ud83c\udf10</div><div class="empty-title">No sites yet</div><div class="empty-desc">Build a website with ERGIO to see it here</div><button class="btn btn-primary" onclick="window.open(\'/build.html\',\'_blank\')">Build Website</button></div>';
+  var leads=DATA.leads||[];
+  document.getElementById('overviewLeads').innerHTML=leads.length?leads.slice(0,5).map(function(l){
+    return '<div class="site-card mb-2" onclick="switchSection(\'leads\')">'+
+      '<div class="flex items-center justify-between">'+
+        '<div><div style="font-weight:600;font-size:.86rem">'+escapeHtml(l.business_name||'Lead')+'</div>'+
+        '<div class="text-xs text-muted">'+escapeHtml(l.email||l.phone||'No contact')+'</div></div>'+
+        '<span class="badge '+(l.score>=70?'bg':l.score>=40?'ba':'bgray')+'">'+(l.score||0)+'/100</span>'+
+      '</div></div>';
+  }).join(''):'<div class="empty"><div class="empty-icon">\ud83c\udfaf</div><div class="empty-title">No leads yet</div><div class="empty-desc">Use the Conductor to find paying clients</div><a class="btn btn-primary" href="/dashboard/">Open Conductor</a></div>';
 }
 
+function renderSites(){
+  var sites=DATA.sites||[];
+  if(!sites.length){document.getElementById('sitesContent').innerHTML='<div class="empty"><div class="empty-icon">\ud83c\udf10</div><div class="empty-title">No Sites Connected</div><div class="empty-desc">Build your first website with ERGIO and it will appear here automatically.</div><button class="btn btn-primary" onclick="window.open(\'/build.html\',\'_blank\')">Build Website</button></div>';return}
+  document.getElementById('sitesContent').innerHTML='<div class="g2">'+sites.map(function(s){
+    return '<div class="site-card">'+
+      '<div style="font-weight:700;font-size:.92rem">'+escapeHtml(s.name)+'</div>'+
+      '<div class="text-xs text-muted" style="margin-top:4px">'+escapeHtml(s.url)+'</div>'+
+      '<div class="flex gap-2 mt-2">'+
+        '<span class="badge bc">'+escapeHtml(s.type)+'</span>'+
+        '<span class="badge bg">Verified</span>'+
+      '</div>'+
+      '<div style="margin-top:12px">'+bar('Health',s.health,s.health+'%')+'</div>'+
+      '<div style="margin-top:12px"><div class="flex gap-2" style="flex-wrap:wrap">'+
+        '<span class="badge '+(s.features.seo?'bg':'bgray')+'">SEO</span>'+
+        '<span class="badge '+(s.features.mobile?'bg':'bgray')+'">Mobile</span>'+
+        '<span class="badge '+(s.features.payments?'bg':'bgray')+'">Payments</span>'+
+        '<span class="badge '+(s.features.analytics?'bg':'bgray')+'">Analytics</span>'+
+        '<span class="badge bb">'+s.pages+' pages</span>'+
+      '</div></div>'+
+      '<div class="flex gap-2 mt-2">'+
+        '<button class="btn btn-ghost" onclick="window.open(\''+escapeHtml(s.url)+'\',\'_blank\')">View Site</button>'+
+        '<button class="btn btn-ghost" onclick="switchSection(\'health\')">Health Report</button>'+
+      '</div></div>';
+  }).join('')+'</div>';
+}
 
-function uploadKnowledge(){var input=document.createElement('input');input.type='file';input.accept='.pdf,.doc,.txt,.csv,.json,.md';input.onchange=function(e){var f=e.target.files[0];if(!f)return;showToast('Uploading '+f.name+'...','info');var reader=new FileReader();reader.onload=function(ev){var kb=JSON.parse(localStorage.getItem('ergio_console_kb')||'[]');kb.push({name:f.name,size:f.size,content:ev.target.result.substring(0,50000),uploaded:Date.now()});localStorage.setItem('ergio_console_kb',JSON.stringify(kb));showToast('✅ '+f.name+' uploaded!','success');};reader.readAsText(f);};input.click();}
-function enrollTraining(c){showToast('✅ Enrolled in '+c+'!','success');}
-function rollback(v){showToast('✅ Rolled back to '+v,'success');}
-function inviteMember(){var email=prompt('Enter team member email:');if(email)showToast('✅ Invitation sent to '+email,'success');}
-function updateRole(){showToast('Role updated','success');}
-function generateToken(){var t='ergio_'+Math.random().toString(36).substring(2,12);var s=document.getElementById('tokenSection');if(s){s.style.display='block';}showToast('Token: '+t,'success');if(navigator.clipboard)navigator.clipboard.writeText(t);}
+function renderLeads(){
+  var leads=DATA.leads||[];
+  if(!leads.length){document.getElementById('leadsContent').innerHTML='<div class="empty"><div class="empty-icon">\ud83c\udfaf</div><div class="empty-title">No Leads Yet</div><div class="empty-desc">Ask the Conductor to find paying clients. Try: Find 10 restaurants in Lagos that need a website</div><a class="btn btn-primary" href="/dashboard/">Open Conductor</a></div>';return}
+  var html='<div class="card"><div class="tw"><table><thead><tr><th>Business</th><th>Contact</th><th>Score</th><th>Status</th><th>Found</th></tr></thead><tbody>';
+  leads.forEach(function(l){
+    html+='<tr><td style="font-weight:600">'+escapeHtml(l.business_name||'\u2014')+'</td>';
+    html+='<td class="text-xs">'+escapeHtml(l.email||l.phone||'\u2014')+'</td>';
+    html+='<td><span class="badge '+(l.score>=70?'bg':l.score>=40?'ba':'bgray')+'">'+(l.score||0)+'</span></td>';
+    html+='<td><span class="badge '+(l.status==='converted'?'bg':l.status==='contacted'?'bb':'bc')+'">'+escapeHtml(l.status||'new')+'</span></td>';
+    html+='<td class="text-xs text-muted">'+fmtDate(l.created_at)+'</td></tr>';
+  });
+  html+='</tbody></table></div></div>';
+  document.getElementById('leadsContent').innerHTML=html;
+}
 
-function verifySite(){var url=document.getElementById('verifyUrl')?document.getElementById('verifyUrl').value.trim():'';if(!url){showToast('Enter a URL first','error');return;}showToast('Verifying '+url+'...','info');var method=document.querySelector('input[name="vmethod"]:checked');var methodText=method?method.value:'meta';setTimeout(function(){showToast('✅ Website verified via '+methodText+'!','success');var sites=JSON.parse(localStorage.getItem('ergio_console_sites')||'[]');var site=sites.find(function(s){return s.url===url;});if(site){site.verified=true;localStorage.setItem('ergio_console_sites',JSON.stringify(sites));}closeModal();switchSection('overview');setTimeout(function(){window.location.reload();},500);},2500);}
+function renderBookings(){
+  var bookings=DATA.bookings||[];
+  if(!bookings.length){document.getElementById('bookingsContent').innerHTML='<div class="empty"><div class="empty-icon">\ud83d\udcc5</div><div class="empty-title">No Bookings</div><div class="empty-desc">When customers book through your ERGIO website, they will appear here.</div></div>';return}
+  var html='<div class="card"><div class="tw"><table><thead><tr><th>Customer</th><th>Service</th><th>Status</th><th>Date</th></tr></thead><tbody>';
+  bookings.forEach(function(b){
+    html+='<tr><td style="font-weight:600">'+escapeHtml(b.customer_name||'\u2014')+'</td>';
+    html+='<td>'+escapeHtml(b.service||'\u2014')+'</td>';
+    html+='<td><span class="badge '+(b.status==='confirmed'||b.status==='completed'?'bg':b.status==='cancelled'?'ba':'bc')+'">'+escapeHtml(b.status||'pending')+'</span></td>';
+    html+='<td class="text-xs text-muted">'+fmtDate(b.created_at)+'</td></tr>';
+  });
+  html+='</tbody></table></div></div>';
+  document.getElementById('bookingsContent').innerHTML=html;
+}
 
-function buildNav(){var h='',lg='';NAV.forEach(i=>{if(i.g!==lg){h+='<div class="ns">'+i.g+'</div>';lg=i.g;}h+='<div class="ni" data-s="'+i.s+'" onclick="switchSection(\''+i.s+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="'+i.i+'"/></svg><span>'+i.l+'</span></div>';});document.getElementById('nav').innerHTML=h;}
-function switchSection(s){document.getElementById('pt').textContent=T[s]||s;document.querySelectorAll('.ni').forEach(n=>n.classList.toggle('active',n.dataset.s===s));document.getElementById('ct').innerHTML=R[s]?R[s]():'<div class="card"><p class="text-muted">Under construction.</p></div>';}
-buildNav();switchSection('overview');
+function renderPayments(){
+  var payments=DATA.payments||[];
+  var m=DATA.metrics||{};
+  if(!payments.length){document.getElementById('paymentsContent').innerHTML='<div class="empty"><div class="empty-icon">\ud83d\udcb0</div><div class="empty-title">No Payments</div><div class="empty-desc">When customers pay through your ERGIO website (Paystack, Stripe), transactions appear here.</div></div>';return}
+  var html='<div class="sg">'+statCard('Total Revenue',fmtNaira(m.totalRevenue||0),'--green','\ud83d\udcb0')+statCard('Transactions',m.totalPayments||0,'--cyan','\ud83d\udcca')+statCard('Confirmed',m.confirmedBookings||0,'--blue','\u2705')+'</div>';
+  html+='<div class="card"><div class="tw"><table><thead><tr><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody>';
+  payments.forEach(function(p){
+    html+='<tr><td style="font-weight:600">'+fmtNaira(p.amount)+'</td>';
+    html+='<td><span class="badge '+(p.status==='success'||p.status==='paid'||p.status==='completed'?'bg':'ba')+'">'+escapeHtml(p.status||'pending')+'</span></td>';
+    html+='<td class="text-xs text-muted">'+fmtDate(p.created_at)+'</td></tr>';
+  });
+  html+='</tbody></table></div></div>';
+  document.getElementById('paymentsContent').innerHTML=html;
+}
+
+function renderHealth(){
+  var sites=DATA.sites||[];
+  if(!sites.length){document.getElementById('healthContent').innerHTML='<div class="empty"><div class="empty-icon">\ud83d\udc9a</div><div class="empty-title">No Sites to Analyze</div><div class="empty-desc">Build a website and ERGIO will analyze its SEO, performance, and features.</div></div>';return}
+  var html='<div class="g2">'+sites.map(function(s){
+    return '<div class="card"><div class="ch"><div class="ct">'+escapeHtml(s.name)+'</div><span class="badge '+(s.health>=80?'bg':s.health>=50?'ba':'bgray')+'">'+s.health+'% healthy</span></div>'+
+      bar('SEO Optimization',s.features.seo?100:0,s.features.seo?'Optimized':'Missing')+
+      bar('Mobile Responsive',s.features.mobile?100:0,s.features.mobile?'Yes':'No')+
+      bar('Payment Integration',s.features.payments?100:0,s.features.payments?'Active':'Not configured')+
+      bar('Analytics Tracking',s.features.analytics?100:0,s.features.analytics?'Connected':'Not connected')+
+      bar('Content Depth',Math.min(100,s.pages*20),s.pages+' sections')+
+    '</div>';
+  }).join('')+'</div>';
+  document.getElementById('healthContent').innerHTML=html;
+}
+
+function renderAI(){
+  var m=DATA.metrics||{};
+  var sites=DATA.sites||[];
+  var leads=DATA.leads||[];
+  var insights=[];
+  if(m.totalLeads>0&&m.qualifiedLeads<m.totalLeads*0.3){
+    insights.push({icon:'\ud83c\udfaf',title:'Lead Quality is Low',impact:'high',desc:'Only '+m.qualifiedLeads+' of '+m.totalLeads+' leads have a score above 70. Try refining your search criteria or targeting a different niche.'});
+  }
+  if(sites.length>0){
+    var noPay=sites.filter(function(s){return !s.features.payments}).length;
+    if(noPay>0) insights.push({icon:'\ud83d\udcb0',title:'Missing Payment Integration',impact:'high',desc:noPay+' of your '+sites.length+' websites cannot collect payments. Add Paystack to start earning from every visitor.'});
+    var noSEO=sites.filter(function(s){return !s.features.seo}).length;
+    if(noSEO>0) insights.push({icon:'\ud83d\udd0d',title:'SEO Gaps Detected',impact:'medium',desc:noSEO+' websites are missing SEO meta tags. Fix this to appear in Google searches and get organic traffic.'});
+  }
+  if(m.totalRevenue>0) insights.push({icon:'\ud83d\udcc8',title:'Revenue is Flowing',impact:'positive',desc:'You have collected '+fmtNaira(m.totalRevenue)+' through ERGIO. Scale by adding more websites or running outreach campaigns.'});
+  if(m.totalLeads===0&&sites.length>0) insights.push({icon:'\ud83d\ude80',title:'Start Finding Clients',impact:'high',desc:'You have websites but no leads. Use the Conductor to scan the internet for people who need your services.'});
+  if(sites.length===0) insights.push({icon:'\u26a1',title:'Build Your First Website',impact:'high',desc:'No websites yet. Use ERGIO Builder to create a professional business site in under 60 seconds.'});
+  if(m.avgLeadScore>0&&m.avgLeadScore<50) insights.push({icon:'\u26a0\ufe0f',title:'Improve Lead Targeting',impact:'medium',desc:'Your average lead score is '+m.avgLeadScore+'. Try more specific keywords like "buy handmade bags Lagos" instead of broad terms.'});
+  if(!insights.length) insights.push({icon:'\u2705',title:'All Systems Healthy',impact:'positive',desc:'Your ERGIO setup looks good. Keep building websites and finding leads to grow your revenue.'});
+
+  var html='<div class="sg">'+statCard('Active Sites',sites.length,'--cyan','\ud83c\udf10')+statCard('Total Leads',m.totalLeads||0,'--green','\ud83c\udfaf')+statCard('Revenue',fmtNaira(m.totalRevenue||0),'--green','\ud83d\udcb0')+statCard('Avg Score',m.avgLeadScore||0,'--blue','\ud83d\udcca')+'</div>';
+  html+='<div style="display:flex;flex-direction:column;gap:12px">';
+  insights.forEach(function(i){
+    var color=i.impact==='high'?'var(--red)':i.impact==='medium'?'var(--amber)':i.impact==='positive'?'var(--green)':'var(--cyan)';
+    html+='<div class="card" style="border-left:3px solid '+color+'"><div class="flex items-center gap-2"><span style="font-size:1.3rem">'+i.icon+'</span><div style="font-weight:700;font-size:.88rem">'+i.title+'</div><span class="badge" style="background:'+color+'22;color:'+color+';border:1px solid '+color+'44;margin-left:auto">'+i.impact+'</span></div><p style="color:var(--text3);font-size:.82rem;margin-top:8px;line-height:1.6">'+i.desc+'</p></div>';
+  });
+  html+='</div>';
+  document.getElementById('aiContent').innerHTML=html;
+}
+
+function renderEvents(){
+  var events=DATA.recentEvents||[];
+  var byType=DATA.eventsByType||{};
+  if(!events.length){document.getElementById('eventsContent').innerHTML='<div class="empty"><div class="empty-icon">\ud83d\udcca</div><div class="empty-title">No Events Yet</div><div class="empty-desc">Activity from your ERGIO system (website visits, leads, bookings, payments) will appear here in real-time.</div></div>';return}
+  var typeHtml='<div class="sg">';
+  Object.keys(byType).forEach(function(t){typeHtml+=statCard(t,byType[t],'--blue','\ud83d\udccc')});
+  typeHtml+='</div>';
+  var html=typeHtml+'<div class="card"><div class="tw"><table><thead><tr><th>Event</th><th>Time</th></tr></thead><tbody>';
+  events.forEach(function(e){
+    html+='<tr><td><span class="badge bc">'+escapeHtml(e.event_type||'event')+'</span> <span class="text-xs text-muted">'+escapeHtml(JSON.stringify(e.properties||{}).slice(0,60))+'</span></td>';
+    html+='<td class="text-xs text-muted">'+fmtDate(e.created_at)+' '+fmtTime(e.created_at)+'</td></tr>';
+  });
+  html+='</tbody></table></div></div>';
+  document.getElementById('eventsContent').innerHTML=html;
+}
+
+function generateToken(){
+  var url=document.getElementById('verifyUrl').value.trim();
+  if(!url){showToast('Enter a URL first','error');return}
+  var token='ergio_'+Math.random().toString(36).substr(2,16)+Math.random().toString(36).substr(2,8);
+  localStorage.setItem('ergio_verify_token',token);
+  localStorage.setItem('ergio_verify_url',url);
+  document.getElementById('tokenSection').style.display='block';
+  document.getElementById('tokenCode').textContent='<meta name="ergio-verification" content="'+token+'"/>';
+  showToast('Token generated! Add the meta tag to your site.');
+}
+
+function verifySite(){
+  var token=localStorage.getItem('ergio_verify_token');
+  var url=localStorage.getItem('ergio_verify_url');
+  if(!token||!url){showToast('Generate a token first','error');return}
+  fetch(API_BASE+'/api/engines?action=scrape&url='+encodeURIComponent(url)).then(function(r){return r.json()}).then(function(d){
+    var html=d.html||d.content||'';
+    if(html.includes(token)){
+      showToast('Website verified successfully!');
+      fetch(API_BASE+'/api/console-bridge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({siteUrl:url,siteName:url.replace(/^https?:\/\//,''),event:'verified',metadata:{token:token}})}).then(function(){loadAll()}).catch(function(){});
+    }else{
+      showToast('Token not found on your website. Make sure you added the meta tag.','error');
+    }
+  }).catch(function(){showToast('Could not reach your website. Check the URL.','error')});
+}
+
+loadAll();
+setInterval(function(){loadAll()},60000);
 </script>
 </body>
 </html>

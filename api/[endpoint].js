@@ -36,6 +36,7 @@ import websites from '../ergio/api/websites.js';
 import assistant from '../ergio/api/ai-assistant.js';
 import conductorAI from '../ergio/api/conductor-ai.js';
 import aiMistral from '../ergio/api/ai-mistral.js';
+import consoleData from '../ergio/api/console-data.js';
 
 const handlers = {
   auth, engines, business, bookings, payments, generate,
@@ -44,7 +45,8 @@ const handlers = {
   'smart-pricing': smartPricing, social, upload, whatsapp, refine,
   transform, agents, mcp, advisor, logo, critique, paystack, site, websites, assistant,
   'conductor-ai': conductorAI,
-  'ai-mistral': aiMistral
+  'ai-mistral': aiMistral,
+  'console-data': consoleData
 };
 
 export default async function handler(req, res) {

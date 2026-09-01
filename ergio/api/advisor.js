@@ -10,8 +10,8 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const SUPABASE_URL = process.env.SUPABASE_URL || process.env.SUPABASE_DB_URL || '';
-  const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  const SUPABASE_URL = process.env.SUPABASE_URL || process.env.SUPABASE_DB_URL || 'https://owcxfzlanlrulflsyvlr.supabase.co';
+  const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93Y3hmemxhbmxydWxmbHN5dmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxNzI5NDIsImV4cCI6MjA5OTc0ODk0Mn0.k6IISu8k8QoU1CGLF0U3319qqDvEIwYY8PPXXvwfbAw';
   const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY || '';
   const GROQ_KEY = process.env.GROQ_API_KEY || '';
 
