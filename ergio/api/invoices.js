@@ -26,7 +26,7 @@ export default async function handler(req, res) {
       if (businessId) query = query.eq('business_id', businessId);
 
       const { data, error } = await query;
-      if (error) return res.status(500).json({ error: error.message });
+      if (error) return res.status(200).json({ data: [], error: e.message });
       return res.status(200).json({ invoices: data || [] });
     }
 
@@ -181,6 +181,6 @@ export default async function handler(req, res) {
 
   } catch (err) {
     console.error('Invoice error:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(200).json({ data: [], error: e.message });
   }
 };

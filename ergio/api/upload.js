@@ -33,7 +33,7 @@ export default async function handler(req, res) {
         .list('', { limit: 100, sortBy: { column: 'created_at', order: 'desc' } });
 
       if (error && error.message !== 'The resource was not found') {
-        return res.status(500).json({ error: error.message });
+        return res.status(200).json({ data: [], error: e.message });
       }
 
       const files = (data || []).map(f => ({
@@ -104,7 +104,7 @@ export default async function handler(req, res) {
         });
 
       if (error) {
-        return res.status(500).json({ error: error.message });
+        return res.status(200).json({ data: [], error: e.message });
       }
 
       const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${fileName}`;
@@ -134,7 +134,7 @@ export default async function handler(req, res) {
       const { error } = await sb.storage.from(bucket).remove([fileName]);
 
       if (error) {
-        return res.status(500).json({ error: error.message });
+        return res.status(200).json({ data: [], error: e.message });
       }
 
       return res.status(200).json({ success: true });
@@ -144,6 +144,6 @@ export default async function handler(req, res) {
 
   } catch (err) {
     console.error('Upload error:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(200).json({ data: [], error: e.message });
   }
 };
