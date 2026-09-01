@@ -5425,9 +5425,14 @@ async function testMCPConnection(tool) {
   if (typeof orig === 'function') {
     window.switchTab = function(tab) {
       orig(tab);
-      if (tab === 'integrations') setTimeout(initIntegrationsTab, 50);
+      if (tab === 'integrations') setTimeout(initIntegrationsTab, 200);
     };
   }
+  // Also listen for hash changes
+  window.addEventListener('hashchange', function() {
+    var tab = window.location.hash.replace('#', '');
+    if (tab === 'integrations') setTimeout(initIntegrationsTab, 200);
+  });
 })();
 </script>
 
