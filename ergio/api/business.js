@@ -1,5 +1,4 @@
 import { getSupabase } from '../lib/ergio.js';
-const supabase = () => getSupabase({});
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -7,7 +6,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const db = supabase();
+  const db = getSupabase(req);
   const { method, body, query } = req;
 
   try {
