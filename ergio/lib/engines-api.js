@@ -14,7 +14,10 @@ window.ErgioEngines = (function () {
     };
     if (opts.body && typeof opts.body === 'object') opts.body = JSON.stringify(opts.body);
     try {
-      const resp = await fetch(url, opts);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+      const resp = await fetch(url, { ...opts, signal: controller.signal });
+      clearTimeout(timeout);
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({ detail: resp.statusText }));
         throw new Error(err.detail || `HTTP ${resp.status}`);
