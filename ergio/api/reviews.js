@@ -18,8 +18,6 @@ export default async function handler(req, res) {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
     const businessId = req.query.business_id || body.business_id;
 
-    );
-    }
 
     const sb = getSupabase(req);
 

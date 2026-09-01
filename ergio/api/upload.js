@@ -15,8 +15,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    );
-    }
+
 
     const sb = getSupabase(req);
     const SUPABASE_URL = process.env.SUPABASE_URL || 'https://owcxfzlanlrulflsyvlr.supabase.co';

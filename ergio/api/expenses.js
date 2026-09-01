@@ -15,8 +15,6 @@ export default async function handler(req, res) {
   try {
     const action = req.query.action || 'list';
 
-    );
-    }
 
     const sb = getSupabase(req);
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
