@@ -44,7 +44,7 @@
     },
     {
       "source": "/auth/:path*",
-      "destination": "/ergio/auth/:path*"
+      "destination": "/ergio/auth/:path*.html"
     },
     {
       "source": "/dashboard/:path*",
@@ -56,7 +56,7 @@
     },
     {
       "source": "/templates/:path*",
-      "destination": "/ergio/templates/:path*"
+      "destination": "/ergio/templates/:path*.html"
     },
     {
       "source": "/site/:slug*",
@@ -205,22 +205,6 @@
     {
       "source": "/eko-visage.html",
       "destination": "/ergio/eko-visage.html"
-    },
-    {
-      "source": "/auth/login",
-      "destination": "/ergio/auth/login.html"
-    },
-    {
-      "source": "/auth/signup",
-      "destination": "/ergio/auth/signup.html"
-    },
-    {
-      "source": "/auth/login.html",
-      "destination": "/ergio/auth/login.html"
-    },
-    {
-      "source": "/auth/signup.html",
-      "destination": "/ergio/auth/signup.html"
     },
     {
       "source": "/templates",
