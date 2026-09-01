@@ -2065,19 +2065,22 @@ async function loadOverview(){
       }
     }catch(e2){}
   }
-  // Try Supabase for bookings and revenue (needs auth)
+  // Load activity feed FIRST (doesn't depend on Supabase)
+  loadActivity();
+  // Try Supabase for bookings and revenue (needs auth) — with timeout
   if(sbClient){
     try{
-      const{count:b}=await sbClient.from('bookings').select('*',{count:'exact',head:true});
+      const supaTimeout=new Promise((_,rej)=>setTimeout(rej,5000,'timeout'));
+      const{count:b}=await Promise.race([sbClient.from('bookings').select('*',{count:'exact',head:true}),supaTimeout]);
       document.getElementById('kpiBookings').textContent=b||0;
       document.getElementById('kpiBookingsTrend').textContent='Total';
-      const{data:pmts}=await sbClient.from('payments').select('amount');
+      const{data:pmts}=await Promise.race([sbClient.from('payments').select('amount'),supaTimeout]);
       let rev=0;(pmts||[]).forEach(p=>rev+=(p.amount||0));
       document.getElementById('kpiRevenue').textContent='₦'+rev.toLocaleString();
       document.getElementById('kpiRevTrend').textContent='From payments';
     }catch(e){
-      document.getElementById('kpiBookingsTrend').textContent='Connect Supabase';
-      document.getElementById('kpiRevTrend').textContent='Connect Supabase';
+      document.getElementById('kpiBookingsTrend').textContent='Sign in to view';
+      document.getElementById('kpiRevTrend').textContent='Sign in to view';
     }
   }else{
     document.getElementById('kpiBookings').textContent='0';
@@ -2085,7 +2088,6 @@ async function loadOverview(){
     document.getElementById('kpiRevenue').textContent='₦0';
     document.getElementById('kpiRevTrend').textContent='Sign in to view';
   }
-  loadActivity();
 }
 async function loadActivity(){
   const c=document.getElementById('activityFeed');if(!c)return;
@@ -2108,16 +2110,18 @@ async function loadActivity(){
       events.push({icon:'⚡',text:'<strong>Vercel mode active</strong> — 8 AI engines running serverless',time:'now',color:'var(--green)'});
     }
   }
-  // Try Supabase for additional events
+  // Try Supabase for additional events — with timeout
   if(sbClient){
     try{
-      const{data:leads}=await sbClient.from('leads').select('*').order('created_at',{ascending:false}).limit(5);
+      const supaTO=new Promise((_,rej)=>setTimeout(rej,5000,'timeout'));
+      const{data:leads}=await Promise.race([sbClient.from('leads').select('*').order('created_at',{ascending:false}).limit(5),supaTO]);
       if(leads&&leads.length){
         leads.forEach(function(l){
           events.push({icon:'🎯',text:'New lead: <strong>'+(l.name||l.business_name||'Unknown')+'</strong>',time:'recent',color:'var(--cyan)'});
         });
       }
-      const{data:bk}=await sbClient.from('bookings').select('*').order('created_at',{ascending:false}).limit(3);
+      const supaTO2=new Promise((_,rej)=>setTimeout(rej,5000,'timeout'));
+      const{data:bk}=await Promise.race([sbClient.from('bookings').select('*').order('created_at',{ascending:false}).limit(3),supaTO2]);
       if(bk&&bk.length){
         bk.forEach(function(b){
           events.push({icon:'📅',text:'Booking: <strong>'+(b.name||b.service||'New booking')+'</strong>',time:'recent',color:'var(--green)'});
