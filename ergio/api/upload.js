@@ -4,7 +4,7 @@
 // Uses Supabase Storage for persistence
 // ========================================
 
-import { createClient } from '@supabase/supabase-js';
+import { getSupabase } from '../lib/ergio.js';
 
 export default async function handler(req, res) {
   // CORS
@@ -15,13 +15,11 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    const { SUPABASE_URL, SUPABASE_SERVICE_KEY } = process.env;
-
-    if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-      return res.status(500).json({ error: 'Supabase not configured' });
+    );
     }
 
-    const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+    const sb = getSupabase(req);
+    const SUPABASE_URL = process.env.SUPABASE_URL || 'https://owcxfzlanlrulflsyvlr.supabase.co';
     const url = new URL(req.url, `http://${req.headers.host}`);
     const pathParts = url.pathname.replace('/api/upload', '').replace(/^\//, '');
     const action = pathParts || 'list';

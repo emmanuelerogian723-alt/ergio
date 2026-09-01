@@ -4,7 +4,7 @@
 // Collects, moderates, and displays testimonials
 // ========================================
 
-import { createClient } from '@supabase/supabase-js';
+import { getSupabase } from '../lib/ergio.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -14,16 +14,14 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    const { SUPABASE_URL, SUPABASE_SERVICE_KEY } = process.env;
     const action = req.query.action || 'list';
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
     const businessId = req.query.business_id || body.business_id;
 
-    if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-      return res.status(500).json({ error: 'Supabase not configured' });
+    );
     }
 
-    const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+    const sb = getSupabase(req);
 
     if (req.method === 'GET' && action === 'list') {
       let query = sb.from('reviews').select('*').order('created_at', { ascending: false }).limit(50);

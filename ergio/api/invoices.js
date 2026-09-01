@@ -3,7 +3,7 @@
 // Creates professional invoices with PDF-ready HTML
 // ========================================
 
-import { createClient } from '@supabase/supabase-js';
+import { getSupabase } from '../lib/ergio.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -13,15 +13,13 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    const { SUPABASE_URL, SUPABASE_SERVICE_KEY, GROQ_API_KEY } = process.env;
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     const url = new URL(req.url, `http://${req.headers.host}`);
     const action = url.searchParams.get('action') || (req.method === 'GET' ? 'list' : 'create');
 
     // ---- LIST INVOICES ----
     if (req.method === 'GET' && action === 'list') {
-      if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) return res.status(500).json({ error: 'Supabase not configured' });
-      const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+      const sb = getSupabase(req);
       const businessId = url.searchParams.get('business_id');
 
       let query = sb.from('invoices').select('*').order('created_at', { ascending: false }).limit(50);
@@ -50,8 +48,8 @@ export default async function handler(req, res) {
       const dueDate = due_date || new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
 
       // Save to Supabase if configured
-      if (SUPABASE_URL && SUPABASE_SERVICE_KEY) {
-        const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+      if (sb) {
+        const sb = getSupabase(req);
         await sb.from('invoices').insert({
           invoice_number: invoiceNumber,
           business_name: business_name || 'My Business',
