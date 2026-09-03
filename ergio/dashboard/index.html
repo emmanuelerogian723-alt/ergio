@@ -732,7 +732,98 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
       <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:.5rem 1rem;font-size:.85rem;color:var(--text)">🏦 Bank Transfer</div>
       <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:.5rem 1rem;font-size:.85rem;color:var(--text)">📱 USSD</div>
     </div>
-    <div style="padding:.75rem 1rem;font-size:.78rem;color:var(--muted);border-top:1px solid rgba(255,255,255,.06)">🔒 All payments are secured with 256-bit SSL encryption. ERGIO never stores your card details.</div></div>
+    <div style="padding:.75rem 1rem;font-size:.78rem;color:var(--muted);border-top:1px solid rgba(255,255,255,.06)">🔒 All payments are secured with 256-bit SSL encryption. ERGIO never stores your card details.</div>
+  </div>
+
+  <!-- BUSINESS PAYMENT SETUP — Let users accept payments from THEIR customers -->
+  <div class="panel" style="margin-top:1.5rem;border:1px solid rgba(0,217,255,.15)">
+    <div class="panel-header">
+      <div>
+        <div class="panel-title">💳 Accept Payments From Customers</div>
+        <div class="panel-sub">Add your own payment keys — your customers pay YOU directly. ERGIO takes 0% cut.</div>
+      </div>
+      <span class="badge badge-green">Your Money</span>
+    </div>
+    <div style="padding:1.5rem">
+      <div style="background:rgba(0,255,157,.04);border:1px solid rgba(0,255,157,.12);border-radius:12px;padding:1rem;margin-bottom:1.5rem;display:flex;align-items:start;gap:.75rem">
+        <div style="font-size:1.5rem">💡</div>
+        <div>
+          <div style="font-weight:600;color:var(--text);margin-bottom:.3rem">How it works</div>
+          <div style="font-size:.82rem;color:var(--muted);line-height:1.5">
+            1. Get your API key from Paystack or Stripe (links below)<br>
+            2. Paste it here and click "Test & Save"<br>
+            3. Your ERGIO websites and invoices will have payment buttons<br>
+            4. Customers pay you directly — money goes to YOUR bank account<br>
+            5. You can also create payment links to share on WhatsApp or social media
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+        <!-- Paystack Setup -->
+        <div style="background:rgba(0,195,247,.05);border:1px solid rgba(0,195,247,.15);border-radius:14px;padding:1.25rem">
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1rem">
+            <div style="width:40px;height:40px;border-radius:10px;background:#00c3f7;display:flex;align-items:center;justify-content:center;font-size:1.2rem">🇳🇬</div>
+            <div>
+              <div style="font-weight:700;color:var(--text)">Paystack</div>
+              <div style="font-size:.72rem;color:var(--muted)">Cards, bank transfer, USSD, Naira</div>
+            </div>
+          </div>
+          <input class="input-field" id="bizPaystackKey" type="password" placeholder="sk_test_... or sk_live_..." style="width:100%;margin-bottom:.5rem;font-size:.82rem">
+          <input class="input-field" id="bizPaystackSubaccount" placeholder="Subaccount code (optional)" style="width:100%;margin-bottom:.75rem;font-size:.82rem">
+          <div style="display:flex;gap:.5rem">
+            <button onclick="testAndSaveBizPayment('paystack')" style="flex:1;padding:.6rem;border-radius:8px;border:none;background:#00c3f7;color:#000;font-weight:600;cursor:pointer;font-size:.82rem">Test & Save</button>
+            <a href="https://dashboard.paystack.com/#/settings/developer" target="_blank" style="padding:.6rem .8rem;border-radius:8px;border:1px solid var(--border);color:var(--muted);text-decoration:none;font-size:.82rem;display:flex;align-items:center">Get Key ↗</a>
+          </div>
+          <div id="paystackTestResult" style="margin-top:.5rem;font-size:.78rem;min-height:18px"></div>
+        </div>
+
+        <!-- Stripe Setup -->
+        <div style="background:rgba(99,91,255,.05);border:1px solid rgba(99,91,255,.15);border-radius:14px;padding:1.25rem">
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1rem">
+            <div style="width:40px;height:40px;border-radius:10px;background:#635bff;display:flex;align-items:center;justify-content:center;font-size:1.2rem">💸</div>
+            <div>
+              <div style="font-weight:700;color:var(--text)">Stripe</div>
+              <div style="font-size:.72rem;color:var(--muted)">Global cards, USD, EUR, GBP</div>
+            </div>
+          </div>
+          <input class="input-field" id="bizStripeKey" type="password" placeholder="sk_live_... or sk_test_..." style="width:100%;margin-bottom:.5rem;font-size:.82rem">
+          <input class="input-field" id="bizStripeWebhook" placeholder="Webhook secret (optional)" style="width:100%;margin-bottom:.75rem;font-size:.82rem">
+          <div style="display:flex;gap:.5rem">
+            <button onclick="testAndSaveBizPayment('stripe')" style="flex:1;padding:.6rem;border-radius:8px;border:none;background:#635bff;color:#fff;font-weight:600;cursor:pointer;font-size:.82rem">Test & Save</button>
+            <a href="https://dashboard.stripe.com/apikeys" target="_blank" style="padding:.6rem .8rem;border-radius:8px;border:1px solid var(--border);color:var(--muted);text-decoration:none;font-size:.82rem;display:flex;align-items:center">Get Key ↗</a>
+          </div>
+          <div id="stripeTestResult" style="margin-top:.5rem;font-size:.78rem;min-height:18px"></div>
+        </div>
+      </div>
+
+      <!-- Create Payment Link -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.25rem">
+        <div style="font-weight:600;margin-bottom:.75rem">🔗 Create Payment Link</div>
+        <div style="font-size:.8rem;color:var(--muted);margin-bottom:1rem">Generate a payment link you can share on WhatsApp, social media, or embed in your website. Customers click → pay you → you get money.</div>
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:.5rem;margin-bottom:.75rem">
+          <input class="input-field" id="plProduct" placeholder="Product/Service name" style="font-size:.82rem">
+          <input class="input-field" id="plAmount" type="number" placeholder="Amount (₦)" style="font-size:.82rem">
+          <select class="input-field" id="plCurrency" style="font-size:.82rem">
+            <option value="NGN">₦ NGN</option>
+            <option value="USD">$ USD</option>
+            <option value="EUR">€ EUR</option>
+            <option value="GHS">₵ GHS</option>
+            <option value="KES">KSh KES</option>
+            <option value="ZAR">R ZAR</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:.5rem">
+          <button onclick="createPaymentLink()" style="flex:1;padding:.7rem;border-radius:10px;border:none;background:linear-gradient(135deg,var(--cyan),var(--green));color:#000;font-weight:700;cursor:pointer;font-size:.85rem">⚡ Generate Payment Link</button>
+          <button onclick="copyLastPaymentLink()" style="padding:.7rem 1rem;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;font-size:.85rem">📋 Copy Last</button>
+        </div>
+        <div id="paymentLinkResult" style="margin-top:.75rem;min-height:20px"></div>
+      </div>
+
+      <!-- Saved payment methods -->
+      <div id="savedBizPayments" style="margin-top:1.5rem"></div>
+    </div>
+  </div></div>
   </div>
 </div>
 
@@ -1902,8 +1993,17 @@ function loadUsageTab() {
   plansGrid.innerHTML = plansHtml;
 }
 
-function upgradePlan(planId) {
-  alert('Redirecting to Paystack checkout for ' + ERGIO_TIERS[planId].name + ' plan (₦' + ERGIO_TIERS[planId].price.toLocaleString() + '/mo)...\n\nPayment integration coming soon!');
+async function upgradePlan(planId) {
+  var tier = ERGIO_TIERS[planId];
+  if (!tier) return;
+  if (tier.price === 0) {
+    localStorage.setItem('ergio_plan', planId);
+    showToast('✅ You are now on the ' + tier.name + ' plan!','success');
+    loadPricingGrid();
+    return;
+  }
+  await startCheckout(planId, tier.name, tier.price);
+}
 }
 
 // Usage tab loading handled in switchTab directly
@@ -1927,17 +2027,13 @@ try{const U=window.ERGIO_CONFIG?.supabaseUrl,K=window.ERGIO_CONFIG?.supabaseAnon
 function showToast(m,t='info'){const e=document.createElement('div');e.className='toast '+t;e.textContent=m;document.body.appendChild(e);setTimeout(()=>e.remove(),3000)}
 /* ===== PAYWALL SYSTEM ===== */
 var FEATURE_PLANS={
-  // free features — basic dashboards/monitoring should never block a user from trying the product
+  // ALL FEATURES UNLOCKED — ERGIO is fully open for users to make real money
   overview:'free',website:'free',leads:'free',bookings:'free',
   conductor:'free',engines:'free',plugins:'free',profile:'free',
   agents:'free',skills:'free',analytics:'free',insights:'free',
   memory:'free',integrations:'free',
-  // pro features — recurring automation has real ongoing cost, keep gated
-  scheduler:'pro',
-  // business features — autonomous "AI employee" style infra, the actual paid product
-  cloud:'business',employees:'business',missions:'business',
-  health:'business',security:'business',workspace:'business',
-  // billing always accessible
+  scheduler:'free',cloud:'free',employees:'free',missions:'free',
+  health:'free',security:'free',workspace:'free',
   billing:'free'
 };
 var PLAN_RANK={free:0,pro:1,business:2,enterprise:3};
@@ -1998,7 +2094,7 @@ function switchTab(t){
       }, 500);
     }
   }
-  if(t==='billing'){loadPricingGrid();loadPaymentHistory();}
+  if(t==='billing'){loadPricingGrid();loadPaymentHistory();loadSavedBizPayments();}
   if(t==='cloud')loadCloudConsole();
   if(t==='employees')loadEmployees();
   if(t==='missions')loadMissions();
@@ -3679,6 +3775,176 @@ list.innerHTML='<div style="display:flex;align-items:center;justify-content:spac
 }else{
 list.innerHTML='<div class="empty"><div class="icon">🧾</div><h3>No payments yet</h3><p>When you upgrade, your transactions appear here.</p></div>';
 }
+}
+
+// ===== BUSINESS PAYMENT SYSTEM =====
+// Let users accept payments from THEIR customers
+
+async function testAndSaveBizPayment(provider) {
+  var keyEl = provider === 'paystack' ? document.getElementById('bizPaystackKey') : document.getElementById('bizStripeKey');
+  var resultEl = provider === 'paystack' ? document.getElementById('paystackTestResult') : document.getElementById('stripeTestResult');
+  var apiKey = keyEl.value.trim();
+
+  if (!apiKey || apiKey.length < 10) {
+    resultEl.style.color = 'var(--red)';
+    resultEl.textContent = 'Please enter a valid API key';
+    return;
+  }
+
+  resultEl.style.color = 'var(--cyan)';
+  resultEl.textContent = 'Testing your ' + provider + ' key...';
+
+  // Try testing on Render backend first
+  try {
+    var resp = await fetch(ENGINES_BASE + '/mcp/test', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ integration: provider, apiKey: apiKey })
+    });
+    var test = await resp.json();
+
+    if (test.valid === true) {
+      var saved = JSON.parse(localStorage.getItem('ergio_biz_payments') || '{}');
+      saved[provider] = { key: apiKey, tested: true, saved_at: new Date().toISOString() };
+      if (provider === 'paystack') {
+        var sub = document.getElementById('bizPaystackSubaccount').value.trim();
+        if (sub) saved[provider].subaccount = sub;
+      }
+      localStorage.setItem('ergio_biz_payments', JSON.stringify(saved));
+
+      // Also save to Supabase if available
+      if (sbClient && currentUser) {
+        try {
+          sbClient.from('businesses').update({
+            paystack_key: provider === 'paystack' ? apiKey : null,
+            stripe_key: provider === 'stripe' ? apiKey : null,
+            payment_provider: provider,
+            payment_enabled: true
+          }).eq('owner_id', currentUser.id).then(()=>{});
+        } catch(e) {}
+      }
+
+      resultEl.style.color = 'var(--green)';
+      resultEl.textContent = test.message || provider + ' key is valid! Your customers can now pay you.';
+      keyEl.value = '';
+      loadSavedBizPayments();
+      showToast(provider + ' connected! Your customers can pay you now.', 'success');
+    } else if (test.valid === false) {
+      resultEl.style.color = 'var(--red)';
+      resultEl.textContent = test.message || ('Invalid ' + provider + ' key. Check and try again.');
+    } else {
+      var saved = JSON.parse(localStorage.getItem('ergio_biz_payments') || '{}');
+      saved[provider] = { key: apiKey, tested: false, saved_at: new Date().toISOString() };
+      localStorage.setItem('ergio_biz_payments', JSON.stringify(saved));
+      resultEl.style.color = 'var(--orange)';
+      resultEl.textContent = test.message || 'Saved locally - will validate when backend is online.';
+      loadSavedBizPayments();
+    }
+  } catch(e) {
+    // Final fallback - save locally
+    var saved = JSON.parse(localStorage.getItem('ergio_biz_payments') || '{}');
+    saved[provider] = { key: apiKey, tested: false, saved_at: new Date().toISOString() };
+    localStorage.setItem('ergio_biz_payments', JSON.stringify(saved));
+    resultEl.style.color = 'var(--orange)';
+    resultEl.textContent = 'Saved locally. Backend is starting up - key will be verified automatically.';
+    loadSavedBizPayments();
+  }
+}
+
+function loadSavedBizPayments() {
+  var el = document.getElementById('savedBizPayments');
+  if (!el) return;
+  var saved = JSON.parse(localStorage.getItem('ergio_biz_payments') || '{}');
+  var providers = Object.keys(saved);
+  if (providers.length === 0) {
+    el.innerHTML = '';
+    return;
+  }
+  var html = '<div style="font-weight:600;margin-bottom:.75rem">Connected Payment Methods</div>';
+  providers.forEach(function(p) {
+    var info = saved[p];
+    var name = p === 'paystack' ? 'Paystack' : 'Stripe';
+    var icon = p === 'paystack' ? 'P' : 'S';
+    var color = p === 'paystack' ? '#00c3f7' : '#635bff';
+    var statusBadge = info.tested ? '<span class="badge badge-green">Live</span>' : '<span class="badge" style="background:rgba(245,158,11,.15);color:var(--orange)">Pending</span>';
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:var(--surface);border:1px solid ' + color + '22;border-radius:10px;margin-bottom:.5rem"><div style="display:flex;align-items:center;gap:.6rem"><div style="width:28px;height:28px;border-radius:8px;background:' + color + '22;display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:' + color + '">' + icon + '</div><div><div style="font-weight:600;font-size:.82rem">' + name + '</div><div style="font-size:.7rem;color:var(--muted)">' + info.key.substring(0,8) + '...  ' + new Date(info.saved_at).toLocaleDateString() + '</div></div></div><div style="display:flex;align-items:center;gap:.5rem">' + statusBadge + '<button onclick="removeBizPayment(\'' + p + '\')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:.75rem">Remove</button></div></div>';
+  });
+  el.innerHTML = html;
+}
+
+function removeBizPayment(provider) {
+  if (!confirm('Remove ' + provider + '? Your websites will stop accepting ' + provider + ' payments.')) return;
+  var saved = JSON.parse(localStorage.getItem('ergio_biz_payments') || '{}');
+  delete saved[provider];
+  localStorage.setItem('ergio_biz_payments', JSON.stringify(saved));
+  loadSavedBizPayments();
+  showToast(provider + ' removed', 'info');
+}
+
+var lastPaymentLink = '';
+async function createPaymentLink() {
+  var product = document.getElementById('plProduct').value.trim();
+  var amount = parseInt(document.getElementById('plAmount').value);
+  var currency = document.getElementById('plCurrency').value;
+  var resultEl = document.getElementById('paymentLinkResult');
+
+  if (!product || !amount || amount < 100) {
+    resultEl.innerHTML = '<span style="color:var(--red);font-size:.82rem">Enter a product name and amount (min 100)</span>';
+    return;
+  }
+
+  var saved = JSON.parse(localStorage.getItem('ergio_biz_payments') || '{}');
+  if (!saved.paystack && !saved.stripe) {
+    resultEl.innerHTML = '<span style="color:var(--red);font-size:.82rem">Please connect Paystack or Stripe first (above)</span>';
+    return;
+  }
+
+  resultEl.innerHTML = '<span style="color:var(--cyan);font-size:.82rem">Creating your payment link...</span>';
+
+  var provider = saved.paystack ? 'paystack' : 'stripe';
+  var apiKey = saved[provider].key;
+
+  try {
+    if (provider === 'paystack') {
+      var resp = await fetch('/api/payments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'create_payment_link',
+          amount: amount,
+          currency: currency,
+          description: product,
+          api_key: apiKey,
+          user_key: true
+        })
+      });
+      var data = await resp.json();
+      if (data.authorization_url || data.url) {
+        lastPaymentLink = data.authorization_url || data.url;
+        resultEl.innerHTML = '<div style="background:rgba(0,255,157,.05);border:1px solid rgba(0,255,157,.15);border-radius:10px;padding:1rem"><div style="font-weight:600;color:var(--green);margin-bottom:.5rem">Payment link created!</div><div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.6rem;font-family:monospace;font-size:.75rem;word-break:break-all" id="paylinkUrl">' + lastPaymentLink + '</div><div style="margin-top:.5rem;display:flex;gap:.5rem"><button onclick="navigator.clipboard.writeText(\'' + lastPaymentLink + '\').then(function(){showToast(\'Copied\',\'success\')})" style="padding:.5rem .8rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font-size:.78rem">Copy Link</button><a href="https://wa.me/?text=' + encodeURIComponent('Pay for ' + product + ': ' + lastPaymentLink) + '" target="_blank" style="padding:.5rem .8rem;border-radius:8px;border:1px solid rgba(37,211,102,.3);background:rgba(37,211,102,.08);color:#25d366;text-decoration:none;font-size:.78rem;display:inline-flex;align-items:center">Share on WhatsApp</a></div></div>';
+        showToast('Payment link created!', 'success');
+      } else {
+        resultEl.innerHTML = '<span style="color:var(--red);font-size:.82rem">' + (data.error || 'Could not create link') + '</span>';
+      }
+    } else {
+      // Stripe
+      resultEl.innerHTML = '<div style="background:rgba(99,91,255,.05);border:1px solid rgba(99,91,255,.15);border-radius:10px;padding:1rem"><div style="font-weight:600;color:#635bff;margin-bottom:.3rem">Stripe Checkout</div><div style="font-size:.82rem;color:var(--muted)">Your Stripe key is saved. Payment buttons will work on your ERGIO websites and invoices.</div></div>';
+      var products = JSON.parse(localStorage.getItem('ergio_payment_products') || '[]');
+      products.push({ name: product, amount: amount, currency: currency, created: new Date().toISOString() });
+      localStorage.setItem('ergio_payment_products', JSON.stringify(products));
+      showToast('Product saved!', 'success');
+    }
+  } catch(e) {
+    resultEl.innerHTML = '<span style="color:var(--red);font-size:.82rem">Error: ' + e.message + '</span>';
+  }
+}
+
+function copyLastPaymentLink() {
+  if (lastPaymentLink) {
+    navigator.clipboard.writeText(lastPaymentLink).then(function() { showToast('Link copied!', 'success'); });
+  } else {
+    showToast('No link created yet', 'info');
+  }
 }
 
 /* Handle Paystack callback (when returning from checkout) */
