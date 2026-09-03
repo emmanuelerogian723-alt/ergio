@@ -254,23 +254,31 @@ export default async function handler(req, res) {
         } catch (e2) { console.error('[site] Minimal insert exception:', e2.message); }
       }
 
-      const finalSlug = recordId || bodySlug;
-      const deployUrl = recordId ? `https://ergio.vercel.app/s/${recordId}` : `https://ergio.vercel.app/s/${bodySlug}`;
+      // VERIFY the save actually landed before telling the user it worked
+      if (!recordId) {
+        console.error('[site] DEPLOY FAILED — no recordId. saveError:', saveError?.message || saveError);
+        return res.status(503).json({
+          success: false,
+          error: 'Database save failed. Website was NOT deployed. The database may be paused — check Supabase project status.',
+          detail: saveError?.message || 'Insert returned no id'
+        });
+      }
+
+      const deployUrl = `https://ergio.vercel.app/s/${recordId}`;
       return res.status(200).json({
         success: true,
-        slug: recordId || bodySlug,
+        slug: recordId,
         siteId: recordId,
         deployUrl,
         previewUrl: `https://ergio.vercel.app/preview.html?site=${bodySlug}`,
         message: 'Website deployed and ready to share'
       });
     } catch (e) {
-      return res.status(200).json({
-        success: true,
-        slug: recordId || bodySlug,
-        deployUrl: `https://ergio.vercel.app/s/${bodySlug}`,
-        message: 'Website saved (client-side mode)',
-        error: e.message
+      console.error('[site] Deploy exception:', e.message);
+      return res.status(503).json({
+        success: false,
+        slug: bodySlug,
+        error: 'Database save failed: ' + e.message
       });
     }
   }
