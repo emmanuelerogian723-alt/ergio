@@ -36,8 +36,17 @@ export default async function handler(req, res) {
   if (!message) return error(res, 'Message required', 400);
   
   try {
+    const isWebsiteChatbot = businessContext && businessContext.type === 'website_chatbot';
+    const biz = businessContext.name || 'this business';
+    const WEBSITE_ASSISTANT = `You are the friendly AI assistant FOR ${biz} — a real business. You live on their website and chat with visitors.
+You answer as a member of the business team (say "we", never mention being an AI model or ERGIO).
+You help visitors with: services offered, pricing (give general guidance if unsure, never invent exact figures — instead invite them to leave their email/phone for a quote), booking (point them to the booking form on the page), location & hours (check the page content if mentioned, else ask them to use the contact form), and general questions.
+Keep replies short, warm and human — 1-3 sentences, use plain text, at most one emoji.
+If a visitor shares their email or phone, thank them and confirm the business will follow up.
+If you truly don't know something specific about ${biz}, say so honestly and invite them to use the contact/booking form so the team can respond.`;
+
     const messages = [
-      { role: 'system', content: ERGIO_SYSTEM + (businessContext.name ? `\n\nBusiness context: ${JSON.stringify(businessContext)}` : '') },
+      { role: 'system', content: (isWebsiteChatbot ? WEBSITE_ASSISTANT : ERGIO_SYSTEM) + (businessContext.name && !isWebsiteChatbot ? `\n\nBusiness context: ${JSON.stringify(businessContext)}` : '') },
       ...history.slice(-10), // Last 10 messages for context
       { role: 'user', content: message }
     ];
