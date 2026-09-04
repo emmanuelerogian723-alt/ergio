@@ -364,6 +364,15 @@ img,video,canvas{max-width:100%;height:auto}
           plan: plan
         }));
 
+        // Step 4b: Send welcome email (fire-and-forget)
+        try {
+          fetch('/api/notifications', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'welcome', to: email, name: fullName })
+          }).catch(function(){});
+        } catch(e) {}
+
         // Step 5: Show success and redirect
         document.querySelectorAll('.form-step').forEach(s => s.style.display = 'none');
         document.querySelector('.step-indicator').style.display = 'none';

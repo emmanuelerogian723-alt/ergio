@@ -2594,6 +2594,7 @@ async function deployTo(target) {
           slug: slug,
           html: currentHTML,
           htmlContent: currentHTML,
+          ownerEmail: (window.currentUser && window.currentUser.email) || (JSON.parse(localStorage.getItem('ergio_user')||'{}').email) || '',
           brandColors: buildData?.plan?.colors || buildData?.colors || {},
           businessType: buildData?.plan?.category || 'landing',
           websiteCategory: buildData?.plan?.websiteCategory || 'landing',

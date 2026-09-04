@@ -32,6 +32,7 @@ import logo from '../ergio/api/logo.js';
 import critique from '../ergio/api/critique.js';
 import paystack from '../ergio/api/paystack.js';
 import site from '../ergio/api/site.js';
+import leadCapture from '../ergio/api/lead-capture.js';
 import websites from '../ergio/api/websites.js';
 import assistant from '../ergio/api/ai-assistant.js';
 import conductorAI from '../ergio/api/conductor-ai.js';
@@ -43,7 +44,7 @@ const handlers = {
   leads, outreach, reviews, referrals, seo, analytics,
   notifications, card, expenses, invoices,
   'smart-pricing': smartPricing, social, upload, whatsapp, refine,
-  transform, agents, mcp, advisor, logo, critique, paystack, site, websites, assistant,
+  transform, agents, mcp, advisor, logo, critique, paystack, site, websites, assistant, 'lead-capture': leadCapture,
   'conductor-ai': conductorAI,
   'ai-mistral': aiMistral,
   'console-data': consoleData

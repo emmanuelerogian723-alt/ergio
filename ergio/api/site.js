@@ -6,6 +6,7 @@
 // ========================================
 
 import { success, error, corsHeaders, getSupabase } from '../lib/ergio.js';
+import { injectSiteFeatures } from '../lib/site-features.js';
 
 // Embed slug in HTML as a meta tag (workaround for missing slug column)
 function embedSlugInHtml(html, slug) {
@@ -155,7 +156,14 @@ export default async function handler(req, res) {
         return res.status(404).json({ success: false, error: 'Website not found' });
       }
 
-      const html = data.html || data.html_content || '';
+      let html = data.html || data.html_content || '';
+
+      // Inject real AI chatbot + booking/contact capture into every published site
+      html = injectSiteFeatures(html, {
+        slug: data.slug || extractSlugFromHtml(html) || slug,
+        ownerEmail: data.owner_email || '',
+        businessName: data.business_name || ''
+      });
 
       if (wantsHtml) {
         res.setHeader('Content-Type', 'text/html');
@@ -192,12 +200,17 @@ export default async function handler(req, res) {
     const finalType = body.businessType || body.type || 'landing';
     const finalColors = body.brandColors || body.brand_colors || {};
     const finalUserId = body.userId || body.businessId || body.created_by || null;
+    const finalOwnerEmail = body.ownerEmail || '';
     const bodySlug = body.slug || finalName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').substring(0, 60) || ('site-' + Date.now());
 
     if (!finalHtml) return error(res, 'html or htmlContent required', 400);
 
-    // Embed slug in HTML for fallback search
-    const htmlWithSlug = embedSlugInHtml(finalHtml, bodySlug);
+    // Embed slug + owner email in HTML for fallback search & lead notifications
+    let htmlWithSlug = embedSlugInHtml(finalHtml, bodySlug);
+    if (finalOwnerEmail && !htmlWithSlug.includes('ergio-owner-email')) {
+      const metaOwner = '<meta name="ergio-owner-email" content="' + finalOwnerEmail.replace(/"/g, '&quot;') + '">';
+      htmlWithSlug = /<\/head>/i.test(htmlWithSlug) ? htmlWithSlug.replace(/<\/head>/i, metaOwner + '</head>') : metaOwner + htmlWithSlug;
+    }
 
     const supabase = getSupabase(req);
     if (!supabase) return error(res, 'Database not configured', 500);
