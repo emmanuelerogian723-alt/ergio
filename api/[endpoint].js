@@ -44,7 +44,7 @@ const handlers = {
   leads, outreach, reviews, referrals, seo, analytics,
   notifications, card, expenses, invoices,
   'smart-pricing': smartPricing, social, upload, whatsapp, refine,
-  transform, agents, mcp, advisor, logo, critique, paystack, site, websites, assistant, 'lead-capture': leadCapture,
+  transform, agents, mcp, advisor, logo, critique, paystack, site, websites, assistant, 'lead-capture': leadCapture, 'ai-assistant': assistant,
   'conductor-ai': conductorAI,
   'ai-mistral': aiMistral,
   'console-data': consoleData
