@@ -87,15 +87,15 @@ function buildSiteFeaturesScript() {
   var win = document.createElement('div'); win.id = 'ergioAiWin';
   win.innerHTML = '<div class="ergio-ai-head"><div class="av">\\uD83E\\uDD16</div><div><h4></h4><p>AI-powered \\u2022 by ERGIO</p></div></div><div class="ergio-ai-msgs" id="ergioAiMsgs"></div><div class="ergio-ai-in"><input id="ergioAiInput" type="text" placeholder="Type your message..."><button id="ergioAiSend">\\u27A4</button></div>';
   win.querySelector('h4').textContent = bizName + ' Assistant';
-  var msgs0 = document.getElementById('ergioAiMsgs');
+  var msgs0 = win.querySelector('.ergio-ai-msgs');
   var greet = document.createElement('div'); greet.className = 'ergio-ai-msg ai';
   greet.innerHTML = '<div class="b">Hi! \\uD83D\\uDC4B I am the AI assistant for ' + '</div>';
   greet.querySelector('.b').textContent = 'Hi! \\uD83D\\uDC4B I am the AI assistant for ' + bizName + '. Ask me anything \\u2014 services, pricing, booking, location.';
   msgs0.appendChild(greet);
   document.body.appendChild(fab); document.body.appendChild(win);
   fab.onclick = function(){ win.classList.toggle('ergio-open'); };
-  var input = document.getElementById('ergioAiInput');
-  var msgs = document.getElementById('ergioAiMsgs');
+  var input = win.querySelector('#ergioAiInput');
+  var msgs = win.querySelector('.ergio-ai-msgs');
   var hist = [];
 
   function addMsg(role, text){
@@ -104,7 +104,7 @@ function buildSiteFeaturesScript() {
     d.appendChild(b); msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
   }
   function typing(on){
-    var t = document.getElementById('ergioTyping');
+    var t = msgs.querySelector('#ergioTyping');
     if (on && !t) { var d = document.createElement('div'); d.id = 'ergioTyping'; d.className = 'ergio-ai-msg ai'; d.innerHTML = '<div class="ergio-typing"><span></span><span></span><span></span></div>'; msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight; }
     if (!on && t) t.remove();
   }
@@ -138,7 +138,7 @@ function buildSiteFeaturesScript() {
       hist.push({ role: 'user', content: m }, { role: 'assistant', content: reply });
     }).catch(function(){ typing(false); var fr = fallbackReply(m); addMsg('ai', fr); hist.push({ role: 'user', content: m }, { role: 'assistant', content: fr }); });
   }
-  document.getElementById('ergioAiSend').onclick = send;
+  win.querySelector('#ergioAiSend').onclick = send;
   input.addEventListener('keydown', function(e){ if (e.key === 'Enter') send(); });
 })();
 </script>`;
