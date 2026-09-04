@@ -89,51 +89,35 @@ export default async function handler(req, res) {
     let saved = false, saveError = null;
 
     if (type === 'booking') {
+      // bookings table: client_name, client_email, client_phone, date, time, notes, status, price, payment_status
       const r = await adaptiveInsert(supabase, 'bookings', {
-        business_name: businessName,
-        customer_name: name || 'Website Visitor',
-        customer_email: email || null,
-        customer_phone: phone || null,
-        service: service || null,
-        booking_date: date || null,
-        notes: message || null,
-        status: 'pending',
-        source: 'ergio_website',
-        site_url: siteUrl
+        client_name: name || 'Website Visitor',
+        client_email: email || null,
+        client_phone: phone || null,
+        date: date || null,
+        notes: [service ? 'Service: ' + service : null, message || null, businessName ? 'Business: ' + businessName : null].filter(Boolean).join(' | ') || null,
+        status: 'pending'
       });
       saved = r.ok; saveError = r.error;
       if (!r.ok) {
-        // absolute fallback: minimal columns only
-        const r2 = await adaptiveInsert(supabase, 'bookings', { customer_name: name || 'Website Visitor', service: service || null });
-        saved = r2.ok; saveError = r2.ok ? null : r2.error;
-      }
-    } else if (type === 'chat') {
-      const r = await adaptiveInsert(supabase, 'leads', {
-        name: name || 'Chatbot Visitor',
-        email: email || null,
-        phone: phone || null,
-        message: (message || '').substring(0, 500),
-        business_name: businessName,
-        source: 'ergio_chatbot',
-        notes: 'session:' + (session || '') + ' page:' + (siteUrl || '')
-      });
-      saved = r.ok; saveError = r.error;
-      if (!r.ok) {
-        const r2 = await adaptiveInsert(supabase, 'leads', { name: name || 'Chatbot Visitor', message: (message || '').substring(0, 500) });
+        const r2 = await adaptiveInsert(supabase, 'bookings', { client_name: name || 'Website Visitor' });
         saved = r2.ok; saveError = r2.ok ? null : r2.error;
       }
     } else {
+      // leads table: name, email, phone, message, source, source_url, intent, location, status
       const r = await adaptiveInsert(supabase, 'leads', {
-        name: name || 'Website Visitor',
+        name: name || (type === 'chat' ? 'Chatbot Visitor' : 'Website Visitor'),
         email: email || null,
         phone: phone || null,
         message: (message || '').substring(0, 1000),
-        business_name: businessName,
-        source: 'ergio_contact_form'
+        source: type === 'chat' ? 'ergio_chatbot' : 'ergio_contact_form',
+        source_url: siteUrl || null,
+        intent: type === 'chat' ? 'chat_inquiry' : 'contact_form',
+        status: 'new'
       });
       saved = r.ok; saveError = r.error;
       if (!r.ok) {
-        const r2 = await adaptiveInsert(supabase, 'leads', { name: name || 'Website Visitor', message: (message || '').substring(0, 1000) });
+        const r2 = await adaptiveInsert(supabase, 'leads', { name: name || 'Visitor', message: (message || '').substring(0, 1000) });
         saved = r2.ok; saveError = r2.ok ? null : r2.error;
       }
     }
