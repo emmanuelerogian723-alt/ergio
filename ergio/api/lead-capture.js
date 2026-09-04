@@ -89,12 +89,17 @@ export default async function handler(req, res) {
     let saved = false, saveError = null;
 
     if (type === 'booking') {
-      // bookings table: client_name, client_email, client_phone, date, time, notes, status, price, payment_status
+      // bookings table: client_name*, client_email, client_phone, date*, time*, notes, status (* = NOT NULL)
+      let bookingDate = date || new Date().toISOString().slice(0, 10);
+      let bookingTime = 'Any time';
+      const dtMatch = String(date).match(/(\d{4}-\d{2}-\d{2})[^\d]*(\d{1,2}:\d{2})/);
+      if (dtMatch) { bookingDate = dtMatch[1]; bookingTime = dtMatch[2]; }
       const r = await adaptiveInsert(supabase, 'bookings', {
         client_name: name || 'Website Visitor',
         client_email: email || null,
         client_phone: phone || null,
-        date: date || null,
+        date: bookingDate,
+        time: bookingTime,
         notes: [service ? 'Service: ' + service : null, message || null, businessName ? 'Business: ' + businessName : null].filter(Boolean).join(' | ') || null,
         status: 'pending'
       });
