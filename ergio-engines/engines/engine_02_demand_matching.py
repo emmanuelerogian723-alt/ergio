@@ -21,6 +21,7 @@ from utils.scraper import scrape_page_async, scrape_multiple
 from utils.ai import ai_smart, ai_fast
 from db.supabase_client import insert_leads, is_db_ready, get_supabase, get_businesses
 from utils.logger import log
+from utils.lead_fallback import ai_fallback_leads
 from config import settings
 
 # Platforms where demand signals appear
@@ -56,7 +57,26 @@ async def run_demand_matching(
 ) -> dict:
     """
     Scan for real-time demand signals and match them to this business.
+    Guarded by an overall 25s budget — falls back to AI-generated matches if the
+    web search/scrape pipeline is too slow, so the caller never hangs.
     """
+    try:
+        return await asyncio.wait_for(
+            _run_demand_matching_inner(business_type, city, business_id, business_name, services),
+            timeout=25.0,
+        )
+    except asyncio.TimeoutError:
+        log.warning(f"Demand matching exceeded 25s budget for {business_type} in {city} — using AI fallback")
+        return await ai_fallback_leads(business_type, city, business_id, engine_name="demand_matching")
+
+
+async def _run_demand_matching_inner(
+    business_type: str,
+    city: str = "Lagos",
+    business_id: str = None,
+    business_name: str = None,
+    services: list = None,
+) -> dict:
     log.info(f"🎯 Engine 02 [Demand Matching] starting for {business_type} in {city}")
 
     # ── Phase 1: Build search queries with demand patterns ──

@@ -3375,7 +3375,7 @@ async function sendChatMessage(){
           var condPromise=fetch(ENGINES.BASE+'/conductor',{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({request:text,business_id:bizId,user_id:uid,history:conductorMemory.messages.slice(-4)})
+            body:JSON.stringify({message:text,business_id:bizId,user_id:uid,history:conductorMemory.messages.slice(-4)})
           });
           var condTimeout=new Promise(function(_,reject){setTimeout(function(){reject(new Error('timeout'))},60000)});
           var condResp=await Promise.race([condPromise,condTimeout]);

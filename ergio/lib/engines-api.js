@@ -34,12 +34,12 @@ window.ErgioEngines = (function () {
    * onEvent(type, data) is called for each SSE event.
    */
   async function streamConductor(request_text, bid, uid, onEvent) {
-    const url = BASE + '/conductor/run';
+    const url = BASE + '/conductor/stream';
     try {
       const resp = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ request: request_text, business_id: bid, user_id: uid }),
+        body: JSON.stringify({ message: request_text, business_id: bid, user_id: uid }),
       });
 
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -63,7 +63,7 @@ window.ErgioEngines = (function () {
           if (data === '[DONE]') return;
           try {
             const event = JSON.parse(data);
-            onEvent(event.type, event.data);
+            onEvent(event.type, event);
           } catch (e) { /* skip malformed */ }
         }
       }
@@ -144,7 +144,7 @@ window.ErgioEngines = (function () {
     BASE,
     health: () => request('/health'),
     status: () => request('/status'),
-    conductor: (req, bid, uid) => request('/conductor', { method: 'POST', body: { request: req, business_id: bid, user_id: uid } }),
+    conductor: (req, bid, uid) => request('/conductor', { method: 'POST', body: { message: req, business_id: bid, user_id: uid } }),
     streamConductor,
     discovery: (p) => request('/engines/discovery', { method: 'POST', body: p }),
     matching: (p) => request('/engines/matching', { method: 'POST', body: p }),

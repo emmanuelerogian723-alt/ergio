@@ -1,3 +1,4 @@
+import asyncio
 """
 ERGIO Engines — SearXNG Meta Search Client
 Searches 70+ engines through a single SearXNG instance
@@ -45,7 +46,7 @@ async def searxng_search(
         params["time_range"] = time_range
 
     try:
-        async with httpx.AsyncClient(timeout=20, verify=False) as client:
+        async with httpx.AsyncClient(timeout=6, verify=False) as client:
             resp = await client.get(f"{base}/search", params=params)
             if resp.status_code != 200:
                 log.warning(f"SearXNG returned {resp.status_code}")
@@ -70,13 +71,29 @@ async def searxng_search(
         log.error(f"SearXNG search failed: {e}")
         return []
 
-async def searxng_multi_query(queries: list[str], count_per_query: int = 8) -> list[dict]:
-    """Run multiple search queries and merge/deduplicate results."""
+async def searxng_multi_query(queries: list[str], count_per_query: int = 8, overall_timeout: float = 10.0) -> list[dict]:
+    """Run multiple search queries IN PARALLEL and merge/deduplicate results.
+    Bounded by overall_timeout so a dead search backend can never hang the caller."""
     all_results = []
     seen_urls = set()
 
-    for query in queries:
-        results = await searxng_search(query, count=count_per_query)
+    async def _safe(q):
+        try:
+            return await searxng_search(q, count=count_per_query)
+        except Exception as e:
+            log.error(f"SearXNG query failed: {q[:40]} — {e}")
+            return []
+
+    try:
+        results_lists = await asyncio.wait_for(
+            asyncio.gather(*[_safe(q) for q in queries]),
+            timeout=overall_timeout,
+        )
+    except asyncio.TimeoutError:
+        log.warning(f"searxng_multi_query exceeded {overall_timeout}s budget — returning partial/empty results")
+        return all_results
+
+    for results in results_lists:
         for r in results:
             url = r.get("url", "")
             if url and url not in seen_urls:

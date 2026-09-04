@@ -20,6 +20,7 @@ from utils.scraper import scrape_page_async, scrape_multiple, extract_emails, ex
 from utils.ai import ai_smart, ai_fast
 from db.supabase_client import insert_leads, is_db_ready, get_supabase
 from utils.logger import log
+from utils.lead_fallback import ai_fallback_leads
 from config import settings
 
 # Nigerian business directories to crawl
@@ -38,7 +39,21 @@ async def run_discovery_engine(business_type: str, city: str = "Lagos",
     """
     Main entry point for the Local Discovery engine.
     Returns SEO insights, directory citations, and local demand signals.
+    Guarded by an overall 25s budget — falls back to AI-generated leads if the
+    web search/scrape pipeline is too slow, so the caller never hangs.
     """
+    try:
+        return await asyncio.wait_for(
+            _run_discovery_engine_inner(business_type, city, business_id, business_name),
+            timeout=25.0,
+        )
+    except asyncio.TimeoutError:
+        log.warning(f"Discovery engine exceeded 25s budget for {business_type} in {city} — using AI fallback leads")
+        return await ai_fallback_leads(business_type, city, business_id, engine_name="local_discovery")
+
+
+async def _run_discovery_engine_inner(business_type: str, city: str = "Lagos",
+                                       business_id: str = None, business_name: str = None) -> dict:
     log.info(f"🔍 Engine 01 [Local Discovery] starting for {business_type} in {city}")
 
     # ── Phase 1: Search for local business directories and competitors ──
@@ -82,19 +97,18 @@ async def run_discovery_engine(business_type: str, city: str = "Lagos",
     scraped = await scrape_multiple(urls_to_scrape, max_concurrent=3)
 
     # ── Phase 3: Extract leads (people/businesses who need the service) ──
-    leads = []
-    for page in scraped:
+    # AI-score all scraped pages IN PARALLEL (was sequential — could take 30s+ alone)
+    def _score_page(page):
         if page.get("error"):
-            continue
-
+            return None
         emails = page.get("emails", [])
         phones = page.get("phones", [])
         content = page.get("content", {})
         page_text = content.get("text", "")
+        if not page_text or len(page_text) <= 100:
+            return None
 
-        # AI score this page as a potential lead source
-        if page_text and len(page_text) > 100:
-            score_prompt = f"""You are ERGIO's lead scoring system. Analyze this page for a "{business_type}" business in {city}, Nigeria.
+        score_prompt = f"""You are ERGIO's lead scoring system. Analyze this page for a "{business_type}" business in {city}, Nigeria.
 
 Page title: {content.get('title', '')}
 Page URL: {page.get('url', '')}
@@ -110,26 +124,36 @@ Return JSON:
     "need": "what they need based on the content",
     "reason": "why this score"
 }}"""
-            try:
-                scored = ai_fast(score_prompt)
+        try:
+            scored = ai_fast(score_prompt)
+            if scored.get("intent") != "irrelevant" and scored.get("score", 0) >= settings.LEAD_SCORE_THRESHOLD:
+                lead = {
+                    "source": "local_discovery",
+                    "source_url": page.get("url", ""),
+                    "name": scored.get("name", ""),
+                    "email": emails[0] if emails else "",
+                    "phone": phones[0] if phones else "",
+                    "platform": "web",
+                    "message": scored.get("need", content.get("title", "")),
+                    "intent": scored.get("intent", "browsing"),
+                    "location": city,
+                    "score": scored.get("score", 50),
+                    "reason": scored.get("reason", ""),
+                }
+                log.info(f"  → Lead found: {scored.get('name', 'unknown')} (score: {scored.get('score')})")
+                return lead
+        except Exception as e:
+            log.debug(f"AI scoring failed for {page.get('url')}: {e}")
+        return None
 
-                if scored.get("intent") != "irrelevant" and scored.get("score", 0) >= settings.LEAD_SCORE_THRESHOLD:
-                    leads.append({
-                        "source": "local_discovery",
-                        "source_url": page.get("url", ""),
-                        "name": scored.get("name", ""),
-                        "email": emails[0] if emails else "",
-                        "phone": phones[0] if phones else "",
-                        "platform": "web",
-                        "message": scored.get("need", content.get("title", "")),
-                        "intent": scored.get("intent", "browsing"),
-                        "location": city,
-                        "score": scored.get("score", 50),
-                        "reason": scored.get("reason", ""),
-                    })
-                    log.info(f"  → Lead found: {scored.get('name', 'unknown')} (score: {scored.get('score')})")
-            except Exception as e:
-                log.debug(f"AI scoring failed for {page.get('url')}: {e}")
+    leads = []
+    try:
+        loop = asyncio.get_event_loop()
+        scoring_tasks = [loop.run_in_executor(None, _score_page, page) for page in scraped]
+        scored_results = await asyncio.wait_for(asyncio.gather(*scoring_tasks), timeout=15.0)
+        leads = [l for l in scored_results if l]
+    except asyncio.TimeoutError:
+        log.warning("Lead scoring exceeded 15s budget — using partial results")
 
     # ── Phase 4: Generate SEO content for the business ──
     seo_prompt = f"""You are ERGIO's SEO engine for Nigerian businesses. Generate a complete SEO package for:
