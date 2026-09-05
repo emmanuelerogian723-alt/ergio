@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERGIO — CRM & Pipeline</title>
+<link rel="icon" href="/ergio/favicon.ico" type="image/x-icon">
+<style>
+:root{--bg:#0a0a0f;--panel:#12121a;--panel2:#171722;--border:rgba(255,255,255,.07);--text:#e2e8f0;--muted:#64748b;--cyan:#00D9FF;--green:#00FF9D;--red:#ff4d6d;--amber:#ffb703;--violet:#8b5cf6;--radius:14px}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,sans-serif}
+body{background:var(--bg);color:var(--text);min-height:100vh}
+.topbar{display:flex;align-items:center;gap:1rem;padding:.9rem 1.4rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(10,10,15,.85);backdrop-filter:blur(12px);z-index:50}
+.logo{font-weight:900;letter-spacing:-.03em;font-size:1.15rem;color:var(--cyan);cursor:pointer}
+.topbar .crumb{color:var(--muted);font-size:.85rem}
+.spacer{flex:1}
+.btn{padding:.55rem 1.1rem;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:.85rem;cursor:pointer;font-weight:600;transition:.15s}
+.btn:hover{border-color:rgba(0,217,255,.4)}
+.btn-primary{background:linear-gradient(135deg,#00D9FF,#2563FF);border:none;color:#fff}
+.btn-ghost{background:transparent}
+.btn-sm{padding:.35rem .8rem;font-size:.75rem}
+main{padding:1.4rem;max-width:1440px;margin:0 auto}
+.chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.9rem;margin-bottom:1.4rem}
+.chip{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem}
+.chip .v{font-size:1.35rem;font-weight:800}
+.chip .l{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;margin-top:.15rem}
+.viewtabs{display:flex;gap:.5rem;margin-bottom:1.2rem}
+.viewtab{padding:.45rem 1rem;border-radius:10px;font-size:.82rem;font-weight:700;color:var(--muted);cursor:pointer;border:1px solid transparent}
+.viewtab.active{background:var(--panel2);color:var(--cyan);border-color:var(--border)}
+/* Kanban */
+.board{display:grid;grid-template-columns:repeat(5,1fr);gap:.9rem;overflow-x:auto;align-items:start}
+@media(max-width:1100px){.board{grid-template-columns:repeat(5,minmax(240px,1fr))}}
+.col{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);min-height:220px}
+.col-head{padding:.8rem .9rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.5rem}
+.col-head .dot{width:9px;height:9px;border-radius:50%}
+.col-head .name{font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;flex:1}
+.col-head .total{font-size:.72rem;color:var(--muted);font-weight:700}
+.cards{padding:.6rem;display:flex;flex-direction:column;gap:.55rem;min-height:60px}
+.card{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:.7rem .8rem;cursor:grab;transition:.15s}
+.card:hover{border-color:rgba(0,217,255,.35);transform:translateY(-1px)}
+.card.dragging{opacity:.4;cursor:grabbing}
+.card .t{font-size:.82rem;font-weight:700;margin-bottom:.25rem;line-height:1.3}
+.card .a{font-size:.95rem;font-weight:800;color:var(--green)}
+.card .c{font-size:.7rem;color:var(--muted);margin-top:.3rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.col.dragover{border-color:var(--cyan);background:rgba(0,217,255,.04)}
+/* Contacts */
+.toolbar{display:flex;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap}
+.search{flex:1;min-width:200px;padding:.6rem 1rem;border-radius:10px;border:1px solid var(--border);background:var(--panel);color:var(--text);font-size:.85rem;outline:none}
+.search:focus{border-color:rgba(0,217,255,.5)}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:.6rem .8rem;border-bottom:1px solid var(--border)}
+td{padding:.75rem .8rem;border-bottom:1px solid var(--border);font-size:.83rem}
+tr.row{cursor:pointer;transition:.12s}
+tr.row:hover{background:rgba(0,217,255,.04)}
+.badge{display:inline-block;padding:.15rem .55rem;border-radius:20px;font-size:.68rem;font-weight:700}
+.b-cyan{background:rgba(0,217,255,.12);color:var(--cyan)}
+.b-green{background:rgba(0,255,157,.12);color:var(--green)}
+.b-red{background:rgba(255,77,109,.12);color:var(--red)}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius)}
+.empty{padding:3rem;text-align:center;color:var(--muted)}
+.empty .icon{font-size:2rem;margin-bottom:.5rem}
+/* Drawer */
+.drawer{position:fixed;top:0;right:-520px;width:480px;max-width:94vw;height:100vh;background:var(--panel);border-left:1px solid var(--border);z-index:100;transition:right .25s ease;display:flex;flex-direction:column}
+.drawer.open{right:0}
+.drawer-head{padding:1.1rem 1.3rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.7rem}
+.drawer-head h3{font-size:1rem;flex:1}
+.drawer-body{flex:1;overflow-y:auto;padding:1.3rem}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:.45rem .8rem;font-size:.83rem;margin-bottom:1.2rem}
+.kv .k{color:var(--muted)}
+.tl-item{display:flex;gap:.8rem;padding:.7rem 0;border-bottom:1px solid var(--border)}
+.tl-item .ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
+.tl-item .tt{font-size:.82rem;font-weight:700}
+.tl-item .dd{font-size:.75rem;color:var(--muted);margin-top:.15rem}
+.tl-item .when{font-size:.68rem;color:var(--muted);margin-top:.2rem}
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:1.5rem;width:440px;max-width:92vw;max-height:88vh;overflow-y:auto}
+.modal h3{margin-bottom:1rem;font-size:1.05rem}
+.field{margin-bottom:.9rem}
+.field label{display:block;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.35rem;font-weight:700}
+.field input,.field textarea,.field select{width:100%;padding:.6rem .8rem;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:.85rem;outline:none}
+.field input:focus,.field textarea:focus{border-color:rgba(0,217,255,.5)}
+.toast{position:fixed;bottom:1.4rem;left:50%;transform:translateX(-50%);background:var(--panel);border:1px solid rgba(0,255,157,.4);color:var(--green);padding:.7rem 1.3rem;border-radius:12px;font-size:.83rem;font-weight:600;z-index:300;display:none}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo" onclick="location.href='/dashboard/'">ERGIO</div>
+  <div class="crumb">CRM &amp; Sales Pipeline</div>
+  <div class="spacer"></div>
+  <button class="btn btn-ghost btn-sm" onclick="loadAll()">↻ Refresh</button>
+  <button class="btn btn-sm" onclick="openImport()">📥 Import Leads</button>
+  <button class="btn btn-primary btn-sm" onclick="openDealModal()">＋ New Deal</button>
+</div>
+<main>
+  <div class="chips">
+    <div class="chip"><div class="v" id="cContacts">—</div><div class="l">Contacts</div></div>
+    <div class="chip"><div class="v" id="cOpen">—</div><div class="l">Open Deals</div></div>
+    <div class="chip"><div class="v" style="color:var(--cyan)" id="cPipe">₦0</div><div class="l">Pipeline Value</div></div>
+    <div class="chip"><div class="v" style="color:var(--green)" id="cWon">—</div><div class="l">Won (₦<span id="cWonV">0</span>)</div></div>
+    <div class="chip"><div class="v" style="color:var(--violet)" id="cConv">—</div><div class="l">Conversion</div></div>
+  </div>
+
+  <div class="viewtabs">
+    <div class="viewtab active" id="tabPipeline" onclick="switchView('pipeline')">📊 Pipeline</div>
+    <div class="viewtab" id="tabContacts" onclick="switchView('contacts')">👥 Contacts</div>
+  </div>
+
+  <div id="viewPipeline">
+    <div class="board" id="board"></div>
+  </div>
+  <div id="viewContacts" style="display:none">
+    <div class="toolbar">
+      <input class="search" id="contactSearch" placeholder="Search name, phone, email…" oninput="renderContacts()">
+    </div>
+    <div class="panel">
+      <div id="contactsTable"><div class="empty"><div class="icon">👥</div><div>Contacts appear here — import from your leads or add manually.</div></div></div>
+    </div>
+  </div>
+</main>
+
+<!-- Contact drawer -->
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h3 id="dName">Contact</h3>
+    <button class="btn btn-ghost btn-sm" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body">
+    <div class="kv" id="dInfo"></div>
+    <div style="display:flex;gap:.5rem;margin-bottom:1.3rem;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="dNote()">📝 Add Note</button>
+      <button class="btn btn-sm" onclick="dDeal()">💼 Create Deal</button>
+    </div>
+    <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;margin-bottom:.4rem">Activity Timeline</div>
+    <div id="dTimeline"><div class="empty" style="padding:1.5rem"><div class="icon">🕓</div><div>Loading timeline…</div></div></div>
+    <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;margin:1.3rem 0 .4rem">Notes</div>
+    <pre id="dNotes" style="white-space:pre-wrap;font-size:.78rem;color:var(--text);background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:.8rem;min-height:44px;font-family:inherit"></pre>
+  </div>
+</div>
+
+<!-- New deal modal -->
+<div class="overlay" id="dealOverlay">
+  <div class="modal">
+    <h3>💼 New Deal</h3>
+    <div class="field"><label>Deal title *</label><input id="ndTitle" placeholder="e.g. Website redesign — Chioma"></div>
+    <div class="field"><label>Amount (₦)</label><input id="ndAmount" type="number" placeholder="250000"></div>
+    <div class="field"><label>Stage</label><select id="ndStage"><option value="lead">Lead</option><option value="contacted">Contacted</option><option value="quoted">Quoted</option></select></div>
+    <div class="field"><label>Contact name</label><input id="ndContact" placeholder="Optional"></div>
+    <div class="field"><label>Email</label><input id="ndEmail" placeholder="Optional"></div>
+    <div class="field"><label>Phone</label><input id="ndPhone" placeholder="Optional"></div>
+    <div style="display:flex;gap:.6rem;justify-content:flex-end">
+      <button class="btn btn-ghost btn-sm" onclick="closeOverlay('dealOverlay')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="createDeal()">Create Deal</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import leads modal -->
+<div class="overlay" id="importOverlay">
+  <div class="modal">
+    <h3>📥 Import from Leads</h3>
+    <div id="importList" style="margin-bottom:1rem"><div class="empty" style="padding:1.2rem"><div class="icon">🎯</div><div>No unconverted leads found. Run a lead scan first.</div></div></div>
+    <button class="btn btn-ghost btn-sm" onclick="closeOverlay('importOverlay')">Close</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STAGES = [
+  { key: 'lead', name: 'Lead', color: '#00D9FF' },
+  { key: 'contacted', name: 'Contacted', color: '#8b5cf6' },
+  { key: 'quoted', name: 'Quoted', color: '#ffb703' },
+  { key: 'won', name: 'Won', color: '#00FF9D' },
+  { key: 'lost', name: 'Lost', color: '#ff4d6d' }
+];
+let deals = [], contacts = [], dContact = null;
+
+const bizId = () => localStorage.getItem('ergio_business_id') || null;
+const api = (path, opts) => fetch('/api/crm' + path, opts ? {
+  method: 'POST', headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ business_id: bizId(), ...opts })
+} : undefined).then(r => r.json());
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtN = n => '₦' + (parseFloat(n || 0)).toLocaleString('en-NG');
+const ago = t => { if (!t) return ''; const s = (Date.now() - new Date(t)) / 1000;
+  if (s < 3600) return Math.max(1, Math.floor(s / 60)) + 'm ago';
+  if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+  return Math.floor(s / 86400) + 'd ago'; };
+function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2600); }
+
+async function loadAll() {
+  const [sum, d, c] = await Promise.all([
+    api('?action=summary&business_id=' + (bizId() || '')),
+    api('?action=deals'),
+    api('?action=contacts&business_id=' + (bizId() || ''))
+  ]);
+  document.getElementById('cContacts').textContent = sum.contacts || 0;
+  document.getElementById('cOpen').textContent = sum.open_deals || 0;
+  document.getElementById('cPipe').textContent = fmtN(sum.pipeline_value);
+  document.getElementById('cWon').textContent = sum.won_deals || 0;
+  document.getElementById('cWonV').textContent = (sum.won_value || 0).toLocaleString('en-NG');
+  document.getElementById('cConv').textContent = (sum.conversion || 0) + '%';
+  deals = d.deals || []; contacts = c.contacts || [];
+  renderBoard(); renderContacts();
+}
+
+function renderBoard() {
+  const el = document.getElementById('board');
+  el.innerHTML = STAGES.map(s => {
+    const cards = deals.filter(x => x.stage === s.key);
+    const total = cards.reduce((a, x) => a + x.amount, 0);
+    return '<div class="col" data-stage="' + s.key + '" ondragover="dragOver(event)" ondragleave="this.classList.remove(\'dragover\')" ondrop="drop(event)">' +
+      '<div class="col-head"><div class="dot" style="background:' + s.color + '"></div><div class="name" style="color:' + s.color + '">' + s.name + '</div><div class="total">' + fmtN(total) + '</div></div>' +
+      '<div class="cards">' + cards.map(c =>
+        '<div class="card" draggable="true" ondragstart="dragStart(event,\'' + c.id + '\')" onclick="openDealInfo(\'' + c.id + '\')">' +
+        '<div class="t">' + esc(c.title) + '</div><div class="a">' + fmtN(c.amount) + '</div>' +
+        (c.contact_name ? '<div class="c">👤 ' + esc(c.contact_name) + '</div>' : '') +
+        (c.email ? '<div class="c">✉️ ' + esc(c.email) + '</div>' : '') +
+        '<div class="c">🕐 ' + ago(c.created_at) + '</div></div>').join('') +
+      '</div></div>';
+  }).join('');
+}
+
+let dragId = null;
+function dragStart(e, id) { dragId = id; e.target.classList.add('dragging'); }
+function dragOver(e) { e.preventDefault(); e.currentTarget.classList.add('dragover'); }
+async function drop(e) {
+  e.preventDefault();
+  const col = e.currentTarget;
+  col.classList.remove('dragover');
+  const stage = col.dataset.stage;
+  if (!dragId) return;
+  const deal = deals.find(x => x.id === dragId);
+  await api('', { action: 'stage', id: dragId, stage });
+  if (deal) deal.stage = stage;
+  dragId = null;
+  renderBoard(); loadAll();
+  toast('Deal moved to ' + stage.toUpperCase() + (stage === 'won' ? ' 🎉' : ''));
+}
+
+function switchView(v) {
+  document.getElementById('viewPipeline').style.display = v === 'pipeline' ? '' : 'none';
+  document.getElementById('viewContacts').style.display = v === 'contacts' ? '' : 'none';
+  document.getElementById('tabPipeline').classList.toggle('active', v === 'pipeline');
+  document.getElementById('tabContacts').classList.toggle('active', v === 'contacts');
+}
+
+function renderContacts() {
+  const q = (document.getElementById('contactSearch').value || '').toLowerCase();
+  const rows = contacts.filter(c => !q || ((c.name || '') + (c.phone || '') + (c.email || '')).toLowerCase().includes(q));
+  const el = document.getElementById('contactsTable');
+  if (!rows.length) { el.innerHTML = '<div class="empty"><div class="icon">👥</div><div>No contacts. Import from Leads or add via a converted lead.</div></div>'; return; }
+  el.innerHTML = '<table><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Bookings</th><th>Spent</th><th>Last booking</th></tr></thead><tbody>' +
+    rows.map(c => '<tr class="row" onclick="openDrawer(\'' + c.id + '\')"><td><b>' + esc(c.name) + '</b></td><td>' + esc(c.phone || '—') + '</td><td>' + esc(c.email || '—') + '</td><td>' + (c.total_bookings || 0) + '</td><td>' + fmtN(c.total_spent) + '</td><td>' + esc(c.last_booking_date || '—') + '</td></tr>').join('') +
+    '</tbody></table>';
+}
+
+function openDrawer(id) {
+  const c = contacts.find(x => x.id === id); if (!c) return;
+  dContact = c;
+  document.getElementById('dName').textContent = c.name || 'Contact';
+  document.getElementById('dInfo').innerHTML =
+    '<div class="k">Phone</div><div>' + esc(c.phone || '—') + '</div>' +
+    '<div class="k">WhatsApp</div><div>' + esc(c.whatsapp || '—') + '</div>' +
+    '<div class="k">Email</div><div>' + esc(c.email || '—') + '</div>' +
+    '<div class="k">Total spent</div><div><b>' + fmtN(c.total_spent) + '</b></div>';
+  document.getElementById('dNotes').textContent = c.notes || '(no notes yet)';
+  document.getElementById('drawer').classList.add('open');
+  loadTimeline(c);
+}
+
+async function loadTimeline(c) {
+  const el = document.getElementById('dTimeline');
+  el.innerHTML = '<div class="empty" style="padding:1.5rem"><div class="icon">🕓</div><div>Loading…</div></div>';
+  const params = c.email ? '?action=timeline&email=' + encodeURIComponent(c.email)
+    : (c.phone ? '?action=timeline&phone=' + encodeURIComponent(c.phone) : null);
+  if (!params) { el.innerHTML = '<div class="empty" style="padding:1.5rem"><div class="icon">🕓</div><div>No email or phone on this contact.</div></div>'; return; }
+  const r = await api(params);
+  const icons = { lead: ['🎯', 'rgba(0,217,255,.1)'], booking: ['📅', 'rgba(0,255,157,.1)'], invoice: ['🧾', 'rgba(139,92,246,.1)'], payment: ['💰', 'rgba(255,183,3,.1)'] };
+  const evs = r.events || [];
+  el.innerHTML = evs.length ? evs.map(e => {
+    const ic = icons[e.type] || ['📌', 'rgba(255,255,255,.06)'];
+    return '<div class="tl-item"><div class="ic" style="background:' + ic[1] + '">' + ic[0] + '</div><div><div class="tt">' + esc(e.title) + '</div>' + (e.detail ? '<div class="dd">' + esc(e.detail) + '</div>' : '') + '<div class="when">' + ago(e.at) + '</div></div></div>';
+  }).join('') : '<div class="empty" style="padding:1.5rem"><div class="icon">🕓</div><div>No activity yet — bookings, invoices, payments and leads will appear here automatically.</div></div>';
+}
+
+function closeDrawer() { document.getElementById('drawer').classList.remove('open'); }
+
+async function dNote() {
+  if (!dContact) return;
+  const text = prompt('Add a note for ' + (dContact.name || 'this contact') + ':');
+  if (!text) return;
+  const r = await api('', { action: 'note', id: dContact.id, note: text });
+  if (r.success) { dContact.notes = r.notes; document.getElementById('dNotes').textContent = r.notes; toast('Note added ✓'); }
+  else toast(r.error || 'Failed');
+}
+
+function dDeal() {
+  if (!dContact) return;
+  document.getElementById('ndContact').value = dContact.name || '';
+  document.getElementById('ndEmail').value = dContact.email || '';
+  document.getElementById('ndPhone').value = dContact.phone || '';
+  document.getElementById('ndTitle').value = '';
+  document.getElementById('ndAmount').value = '';
+  document.getElementById('ndStage').value = 'contacted';
+  openOverlay('dealOverlay');
+}
+
+function openDealModal() {
+  ['ndTitle', 'ndAmount', 'ndContact', 'ndEmail', 'ndPhone'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('ndStage').value = 'lead';
+  openOverlay('dealOverlay');
+}
+
+async function createDeal() {
+  const title = document.getElementById('ndTitle').value.trim();
+  if (!title) { toast('Title required'); return; }
+  const r = await api('', {
+    action: 'deal', title,
+    amount: document.getElementById('ndAmount').value || 0,
+    stage: document.getElementById('ndStage').value,
+    contact_name: document.getElementById('ndContact').value,
+    email: document.getElementById('ndEmail').value,
+    phone: document.getElementById('ndPhone').value
+  });
+  if (r.success) { closeOverlay('dealOverlay'); toast('Deal created ✓'); loadAll(); }
+  else toast(r.error || 'Failed');
+}
+
+async function openImport() {
+  openOverlay('importOverlay');
+  const list = document.getElementById('importList');
+  list.innerHTML = '<div class="empty" style="padding:1.2rem"><div class="icon">⏳</div><div>Loading leads…</div></div>';
+  const r = await api('?action=importable_leads');
+  const leads = r.leads || [];
+  list.innerHTML = leads.length ? leads.map(l =>
+    '<div class="tl-item" style="cursor:default"><div class="ic" style="background:rgba(0,217,255,.1)">🎯</div><div style="flex:1"><div class="tt">' + esc(l.name || 'Lead') + ' <span class="badge b-cyan" style="margin-left:.3rem">score ' + (l.score || '?') + '</span></div><div class="dd">' + esc(l.email || l.phone || l.intent || '') + '</div></div><button class="btn btn-primary btn-sm" onclick="convertLead(\'' + l.id + '\')">Convert</button></div>'
+  ).join('') : '<div class="empty" style="padding:1.2rem"><div class="icon">🎯</div><div>No unconverted leads. Run a lead scan from the dashboard first.</div></div>';
+}
+
+async function convertLead(id) {
+  const r = await api('', { action: 'convert_lead', lead_id: id });
+  if (r.success) { toast('Lead converted to contact + deal ✓'); openImport(); loadAll(); }
+  else toast(r.error || 'Failed');
+}
+
+function openDealInfo(id) {
+  const d = deals.find(x => x.id === id); if (!d) return;
+  if (d.contact_id) { openDrawer(d.contact_id); return; }
+  const go = confirm(d.title + '\n' + fmtN(d.amount) + ' · ' + d.stage.toUpperCase() + '\n\nMove to WON? OK = Won, Cancel = keep browsing');
+  if (go) { api('', { action: 'stage', id: d.id, stage: 'won' }).then(() => { d.stage = 'won'; renderBoard(); loadAll(); toast('Deal won 🎉'); }); }
+}
+
+function openOverlay(id) { document.getElementById(id).classList.add('open'); }
+function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
+
+loadAll();
+</script>
+</body>
+</html>
