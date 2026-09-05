@@ -1,7 +1,7 @@
 // ========================================
 // ERGIO CRM API — Contacts, Deal Pipeline, Unified Timeline
 // Contacts  → public.clients
-// Deals     → public.transactions (type='deal', category=stage, description=JSON meta)
+// Deals     → public.platform_analytics (event_type='crm_deal', event_data=JSON meta, metric_value=amount)
 // Timeline  → union of leads, bookings, invoices, payments + client notes
 // ========================================
 import { getSupabase } from '../lib/ergio.js';
@@ -9,40 +9,39 @@ import { getSupabase } from '../lib/ergio.js';
 const STAGES = ['lead', 'contacted', 'quoted', 'won', 'lost'];
 
 function parseDeal(row) {
-  let meta = {};
-  try { meta = JSON.parse(row.description || '{}') || {}; } catch (e) { meta = {}; }
+  const meta = row.event_data || {};
   return {
     id: row.id,
     title: meta.title || meta.name || 'Untitled deal',
-    amount: parseFloat(row.amount || 0),
-    stage: STAGES.includes(row.category) ? row.category : 'lead',
+    amount: parseFloat(row.metric_value || 0),
+    stage: STAGES.includes(meta.stage) ? meta.stage : 'lead',
     contact_id: meta.contact_id || null,
     contact_name: meta.contact_name || '',
     email: meta.email || '',
     phone: meta.phone || '',
     notes: meta.notes || '',
-    expected_close: row.date || null,
-    created_at: row.created_at
+    expected_close: meta.expected_close || null,
+    created_at: row.recorded_at || row.created_at
   };
 }
 
-function dealRow(d, businessId) {
-  const row = {
-    type: 'deal',
-    amount: parseFloat(d.amount || 0),
-    category: STAGES.includes(d.stage) ? d.stage : 'lead',
-    description: JSON.stringify({
+function dealRow(d) {
+  return {
+    event_type: 'crm_deal',
+    event_data: {
       title: d.title || d.name || 'Untitled deal',
+      stage: STAGES.includes(d.stage) ? d.stage : 'lead',
       contact_id: d.contact_id || null,
       contact_name: d.contact_name || '',
       email: d.email || '',
       phone: d.phone || '',
-      notes: d.notes || ''
-    }),
-    date: d.expected_close || new Date().toISOString().slice(0, 10)
+      notes: d.notes || '',
+      expected_close: d.expected_close || null,
+      business_id: d.business_id || null
+    },
+    metric_value: parseFloat(d.amount || 0),
+    recorded_at: new Date().toISOString()
   };
-  if (businessId) row.business_id = businessId;
-  return row;
 }
 
 export default async function handler(req, res) {
@@ -62,7 +61,7 @@ export default async function handler(req, res) {
     if (req.method === 'GET' && action === 'summary') {
       const [clientsRes, dealsRes] = await Promise.all([
         sb.from('clients').select('id, total_spent, total_bookings').limit(500),
-        sb.from('transactions').select('*').eq('type', 'deal').limit(500)
+        sb.from('platform_analytics').select('*').eq('event_type', 'crm_deal').limit(500)
       ]);
       const deals = (dealsRes.data || []).map(parseDeal);
       const open = deals.filter(d => !['won', 'lost'].includes(d.stage));
@@ -91,7 +90,7 @@ export default async function handler(req, res) {
 
     // ── DEALS ──
     if (req.method === 'GET' && action === 'deals') {
-      const { data, error } = await sb.from('transactions').select('*').eq('type', 'deal').order('created_at', { ascending: false }).limit(300);
+      const { data, error } = await sb.from('platform_analytics').select('*').eq('event_type', 'crm_deal').order('recorded_at', { ascending: false }).limit(300);
       if (error) return res.status(200).json({ deals: [] });
       return res.status(200).json({ deals: (data || []).map(parseDeal) });
     }
@@ -155,8 +154,8 @@ export default async function handler(req, res) {
     if (req.method === 'POST' && action === 'deal') {
       const d = body.deal || body;
       if (!d.title && !d.name) return res.status(400).json({ error: 'title required' });
-      const row = dealRow(d, businessId);
-      const { data, error } = await sb.from('transactions').insert(row).select();
+      const row = dealRow({ ...d, business_id: businessId });
+      const { data, error } = await sb.from('platform_analytics').insert(row).select();
       if (error) return res.status(500).json({ error: error.message });
       return res.status(200).json({ success: true, deal: parseDeal((data || [])[0] || {}) });
     }
@@ -165,12 +164,12 @@ export default async function handler(req, res) {
     if (req.method === 'POST' && action === 'stage') {
       const id = body.id || req.query.id;
       const stage = STAGES.includes(body.stage) ? body.stage : 'lead';
-      const existing = await sb.from('transactions').select('*').eq('id', id).single();
+      const existing = await sb.from('platform_analytics').select('*').eq('id', id).single();
       if (!existing.data) return res.status(404).json({ error: 'deal not found' });
       const d = parseDeal(existing.data);
-      const row = dealRow({ ...d, stage }, businessId);
-      const { error } = await sb.from('transactions').update({
-        category: row.category, description: row.description, date: row.date
+      const row = dealRow({ ...d, stage, business_id: businessId });
+      const { error } = await sb.from('platform_analytics').update({
+        event_data: row.event_data
       }).eq('id', id);
       if (error) return res.status(500).json({ error: error.message });
       return res.status(200).json({ success: true, deal: { ...d, stage } });
@@ -179,7 +178,7 @@ export default async function handler(req, res) {
     // ── DELETE DEAL ──
     if (req.method === 'POST' && action === 'delete_deal') {
       const id = body.id || req.query.id;
-      const { error } = await sb.from('transactions').delete().eq('id', id);
+      const { error } = await sb.from('platform_analytics').delete().eq('id', id);
       if (error) return res.status(500).json({ error: error.message });
       return res.status(200).json({ success: true });
     }
@@ -218,9 +217,10 @@ export default async function handler(req, res) {
         amount: body.amount || 0, stage: 'lead',
         contact_id: contact ? contact.id : null,
         contact_name: lead.name || '', email: lead.email || '', phone: lead.phone || '',
-        notes: lead.message || ''
-      }, lead.business_id || businessId);
-      const dRes = await sb.from('transactions').insert(row).select();
+        notes: lead.message || '',
+        business_id: lead.business_id || businessId
+      });
+      const dRes = await sb.from('platform_analytics').insert(row).select();
 
       await sb.from('leads').update({ status: 'converted', contacted: true }).eq('id', leadId);
       return res.status(200).json({ success: true, contact, deal: dRes.data ? parseDeal(dRes.data[0]) : null });
