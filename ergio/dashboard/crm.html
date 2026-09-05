@@ -293,8 +293,12 @@ async function loadTimeline(c) {
 async function dSMS() {
   if (!dContact) return;
   if (!dContact.phone) { toast('No phone number on this contact'); return; }
-  const text = prompt('Send SMS to ' + (dContact.name || dContact.phone) + ' (' + dContact.phone + '):');
+  const seg1 = 'Send SMS to ' + (dContact.name || dContact.phone) + ' (' + dContact.phone + '):';
+  const text = prompt(seg1 + '\n\n(Paid channel — ~₦4 per 160 chars. Keep it short & valuable.)');
   if (!text) return;
+  if (text.length > 160) {
+    if (!confirm('This message is ' + text.length + ' chars = ~' + Math.ceil(text.length / 160) + ' SMS segments. Continue?')) return;
+  }
   toast('Sending SMS…');
   const r = await fetch('/api/sms', { method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action: 'send', business_id: bizId(), to: dContact.phone, message: text }) })
