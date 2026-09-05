@@ -53,8 +53,8 @@ export default async function handler(req, res) {
 
   const sb = getSupabase(req);
   if (!sb) return res.status(500).json({ error: 'Database not configured' });
-  const action = req.query.action || 'summary';
   const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
+  const action = req.query.action || body.action || 'summary';
   const businessId = req.query.business_id || body.business_id || null;
 
   try {
