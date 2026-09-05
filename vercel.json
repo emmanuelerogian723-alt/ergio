@@ -63,8 +63,8 @@
       "destination": "/ergio/templates/:path*.html"
     },
     {
-      "source": "/site/:slug*",
-      "destination": "/ergio/site.html"
+      "source": "/site/:slug",
+      "destination": "/api/site?slug=:slug"
     },
     {
       "source": "/preview.html",
@@ -103,8 +103,8 @@
       "destination": "/ergio/build.html"
     },
     {
-      "source": "/s/:slug*",
-      "destination": "/ergio/site.html"
+      "source": "/s/:slug",
+      "destination": "/api/site?slug=:slug"
     },
     {
       "source": "/match.html",
