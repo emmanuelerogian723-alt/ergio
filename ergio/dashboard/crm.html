@@ -85,7 +85,7 @@ tr.row:hover{background:rgba(0,217,255,.04)}
 </head>
 <body>
 <div class="topbar">
-  <div class="logo" onclick="location.href='/dashboard/'">ERGIO</div>
+  <div class="logo" id="crmLogo" onclick="location.href='/dashboard/'">ERGIO</div><script>if(window.self!==window.top){var l=document.getElementById('crmLogo');l.onclick=function(){};l.style.cursor='default';l.title='CRM & Pipeline'}</script>
   <div class="crumb">CRM &amp; Sales Pipeline</div>
   <div class="spacer"></div>
   <button class="btn btn-ghost btn-sm" onclick="loadAll()">↻ Refresh</button>
