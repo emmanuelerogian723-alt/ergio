@@ -130,6 +130,7 @@ tr.row:hover{background:rgba(0,217,255,.04)}
     <div style="display:flex;gap:.5rem;margin-bottom:1.3rem;flex-wrap:wrap">
       <button class="btn btn-sm" onclick="dNote()">📝 Add Note</button>
       <button class="btn btn-sm" onclick="dDeal()">💼 Create Deal</button>
+      <button class="btn btn-sm" onclick="dSMS()" id="smsBtn">📱 Send SMS</button>
     </div>
     <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;margin-bottom:.4rem">Activity Timeline</div>
     <div id="dTimeline"><div class="empty" style="padding:1.5rem"><div class="icon">🕓</div><div>Loading timeline…</div></div></div>
@@ -236,6 +237,10 @@ async function drop(e) {
   if (deal) deal.stage = stage;
   dragId = null;
   renderBoard(); loadAll();
+fetch('/api/sms?action=status').then(r => r.json()).then(s => {
+  const b = document.getElementById('smsBtn');
+  if (b && !s.configured) b.style.opacity = '.55';
+}).catch(() => {});
   toast('Deal moved to ' + stage.toUpperCase() + (stage === 'won' ? ' 🎉' : ''));
 }
 
@@ -285,6 +290,20 @@ async function loadTimeline(c) {
   }).join('') : '<div class="empty" style="padding:1.5rem"><div class="icon">🕓</div><div>No activity yet — bookings, invoices, payments and leads will appear here automatically.</div></div>';
 }
 
+async function dSMS() {
+  if (!dContact) return;
+  if (!dContact.phone) { toast('No phone number on this contact'); return; }
+  const text = prompt('Send SMS to ' + (dContact.name || dContact.phone) + ' (' + dContact.phone + '):');
+  if (!text) return;
+  toast('Sending SMS…');
+  const r = await fetch('/api/sms', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'send', business_id: bizId(), to: dContact.phone, message: text }) })
+    .then(r => r.json());
+  if (r.success) toast('SMS sent to ' + dContact.phone + ' ✓');
+  else if (r.hint) toast('SMS not activated yet — needs Termi API key');
+  else toast(r.error || JSON.stringify(r.result || 'Failed').slice(0, 80));
+}
+
 function closeDrawer() { document.getElementById('drawer').classList.remove('open'); }
 
 async function dNote() {
@@ -324,7 +343,11 @@ async function createDeal() {
     email: document.getElementById('ndEmail').value,
     phone: document.getElementById('ndPhone').value
   });
-  if (r.success) { closeOverlay('dealOverlay'); toast('Deal created ✓'); loadAll(); }
+  if (r.success) { closeOverlay('dealOverlay'); toast('Deal created ✓'); loadAll();
+fetch('/api/sms?action=status').then(r => r.json()).then(s => {
+  const b = document.getElementById('smsBtn');
+  if (b && !s.configured) b.style.opacity = '.55';
+}).catch(() => {}); }
   else toast(r.error || 'Failed');
 }
 
@@ -341,7 +364,11 @@ async function openImport() {
 
 async function convertLead(id) {
   const r = await api('', { action: 'convert_lead', lead_id: id });
-  if (r.success) { toast('Lead converted to contact + deal ✓'); openImport(); loadAll(); }
+  if (r.success) { toast('Lead converted to contact + deal ✓'); openImport(); loadAll();
+fetch('/api/sms?action=status').then(r => r.json()).then(s => {
+  const b = document.getElementById('smsBtn');
+  if (b && !s.configured) b.style.opacity = '.55';
+}).catch(() => {}); }
   else toast(r.error || 'Failed');
 }
 
@@ -349,13 +376,21 @@ function openDealInfo(id) {
   const d = deals.find(x => x.id === id); if (!d) return;
   if (d.contact_id) { openDrawer(d.contact_id); return; }
   const go = confirm(d.title + '\n' + fmtN(d.amount) + ' · ' + d.stage.toUpperCase() + '\n\nMove to WON? OK = Won, Cancel = keep browsing');
-  if (go) { api('', { action: 'stage', id: d.id, stage: 'won' }).then(() => { d.stage = 'won'; renderBoard(); loadAll(); toast('Deal won 🎉'); }); }
+  if (go) { api('', { action: 'stage', id: d.id, stage: 'won' }).then(() => { d.stage = 'won'; renderBoard(); loadAll();
+fetch('/api/sms?action=status').then(r => r.json()).then(s => {
+  const b = document.getElementById('smsBtn');
+  if (b && !s.configured) b.style.opacity = '.55';
+}).catch(() => {}); toast('Deal won 🎉'); }); }
 }
 
 function openOverlay(id) { document.getElementById(id).classList.add('open'); }
 function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
 
 loadAll();
+fetch('/api/sms?action=status').then(r => r.json()).then(s => {
+  const b = document.getElementById('smsBtn');
+  if (b && !s.configured) b.style.opacity = '.55';
+}).catch(() => {});
 </script>
 </body>
 </html>

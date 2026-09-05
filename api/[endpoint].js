@@ -24,6 +24,7 @@ import social from '../ergio/api/social.js';
 import upload from '../ergio/api/upload.js';
 import whatsapp from '../ergio/api/whatsapp.js';
 import crm from '../ergio/api/crm.js';
+import sms from '../ergio/api/sms.js';
 import refine from '../ergio/api/refine.js';
 import transform from '../ergio/api/transform.js';
 import agents from '../ergio/api/agents.js';
@@ -49,7 +50,8 @@ const handlers = {
   'conductor-ai': conductorAI,
   'ai-mistral': aiMistral,
   'console-data': consoleData,
-  crm
+  crm,
+  sms
 };
 
 export default async function handler(req, res) {
