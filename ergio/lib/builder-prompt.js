@@ -139,6 +139,21 @@ Keep JS minimal, vanilla, no dependencies. Wrap in DOMContentLoaded or place at 
 Output ONLY the complete HTML document. No explanations, no markdown fences, no comments about what you're doing. Start with <!DOCTYPE html> and end with </html>.
 </output_format>`;
 
+// ── PREMIUM FRAME TREATMENTS — signature moves the AI must execute per style ──
+const FRAME_TREATMENTS = {
+  apple: 'Apple Keynote treatment: centered full-bleed hero, one massive headline (clamp(48px, 7vw, 96px), weight 700, letter-spacing -0.03em), tiny subheadline, single pill CTA (border-radius 980px). Frosted sticky nav: backdrop-filter saturate(180%) blur(20px), background rgba(251,251,253,0.72). Sections alternate #fbfbfd / #f5f5f7 with 120-160px padding. No card borders — depth from type scale and whitespace alone. Subtle fade-up reveals. Full-width photos with 18-24px radius. One accent color only.',
+  dribbble: 'Dribbble Shot treatment: hero with 2-3 huge soft gradient blobs behind (position absolute, filter blur(80px), opacity 0.5). Bento-grid features (cards span 1-2 columns, radius 24px). Glass cards: rgba(255,255,255,0.7) + backdrop-filter blur(12px) + shadow 0 20px 40px rgba(13,12,34,0.08). Gradient text on key headline span. Floating pill badges. Cards lift translateY(-4px) on hover.',
+  vercel: 'Geist treatment: pure monochrome, no colorful fills. Hero grid background: linear-gradient lines rgba(255,255,255,0.05) every 80px. Eyebrows in mono font like "[ Features ]". Headlines tight: letter-spacing -0.04em, weight 600. Sharp 8px radius. Cards have 1px borders, no shadows. White CTA with black text. Hover brightens border to rgba(255,255,255,0.4). Small triangle motif in footer.',
+  prism: 'Prism treatment: hero with light gradient mesh — multiple radial-gradient circles (primary/accent at 15% opacity, blur 60px). Frosted pill navbar. Glass cards: rgba(255,255,255,0.65) + backdrop-filter blur(16px) + 1px rgba(99,102,241,0.15) border, radius 20px. Duotone gradient text (primary to accent) on headlines. Purple glow around CTAs: box-shadow 0 8px 30px rgba(99,102,241,0.25). Floating border-only decorative shapes.',
+  kinetic: 'Kinetic treatment: hero with slow animated gradient (background-size 200%, animation shift 12s ease infinite). CSS marquee strip of keywords scrolling (duplicate content, translateX keyframes). Animated gradient headlines. Cards reveal scale(0.96) to 1 with fade. Sticky stacked features section. Huge display numerals for stats. All animation respects prefers-reduced-motion.',
+  nova: 'Futuristic dark: cyan glow accents, gradient text headlines, glass nav, subtle grid hero background, animated underline link hovers.',
+  aria: 'Clean light minimalism: generous whitespace, soft 16px cards with 1px #e5e7eb borders, one blue accent, tight Inter headings, calm fade reveals.',
+  onyx: 'Luxury: gold serif display headlines, letter-spaced uppercase eyebrows, thin gold divider lines, deep black sections, gold outline CTA buttons.',
+  editorial: 'Magazine: oversized serif headlines, asymmetric two-column layouts, drop caps, thin rules between sections, image-text interplay.',
+  bento: 'Bento grid: dashboard-style grid of cards spanning columns/rows, each card one idea, radius 20px, consistent padding.',
+  split: 'Split hero: 50/50 text and image, alternating image sides per section, generous gutters.',
+};
+
 export const BUILDER_USER_TEMPLATE = (plan, designTokens, images, styleName) => {
   const imgList = Object.entries(images || {}).map(([placement, imgs]) => {
     if (Array.isArray(imgs) && imgs[0]) return `${placement}: ${imgs[0].url}`;
@@ -154,6 +169,7 @@ TAGLINE: ${plan.tagline || ''}
 DESCRIPTION: ${plan.description || ''}
 SERVICES: ${(plan.services || []).join(', ')}
 DESIGN STYLE: ${styleName}
+STYLE TREATMENT (follow precisely): ${FRAME_TREATMENTS[styleName] || 'Premium agency-grade design: strong typographic hierarchy, generous whitespace, subtle shadows, consistent radius, tasteful hover transitions.'}
 BRAND COLORS: primary=${plan.brandColors?.primary || 'auto'}, accent=${plan.brandColors?.accent || 'auto'}
 SEO KEYWORDS: ${(plan.seoKeywords || []).join(', ')}
 TARGET MARKET: ${plan.targetMarket || 'Nigeria'}

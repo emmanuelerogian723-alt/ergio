@@ -221,6 +221,13 @@ export const DESIGN_STYLES = {
 export function autoDetectStyle(businessType, category, description = '', tone = 'professional') {
   const combined = (businessType + ' ' + category + ' ' + description + ' ' + tone).toLowerCase();
 
+  // Premium design frames — explicit premium/designer requests win first
+  if (/dribbble|award.winning|designer.(?:style|premium)|award.winning.design/.test(combined)) return 'dribbble';
+  if (/\bapple\b|keynote|ultra.premium.minimal/.test(combined)) return 'apple';
+  if (/vercel|geist|linear.style|monochrome|minimal.black/.test(combined)) return 'vercel';
+  if (/prism|gradient.mesh|glassmorphism.light/.test(combined)) return 'prism';
+  if (/kinetic|motion.first|awwwards/.test(combined)) return 'kinetic';
+
   // Premium specialized styles — highest priority, most specific
   if (/logistics|fleet|telematics|supply.chain|freight|cargo|delivery.platform/.test(combined)) return 'transix';
   if (/ai.*platform|ai.*analytics|machine.learning|deep.tech|biotech|health.tech/.test(combined)) return 'aurora';
@@ -255,6 +262,7 @@ export function autoDetectStyle(businessType, category, description = '', tone =
   // Tone overrides
   if (tone === 'luxury' || tone === 'premium') return 'onyx';
   if (tone === 'casual' || tone === 'friendly') return 'aria';
+  if (tone === 'minimal' || tone === 'minimalist') return 'apple';
 
   return 'nova'; // default
 }
@@ -324,3 +332,55 @@ export const EXTRA_DESIGN_STYLES = {
     mood: 'glass dark cyber neon premium agency portfolio',
   },
 };
+
+// ── PREMIUM DESIGN FRAMES (Apple / Dribbble grade) ─────────
+export const PREMIUM_DESIGN_FRAMES = {
+  apple: {
+    name: 'Apple Keynote', emoji: '🍏',
+    desc: 'Ultra-premium minimalism — huge type, frosted glass nav, pure whitespace (Apple.com)',
+    palette: { bg: '#fbfbfd', surface: '#ffffff', border: '#d2d2d7',
+               text: '#1d1d1f', muted: '#6e6e73', primary: '#0071e3', accent: '#2997ff', cta: '#0071e3' },
+    fonts: { heading: 'Plus Jakarta Sans', body: 'Inter', mono: 'JetBrains Mono' },
+    mood: 'apple minimal premium keynote elegant simple whitespace',
+    frame: 'Apple Keynote treatment: centered full-bleed hero with one massive headline (clamp(48px, 7vw, 96px), font-weight 700, letter-spacing -0.03em), tiny subheadline, single pill CTA (border-radius 980px). Frosted sticky nav (backdrop-filter: saturate(180%) blur(20px); background: rgba(251,251,253,0.72)). Sections alternate #fbfbfd and #f5f5f7. Massive whitespace — 120-160px section padding. No borders on cards; depth comes from giant type and spacing. Subtle fade-up reveals only. Photos full-width with 18-24px radius. One accent color only.',
+  },
+  dribbble: {
+    name: 'Dribbble Shot', emoji: '🎯',
+    desc: 'Award-winning designer energy — soft gradients, glass cards, bento grids (Dribbble/awwwards)',
+    palette: { bg: '#fafbff', surface: '#ffffff', border: '#e6e8f2',
+               text: '#0d0c22', muted: '#6e6b8d', primary: '#ea4c89', accent: '#7b61ff', cta: '#ea4c89' },
+    fonts: { heading: 'Space Grotesk', body: 'DM Sans', mono: 'JetBrains Mono' },
+    mood: 'dribbble designer creative bold playful portfolio award modern',
+    frame: 'Dribbble Shot treatment: hero with 2-3 huge soft gradient blobs blurred behind (position:absolute, filter:blur(80px), opacity .5, colors from palette). Bento-grid features section (CSS grid, cards spanning 1-2 columns, border-radius 24px). Glass cards: background rgba(255,255,255,0.7), backdrop-filter blur(12px), shadow 0 20px 40px rgba(13,12,34,0.08). Gradient text on key headline span. Rounded 24px everything. Floating decorative pill badges. Playful hover lifts (translateY(-4px) on cards).',
+  },
+  vercel: {
+    name: 'Geist Mono', emoji: '▲',
+    desc: 'Pure black & white geometric — developer-grade precision (Vercel/Linear)',
+    palette: { bg: '#000000', surface: '#0a0a0a', border: 'rgba(255,255,255,0.14)',
+               text: '#ededed', muted: '#a1a1a1', primary: '#ffffff', accent: '#0070f3', cta: '#ffffff' },
+    fonts: { heading: 'Inter', body: 'Inter', mono: 'JetBrains Mono' },
+    mood: 'vercel linear developer minimal geometric monochrome technical',
+    frame: 'Geist treatment: pure monochrome (#000 bg, #fff text, no colorful fills). Subtle grid background on hero (background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), same for columns; size 80px). Eyebrows in mono font with [ brackets ] e.g. "[ Features ]". Headlines tight (letter-spacing -0.04em, font-weight 600). Sharp 8px radius. Cards defined by 1px borders not shadows. White CTA button with black text. Hover: border-color brightens to rgba(255,255,255,0.4). Small ▲ triangle motif in footer.',
+  },
+  prism: {
+    name: 'Prism Glass', emoji: '💎',
+    desc: 'Light gradient mesh + glassmorphism — modern SaaS elegance (Stripe/Linear light)',
+    palette: { bg: '#f6f7ff', surface: '#ffffff', border: '#e3e6ff',
+               text: '#0f1222', muted: '#5b6178', primary: '#6366f1', accent: '#d946ef', cta: '#6366f1' },
+    fonts: { heading: 'Sora', body: 'Inter', mono: 'JetBrains Mono' },
+    mood: 'prism gradient mesh glass saas light elegant modern',
+    frame: 'Prism treatment: hero with a light gradient mesh (background: multiple radial-gradient circles of primary/accent at 15% opacity, blur 60px). Frosted navbar pill. Glass cards: rgba(255,255,255,0.65) with backdrop-filter blur(16px) and 1px rgba(99,102,241,0.15) border, radius 20px. Duotone gradient text (primary → accent) on headlines. Soft purple glows around CTAs (box-shadow 0 8px 30px rgba(99,102,241,0.25)). Generous padding, floating decorative shapes (rotated squares/circles, border only).',
+  },
+  kinetic: {
+    name: 'Kinetic Motion', emoji: '🌀',
+    desc: 'Motion-first dark — animated gradients, marquees, scroll reveals (Awwwards motion)',
+    palette: { bg: '#0b0021', surface: '#140031', border: 'rgba(139,92,246,0.25)',
+               text: '#f4f0ff', muted: '#a39bd6', primary: '#8b5cf6', accent: '#06b6d4', cta: '#8b5cf6' },
+    fonts: { heading: 'Space Grotesk', body: 'DM Sans', mono: 'Fira Code' },
+    mood: 'kinetic motion animated gradient awwwards dark modern dynamic',
+    frame: 'Kinetic treatment: hero with slow animated gradient (background-size 200%, animation: shift 12s ease infinite). Marquee strip of client/service keywords scrolling (CSS keyframes, duplicate content, 50% width). Headlines with animated gradient text. Scroll-reveal cards that scale from 0.96 + fade. Sticky stacked features (position: sticky, top offsets). Big display numerals for stats. Cursor-following glow optional via tiny JS. Respect prefers-reduced-motion.',
+  },
+};
+
+// Merge frames into the extra styles lookup so generate.js picks them up
+Object.assign(EXTRA_DESIGN_STYLES, PREMIUM_DESIGN_FRAMES);

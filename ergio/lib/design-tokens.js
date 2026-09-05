@@ -215,6 +215,11 @@ function getStyleConfig(name) {
     ivory: { name:'Ivory', palette:{bg:'#fefce8',surface:'#fef9c3',border:'#d97706',text:'#1c1917',muted:'#78716c',primary:'#92400e',accent:'#b45309',cta:'#92400e'}, fonts:{heading:'Crimson Text',body:'Libre Baskerville',mono:'Georgia'} },
     slate: { name:'Slate', palette:{bg:'#0f172a',surface:'#1e293b',border:'rgba(59,130,246,0.2)',text:'#f1f5f9',muted:'#94a3b8',primary:'#3b82f6',accent:'#6366f1',cta:'#3b82f6'}, fonts:{heading:'Inter',body:'Inter',mono:'JetBrains Mono'} },
     coastal: { name:'Coastal', palette:{bg:'#f0f9ff',surface:'#e0f2fe',border:'#7dd3fc',text:'#0c4a6e',muted:'#0369a1',primary:'#0284c7',accent:'#06b6d4',cta:'#0284c7'}, fonts:{heading:'Outfit',body:'Nunito',mono:'monospace'} },
+    apple: { name:'Apple Keynote', palette:{bg:'#fbfbfd',surface:'#ffffff',border:'#d2d2d7',text:'#1d1d1f',muted:'#6e6e73',primary:'#0071e3',accent:'#2997ff',cta:'#0071e3'}, fonts:{heading:'Plus Jakarta Sans',body:'Inter',mono:'JetBrains Mono'} },
+    dribbble: { name:'Dribbble Shot', palette:{bg:'#fafbff',surface:'#ffffff',border:'#e6e8f2',text:'#0d0c22',muted:'#6e6b8d',primary:'#ea4c89',accent:'#7b61ff',cta:'#ea4c89'}, fonts:{heading:'Space Grotesk',body:'DM Sans',mono:'JetBrains Mono'} },
+    vercel: { name:'Geist Mono', palette:{bg:'#000000',surface:'#0a0a0a',border:'rgba(255,255,255,0.14)',text:'#ededed',muted:'#a1a1a1',primary:'#ffffff',accent:'#0070f3',cta:'#ffffff'}, fonts:{heading:'Inter',body:'Inter',mono:'JetBrains Mono'} },
+    prism: { name:'Prism Glass', palette:{bg:'#f6f7ff',surface:'#ffffff',border:'#e3e6ff',text:'#0f1222',muted:'#5b6178',primary:'#6366f1',accent:'#d946ef',cta:'#6366f1'}, fonts:{heading:'Sora',body:'Inter',mono:'JetBrains Mono'} },
+    kinetic: { name:'Kinetic Motion', palette:{bg:'#0b0021',surface:'#140031',border:'rgba(139,92,246,0.25)',text:'#f4f0ff',muted:'#a39bd6',primary:'#8b5cf6',accent:'#06b6d4',cta:'#8b5cf6'}, fonts:{heading:'Space Grotesk',body:'DM Sans',mono:'Fira Code'} },
     default: { name:'Default', palette:{bg:'#0a0a0a',surface:'#141414',border:'rgba(255,255,255,0.1)',text:'#f5f5f5',muted:'#888888',primary:'#00D9FF',accent:'#7c3aed',cta:'#00D9FF'}, fonts:{heading:'Inter',body:'Inter',mono:'monospace'} },
   };
   return styles[name] || styles.default;
@@ -278,6 +283,7 @@ export function generateFontLinks(styleName) {
     'Outfit': 'Outfit:wght@300;400;500;600;700;800',
     'Fira Code': 'Fira+Code:wght@400;500;600',
     'JetBrains Mono': 'JetBrains+Mono:wght@400;500;600;700',
+    'Space Grotesk': 'Space+Grotesk:wght@300;400;500;600;700',
   };
   const googleFonts = [];
   fonts.forEach(f => { if (fontMap[f]) googleFonts.push(`family=${fontMap[f]}`); });

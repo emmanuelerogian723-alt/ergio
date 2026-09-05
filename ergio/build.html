@@ -3041,6 +3041,11 @@ setInterval(() => {
 
 // ===== DESIGN STYLES ENGINE =====
 const DESIGN_STYLES = [
+  { name: 'apple', desc: 'Ultra-premium minimalism — huge type, frosted nav, pure whitespace', preview: 'linear-gradient(135deg,#fbfbfd,#f5f5f7)', color1: '#0071e3', color2: '#1d1d1f', premium: true },
+  { name: 'dribbble', desc: 'Designer glass cards, gradient blobs, bento grids', preview: 'linear-gradient(135deg,#fafbff,#f0e6ff)', color1: '#ea4c89', color2: '#7b61ff', premium: true },
+  { name: 'vercel', desc: 'Pure black & white geometric precision (Vercel/Linear)', preview: 'linear-gradient(135deg,#000,#1a1a1a)', color1: '#fff', color2: '#0070f3', premium: true },
+  { name: 'prism', desc: 'Light gradient mesh + glassmorphism elegance', preview: 'linear-gradient(135deg,#f6f7ff,#eef0ff)', color1: '#6366f1', color2: '#d946ef', premium: true },
+  { name: 'kinetic', desc: 'Motion-first — animated gradients, marquees, scroll reveals', preview: 'linear-gradient(135deg,#0b0021,#1a0040)', color1: '#8b5cf6', color2: '#06b6d4', premium: true },
   { name: 'aurora-dark', desc: 'Dark with glassmorphism, gradient text', preview: 'linear-gradient(135deg,#09090B,#1a1a2e)', color1: '#00D9FF', color2: '#00FF9D' },
   { name: 'editorial-light', desc: 'Clean white, serif headings, magazine feel', preview: 'linear-gradient(135deg,#FAFAF9,#fff)', color1: '#1A1A1A', color2: '#666' },
   { name: 'brutalist-bold', desc: 'Raw, bold, outlined text, square edges', preview: 'linear-gradient(135deg,#0A0A0A,#1a1a1a)', color1: '#fff', color2: '#333' },
@@ -3057,7 +3062,7 @@ function openStyleModal() {
   grid.innerHTML = DESIGN_STYLES.map((s, i) => `
     <div class="style-option ${selectedStyle === s.name ? 'selected' : ''}" onclick="selectStyle('${s.name}')" id="styleOpt-${s.name}">
       <div class="style-preview" style="background:${s.preview}"></div>
-      <div class="style-option-name">${s.name.replace('-', ' ')}</div>
+      <div class="style-option-name">${s.premium ? '💎 ' : ''}${s.name.replace('-', ' ')}</div>
       <div class="style-option-desc">${s.desc}</div>
     </div>
   `).join('');
@@ -3084,7 +3089,7 @@ function applyStyle() {
   const input = document.getElementById('promptInput');
   if (currentHTML) {
     // If we have a site, ask AI to restyle it
-    input.value = 'Restyle this website using the ' + selectedStyle + ' design style';
+    input.value = 'Restyle this website using the ' + selectedStyle + ' design style' + (DESIGN_STYLES.find(x => x.name === selectedStyle)?.premium ? ' (premium design frame — follow its signature treatment precisely)' : '');
     sendPrompt();
   } else {
     toast('Style selected! Type your business idea to build with this style.', 'success');

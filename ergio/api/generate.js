@@ -76,7 +76,7 @@ User's full prompt: "${prompt}"${answersCtx}
 
 IMPORTANT INSTRUCTIONS:
 1. Read the FULL prompt carefully — extract business name, location, industry, vibe, target audience
-2. Match design style to the vibe mentioned: "dark/premium/luxury" → editorial/onyx, "bold/creative" → canvas/nova, "clean/modern" → ivory/aria, "warm/natural" → terra/bloom
+2. Match design style to the vibe mentioned: "apple/minimal/keynote/ultra-premium" → apple, "dribbble/designer/award" → dribbble, "vercel/mono/geometric" → vercel, "gradient/glass" → prism, "motion/animated" → kinetic, "dark/premium/luxury" → editorial/onyx, "bold/creative" → canvas/nova, "clean/modern" → ivory/aria, "warm/natural" → terra/bloom
 3. Set brandColors based on the vibe: dark vibes get dark bg (#09090B) + vivid accents; clean vibes get white bg + strong primary
 4. businessName should be unique, catchy, and culturally resonant for Nigeria
 5. Always set city from location if mentioned; default to Lagos
@@ -106,7 +106,7 @@ Create a business plan. Return ONLY valid JSON with this structure:
   "type": "business type (e.g. restaurant, salon, design studio)",
   "websiteCategory": "MUST FILL — detect from prompt: restaurant, ecommerce, portfolio, saas, blog, realestate, fitness, clinic, agency, education, events, or landing",
   "websiteType": "standard" or "3d" (use 3d for interactive/immersive requests),
-  "designStyle": "nova|aria|onyx|pulse|flame|bloom|terra|ivory|slate|zinc|naija|kente|medcare|feast|market|canvas|estate|scholar|iron|gradient|editorial|split|bento (pick the most fitting key)",
+  "designStyle": "nova|aria|onyx|pulse|flame|bloom|terra|ivory|slate|zinc|naija|kente|medcare|feast|market|canvas|estate|scholar|iron|gradient|editorial|split|bento|apple|dribbble|vercel|prism|kinetic|transix|aurora|clay|darkglass (pick the most fitting key — apple/dribbble/vercel/prism/kinetic are premium design frames for premium/vibe-specific requests)",
   "description": "2-3 sentence business description",
   "brandColors": {
     "primary": "#hex color",

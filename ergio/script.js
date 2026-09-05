@@ -164,7 +164,7 @@ const questions = [
   { id: 'name', label: 'Step 1 of 4', text: 'What will you call this business?', hint: 'Your brand name. Make it memorable — this is how clients will remember you.', type: 'text', placeholder: 'e.g. GlowUp Lagos' },
   { id: 'services', label: 'Step 2 of 4', text: 'What do you offer?', hint: 'Select everything that applies — ERGIO will build pages for each.', type: 'checkbox', options: ['Cleaning', 'Makeup & Beauty', 'Graphic Design', 'Photography', 'Catering & Food', 'Tutoring', 'Fashion & Styling', 'Phone & Laptop Repair', 'Fitness Training', 'Real Estate', 'Web Development', 'Consulting', 'Event Planning', 'Tailoring', 'Transportation', 'Other'] },
   { id: 'location', label: 'Step 3 of 4', text: 'Where are you based?', hint: 'ERGIO uses this to find paying clients near you.', type: 'text', placeholder: 'e.g. Lekki, Lagos' },
-  { id: 'style', label: 'Step 4 of 4', text: 'Choose your vibe.', hint: 'This shapes your entire website design — colors, fonts, animations.', type: 'radio', options: ['Modern & Minimal — Apple style', 'Bold & Colorful — Nike energy', 'Luxury & Premium — Rolex feel', 'Friendly & Casual — Local favorite'] }
+  { id: 'style', label: 'Step 4 of 4', text: 'Choose your vibe.', hint: 'This shapes your entire website design — colors, fonts, animations.', type: 'radio', options: ['Modern & Minimal — Apple style', 'Award-Winning Design — Dribbble premium frames', 'Bold & Colorful — Nike energy', 'Luxury & Premium — Rolex feel', 'Friendly & Casual — Local favorite'] }
 ];
 
 let currentQ = 0;
