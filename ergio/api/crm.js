@@ -39,7 +39,7 @@ function dealRow(d, businessId) {
       phone: d.phone || '',
       notes: d.notes || ''
     }),
-    date: d.expected_close || null
+    date: d.expected_close || new Date().toISOString().slice(0, 10)
   };
   if (businessId) row.business_id = businessId;
   return row;
