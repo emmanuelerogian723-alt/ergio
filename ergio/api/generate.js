@@ -228,7 +228,10 @@ Rules:
     plan._profileKey = profileKey;
     
     // Override design style with profile's recommendation if more specific
-    if (profile.designStyle && profileKey !== 'default') {
+    // EXCEPT when the user explicitly requested a premium design frame (apple/dribbble/etc.) —
+    // an explicit frame request always wins over industry defaults
+    const PREMIUM_FRAMES = ['apple', 'dribbble', 'vercel', 'prism', 'kinetic', 'aurora', 'clay', 'darkglass', 'transix'];
+    if (profile.designStyle && profileKey !== 'default' && !PREMIUM_FRAMES.includes(detectedStyle)) {
       plan.designStyle = profile.designStyle;
       plan._design = DESIGN_STYLES[profile.designStyle] || designConfig;
     }

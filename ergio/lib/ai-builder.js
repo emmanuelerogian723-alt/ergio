@@ -42,32 +42,39 @@ export async function generateWithDesignSystem(plan, content, brand, images, sty
     let html = '';
     
     if (mistralKey) {
-      const mistralResp = await fetch('https://api.mistral.ai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${mistralKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'mistral-medium-latest',
-          messages: [
-            { role: 'system', content: BUILDER_SYSTEM_PROMPT },
-            { role: 'user', content: fullPrompt }
-          ],
-          temperature: 0.4,
-          max_tokens: 12000,
-        }),
-        signal: AbortSignal.timeout(25000),
-      });
-      
-      if (mistralResp.ok) {
-        const data = await mistralResp.json();
-        html = data.choices?.[0]?.message?.content || '';
-      } else {
-        const errText = await mistralResp.text().catch(() => '');
-        throw new Error(`Mistral API error: ${mistralResp.status} ${errText.substring(0, 100)}`);
+      try {
+        const mistralResp = await fetch('https://api.mistral.ai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${mistralKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'mistral-medium-latest',
+            messages: [
+              { role: 'system', content: BUILDER_SYSTEM_PROMPT },
+              { role: 'user', content: fullPrompt }
+            ],
+            temperature: 0.4,
+            max_tokens: 12000,
+          }),
+          signal: AbortSignal.timeout(25000),
+        });
+        
+        if (mistralResp.ok) {
+          const data = await mistralResp.json();
+          html = data.choices?.[0]?.message?.content || '';
+        } else {
+          // Key invalid/expired/rate-limited — fall through to the multi-provider chain
+          step('⚠️ Mistral unavailable, trying provider chain...');
+        }
+      } catch (e) {
+        // Network/timeout error — fall through to the multi-provider chain
+        step('⚠️ Mistral timed out, trying provider chain...');
       }
-    } else {
+    }
+    
+    if (!html) {
       // Fallback: use callAI (OpenRouter/Groq chain)
       html = await callAI(
         [
