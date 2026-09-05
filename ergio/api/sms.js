@@ -20,8 +20,8 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const apiKey = process.env.TERMII_API_KEY;
-  const action = req.query.action || 'status';
   const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
+  const action = req.query.action || body.action || 'status';
   const businessId = req.query.business_id || body.business_id || null;
 
   // ── STATUS: is Termii configured? ──
