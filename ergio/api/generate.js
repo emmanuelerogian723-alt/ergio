@@ -209,7 +209,7 @@ Rules:
 
     // Auto-detect best design style — always prefer our detection system over AI's choice
     // AI often picks generic styles; our autoDetect knows the right vertical match
-    const detectedStyle = autoDetectStyle(plan.type || '', plan.websiteCategory || '', plan.description || '', plan.tone || 'professional');
+    const detectedStyle = autoDetectStyle(plan.type || '', plan.websiteCategory || '', (prompt + ' ' + (plan.description || '')), plan.tone || 'professional');
     const validStyleKeys = Object.keys(DESIGN_STYLES);
     // Use autoDetect result if it's a valid key; only fall back to AI choice if autoDetect returns 'nova' (default) AND AI picked a specific valid key
     if (validStyleKeys.includes(detectedStyle) && detectedStyle !== 'nova') {
