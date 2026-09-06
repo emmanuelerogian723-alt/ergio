@@ -493,7 +493,7 @@ Return ONLY JSON:
     };
 
     const is3D = plan.websiteType === '3d' || 
-      /3d|interactive|animated|immersive|motion|3dimentional/i.test(prompt + JSON.stringify(answers || {}));
+      /(^|[^a-z0-9])3d($|[^a-z0-9])|3dimentional|three\.?js|3d model/i.test(prompt + JSON.stringify(answers || {}));
     const designStyleKey = plan.designStyle || plan._design?.name?.toLowerCase() || 'nova';
     const isEditorial = ['editorial', 'split', 'bento'].includes(designStyleKey);
     const isTransix = ['transix', 'aurora', 'darkglass'].includes(designStyleKey);
@@ -570,19 +570,27 @@ Return ONLY JSON:
         }
       }
       
+      } // close if (usePremium)
+
       // ── Final fallback: Basic template generators ──
+      // (must run for ALL paths — 3D and clay sites skip the premium block entirely,
+      //  and previously this fallback lived INSIDE that block, i.e. dead code for them)
       if (!websiteHtml) {
         websiteHtml = is3D 
           ? generate3DWebsiteHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
-          : isTransix
-            ? generateTransixHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
-            : isEditorial
-              ? generateEditorialHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
-              : isClay
-                ? generateClayHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
+          : isClay
+            ? generateClayHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
+            : isTransix
+              ? generateTransixHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
+              : isEditorial
+                ? generateEditorialHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images)
                 : generateWebsiteHTML(planForHTML, brand, contentForHTML, colors, logoUrl, images);
       }
-      } // close if (usePremium)
+
+      // ── Ultimate safety: never let the site save with null HTML ──
+      if (!websiteHtml || typeof websiteHtml !== 'string') {
+        websiteHtml = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + (plan.businessName || 'Business') + '</title><style>body{background:#09090B;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:1rem} h1{color:#00D9FF;font-size:3rem}</style></head><body><h1>' + (plan.businessName || 'Business') + '</h1><p>' + (plan.description || '') + '</p></body></html>';
+      }
     } catch(genErr) {
       console.error('HTML generation error:', genErr.message, genErr.stack);
       // Fallback minimal HTML
