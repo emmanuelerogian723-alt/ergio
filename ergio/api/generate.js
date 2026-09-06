@@ -607,16 +607,32 @@ Return ONLY JSON:
 
     // ============ STEP 7: SAVE TO SUPABASE ============
     send('status', { task: '💾 Saving to database...', step: 7, total: 8 });
+    let finalSlug = generateSlug(plan.businessName);
     try {
       const supabase = getSupabase(req);
       const userId = req.body.userId || null;
-      
-      const siteSlug = generateSlug(plan.businessName);
-      // The table has: id, html, + any columns added via ALTER TABLE
-      // Use 'html' for the HTML content (confirmed column exists)
-      // Try full insert first, fall back to minimal if columns don't exist yet
+
+      const baseSlug = generateSlug(plan.businessName);
+      // ── Resolve slug collisions so every published site gets a unique, reachable link ──
+      let siteSlug = baseSlug;
       try {
-        await supabase.from('generated_websites').insert({
+        let suffix = 2;
+        for (;;) {
+          const probe = await supabase.from('generated_websites').select('id').eq('slug', siteSlug).limit(1);
+          if (probe.error || !probe.data || probe.data.length === 0) break;
+          if (suffix > 50) { siteSlug = baseSlug + '-' + Date.now().toString(36); break; }
+          siteSlug = baseSlug + '-' + suffix; suffix += 1;
+        }
+      } catch (e) { /* if the probe fails, proceed with the base slug */ }
+      finalSlug = siteSlug;
+
+      // ── Insert with a graceful fallback ladder ──
+      // NOTE: supabase-js insert() does NOT throw on error — it returns { error }.
+      // Check r.error explicitly at every level, and ALWAYS try to keep the slug
+      // so the site is actually reachable at /site/<slug>.
+      const nowIso = new Date().toISOString();
+      const insertAttempts = [
+        {
           html: websiteHtml,
           business_name: plan.businessName,
           business_type: plan.type,
@@ -625,15 +641,24 @@ Return ONLY JSON:
           website_category: plan.websiteCategory || 'landing',
           slug: siteSlug,
           created_by: userId,
-          created_date: new Date().toISOString()
-        });
-      } catch (insertErr) {
-        // Fallback: insert with just the columns we know exist
-        console.log('[generate] Full insert failed, trying minimal:', insertErr.message);
-        await supabase.from('generated_websites').insert({
-          html: websiteHtml
-        });
+          created_date: nowIso
+        },
+        { html: websiteHtml, business_name: plan.businessName, website_type: is3D ? '3d' : 'standard', slug: siteSlug, created_date: nowIso },
+        { html: websiteHtml, business_name: plan.businessName, slug: siteSlug },
+        { html: websiteHtml, slug: siteSlug },
+        { html: websiteHtml }
+      ];
+      let saved = false, lastSaveError = null;
+      for (const payload of insertAttempts) {
+        try {
+          const r = await supabase.from('generated_websites').insert(payload);
+          if (r && r.error) { lastSaveError = r.error; continue; }
+          saved = true;
+          break;
+        } catch (e) { lastSaveError = e; }
       }
+      if (!saved) console.error('[generate] ALL inserts failed for slug', siteSlug, ':', lastSaveError && (lastSaveError.message || lastSaveError));
+      else console.log('[generate] site saved with slug:', siteSlug);
     } catch (dbErr) {
       console.error('Template save error:', dbErr.message);
     }
@@ -651,8 +676,8 @@ Return ONLY JSON:
     send('engines', { engines });
 
     // ============ FINAL RESULT ============
-    // Generate shareable deploy URL
-    const slug = generateSlug(plan.businessName);
+    // Generate shareable deploy URL (finalSlug = collision-resolved slug actually saved in DB)
+    const slug = finalSlug;
     const deployUrl = `https://ergio.vercel.app/site/${slug}`;
     const previewUrl = `https://ergio.vercel.app/preview.html?site=${slug}`;
     
