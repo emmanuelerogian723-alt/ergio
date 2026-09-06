@@ -608,12 +608,12 @@ Return ONLY JSON:
     // ============ STEP 7: SAVE TO SUPABASE ============
     send('status', { task: '💾 Saving to database...', step: 7, total: 8 });
     let finalSlug = generateSlug(plan.businessName);
+    let saveInfo = { ok: false, slug: finalSlug, error: null };
     try {
       const supabase = getSupabase(req);
-      const userId = req.body.userId || null;
 
       const baseSlug = generateSlug(plan.businessName);
-      // ── Resolve slug collisions so every published site gets a unique, reachable link ──
+      // ── Resolve slug collisions (works once a slug column exists; meta-tag serving is the runtime fallback) ──
       let siteSlug = baseSlug;
       try {
         let suffix = 2;
@@ -623,44 +623,45 @@ Return ONLY JSON:
           if (suffix > 50) { siteSlug = baseSlug + '-' + Date.now().toString(36); break; }
           siteSlug = baseSlug + '-' + suffix; suffix += 1;
         }
-      } catch (e) { /* if the probe fails, proceed with the base slug */ }
+      } catch (e) { /* probe is best-effort */ }
       finalSlug = siteSlug;
+      saveInfo.slug = siteSlug;
 
-      // ── Insert with a graceful fallback ladder ──
-      // NOTE: supabase-js insert() does NOT throw on error — it returns { error }.
-      // Check r.error explicitly at every level, and ALWAYS try to keep the slug
-      // so the site is actually reachable at /site/<slug>.
-      const nowIso = new Date().toISOString();
+      // ── Embed the slug as a meta tag — this is how /api/site finds the site by slug ──
+      // (the generated_websites table has NO slug column; the meta tag is the lookup key)
+      try {
+        if (typeof websiteHtml === 'string' && !websiteHtml.includes('ergio-slug')) {
+          const metaTag = '<meta name="ergio-slug" content="' + siteSlug + '">';
+          websiteHtml = websiteHtml.includes('</head>')
+            ? websiteHtml.replace('</head>', metaTag + '</head>')
+            : '<head>' + metaTag + '</head>' + websiteHtml;
+        }
+      } catch (e) { /* never let meta-tag embedding break the build */ }
+
+      // ── Insert matching the REAL schema ──
+      // Real columns: id, business_id, css, html, js, is_published, published_url, updated_at, version, created_at
+      // NOTE: supabase-js insert() does NOT throw on error — it returns { error }. Check every level.
+      const deployUrlForSave = 'https://ergio.vercel.app/site/' + siteSlug;
       const insertAttempts = [
-        {
-          html: websiteHtml,
-          business_name: plan.businessName,
-          business_type: plan.type,
-          brand_colors: colors,
-          website_type: is3D ? '3d' : 'standard',
-          website_category: plan.websiteCategory || 'landing',
-          slug: siteSlug,
-          created_by: userId,
-          created_date: nowIso
-        },
-        { html: websiteHtml, business_name: plan.businessName, website_type: is3D ? '3d' : 'standard', slug: siteSlug, created_date: nowIso },
-        { html: websiteHtml, business_name: plan.businessName, slug: siteSlug },
-        { html: websiteHtml, slug: siteSlug },
+        { html: websiteHtml, is_published: true, version: 1, published_url: deployUrlForSave },
+        { html: websiteHtml, is_published: true },
         { html: websiteHtml }
       ];
       let saved = false, lastSaveError = null;
       for (const payload of insertAttempts) {
         try {
           const r = await supabase.from('generated_websites').insert(payload);
-          if (r && r.error) { lastSaveError = r.error; continue; }
+          if (r && r.error) { lastSaveError = r.error.message || JSON.stringify(r.error); continue; }
           saved = true;
           break;
-        } catch (e) { lastSaveError = e; }
+        } catch (e) { lastSaveError = e.message; }
       }
-      if (!saved) console.error('[generate] ALL inserts failed for slug', siteSlug, ':', lastSaveError && (lastSaveError.message || lastSaveError));
-      else console.log('[generate] site saved with slug:', siteSlug);
+      saveInfo.ok = saved;
+      saveInfo.error = saved ? null : lastSaveError;
+      console.log('[generate] save result:', JSON.stringify(saveInfo));
     } catch (dbErr) {
       console.error('Template save error:', dbErr.message);
+      saveInfo.error = dbErr.message;
     }
 
     // ============ STEP 8: INITIALIZING ENGINES ============
@@ -724,7 +725,8 @@ Return ONLY JSON:
       message: 'Your business is ready!',
       deployUrl,
       previewUrl,
-      shareUrl: deployUrl
+      shareUrl: deployUrl,
+      save: saveInfo
     });
 
     res.end();
