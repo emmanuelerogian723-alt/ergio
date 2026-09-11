@@ -214,7 +214,7 @@
   "crons": [
     {
       "path": "/api/sequence?action=tick",
-      "schedule": "5 * * * *"
+      "schedule": "0 8 * * *"
     }
   ]
 }
