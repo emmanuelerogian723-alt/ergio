@@ -210,5 +210,11 @@
       "source": "/eko-visage.html",
       "destination": "/ergio/eko-visage.html"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/sequence?action=tick",
+      "schedule": "5 * * * *"
+    }
   ]
 }

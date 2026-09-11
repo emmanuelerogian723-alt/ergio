@@ -24,6 +24,7 @@ import social from '../ergio/api/social.js';
 import upload from '../ergio/api/upload.js';
 import whatsapp from '../ergio/api/whatsapp.js';
 import crm from '../ergio/api/crm.js';
+import sequence from '../ergio/api/sequence.js';
 import sms from '../ergio/api/sms.js';
 import refine from '../ergio/api/refine.js';
 import transform from '../ergio/api/transform.js';
@@ -51,6 +52,7 @@ const handlers = {
   'ai-mistral': aiMistral,
   'console-data': consoleData,
   crm,
+  sequence,
   sms
 };
 
