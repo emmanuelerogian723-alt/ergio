@@ -123,7 +123,7 @@ async function execSocial(b, goal) {
 async function execSEO(b) {
   const industry = b.type || b.industry || 'business';
   const city = b.city || 'Lagos';
-  const txt = await callGroq([{ role: 'user', content: `SEO package for "${b.name}" (${industry} in ${city}, Nigeria). Return: 8 high-intent local keywords (ranked), a meta title (under 60 chars), a meta description (under 155 chars), and 3 one-line Google Business Profile tips. Plain text, labeled.` }], { maxTokens: 400 }).catch(() => '');
+  const txt = await callGroqFast([{ role: 'user', content: `SEO package for "${b.name}" (${industry} in ${city}, Nigeria). Return: 8 high-intent local keywords (ranked), a meta title (under 60 chars), a meta description (under 155 chars), and 3 one-line Google Business Profile tips. Plain text, labeled.` }], { maxTokens: 400 }).catch(() => '');
   return { ok: !!txt.trim(), seo: txt.slice(0, 2000) || 'AI unavailable.' };
 }
 
