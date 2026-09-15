@@ -24,6 +24,7 @@ import social from '../ergio/api/social.js';
 import upload from '../ergio/api/upload.js';
 import whatsapp from '../ergio/api/whatsapp.js';
 import crm from '../ergio/api/crm.js';
+import agent from '../ergio/api/agent.js';
 import sequence from '../ergio/api/sequence.js';
 import sms from '../ergio/api/sms.js';
 import refine from '../ergio/api/refine.js';
@@ -53,7 +54,8 @@ const handlers = {
   'console-data': consoleData,
   crm,
   sequence,
-  sms
+  sms,
+  agent
 };
 
 export default async function handler(req, res) {

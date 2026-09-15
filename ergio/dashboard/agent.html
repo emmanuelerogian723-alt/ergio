@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Manager — ERGIO</title>
+<link rel="icon" href="../favicon.png">
+<style>
+:root{--bg:#0a0e14;--card:#11161f;--card2:#161b26;--border:#232a36;--text:#e8eef4;--muted:#8b95a5;--cyan:#00d1ff;--purple:#8b5cf6;--gold:#d4af37;--green:#22c55e;--red:#ef4444}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
+body{background:var(--bg);color:var(--text);min-height:100vh}
+.wrap{max-width:1080px;margin:0 auto;padding:1.5rem}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:.8rem}
+h1{font-size:1.5rem}.sub{color:var(--muted);font-size:.85rem;margin-top:.2rem}
+.badge{font-size:.68rem;padding:.2rem .55rem;border-radius:8px;background:rgba(0,209,255,.12);color:var(--cyan);font-weight:700;letter-spacing:.5px}
+a.back{color:var(--muted);text-decoration:none;font-size:.85rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.2rem;margin-bottom:1.2rem}
+.card h2{font-size:1rem;margin-bottom:.8rem;display:flex;align-items:center;gap:.5rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.7rem}
+label{display:block;font-size:.72rem;color:var(--muted);margin-bottom:.25rem;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+input,textarea,select{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:.6rem .8rem;font-size:.9rem;outline:none}
+input:focus,textarea:focus{border-color:var(--cyan)}
+.btn{background:linear-gradient(135deg,var(--cyan),var(--blue,#0066ff));border:none;color:#fff;font-weight:700;border-radius:9px;padding:.65rem 1.2rem;cursor:pointer;font-size:.9rem;transition:opacity .2s}
+.btn:hover{opacity:.9}.btn:disabled{opacity:.5;cursor:wait}
+.btn-ghost{background:var(--card2);border:1px solid var(--border);color:var(--text)}
+.biz{display:flex;justify-content:space-between;align-items:center;gap:.8rem;background:var(--card2);border:1px solid var(--border);border-radius:11px;padding:.9rem 1rem;margin-bottom:.6rem;flex-wrap:wrap}
+.biz .nm{font-weight:700}.biz .meta{color:var(--muted);font-size:.78rem;margin-top:.15rem}
+.tag{font-size:.65rem;padding:.15rem .5rem;border-radius:6px;font-weight:700}
+.tag.ext{background:rgba(212,175,55,.15);color:var(--gold)}
+.tag.ergio{background:rgba(0,209,255,.12);color:var(--cyan)}
+.goalbox{display:flex;gap:.6rem;flex-wrap:wrap}
+.goalbox input{flex:1;min-width:220px}
+.plan{margin-top:1rem}
+.step{display:flex;align-items:center;gap:.8rem;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;margin-bottom:.5rem}
+.step .num{width:26px;height:26px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0}
+.step.running .num{background:var(--cyan);color:#000;animation:pulse 1s infinite}
+.step.done .num{background:var(--green);color:#000}
+.step.failed .num{background:var(--red);color:#fff}
+.step .lbl{flex:1;font-size:.9rem}
+.step .runbtn{font-size:.75rem;padding:.4rem .9rem}
+@keyframes pulse{50%{opacity:.5}}
+.feed{max-height:420px;overflow-y:auto}
+.feed-item{border-left:3px solid var(--cyan);background:var(--card2);border-radius:0 10px 10px 0;padding:.7rem 1rem;margin-bottom:.6rem;font-size:.85rem;white-space:pre-wrap;word-break:break-word}
+.feed-item .t{color:var(--muted);font-size:.68rem;margin-bottom:.3rem}
+.feed-item.pay{border-left-color:var(--gold)}
+.feed-item.fail{border-left-color:var(--red)}
+.empty{color:var(--muted);font-size:.85rem;text-align:center;padding:1.5rem}
+.mono{font-size:.78rem;color:var(--cyan)}
+.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:.4rem}
+@media(max-width:640px){.wrap{padding:1rem}.top{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>🤖 Business Manager <span class="badge">HANDS &amp; LEGS</span></h1>
+      <div class="sub">The Conductor manages <b>any</b> business — Ergio-built or external — and works toward your money goal.</div>
+    </div>
+    <a class="back" href="index.html">← Dashboard</a>
+  </div>
+
+  <div class="card">
+    <h2>➕ Put a business under management <span style="font-weight:400;color:var(--muted);font-size:.75rem">(any website — doesn't need to be Ergio-built)</span></h2>
+    <div class="grid">
+      <div><label>Business name *</label><input id="f-name" placeholder="e.g. House of Suya"></div>
+      <div><label>Website URL</label><input id="f-url" placeholder="https://... (optional)"></div>
+      <div><label>Industry</label><input id="f-industry" placeholder="Restaurant, Salon, Clinic..."></div>
+      <div><label>City</label><input id="f-city" placeholder="Lagos" value="Lagos"></div>
+      <div><label>Phone / WhatsApp</label><input id="f-phone" placeholder="080..."></div>
+    </div>
+    <div style="margin-top:.9rem"><button class="btn" onclick="addBusiness()">Register with Conductor</button></div>
+  </div>
+
+  <div class="card">
+    <h2>🏢 Businesses under management</h2>
+    <div id="bizList"><div class="empty">Loading…</div></div>
+  </div>
+
+  <div class="card" id="goalCard" style="display:none">
+    <h2>🎯 Give the Conductor a money goal</h2>
+    <div class="goalbox">
+      <input id="goalInput" placeholder="e.g. Get 10 new catering customers this month">
+      <button class="btn" onclick="makePlan()">Make it happen</button>
+    </div>
+    <div id="plan" class="plan"></div>
+  </div>
+
+  <div class="card">
+    <h2>📡 Live activity — the agent working</h2>
+    <div id="feed" class="feed"><div class="empty">No activity yet. Register a business and give it a goal.</div></div>
+  </div>
+</div>
+
+<script>
+const API = '/api/agent';
+let businesses = [], ergioSites = [], selected = null, planSteps = [];
+
+async function api(action, body) {
+  const r = await fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action, ...(body||{}) }) });
+  return r.json();
+}
+
+async function load() {
+  const d = await fetch(API).then(r => r.json()).catch(() => null);
+  businesses = (d && d.businesses) || [];
+  ergioSites = (d && d.ergio_sites) || [];
+  const el = document.getElementById('bizList');
+  let html = '';
+  businesses.forEach(b => {
+    html += `<div class="biz"><div><div class="nm">${esc(b.name)}</div><div class="meta">${esc(b.type||'')} ${b.city?'· '+esc(b.city):''} ${b.url?'· <span class="mono">'+esc(b.url)+'</span>':''}</div></div>
+      <div style="display:flex;gap:.6rem;align-items:center"><span class="tag ext">EXTERNAL</span><button class="btn btn-ghost" onclick="selectBiz('${b.id}')">Manage</button></div></div>`;
+  });
+  ergioSites.forEach(s => {
+    html += `<div class="biz"><div><div class="nm">${esc(s.name)}</div><div class="meta">Ergio-built website ${s.url?'· <span class="mono">'+esc(s.url)+'</span>':''}</div></div>
+      <div style="display:flex;gap:.6rem;align-items:center"><span class="tag ergio">ERGIO</span><button class="btn btn-ghost" onclick="selectBiz('${s.id}')">Manage</button></div></div>`;
+  });
+  el.innerHTML = html || '<div class="empty">No businesses yet — register one above.</div>';
+}
+
+function esc(s){return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+async function addBusiness() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) return alert('Enter a business name');
+  const btn = event.target; btn.disabled = true; btn.textContent = 'Registering…';
+  const d = await api('add_business', { name, url: document.getElementById('f-url').value.trim(), industry: document.getElementById('f-industry').value.trim(), city: document.getElementById('f-city').value.trim(), phone: document.getElementById('f-phone').value.trim() });
+  btn.disabled = false; btn.textContent = 'Register with Conductor';
+  if (d.success) { document.getElementById('f-name').value=''; document.getElementById('f-url').value=''; document.getElementById('f-industry').value=''; load(); }
+  else alert(d.error || 'Failed to save');
+}
+
+function selectBiz(id) {
+  selected = id;
+  document.getElementById('goalCard').style.display = '';
+  document.getElementById('goalCard').scrollIntoView({behavior:'smooth'});
+}
+
+async function makePlan() {
+  if (!selected) return alert('Select a business first');
+  const goal = document.getElementById('goalInput').value.trim() || 'get more customers and make more money';
+  const el = document.getElementById('plan');
+  el.innerHTML = '<div class="empty">Planning…</div>';
+  const d = await api('goal', { business_id: selected, goal });
+  planSteps = d.plan || [];
+  let html = `<div style="font-size:.85rem;color:var(--muted);margin-bottom:.8rem"><span class="status-dot"></span>${esc(d.strategy||'Plan ready.')}</div>`;
+  html += '<button class="btn" style="margin-bottom:.8rem" onclick="runAll()">▶ Run everything — watch it work</button>';
+  planSteps.forEach((s, i) => {
+    html += `<div class="step" id="step-${i}"><div class="num">${i+1}</div><div class="lbl">${esc(d.step_labels[s]||s)}</div><button class="btn btn-ghost runbtn" onclick="runStep(${i})">Run</button></div>`;
+  });
+  el.innerHTML = html;
+}
+
+async function runStep(i) {
+  const s = planSteps[i];
+  const el = document.getElementById('step-' + i);
+  if (!el || el.classList.contains('running')) return;
+  el.classList.add('running');
+  const d = await api('run_step', { business_id: selected, step: s, goal: document.getElementById('goalInput').value.trim() });
+  el.classList.remove('running');
+  el.classList.add(d.result && d.result.ok ? 'done' : 'failed');
+  addFeed(s, d.result || {});
+  return d;
+}
+
+async function runAll() {
+  for (let i = 0; i < planSteps.length; i++) {
+    const r = await runStep(i);
+    if (!r) break;
+  }
+}
+
+function addFeed(step, result) {
+  const feed = document.getElementById('feed');
+  if (feed.querySelector('.empty')) feed.innerHTML = '';
+  const div = document.createElement('div');
+  div.className = 'feed-item' + (step === 'payment_page' ? ' pay' : '') + (result.ok === false ? ' fail' : '');
+  let body = '';
+  if (result.summary) body = 'ANALYSIS: ' + result.summary;
+  else if (result.leads) body = `LEADS (${result.leads.length}): ` + result.leads.map(l => l.name).join(' · ').slice(0, 300) + (result.search_used ? `\nSearch: ${result.search_used}` : '');
+  else if (result.whatsapp) body = 'WHATSAPP DRAFT:\n' + result.whatsapp + (result.email ? '\n\nEMAIL DRAFT:\n' + result.email.slice(0, 400) : '');
+  else if (result.posts) body = 'SOCIAL KIT:\n' + result.posts.slice(0, 600);
+  else if (result.seo) body = 'SEO PACKAGE:\n' + result.seo.slice(0, 500);
+  else if (result.payment_page) body = 'PAYMENT PAGE CREATED (live money link): ' + result.payment_page;
+  else body = JSON.stringify(result).slice(0, 400);
+  div.innerHTML = `<div class="t">${new Date().toLocaleTimeString()} · ${esc(step)}</div>${esc(body)}`;
+  feed.prepend(div);
+}
+
+load();
+</script>
+</body>
+</html>

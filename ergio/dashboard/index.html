@@ -92,7 +92,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .chat-header .avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:1.1rem}
 .chat-header .title{font-weight:700;font-size:1rem}.chat-header .sub{font-size:.72rem;color:var(--muted)}
 .chat-header .status{font-size:.72rem;padding:.2rem .6rem;border-radius:8px;font-weight:600}
-.chat-messages{flex:1;overflow-y:auto;padding:.5rem 0}
+.chat-messages{flex:1;overflow-y:auto;padding:.5rem 0;display:flex;flex-direction:column;justify-content:flex-end}
 .chat-msg{display:flex;gap:.7rem;margin-bottom:1rem;animation:fadeIn .2s}
 .chat-msg.user{flex-direction:row-reverse}
 .chat-msg .av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0}
@@ -445,7 +445,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
     <div class="nav-item" data-tab="bookings" onclick="switchTab('bookings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Bookings</span></div>
     <div class="nav-item" data-tab="outreach" onclick="switchTab('outreach')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg><span>Outreach</span></div>
     <div class="nav-section-label">AI Systems</div>
-    <div class="nav-item" data-tab="conductor" onclick="switchTab('conductor')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span>Conductor Agent</span><span class="nav-badge">AI</span></div>
+    <div class="nav-item" onclick="window.location.href='agent.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg><span>Business Manager</span><span class="nav-badge">NEW</span></div>
+          <div class="nav-item" data-tab="conductor" onclick="switchTab('conductor')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span>Conductor Agent</span><span class="nav-badge">AI</span></div>
     <div class="nav-item" data-tab="engines" onclick="switchTab('engines')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg><span>Engines</span></div>
     <div class="nav-item" data-tab="agents" onclick="switchTab('agents')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 00-16 0"/></svg><span>Agent Frameworks</span></div>
     <div class="nav-section-label">Extensions</div>
