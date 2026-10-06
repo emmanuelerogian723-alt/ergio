@@ -190,7 +190,14 @@ export default async function handler(req, res) {
         city: city || 'Lagos', state: '', country: 'Nigeria',
         phone: phone || '', whatsapp: whatsapp || '', email: '', social_links: {}
       };
-      const { data, error: dbErr } = await sb.from('businesses').insert(row).select();
+      // unique slug: retry with numeric suffix on collision
+      let data = null, dbErr = null;
+      for (let attempt = 0; attempt < 5; attempt++) {
+        const trySlug = attempt === 0 ? row.slug : `${row.slug}-${Date.now().toString(36).slice(-4)}${attempt}`;
+        ({ data, error: dbErr } = await sb.from('businesses').insert({ ...row, slug: trySlug }).select());
+        if (!dbErr) break;
+        if (!/duplicate key|unique constraint/i.test(dbErr.message || '')) break;
+      }
       if (dbErr) return error(res, 'Save failed: ' + dbErr.message, 500);
       return success(res, { success: true, business: data[0], note: 'External business registered — the Conductor can now manage it.' });
     }
