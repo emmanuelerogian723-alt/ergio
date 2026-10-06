@@ -42,6 +42,7 @@ import assistant from '../ergio/api/ai-assistant.js';
 import conductorAI from '../ergio/api/conductor-ai.js';
 import aiMistral from '../ergio/api/ai-mistral.js';
 import consoleData from '../ergio/api/console-data.js';
+import stew from '../ergio/api/stew.js';
 
 const handlers = {
   auth, engines, business, bookings, payments, generate,
@@ -55,7 +56,8 @@ const handlers = {
   crm,
   sequence,
   sms,
-  agent
+  agent,
+  stew
 };
 
 export default async function handler(req, res) {

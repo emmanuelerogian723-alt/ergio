@@ -3229,6 +3229,36 @@ async function vercelConductorAI(message, systemPrompt, history) {
   }
 }
 
+async function stewAuthHeaders(){
+  if(!fbAuth||!fbAuth.currentUser)return null;
+  var token=await fbAuth.currentUser.getIdToken();
+  return {'Content-Type':'application/json','Authorization':'Bearer '+token};
+}
+async function stewRequest(payload){
+  var h=await stewAuthHeaders();
+  if(!h)throw new Error('Sign in to let Stew use connected apps. Demo mode cannot execute actions.');
+  var r=await fetch('/api/stew',{method:'POST',headers:h,body:JSON.stringify(payload)});
+  var d=await r.json();
+  if(!r.ok||d.success===false)throw new Error(d.error||'Stew request failed');
+  return d.data||d;
+}
+function stewResultText(d){
+  if(d.result&&d.result.approval_required)return 'APPROVAL_REQUIRED';
+  var r=d.result&&d.result.result;
+  var bits=[d.response||'Done.'];
+  if(d.result&&d.result.success)bits.push('✅ Action completed and logged'+(d.result.verified?' — provider confirmed it.':'.'));
+  if(r&&r.html_url)bits.push('Result: '+r.html_url);
+  if(r&&r.data&&r.data.authorization_url)bits.push('Payment link: '+r.data.authorization_url);
+  if(r&&r.id)bits.push('Provider ID: '+r.id);
+  return bits.join('\n\n');
+}
+async function approveStewAction(token,button){
+  if(!confirm('Approve this high-risk Stew action?'))return;
+  button.disabled=true;button.textContent='Executing…';
+  try{var d=await stewRequest({action:'approve',approval_token:token,idempotency_key:'approval-'+Date.now()});button.closest('.bubble').innerHTML='<b>✅ Approved and completed.</b><br><small>Stew logged the action and the provider response.</small>';}
+  catch(e){button.disabled=false;button.textContent='Try approval again';alert(e.message)}
+}
+
 async function sendChatMessage(){
   var i=document.getElementById('chatInput'),chat=document.getElementById('chatMessages'),btn=document.getElementById('chatSendBtn');
   if(!i||!chat||!btn)return;
@@ -3367,6 +3397,22 @@ async function sendChatMessage(){
 
     /* ACTION MODE */
     if(!searchPerformed&&isAction){
+      /* Secure Stew executor first: authenticated, permission-gated, logged. */
+      try{
+        bubble.innerHTML='<div class="stream-thinking"><div class="pulse"></div> 🔐 Stew is checking connected apps and permissions...</div>';
+        var stew=await stewRequest({action:'chat',message:text,idempotency_key:'chat-'+Date.now()});
+        if(stew.result&&stew.result.approval_required){
+          bubble.innerHTML='<div style="margin-bottom:.65rem">'+esc(stew.response||stew.result.summary)+'</div><div style="padding:.7rem;border:1px solid #f59e0b;border-radius:9px;background:rgba(245,158,11,.08)"><b>Approval required</b><div style="font-size:.78rem;color:var(--muted);margin:.3rem 0 .65rem">'+esc(stew.result.summary)+'</div><button class="btn btn-primary btn-sm" onclick="approveStewAction(\''+stew.result.approval_token+'\',this)">Approve once</button></div>';
+          btn.disabled=false;return;
+        }
+        if(stew.result&&stew.result.success){
+          resp=stewResultText(stew);bubble.innerHTML='';renderSimulatedStream(bubble,resp);btn.disabled=false;conductorMemory.messages.push({role:'ai',text:resp,ts:Date.now()});return;
+        }
+        if(stew.needs_connection){bubble.innerHTML='';renderSimulatedStream(bubble,stew.response);btn.disabled=false;return;}
+      }catch(stewErr){
+        console.log('[Stew secure executor]',stewErr.message);
+        if(/Sign in|required|permission|access is off|not connected/i.test(stewErr.message)){bubble.innerHTML='';renderSimulatedStream(bubble,'🔐 '+stewErr.message);btn.disabled=false;return;}
+      }
       if(ENGINES&&ctx){
         try{
           bubble.innerHTML='<div class="stream-thinking"><div class="pulse"></div> Analyzing request and selecting tools...</div>';
@@ -3377,7 +3423,7 @@ async function sendChatMessage(){
           var condPromise=fetch(ENGINES.BASE+'/conductor',{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({message:text,business_id:bizId,user_id:uid,history:conductorMemory.messages.slice(-4)})
+            body:JSON.stringify({request:text,message:text,business_id:bizId,user_id:uid,history:conductorMemory.messages.slice(-4)})
           });
           var condTimeout=new Promise(function(_,reject){setTimeout(function(){reject(new Error('timeout'))},60000)});
           var condResp=await Promise.race([condPromise,condTimeout]);
@@ -5343,7 +5389,7 @@ function getConnectedIntegrations() {
 
 function saveIntegrationKey(id, key, extra) {
   const s = getConnectedIntegrations();
-  s[id] = { name: (INTEG_CONFIG[id] && INTEG_CONFIG[id].name) || id, key: btoa(key), extra: extra || '', connected_at: new Date().toISOString() };
+  s[id] = { name: (INTEG_CONFIG[id] && INTEG_CONFIG[id].name) || id, secured: true, connected_at: new Date().toISOString() };
   localStorage.setItem('ergio_integrations', JSON.stringify(s));
 }
 
@@ -5459,6 +5505,7 @@ function openIntegModal(id) {
     extraField.style.display = 'none';
     extraValue.value = '';
   }
+  try { var sp=JSON.parse(localStorage.getItem('ergio_stew_permissions')||'{}')[stewAppId(id)]||{}; document.getElementById('stewAgentAccess').checked=!!sp.agentic_access; document.getElementById('stewAutoExecute').checked=!!sp.auto_execute; document.querySelectorAll('.stewPerm').forEach(function(x){x.checked=(sp.permissions||['read']).includes(x.value)}); } catch(e){}
   var discBtn = document.getElementById('integDisconnectBtn');
   discBtn.style.display = (conn || live) ? 'block' : 'none';
 }
@@ -5466,6 +5513,24 @@ function openIntegModal(id) {
 function closeIntegModal() {
   document.getElementById('integModal').style.display = 'none';
   currentIntegKey = null;
+}
+
+function stewAppId(id){return ({'google-calendar':'google_calendar','google_calendar':'google_calendar'})[id]||id;}
+function stewCredentialPayload(id,key,extra){
+  var app=stewAppId(id);
+  if(app==='paystack')return {secret_key:key};
+  if(app==='github'||app==='slack'||app==='notion')return {token:key};
+  if(app==='resend')return {api_key:key,from_email:extra||'Ergio <onboarding@resend.dev>'};
+  if(app==='telegram')return {bot_token:key};
+  if(app==='gmail'||app==='google_calendar')return {access_token:key};
+  if(app==='webhook')return {url:key,secret:extra||''};
+  return {api_key:key};
+}
+function selectedStewPermissions(){return Array.from(document.querySelectorAll('.stewPerm:checked')).map(function(x){return x.value})}
+async function secureStewConnect(id,key,extra){
+  var app=stewAppId(id);
+  await stewRequest({action:'connect',app:app,credentials:stewCredentialPayload(app,key,extra)});
+  return stewRequest({action:'permissions',app:app,permissions:selectedStewPermissions(),agentic_access:document.getElementById('stewAgentAccess').checked,auto_execute:document.getElementById('stewAutoExecute').checked});
 }
 
 async function saveIntegration() {
@@ -5514,17 +5579,17 @@ async function saveIntegration() {
   if (testResult && testResult.valid === true) {
     /* Key is VALID and TESTED — save it and confirm */
     saveIntegrationKey(currentIntegKey, apiKey, extra);
+    try {
+      var permResult=await secureStewConnect(currentIntegKey,apiKey,extra);
+      var ps=JSON.parse(localStorage.getItem('ergio_stew_permissions')||'{}');ps[stewAppId(currentIntegKey)]=permResult;localStorage.setItem('ergio_stew_permissions',JSON.stringify(ps));
+    } catch(secErr) {
+      statusEl.style.color='#f59e0b';statusEl.textContent='Provider key is valid, but secure Stew setup needs attention: '+secErr.message;
+      if(btn){btn.disabled=false;btn.textContent='Connect';}return;
+    }
     statusEl.style.color = '#10b981';
     statusEl.textContent = testResult.message || (integ.name + ' ✅ Live & connected! Engines can use it now.');
     if (btn) { btn.textContent = '✓ Connected'; btn.style.background = '#10b981'; btn.style.color = '#000'; btn.disabled = false; }
-    /* Also send to /mcp/configure to persist on the backend */
-    try {
-      await fetch(ENGINES_BASE + '/mcp/configure', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ integration: currentIntegKey, apiKey: apiKey, extra: extra })
-      });
-    } catch(e) {}
+    /* Credentials are now stored encrypted per user by /api/stew, never in the shared Render process. */
     setTimeout(function() { closeIntegModal(); refreshMcpStatus(); }, 2000);
   } else if (testResult && testResult.valid === false) {
     /* Key is INVALID — don't save, show error */
@@ -5762,6 +5827,20 @@ async function testMCPConnection(tool) {
 <input id="integExtraValue" class="input-field" placeholder="" style="width:100%">
 </div>
 <div id="integCapsInfo" style="margin-bottom:1rem;display:none"></div>
+<div id="stewPermissionBox" style="margin-bottom:1rem;padding:.8rem;border:1px solid var(--border);border-radius:10px;background:rgba(0,209,255,.04)">
+  <div style="font-weight:700;font-size:.82rem;margin-bottom:.25rem">Stew agent permissions</div>
+  <div style="font-size:.7rem;color:var(--muted);margin-bottom:.65rem">You control exactly what Stew may do in this app. High-risk actions still require one-time approval.</div>
+  <label style="display:flex;gap:.45rem;align-items:center;font-size:.78rem;margin:.35rem 0"><input id="stewAgentAccess" type="checkbox"> Allow Stew to act in this app</label>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.35rem;margin-top:.45rem">
+    <label style="font-size:.72rem"><input class="stewPerm" type="checkbox" value="read" checked> Read</label>
+    <label style="font-size:.72rem"><input class="stewPerm" type="checkbox" value="write"> Write</label>
+    <label style="font-size:.72rem"><input class="stewPerm" type="checkbox" value="send"> Send</label>
+    <label style="font-size:.72rem"><input class="stewPerm" type="checkbox" value="delete"> Delete</label>
+    <label style="font-size:.72rem"><input class="stewPerm" type="checkbox" value="financial"> Financial</label>
+    <label style="font-size:.72rem"><input class="stewPerm" type="checkbox" value="publish"> Publish</label>
+  </div>
+  <label style="display:flex;gap:.45rem;align-items:center;font-size:.72rem;margin-top:.6rem;color:var(--muted)"><input id="stewAutoExecute" type="checkbox"> Auto-run low/medium-risk actions without asking each time</label>
+</div>
 <div id="integConnectStatus" style="display:none;margin-bottom:1rem;padding:.6rem .8rem;border-radius:8px;font-size:.82rem"></div>
 <div style="display:flex;gap:.6rem;margin-bottom:.8rem">
 <a id="integDocsLink" href="#" target="_blank" class="btn btn-ghost" style="flex:1;text-align:center;text-decoration:none">Docs</a>
