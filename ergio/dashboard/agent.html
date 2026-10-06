@@ -98,11 +98,13 @@ let businesses = [], ergioSites = [], selected = null, planSteps = [];
 
 async function api(action, body) {
   const r = await fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action, ...(body||{}) }) });
-  return r.json();
+  const j = await r.json();
+  return (j && j.data) || j; // unwrap {success, data} envelope
 }
 
 async function load() {
-  const d = await fetch(API).then(r => r.json()).catch(() => null);
+  const j = await fetch(API).then(r => r.json()).catch(() => null);
+  const d = (j && j.data) || j; // unwrap {success, data} envelope
   businesses = (d && d.businesses) || [];
   ergioSites = (d && d.ergio_sites) || [];
   const el = document.getElementById('bizList');
