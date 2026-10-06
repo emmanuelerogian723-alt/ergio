@@ -3411,7 +3411,9 @@ async function sendChatMessage(){
         if(stew.needs_connection){bubble.innerHTML='';renderSimulatedStream(bubble,stew.response);btn.disabled=false;return;}
       }catch(stewErr){
         console.log('[Stew secure executor]',stewErr.message);
-        if(/Sign in|required|permission|access is off|not connected/i.test(stewErr.message)){bubble.innerHTML='';renderSimulatedStream(bubble,'🔐 '+stewErr.message);btn.disabled=false;return;}
+        /* Hard stop only on genuine Stew policy denials. Sign-in required (demo mode)
+           or "app not connected" falls through to the Render Conductor / AI chat path. */
+        if(/permission|access is off/i.test(stewErr.message)){bubble.innerHTML='';renderSimulatedStream(bubble,'🔐 '+stewErr.message);btn.disabled=false;return;}
       }
       if(ENGINES&&ctx){
         try{
