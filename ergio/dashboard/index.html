@@ -3298,9 +3298,10 @@ async function sendChatMessage(){
   var bizId=localStorage.getItem('ergio_business_id')||null;
   var uid=currentUser?currentUser.uid:null;
   var aiMsg=document.createElement('div');aiMsg.className='chat-msg ai';
-  aiMsg.innerHTML='<div class="av">🤖</div><div class="bubble stream-bubble" id="streamBubble"></div>';
+  var sbId='streamBubble-'+Date.now();
+  aiMsg.innerHTML='<div class="av">🤖</div><div class="bubble stream-bubble" id="'+sbId+'"></div>';
   chat.appendChild(aiMsg);
-  var bubble=document.getElementById('streamBubble');
+  var bubble=document.getElementById(sbId);
   bubble.innerHTML='<div class="stream-thinking"><div class="pulse"></div> Thinking...</div>';
 
   var resp='';
